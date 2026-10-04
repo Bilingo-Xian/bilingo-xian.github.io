@@ -1,0 +1,438 @@
+{
+  "lessons": [
+    {
+      "level": "GE3",
+      "unit": 1,
+      "cycle": 1,
+      "code": "GE3 U1C1",
+      "unitTitle": "Ready For School",
+      "classTitle": "Say Hello",
+      "vocabulary": [
+        "name",
+        "Chinese",
+        "question",
+        "English",
+        "ask",
+        "speak"
+      ],
+      "structures": [
+        "My name is [name].",
+        "What's your name?"
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 1,
+      "cycle": 2,
+      "code": "GE3 U1C2",
+      "unitTitle": "Ready For School",
+      "classTitle": "In My Bag",
+      "vocabulary": [
+        "bag",
+        "pencil case",
+        "eraser",
+        "marker",
+        "pen",
+        "ruler"
+      ],
+      "structures": [
+        "What's this?",
+        "It's a/an [object]."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 1,
+      "cycle": 3,
+      "code": "GE3 U1C3",
+      "unitTitle": "Ready For School",
+      "classTitle": "My Classroom",
+      "vocabulary": [
+        "chair",
+        "whiteboard",
+        "door",
+        "computer",
+        "window",
+        "desk"
+      ],
+      "structures": [
+        "What's that?",
+        "That's a/an [object].",
+        "Review and contrast: What's this?"
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 1,
+      "cycle": 4,
+      "code": "GE3 U1C4",
+      "unitTitle": "Ready For School",
+      "classTitle": "Good and Bad",
+      "vocabulary": [
+        "bad",
+        "yell",
+        "good",
+        "chat",
+        "fun",
+        "calm down"
+      ],
+      "structures": [
+        "It's good to [verb/verb phrase].",
+        "It's bad to [verb/verb phrase].",
+        "It's fun to [verb/verb phrase]."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 2,
+      "cycle": 5,
+      "code": "GE3 U2C5",
+      "unitTitle": "My Family and Friends",
+      "classTitle": "At Pili's House",
+      "vocabulary": [
+        "father",
+        "meet",
+        "Nice to meet you",
+        "mother",
+        "grandfather",
+        "Note: also accept grandma/grandpa for grandmother/grandfather.",
+        "grandmother",
+        "house",
+        "nice"
+      ],
+      "structures": [
+        "Who's this?",
+        "This is my [family member].",
+        "This is his/her/[name]'s [family member]."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 2,
+      "cycle": 6,
+      "code": "GE3 U2C6",
+      "unitTitle": "My Family and Friends",
+      "classTitle": "My Family Photo",
+      "vocabulary": [
+        "beautiful",
+        "grandparents",
+        "love",
+        "parents",
+        "photo",
+        "young",
+        "old"
+      ],
+      "structures": [
+        "Who are they?",
+        "They are my [family members].",
+        "They are his/her/[name]'s [family members].",
+        "Review: Who's this? — This is my [family member]."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 2,
+      "cycle": 7,
+      "code": "GE3 U2C7",
+      "unitTitle": "My Family and Friends",
+      "classTitle": "Let's Look in the Mirror",
+      "vocabulary": [
+        "big",
+        "mirror",
+        "little",
+        "short",
+        "tall",
+        "thin",
+        "fat"
+      ],
+      "structures": [
+        "I'm [name].",
+        "I'm [adjective/adjectives].",
+        "Review: Who are they? — They are my [family members]."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 2,
+      "cycle": 8,
+      "code": "GE3 U2C8",
+      "unitTitle": "My Family and Friends",
+      "classTitle": "Our Friends",
+      "vocabulary": [
+        "helpful",
+        "funny",
+        "kind",
+        "polite",
+        "strong",
+        "smart"
+      ],
+      "structures": [
+        "[Name] is [adjective] and [adjective].",
+        "Review and contrast: I'm [name]. I'm [adjective]."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 3,
+      "cycle": 9,
+      "code": "GE3 U3C9",
+      "unitTitle": "At Home",
+      "classTitle": "Where's My Rabbit?",
+      "vocabulary": [
+        "bathroom",
+        "dining room",
+        "bedroom",
+        "garden",
+        "kitchen",
+        "living room",
+        "room"
+      ],
+      "structures": [
+        "Where is she?",
+        "She's in the [room].",
+        "Where is he?",
+        "He's in the [room]."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 3,
+      "cycle": 10,
+      "code": "GE3 U3C10",
+      "unitTitle": "At Home",
+      "classTitle": "The Dollhouse",
+      "vocabulary": [
+        "bed",
+        "fridge",
+        "table",
+        "sink",
+        "sofa",
+        "stove",
+        "dollhouse"
+      ],
+      "structures": [
+        "What's in the [room]?",
+        "A [furniture] and a [furniture] are in the [room].",
+        "A [furniture] is in the [room].",
+        "Review: — Where is she/he?\n— She's/He's in the [room]."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 3,
+      "cycle": 11,
+      "code": "GE3 U3C11",
+      "unitTitle": "At Home",
+      "classTitle": "Around the House",
+      "vocabulary": [
+        "cook",
+        "dishes",
+        "hair",
+        "newspaper",
+        "TV",
+        "watch"
+      ],
+      "structures": [
+        "What do you do in the [room]?",
+        "He/She [actions] in the [room].",
+        "I [action] in the [room].",
+        "Review: — What's in the [room]?\n— A [furniture] is in the [room]."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 3,
+      "cycle": 12,
+      "code": "GE3 U3C12",
+      "unitTitle": "At Home",
+      "classTitle": "Let's Clean the Bathroom",
+      "vocabulary": [
+        "clean",
+        "bath",
+        "dirty",
+        "floor",
+        "shower",
+        "toilet"
+      ],
+      "structures": [
+        "Do you want to [clean the bath]?",
+        "I want to [clean the bath/floor/etc.].",
+        "Yes. / No.",
+        "Review: — What do you do in the [room]?\n— I [action] in the [room]."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 4,
+      "cycle": 13,
+      "code": "GE3 U4C13",
+      "unitTitle": "All About Me",
+      "classTitle": "My Body",
+      "vocabulary": [
+        "leg",
+        "foot",
+        "arm",
+        "feet",
+        "toe",
+        "shoulder",
+        "point"
+      ],
+      "structures": [
+        "This is my [body part].",
+        "What's this?",
+        "Point to your [body part].",
+        "These are my [body parts].",
+        "What's that?"
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 4,
+      "cycle": 14,
+      "code": "GE3 U4C14",
+      "unitTitle": "All About Me",
+      "classTitle": "Your Body",
+      "vocabulary": [
+        "tooth",
+        "elbow",
+        "teeth",
+        "finger",
+        "thumb",
+        "knee",
+        "ankle"
+      ],
+      "structures": [
+        "That's your [body part].",
+        "What's that?",
+        "Those are your [body parts].",
+        "What are those?",
+        "Review: This is my [body part]. / These are my [body parts]."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 4,
+      "cycle": 15,
+      "code": "GE3 U4C15",
+      "unitTitle": "All About Me",
+      "classTitle": "Feelings",
+      "vocabulary": [
+        "angry",
+        "sleepy",
+        "excited",
+        "thirsty",
+        "hungry",
+        "feel"
+      ],
+      "structures": [
+        "How do you feel?",
+        "He/She feels [feeling].",
+        "I feel [feeling]."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 4,
+      "cycle": 16,
+      "code": "GE3 U4C16",
+      "unitTitle": "All About Me",
+      "classTitle": "My Toys",
+      "vocabulary": [
+        "blocks",
+        "board game",
+        "cards",
+        "marbles",
+        "puzzle",
+        "soft toy"
+      ],
+      "structures": [
+        "I like [your marbles].",
+        "Do you like [my puzzle]?",
+        "I don't like [my soft toy]."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 5,
+      "cycle": 17,
+      "code": "GE3 U5C17",
+      "unitTitle": "Animals",
+      "classTitle": "Bugs",
+      "vocabulary": [
+        "bee",
+        "ant",
+        "fly",
+        "beetle",
+        "ladybug",
+        "bug"
+      ],
+      "structures": [
+        "A [bee] is a [bug].",
+        "An [ant] is a [bug]."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 5,
+      "cycle": 18,
+      "code": "GE3 U5C18",
+      "unitTitle": "Animals",
+      "classTitle": "Birds",
+      "vocabulary": [
+        "duck",
+        "eagle",
+        "geese",
+        "goose",
+        "owl",
+        "parrot"
+      ],
+      "structures": [
+        "Is a [duck] a [bird]?",
+        "Yes, it is. / No, it isn't.",
+        "Review: A [bee] is a [bug]."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 5,
+      "cycle": 19,
+      "code": "GE3 U5C19",
+      "unitTitle": "Animals",
+      "classTitle": "Large Animals",
+      "vocabulary": [
+        "bear",
+        "hippo",
+        "elephant",
+        "giraffe",
+        "animal",
+        "large"
+      ],
+      "structures": [
+        "What is a [bear]?",
+        "A [bear] is a large animal.",
+        "Review: Is a [duck] a [bird]? — Yes, it is."
+      ]
+    },
+    {
+      "level": "GE3",
+      "unit": 5,
+      "cycle": 20,
+      "code": "GE3 U5C20",
+      "unitTitle": "Animals",
+      "classTitle": "Small Animals",
+      "vocabulary": [
+        "small",
+        "crab",
+        "frog",
+        "hamster",
+        "rat",
+        "worm"
+      ],
+      "structures": [
+        "Is a [crab] a small animal?",
+        "Yes, a [crab] is a small animal.",
+        "Review: A [bear] is a large animal."
+      ]
+    }
+  ]
+}

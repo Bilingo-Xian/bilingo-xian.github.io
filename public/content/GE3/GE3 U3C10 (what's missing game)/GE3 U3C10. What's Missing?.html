@@ -1,0 +1,1630 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What's Missing? — The Room Game</title>
+
+<style>
+:root {
+  --ink:#29344f;
+  --purple:#6957dc;
+  --purple-dark:#4e3db7;
+  --yellow:#ffd977;
+}
+* { box-sizing:border-box; }
+html,body { margin:0; width:100%; height:100%; }
+body {
+  overflow:hidden;
+  background:#eeeafa;
+  color:var(--ink);
+  font-family:"Trebuchet MS",Arial,sans-serif;
+}
+button { font:inherit; cursor:pointer; touch-action:manipulation; }
+button:disabled { cursor:default; }
+button:focus-visible {
+  outline:5px solid #ffb829;
+  outline-offset:4px;
+}
+[hidden] { display:none !important; }
+
+.app {
+  width:min(1600px,98vw);
+  height:100vh;
+  height:100dvh;
+  margin:auto;
+  padding:10px 10px 15px;
+  display:grid;
+  grid-template-rows:auto auto minmax(0,1fr) auto;
+  gap:9px;
+}
+.toolbar,.tools,.brand {
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.toolbar { justify-content:space-between; }
+.brand { font-size:clamp(17px,1.7vw,26px); font-weight:900; }
+.brand-icon {
+  width:39px; height:39px;
+  display:grid; place-items:center;
+  border-radius:13px;
+  background:var(--purple);
+  color:white;
+  font-size:29px;
+  transform:rotate(-7deg);
+}
+.small-button {
+  min-height:42px;
+  padding:8px 14px;
+  border:2px solid #d9d1ed;
+  border-radius:14px;
+  background:#fffdf9;
+  color:var(--ink);
+  font-weight:800;
+}
+.difficulty { background:var(--yellow); border-color:#e4b950; }
+.difficulty.active { background:#b8f1da; border-color:#89d8b6; }
+.difficulty:disabled:not(.active) { opacity:.55; }
+
+.language { text-align:center; min-height:112px; }
+h1 {
+  margin:0;
+  font-size:clamp(29px,3.3vw,51px);
+  line-height:1.2;
+}
+.answer-area {
+  min-height:62px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:6px 0;
+}
+.sentence {
+  padding:8px 20px;
+  font-size:clamp(20px,2.25vw,34px);
+  font-weight:900;
+  border-radius:17px;
+  background:#fffdf9;
+  box-shadow:0 3px 0 #ddd5ec;
+}
+.sentence.hint {
+  background:transparent;
+  box-shadow:none;
+  color:#78728c;
+  font-size:clamp(16px,1.65vw,24px);
+  font-weight:600;
+}
+.reveal-button {
+  padding:10px 25px;
+  min-height:51px;
+  border:2px dashed #ad9be8;
+  border-radius:17px;
+  color:var(--purple-dark);
+  background:#fffaf0;
+  font-size:clamp(20px,2vw,29px);
+  font-weight:900;
+}
+.reveal-button:hover { background:#fff0c4; }
+
+/* ROOM: the floor starts above BOTH furniture rows. */
+.room {
+  position:relative;
+  overflow:hidden;
+  min-height:220px;
+  isolation:isolate;
+  border:7px solid white;
+  border-radius:28px;
+  background:linear-gradient(
+    to bottom,
+    #e1f0ed 0%,#e1f0ed 30%,
+    #b7d4cb 30%,#b7d4cb 32%,
+    #efd5b1 32%,#e9c495 100%
+  );
+  box-shadow:0 7px 0 #d7cfe8,0 14px 30px #57407916;
+}
+.floor {
+  position:absolute;
+  inset:32% 0 0;
+  background:
+    repeating-linear-gradient(
+      0deg,transparent 0 70px,#aa7a4726 71px 73px
+    ),
+    repeating-linear-gradient(
+      97deg,transparent 0 205px,#aa7a471a 206px 209px
+    );
+  pointer-events:none;
+}
+.rug {
+  position:absolute;
+  width:83%; height:37%;
+  bottom:1%; left:8.5%;
+  border:8px solid #ce98aa;
+  border-radius:50%;
+  background:#e7b5c2;
+  opacity:.55;
+  pointer-events:none;
+}
+.window {
+  position:absolute;
+  top:4%; left:43%;
+  width:14%; height:23%;
+  background:linear-gradient(#a2def1,#e0f6ff);
+  border:7px solid #fffdf5;
+  border-radius:16px;
+  box-shadow:0 4px 0 #b4d5ca;
+  pointer-events:none;
+}
+.window:before,.window:after {
+  content:""; position:absolute; background:#fffdf5;
+}
+.window:before { width:6px; inset:0 auto 0 calc(50% - 3px); }
+.window:after { height:6px; inset:calc(50% - 3px) 0 auto; }
+
+.badge,.timer {
+  position:absolute;
+  z-index:8;
+  top:11px;
+  padding:7px 14px;
+  border-radius:13px;
+  font-weight:900;
+}
+.badge {
+  left:12px;
+  background:#ffffffeb;
+  font-size:clamp(14px,1.4vw,20px);
+}
+.timer {
+  right:12px;
+  min-width:72px;
+  text-align:center;
+  background:var(--purple);
+  color:white;
+  font-size:clamp(20px,2vw,29px);
+}
+.timer.urgent { background:#d66677; }
+.timer-track {
+  position:absolute;
+  z-index:10;
+  top:0; left:0; right:0;
+  height:6px;
+  background:#ffffff55;
+}
+.timer-fill {
+  height:100%;
+  width:100%;
+  background:var(--purple);
+  transition:width .25s linear;
+}
+.furniture-layer { position:absolute; inset:0; z-index:3; }
+
+/* Every illustration is bottom-aligned with a contact shadow. */
+.tile {
+  position:absolute;
+  width:22%;
+  height:36%;
+  padding:0;
+  border:0;
+  border-radius:24px;
+  background:transparent;
+  -webkit-tap-highlight-color:transparent;
+}
+.tile:before {
+  content:"";
+  position:absolute;
+  width:76%; height:9%;
+  left:12%; bottom:0;
+  background:#654a3547;
+  border-radius:50%;
+  filter:blur(2px);
+}
+.tile:hover { background:#ffffff20; }
+.tile:active .art { transform:scale(.96); }
+.art {
+  position:absolute;
+  width:93%; height:97%;
+  bottom:0; left:3.5%;
+  pointer-events:none;
+  transition:transform .12s;
+}
+.art * {
+  position:absolute;
+  display:block;
+  box-sizing:border-box;
+}
+.tile.found {
+  background:#fff0a766;
+  box-shadow:inset 0 0 0 4px #f3c657;
+  animation:found-pop .5s ease-out;
+}
+.found-label {
+  position:absolute;
+  z-index:6;
+  left:50%; bottom:-2%;
+  transform:translateX(-50%);
+  padding:3px 12px;
+  border:2px solid #efc456;
+  border-radius:18px;
+  background:#fff7d7;
+  color:#705820;
+  font-size:clamp(14px,1.4vw,21px);
+  font-weight:900;
+}
+
+/* BED */
+.bed .head {
+  left:5%; top:14%; width:20%; height:72%;
+  border:4px solid #8c573b;
+  border-radius:14px 14px 4px 4px;
+  background:#bb8256;
+}
+.bed .base {
+  left:8%; top:64%; width:85%; height:23%;
+  border:4px solid #8c573b;
+  border-radius:8px;
+  background:#a9724d;
+}
+.bed .mattress {
+  left:13%; top:44%; width:78%; height:31%;
+  border:4px solid #e2d2b8;
+  border-radius:14px;
+  background:#fff9e8;
+}
+.bed .pillow {
+  left:17%; top:41%; width:25%; height:22%;
+  border:3px solid #e5dac8;
+  border-radius:12px;
+  background:white;
+  transform:rotate(-7deg);
+}
+.bed .blanket {
+  left:43%; top:43%; width:49%; height:38%;
+  border:4px solid #6878c7;
+  border-radius:4px 12px 7px 7px;
+  background:repeating-linear-gradient(
+    90deg,#7d8de3 0 17%,#92a1ef 17% 22%
+  );
+}
+.bed .leg-one,.bed .leg-two {
+  top:84%; width:8%; height:13%;
+  background:#815037;
+  border-radius:0 0 4px 4px;
+}
+.bed .leg-one { left:12%; }
+.bed .leg-two { right:10%; }
+
+/* FRIDGE */
+.fridge .body {
+  left:28%; top:0; width:47%; height:94%;
+  border:5px solid #4b91a4;
+  border-radius:16px 16px 9px 9px;
+  background:linear-gradient(90deg,#c2edf0,#8fd2dc);
+  box-shadow:inset -8px 0 0 #66b9c833;
+}
+.fridge .line {
+  left:29%; top:34%; width:44%; height:3%;
+  background:#4b91a4;
+}
+.fridge .handle-one,.fridge .handle-two {
+  left:35%; width:4%;
+  background:#3f798b;
+  border-radius:5px;
+}
+.fridge .handle-one { top:15%; height:13%; }
+.fridge .handle-two { top:44%; height:25%; }
+.fridge .magnet {
+  left:56%; top:49%; width:10%; height:15%;
+  border:3px solid white;
+  border-radius:3px;
+  background:#ffd66d;
+  transform:rotate(9deg);
+}
+.fridge .foot-one,.fridge .foot-two {
+  top:92%; width:8%; height:5%; background:#416777;
+}
+.fridge .foot-one { left:34%; }
+.fridge .foot-two { right:31%; }
+
+/* SOFA */
+.sofa .back {
+  left:13%; top:23%; width:74%; height:51%;
+  border:5px solid #ba526b;
+  border-radius:23px 23px 10px 10px;
+  background:#e98092;
+}
+.sofa .back:after {
+  content:""; position:absolute;
+  left:49%; top:9%; bottom:12%; width:3px;
+  background:#c65d75;
+}
+.sofa .seat {
+  left:12%; top:60%; width:76%; height:24%;
+  border:4px solid #ba526b;
+  border-radius:12px;
+  background:#f4a1ad;
+}
+.sofa .arm-one,.sofa .arm-two {
+  top:49%; width:17%; height:37%;
+  border:4px solid #ba526b;
+  border-radius:13px;
+  background:#e77d91;
+}
+.sofa .arm-one { left:5%; }
+.sofa .arm-two { right:5%; }
+.sofa .leg-one,.sofa .leg-two {
+  top:84%; width:8%; height:13%;
+  border-radius:0 0 4px 4px;
+  background:#825039;
+}
+.sofa .leg-one { left:17%; }
+.sofa .leg-two { right:17%; }
+
+/* TABLE */
+.table .leg-one,.table .leg-two {
+  top:45%; width:9%; height:52%;
+  border:3px solid #8d5936;
+  border-radius:4px;
+  background:#b77b47;
+}
+.table .leg-one { left:18%; transform:rotate(5deg); }
+.table .leg-two { right:18%; transform:rotate(-5deg); }
+.table .brace {
+  left:22%; top:73%; width:56%; height:8%; background:#a7693d;
+}
+.table .top {
+  left:4%; top:31%; width:92%; height:25%;
+  border:5px solid #996139;
+  border-radius:50%;
+  background:#e9b76f;
+  box-shadow:0 6px 0 #bf854b;
+}
+
+/* SINK — one smooth curved faucet, no coloured patch. */
+.sink .cabinet {
+  left:17%; top:51%; width:66%; height:46%;
+  border:4px solid #499989;
+  border-radius:3px 3px 9px 9px;
+  background:#87cbbb;
+}
+.sink .cabinet:before {
+  content:""; position:absolute;
+  left:49%; top:0; bottom:0; width:3px; background:#499989;
+}
+.sink .knob-one,.sink .knob-two {
+  top:69%; width:4%; height:5%;
+  border-radius:50%; background:#377d73;
+}
+.sink .knob-one { left:41%; }
+.sink .knob-two { left:55%; }
+.sink .rim {
+  left:10%; top:42%; width:80%; height:19%;
+  border:4px solid #89a9b6;
+  border-radius:12px; background:#edf8fc;
+}
+.sink .basin {
+  left:27%; top:46%; width:46%; height:11%;
+  border:3px solid #6b929f;
+  border-radius:50%; background:#a4d6e3;
+}
+.sink .faucet {
+  left:42%; top:8%; width:24%; height:37%;
+  border:clamp(5px,.65vw,10px) solid #7699a7;
+  border-bottom:0;
+  border-radius:50% 50% 0 0;
+}
+.sink .stem {
+  left:42%; top:29%; width:clamp(5px,.65vw,10px); height:21%;
+  background:#7699a7;
+}
+.sink .nozzle {
+  right:31%; top:37%; width:9%; height:8%;
+  border:2px solid #7699a7;
+  border-radius:3px 3px 5px 5px;
+  background:#c9e2e7;
+}
+.sink .tap-base {
+  left:38%; top:47%; width:15%; height:5%;
+  border-radius:50%; background:#678b99;
+}
+
+/* STOVE */
+.stove .body {
+  left:18%; top:28%; width:65%; height:69%;
+  border:4px solid #b27941;
+  border-radius:9px; background:#f2c47d;
+}
+.stove .top {
+  left:15%; top:19%; width:71%; height:22%;
+  border:4px solid #535c70;
+  border-radius:10px; background:#c1c7cc;
+}
+.stove .burner-one,.stove .burner-two {
+  top:22%; width:21%; height:13%;
+  border:5px solid #424858;
+  border-radius:50%; background:#969fab;
+}
+.stove .burner-one { left:24%; }
+.stove .burner-two { right:23%; }
+.stove .knob-one,.stove .knob-two,.stove .knob-three {
+  top:45%; width:7%; height:8%;
+  border:2px solid #555869;
+  border-radius:50%; background:#fff4da;
+}
+.stove .knob-one { left:29%; }
+.stove .knob-two { left:46%; }
+.stove .knob-three { left:63%; }
+.stove .oven {
+  left:28%; top:61%; width:46%; height:28%;
+  border:5px solid #676775;
+  border-radius:7px;
+  background:linear-gradient(135deg,#626d83,#343e56);
+}
+.stove .handle {
+  left:35%; top:65%; width:32%; height:4%;
+  border-radius:6px; background:#cfd4d9;
+}
+
+/* TV */
+.tv .stem {
+  left:45%; top:73%; width:10%; height:18%; background:#40485f;
+}
+.tv .foot {
+  left:29%; top:90%; width:42%; height:7%;
+  border-radius:50% 50% 5px 5px; background:#343d55;
+}
+.tv .frame {
+  left:7%; top:15%; width:86%; height:65%;
+  border:7px solid #343d55;
+  border-bottom-width:11px;
+  border-radius:13px;
+  background:#859ef2; overflow:hidden;
+}
+.tv .screen {
+  inset:0;
+  background:
+    linear-gradient(135deg,#ffffff35 0 30%,transparent 31%),
+    linear-gradient(30deg,#8695ea,#bcb6f6);
+}
+.tv .screen:after {
+  content:""; position:absolute;
+  width:28%; height:48%; left:37%; top:26%;
+  border-radius:50%; background:#e3ddff88;
+}
+
+/* CHAIR */
+.chair .back {
+  left:29%; top:7%; width:45%; height:49%;
+  border:5px solid #bc8b2d;
+  border-radius:15px 15px 6px 6px; background:#ffda75;
+}
+.chair .back:before,.chair .back:after {
+  content:""; position:absolute;
+  width:8%; top:16%; bottom:15%;
+  border-radius:9px; background:#e7b74c;
+}
+.chair .back:before { left:28%; }
+.chair .back:after { right:28%; }
+.chair .leg-one,.chair .leg-two {
+  top:61%; width:8%; height:36%;
+  border:3px solid #ac7d2e;
+  border-radius:4px; background:#d6a44b;
+}
+.chair .leg-one { left:26%; transform:rotate(5deg); }
+.chair .leg-two { right:23%; transform:rotate(-5deg); }
+.chair .seat {
+  left:21%; top:52%; width:61%; height:17%;
+  border:4px solid #b9872d;
+  border-radius:9px; background:#ffe08a;
+}
+
+/* GIANT EMOJI SURPRISES */
+.emoji-art {
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  padding-bottom:1%;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  font-size:clamp(72px,10vw,165px);
+  line-height:1;
+  pointer-events:none;
+  filter:drop-shadow(0 4px 2px #74573222);
+}
+.tile.emoji-tile { animation:emoji-pop .65s ease-out; }
+
+/* SILENT-TEXT BLACKOUT WITH SOFT COLOUR SWIRLS */
+.blackout {
+  position:absolute;
+  z-index:30;
+  inset:0;
+  overflow:hidden;
+  background:#080911;
+  pointer-events:all;
+}
+.swirl {
+  position:absolute;
+  width:clamp(110px,23vw,320px);
+  aspect-ratio:1;
+  border:18px solid transparent;
+  border-top-color:var(--swirl-color);
+  border-right-color:var(--swirl-color);
+  border-radius:43% 57% 51% 49%;
+  opacity:.65;
+  filter:blur(3px);
+  animation:swirl-turn 2.3s linear infinite;
+}
+.swirl:after {
+  content:"";
+  position:absolute;
+  inset:24%;
+  border:10px solid transparent;
+  border-left-color:var(--swirl-color);
+  border-bottom-color:var(--swirl-color);
+  border-radius:50%;
+}
+
+.footer {
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:15px;
+  padding-top:4px;
+}
+.progress { font-size:clamp(13px,1.4vw,20px); font-weight:800; }
+.dots { display:flex; gap:8px; margin-bottom:7px; }
+.dot { width:15px; height:15px; border-radius:50%; background:#d7cfe9; }
+.dot.done { background:var(--purple); }
+.primary {
+  min-width:285px;
+  min-height:64px;
+  padding:12px 29px;
+  border:0;
+  border-radius:21px;
+  color:white;
+  background:var(--purple);
+  box-shadow:0 6px 0 var(--purple-dark);
+  font-size:clamp(23px,2.2vw,33px);
+  font-weight:900;
+}
+.primary:hover:not(:disabled) { background:#7866e6; }
+.primary:active:not(:disabled) {
+  transform:translateY(3px);
+  box-shadow:0 3px 0 var(--purple-dark);
+}
+.primary:disabled {
+  background:#afa3d3;
+  box-shadow:0 6px 0 #9789bc;
+}
+.primary.skip {
+  background:#de9b42;
+  box-shadow:0 6px 0 #b5762b;
+}
+.teacher-hint {
+  text-align:right;
+  color:#77708a;
+  font-size:clamp(13px,1.3vw,18px);
+  line-height:1.35;
+}
+.confetti {
+  position:fixed;
+  z-index:100;
+  width:11px; height:16px;
+  border-radius:3px;
+  pointer-events:none;
+  animation:confetti-fall 1050ms ease-out forwards;
+}
+.sr-only {
+  position:absolute;
+  width:1px; height:1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+}
+@keyframes swirl-turn {
+  from { transform:rotate(0deg) scale(.85); }
+  to { transform:rotate(360deg) scale(1.15); }
+}
+@keyframes emoji-pop {
+  0% { transform:scale(.4) rotate(-18deg); }
+  65% { transform:scale(1.12) rotate(8deg); }
+  100% { transform:scale(1) rotate(0); }
+}
+@keyframes found-pop {
+  0% { transform:scale(.85); }
+  65% { transform:scale(1.05); }
+  100% { transform:scale(1); }
+}
+@keyframes confetti-fall {
+  from { opacity:1; transform:translate(0,0) rotate(0); }
+  to {
+    opacity:0;
+    transform:translate(var(--dx),var(--dy)) rotate(var(--spin));
+  }
+}
+@media(max-height:650px) {
+  .app { gap:5px; padding-top:6px; }
+  .language { min-height:87px; }
+  h1 { font-size:32px; }
+  .answer-area { min-height:49px; }
+  .sentence { font-size:22px; padding:5px 15px; }
+  .reveal-button { min-height:40px; padding:6px 20px; font-size:22px; }
+  .primary { min-height:51px; font-size:24px; }
+  .small-button { min-height:35px; padding:5px 11px; }
+  .room { min-height:170px; }
+  .emoji-art { font-size:clamp(64px,20vh,125px); }
+}
+@media(max-width:760px) {
+  .brand-name { display:none; }
+  .tools { gap:4px; }
+  .small-button { font-size:13px; padding:7px 9px; }
+  .footer { grid-template-columns:1fr auto; }
+  .teacher-hint { display:none; }
+  .primary { min-width:210px; }
+  .room { border-width:4px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  *,*:before,*:after {
+    animation:none !important;
+    transition:none !important;
+  }
+}
+</style>
+</head>
+
+<body>
+<main class="app">
+  <header class="toolbar">
+    <div class="brand">
+      <span class="brand-icon" aria-hidden="true">?</span>
+      <span class="brand-name">THE ROOM GAME</span>
+    </div>
+    <div class="tools">
+      <button id="difficulty" class="small-button difficulty" hidden="">
+        ✦ Add difficulty
+      </button>
+      <button id="sound" class="small-button" aria-pressed="true">
+        ♪ Sound on
+      </button>
+      <button id="restart" class="small-button">Restart</button>
+      <button id="fullscreen" class="small-button">⛶ Fullscreen</button>
+    </div>
+  </header>
+
+  <section class="language" aria-label="Question and answer">
+    <h1 id="question">What's in the room?</h1>
+    <div class="answer-area">
+      <div id="sentence" class="sentence hint" aria-live="polite">
+        Tap a picture. Say the sentence!
+      </div>
+      <button id="revealSentence" class="reveal-button" hidden="">
+        Reveal the sentence
+      </button>
+    </div>
+  </section>
+
+  <section id="room" class="room" aria-label="A furnished room">
+    <div class="floor" aria-hidden="true"></div>
+    <div class="rug" aria-hidden="true"></div>
+    <div class="window" aria-hidden="true"></div>
+
+    <div id="badge" class="badge">Let’s explore!</div>
+    <div id="timerTrack" class="timer-track" hidden="">
+      <div id="timerFill" class="timer-fill"></div>
+    </div>
+    <div id="timer" class="timer" role="timer" hidden="">10</div>
+
+    <div id="layer" class="furniture-layer"></div>
+
+    <div id="blackout" class="blackout" aria-label="The room is changing" hidden="">
+      <div class="swirl" aria-hidden="true"></div>
+      <div class="swirl" aria-hidden="true"></div>
+      <div class="swirl" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="progress">
+      <div id="dots" class="dots" aria-hidden="true">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+      <div id="progressText">3 rounds to unlock a surprise</div>
+    </div>
+
+    <button id="mainButton" class="primary">Play · 10 seconds</button>
+
+    <div id="teacherHint" class="teacher-hint">
+      Tap pictures to practise.<br>Then press Play.
+    </div>
+  </footer>
+
+  <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const items = [
+    {
+      id:"fridge", word:"fridge",
+      parts:["body","line","handle-one","handle-two","magnet","foot-one","foot-two"]
+    },
+    {
+      id:"sink", word:"sink",
+      parts:["cabinet","knob-one","knob-two","rim","basin",
+             "faucet","stem","nozzle","tap-base"]
+    },
+    {
+      id:"stove", word:"stove",
+      parts:["body","top","burner-one","burner-two",
+             "knob-one","knob-two","knob-three","oven","handle"]
+    },
+    {
+      id:"bed", word:"bed",
+      parts:["leg-one","leg-two","head","base","mattress","pillow","blanket"]
+    },
+    {
+      id:"sofa", word:"sofa",
+      parts:["leg-one","leg-two","back","seat","arm-one","arm-two"]
+    },
+    {
+      id:"table", word:"table",
+      parts:["leg-one","leg-two","brace","top"]
+    },
+    {
+      id:"chair", word:"chair",
+      parts:["leg-one","leg-two","back","seat"]
+    },
+    {
+      id:"tv", word:"TV",
+      parts:["stem","foot","frame","screen"]
+    }
+  ];
+
+  // Surprise pictures are not added to the target answer vocabulary.
+  const surprises = [
+    { emoji:"🍌", name:"banana", sound:"slide" },
+    { emoji:"🍎", name:"apple", sound:"pop" },
+    { emoji:"🐶", name:"dog", sound:"woof" },
+    { emoji:"🚀", name:"rocket", sound:"rocket" },
+    { emoji:"⛄", name:"snowman", sound:"sparkle" }
+  ];
+
+  const ids = items.map(item => item.id);
+  const byId = Object.fromEntries(items.map(item => [item.id,item]));
+
+  // Back-row feet touch the floor at 58%; front-row feet at 97%.
+  const slots = [
+    {left:2,top:22}, {left:27,top:22},
+    {left:51,top:22}, {left:76,top:22},
+    {left:2,top:61}, {left:27,top:61},
+    {left:51,top:61}, {left:76,top:61}
+  ];
+
+  const $ = id => document.getElementById(id);
+  const ui = {
+    question:$("question"), sentence:$("sentence"),
+    reveal:$("revealSentence"), layer:$("layer"),
+    badge:$("badge"), timer:$("timer"),
+    timerTrack:$("timerTrack"), timerFill:$("timerFill"),
+    blackout:$("blackout"), main:$("mainButton"),
+    difficulty:$("difficulty"), sound:$("sound"),
+    restart:$("restart"), fullscreen:$("fullscreen"),
+    dots:$("dots"), progress:$("progressText"),
+    hint:$("teacherHint"), announcement:$("announcement")
+  };
+
+  let phase = "explore";
+  let hard = false;
+  let solvedRounds = 0;
+  let roundNumber = 0;
+  let positions = {};
+  let missing = [];
+  let surprise = null;
+  let surpriseSlot = null;
+  let lastEasyMissing = null;
+  let answerVisible = false;
+  let remaining = 10;
+  let countdownId = null;
+  let coverId = null;
+  let announceId = null;
+
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+  function choose(array) {
+    return array[Math.floor(Math.random()*array.length)];
+  }
+
+  function shuffled(array) {
+    const result = [...array];
+    for (let i=result.length-1;i>0;i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [result[i],result[j]] = [result[j],result[i]];
+    }
+    return result;
+  }
+
+  /* -------------------------------------------------
+     OFFLINE AUDIO
+     All sounds are synthesized; no files or downloads.
+     Soft major tones = study.
+     Lower, curious tones = missing-object stage.
+     Faster/bouncier variation = endless mode.
+  ------------------------------------------------- */
+
+  const audio = {
+    ctx:null,
+    master:null,
+    enabled:true,
+    nodes:new Set(),
+    supported:!!(window.AudioContext || window.webkitAudioContext)
+  };
+
+  function unlockAudio() {
+    if (!audio.enabled || !audio.supported) return;
+
+    try {
+      if (!audio.ctx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audio.ctx = new AudioContextClass();
+        audio.master = audio.ctx.createGain();
+        audio.master.gain.value = 0.38;
+        audio.master.connect(audio.ctx.destination);
+      }
+      if (audio.ctx.state === "suspended") {
+        audio.ctx.resume().catch(() => {});
+      }
+    } catch {
+      audio.supported = false;
+    }
+  }
+
+  function stopSounds() {
+    for (const node of audio.nodes) {
+      try { node.stop(); } catch {}
+    }
+    audio.nodes.clear();
+  }
+
+  function tone(freq, delay=0, duration=.16, type="sine", volume=.15, endFreq=null) {
+    if (!audio.enabled || !audio.ctx || audio.ctx.state !== "running") return;
+    if (document.hidden) return;
+
+    const ctx = audio.ctx;
+    const start = ctx.currentTime + delay;
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(Math.max(20,freq),start);
+
+    if (endFreq !== null) {
+      oscillator.frequency.exponentialRampToValueAtTime(
+        Math.max(20,endFreq), start+duration
+      );
+    }
+
+    gain.gain.setValueAtTime(0,start);
+    gain.gain.linearRampToValueAtTime(volume,start+.012);
+    gain.gain.exponentialRampToValueAtTime(.001,start+duration);
+
+    oscillator.connect(gain);
+    gain.connect(audio.master);
+    audio.nodes.add(oscillator);
+
+    oscillator.onended = () => {
+      audio.nodes.delete(oscillator);
+      oscillator.disconnect();
+      gain.disconnect();
+    };
+
+    oscillator.start(start);
+    oscillator.stop(start+duration+.025);
+  }
+
+  function melody(notes, spacing=.12, type="sine", volume=.15) {
+    notes.forEach((note,i) => tone(note,i*spacing,.24,type,volume));
+  }
+
+  function playSound(name) {
+    if (!audio.enabled) return;
+
+    switch (name) {
+      case "tap":
+        melody([523,784],.075,"sine",.16);
+        break;
+
+      case "study":
+        melody(hard ? [523,659,784,1047] : [392,523,659],
+                .12,"sine",.13);
+        break;
+
+      case "tick":
+        tone(remaining<=3 ? 740 : 523,0,.065,"sine",.055);
+        break;
+
+      case "cover":
+        tone(330,0,.65,"sine",.12,95);
+        tone(165,.25,.5,"triangle",.065,260);
+        break;
+
+      case "guess":
+        melody(hard ? [220,277,233,330] : [262,311,392],
+                .18,"triangle",.10);
+        break;
+
+      case "solved":
+        melody([523,659,784,1047],.10,"triangle",.14);
+        tone(523,.35,.55,"sine",.08);
+        tone(659,.35,.55,"sine",.07);
+        tone(784,.35,.55,"sine",.07);
+        break;
+
+      case "reveal":
+        melody([659,784,1047],.09,"sine",.13);
+        break;
+
+      case "slide":
+        // Cartoon banana slide.
+        tone(850,0,.3,"triangle",.16,140);
+        tone(160,.30,.32,"sine",.17,640);
+        tone(640,.61,.13,"sine",.11,350);
+        break;
+
+      case "pop":
+        // Three rubbery apple pops.
+        tone(180,0,.14,"sine",.22,720);
+        tone(250,.17,.14,"sine",.20,900);
+        tone(130,.36,.25,"triangle",.13,450);
+        break;
+
+      case "woof":
+        // A deliberately silly synthesized double "woof".
+        tone(180,0,.13,"sawtooth",.065,85);
+        tone(210,.20,.17,"sawtooth",.065,90);
+        tone(490,.43,.16,"sine",.10,700);
+        break;
+
+      case "rocket":
+        tone(90,0,.80,"sawtooth",.045,1250);
+        tone(150,.10,.75,"sine",.13,1700);
+        melody([1047,1319,1568],.11,"sine",.07);
+        break;
+
+      case "sparkle":
+        // Icy snowman bells.
+        melody([1047,1568,1319,2093,1568],.10,"sine",.11);
+        tone(180,.48,.28,"triangle",.10,360);
+        break;
+    }
+  }
+
+  function updateSoundButton() {
+    ui.sound.textContent = audio.enabled ? "♪ Sound on" : "♪ Sound off";
+    ui.sound.setAttribute("aria-pressed",String(audio.enabled));
+  }
+
+  // Unlock audio on a real interaction before timer-driven effects happen.
+  document.addEventListener("pointerdown",event => {
+    if (!event.target.closest("#sound")) unlockAudio();
+  },{capture:true});
+
+  document.addEventListener("keydown",event => {
+    if (!event.target.closest("#sound")) unlockAudio();
+  },{capture:true});
+
+  ui.sound.addEventListener("click",() => {
+    audio.enabled = !audio.enabled;
+    if (audio.enabled) {
+      unlockAudio();
+      if (audio.master) audio.master.gain.value = .38;
+      playSound("tap");
+    } else {
+      stopSounds();
+      if (audio.master) audio.master.gain.value = 0;
+    }
+    updateSoundButton();
+  });
+
+  document.addEventListener("visibilitychange",() => {
+    if (document.hidden) stopSounds();
+  });
+
+  /* -------------------------------------------------
+     LANGUAGE
+  ------------------------------------------------- */
+
+  function answerSentence(itemIds) {
+    const phrases = itemIds.map((id,index) =>
+      `${index === 0 ? "A" : "a"} ${byId[id].word}`
+    );
+
+    if (phrases.length === 1) {
+      return `${phrases[0]} is in the room.`;
+    }
+
+    if (phrases.length === 2) {
+      return `${phrases[0]} and ${phrases[1]} are in the room.`;
+    }
+
+    return `${phrases.slice(0,-1).join(", ")} and ${phrases.at(-1)} are in the room.`;
+  }
+
+  function setHint(text) {
+    ui.reveal.hidden = true;
+    ui.sentence.hidden = false;
+    ui.sentence.className = "sentence hint";
+    ui.sentence.textContent = text;
+  }
+
+  function showSentence(itemIds) {
+    ui.reveal.hidden = true;
+    ui.sentence.hidden = false;
+    ui.sentence.className = "sentence";
+    ui.sentence.textContent = answerSentence(itemIds);
+  }
+
+  function concealSentence() {
+    answerVisible = false;
+    ui.sentence.textContent = "";
+    ui.sentence.hidden = true;
+    ui.reveal.hidden = false;
+  }
+
+  function announce(text) {
+    clearTimeout(announceId);
+    ui.announcement.textContent = "";
+    announceId = setTimeout(() => {
+      ui.announcement.textContent = text;
+    },30);
+  }
+
+  /* -------------------------------------------------
+     CONFETTI
+  ------------------------------------------------- */
+
+  function burst(x,y,amount=25) {
+    if (reducedMotion.matches) return;
+
+    const colors = ["#ffd76a","#f4869f","#8b78ed","#72ceb2","#7bc5ed","#ffac70"];
+
+    for (let i=0;i<amount;i++) {
+      const piece = document.createElement("i");
+      piece.className = "confetti";
+      piece.setAttribute("aria-hidden","true");
+
+      const angle = Math.random()*Math.PI*2;
+      const distance = 65+Math.random()*190;
+
+      piece.style.left = `${x}px`;
+      piece.style.top = `${y}px`;
+      piece.style.background = choose(colors);
+      piece.style.setProperty("--dx",`${Math.cos(angle)*distance}px`);
+      piece.style.setProperty("--dy",`${Math.sin(angle)*distance+120}px`);
+      piece.style.setProperty("--spin",`${Math.random()*800-400}deg`);
+
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(),1150);
+    }
+  }
+
+  function burstAt(element,amount=25) {
+    const r = element.getBoundingClientRect();
+    burst(r.left+r.width/2,r.top+r.height/2,amount);
+  }
+
+  function celebration() {
+    const r = $("room").getBoundingClientRect();
+    burst(r.left+r.width*.22,r.top+r.height*.25,35);
+    burst(r.left+r.width*.50,r.top+r.height*.18,40);
+    burst(r.left+r.width*.78,r.top+r.height*.25,35);
+  }
+
+  /* -------------------------------------------------
+     PICTURES
+  ------------------------------------------------- */
+
+  function makeTile(item,slotIndex,found=false) {
+    const button = document.createElement("button");
+    const slot = slots[slotIndex];
+
+    button.type = "button";
+    button.className = "tile"+(found ? " found" : "");
+    button.dataset.item = item.id;
+    button.style.left = `${slot.left}%`;
+    button.style.top = `${slot.top}%`;
+    button.setAttribute("aria-label",item.word);
+
+    const art = document.createElement("div");
+    art.className = `art ${item.id}`;
+    art.setAttribute("aria-hidden","true");
+
+    item.parts.forEach(name => {
+      const part = document.createElement("span");
+      part.className = name;
+      if (item.id === "tv" && name === "screen") {
+        art.querySelector(".frame").appendChild(part);
+      } else {
+        art.appendChild(part);
+      }
+    });
+
+    button.appendChild(art);
+
+    if (found) {
+      const label = document.createElement("span");
+      label.className = "found-label";
+      label.textContent = item.word;
+      button.appendChild(label);
+    }
+
+    button.addEventListener("click",() => {
+      if (phase === "cover") return;
+
+      playSound("tap");
+      burstAt(button,18);
+
+      // Do not bypass the Reveal the sentence button after Solved.
+      if (phase === "reveal") {
+        if (answerVisible) showSentence(missing);
+        return;
+      }
+
+      showSentence([item.id]);
+    });
+
+    return button;
+  }
+
+  function makeEmojiTile() {
+    const button = document.createElement("button");
+    const slot = slots[surpriseSlot];
+
+    button.type = "button";
+    button.className = "tile emoji-tile";
+    button.style.left = `${slot.left}%`;
+    button.style.top = `${slot.top}%`;
+    button.setAttribute("aria-label",`Surprise: ${surprise.name}`);
+
+    const art = document.createElement("span");
+    art.className = "emoji-art";
+    art.textContent = surprise.emoji;
+    art.setAttribute("aria-hidden","true");
+    button.appendChild(art);
+
+    button.addEventListener("click",() => {
+      playSound(surprise.sound);
+      burstAt(button,20);
+      setHint("Look everywhere! What's missing?");
+    });
+
+    return button;
+  }
+
+  function renderBoard(highlight=[]) {
+    ui.layer.replaceChildren();
+
+    items.forEach(item => {
+      if (phase === "guess" && missing.includes(item.id)) return;
+      if (positions[item.id] === undefined) return;
+
+      ui.layer.appendChild(
+        makeTile(item,positions[item.id],highlight.includes(item.id))
+      );
+    });
+
+    if (phase === "guess" && surprise && surpriseSlot !== null) {
+      ui.layer.appendChild(makeEmojiTile());
+    }
+  }
+
+  /* -------------------------------------------------
+     GAME FLOW
+  ------------------------------------------------- */
+
+  function clearTimers() {
+    clearInterval(countdownId);
+    clearTimeout(coverId);
+    countdownId = null;
+    coverId = null;
+  }
+
+  function updateProgress() {
+    [...ui.dots.children].forEach((dot,index) => {
+      dot.classList.toggle("done",solvedRounds>index);
+    });
+
+    if (hard) {
+      ui.progress.textContent = `${solvedRounds} rounds solved · Endless mode`;
+    } else if (solvedRounds<3) {
+      const left = 3-solvedRounds;
+      ui.progress.textContent =
+        `${left} ${left===1 ? "round" : "rounds"} to unlock a surprise`;
+    } else {
+      ui.progress.textContent = `${solvedRounds} rounds solved · Difficulty unlocked!`;
+    }
+
+    ui.difficulty.hidden = solvedRounds<3 && !hard;
+    ui.difficulty.textContent = hard ? "✦ Endless mode ✓" : "✦ Add difficulty";
+    ui.difficulty.classList.toggle("active",hard);
+    ui.difficulty.disabled = hard || !["explore","reveal"].includes(phase);
+  }
+
+  function updateTimer() {
+    ui.timer.textContent = remaining;
+    ui.timer.setAttribute("aria-label",`${remaining} seconds to look`);
+    ui.timer.classList.toggle("urgent",remaining<=3);
+    ui.timerFill.style.width = `${remaining*10}%`;
+  }
+
+  function reset() {
+    clearTimers();
+    clearTimeout(announceId);
+    stopSounds();
+
+    phase = "explore";
+    hard = false;
+    solvedRounds = 0;
+    roundNumber = 0;
+    missing = [];
+    surprise = null;
+    surpriseSlot = null;
+    lastEasyMissing = null;
+    answerVisible = false;
+
+    positions = Object.fromEntries(ids.map((id,index) => [id,index]));
+
+    ui.blackout.hidden = true;
+    ui.layer.inert = false;
+    ui.timer.hidden = true;
+    ui.timerTrack.hidden = true;
+    ui.question.textContent = "What's in the room?";
+    ui.badge.textContent = "Let’s explore!";
+    ui.main.disabled = false;
+    ui.main.classList.remove("skip");
+    ui.main.textContent = "Play · 10 seconds";
+    ui.hint.innerHTML = "Tap pictures to practise.<br>Then press Play.";
+    ui.announcement.textContent = "";
+
+    setHint("Tap a picture. Say the sentence!");
+    renderBoard();
+    updateProgress();
+
+    document.querySelectorAll(".confetti").forEach(el => el.remove());
+  }
+
+  function beginRound() {
+    if (!["explore","reveal"].includes(phase)) return;
+
+    clearTimers();
+    stopSounds();
+
+    roundNumber++;
+    phase = "study";
+    missing = [];
+    surprise = null;
+    surpriseSlot = null;
+    answerVisible = false;
+
+    if (hard) {
+      const order = shuffled([...Array(8).keys()]);
+      positions = Object.fromEntries(ids.map((id,index) => [id,order[index]]));
+    }
+
+    remaining = 10;
+    ui.question.textContent = "What's in the room?";
+    setHint("Look carefully. Remember the pictures!");
+    ui.badge.textContent = `Round ${roundNumber} · Look!`;
+    ui.main.disabled = false;
+    ui.main.classList.add("skip");
+    ui.main.textContent = "Skip the timer";
+    ui.hint.innerHTML = "Look for 10 seconds.<br>Ready? Skip the timer!";
+    ui.timer.hidden = false;
+    ui.timerTrack.hidden = false;
+    ui.blackout.hidden = true;
+
+    renderBoard();
+    updateTimer();
+    updateProgress();
+
+    playSound("study");
+    ui.main.focus({preventScroll:true});
+    announce("Look at the room. You can skip the timer.");
+
+    countdownId = setInterval(() => {
+      if (document.hidden) return;
+
+      remaining--;
+      updateTimer();
+
+      if (remaining<=0) {
+        coverRoom();
+      } else {
+        playSound("tick");
+      }
+    },1000);
+  }
+
+  function randomizeSwirls() {
+    const colors = shuffled(["#b596ff","#69d6d1","#ff91b0","#ffd874","#84afff"]);
+
+    [...ui.blackout.children].forEach((swirl,index) => {
+      swirl.style.left = `${8+index*29+Math.random()*8}%`;
+      swirl.style.top = `${8+Math.random()*32}%`;
+      swirl.style.setProperty("--swirl-color",colors[index]);
+      swirl.style.animationDirection = index%2 ? "reverse" : "normal";
+      swirl.style.animationDelay = `${-Math.random()*2}s`;
+    });
+  }
+
+  function coverRoom() {
+    if (phase !== "study") return;
+
+    clearTimers();
+    stopSounds();
+    phase = "cover";
+
+    ui.layer.inert = true;
+    ui.timer.hidden = true;
+    ui.timerTrack.hidden = true;
+    ui.main.disabled = true;
+    ui.main.classList.remove("skip");
+    ui.main.textContent = "…";
+    ui.question.textContent = "What's missing?";
+    setHint("");
+    ui.hint.textContent = "";
+    ui.badge.textContent = `Round ${roundNumber}`;
+
+    randomizeSwirls();
+    ui.blackout.hidden = false;
+
+    updateProgress();
+    playSound("cover");
+
+    coverId = setTimeout(showPuzzle,2200);
+  }
+
+  function makePuzzle() {
+    const before = {...positions};
+
+    if (!hard) {
+      missing = [choose(ids.filter(id => id!==lastEasyMissing))];
+      lastEasyMissing = missing[0];
+      surprise = null;
+      surpriseSlot = null;
+      return;
+    }
+
+    const count = choose([1,1,2,2,3]);
+    missing = shuffled(ids).slice(0,count);
+    const visible = ids.filter(id => !missing.includes(id));
+
+    surprise = null;
+    surpriseSlot = null;
+
+    if (Math.random()<.55) {
+      surprise = choose(surprises);
+
+      // Sometimes the replaced object is absent.
+      // Sometimes it survives, but moves elsewhere.
+      const targetIsMissing = Math.random()<.5;
+      const target = choose(targetIsMissing ? missing : visible);
+      surpriseSlot = before[target];
+    }
+
+    const available = [...Array(8).keys()]
+      .filter(slot => slot!==surpriseSlot);
+
+    // Randomized backtracking finds positions where EVERY survivor moves.
+    const order = shuffled(visible);
+    const next = {};
+
+    function assign(index,free) {
+      if (index===order.length) return true;
+
+      const id = order[index];
+      const candidates = shuffled(free.filter(slot => slot!==before[id]));
+
+      for (const slot of candidates) {
+        next[id] = slot;
+        if (assign(index+1,free.filter(value => value!==slot))) return true;
+      }
+
+      delete next[id];
+      return false;
+    }
+
+    assign(0,available);
+    positions = next;
+  }
+
+  function showPuzzle() {
+    if (phase !== "cover") return;
+
+    makePuzzle();
+    phase = "guess";
+    renderBoard();
+
+    ui.layer.inert = false;
+    ui.blackout.hidden = true;
+    ui.question.textContent = "What's missing?";
+    setHint("Look, think, and say the word!");
+    ui.badge.textContent = hard
+      ? `Round ${roundNumber} · Look everywhere!`
+      : `Round ${roundNumber} · One is missing!`;
+
+    ui.main.disabled = false;
+    ui.main.textContent = "Solved ✓";
+    ui.hint.innerHTML = hard
+      ? "1, 2, or 3 pictures may be missing.<br>Check the whole room!"
+      : "Let students answer first.<br>Then press Solved.";
+
+    updateProgress();
+    playSound(surprise ? surprise.sound : "guess");
+
+    ui.main.focus({preventScroll:true});
+    announce("What's missing?");
+  }
+
+  function revealObjects() {
+    if (phase !== "guess") return;
+
+    stopSounds();
+    phase = "reveal";
+    solvedRounds++;
+
+    const oldSurpriseSlot = surpriseSlot;
+    surprise = null;
+    surpriseSlot = null;
+
+    if (hard) {
+      const used = new Set(
+        ids.filter(id => !missing.includes(id)).map(id => positions[id])
+      );
+
+      let free = [...Array(8).keys()].filter(slot => !used.has(slot));
+
+      // Let a restored object replace the emoji when possible.
+      if (oldSurpriseSlot!==null && free.includes(oldSurpriseSlot)) {
+        free = [oldSurpriseSlot,...free.filter(slot => slot!==oldSurpriseSlot)];
+      }
+
+      missing.forEach(id => { positions[id] = free.shift(); });
+    }
+
+    renderBoard(missing);
+    ui.question.textContent = "What's in the room?";
+    concealSentence();
+
+    ui.badge.textContent = "Found them!";
+    ui.main.disabled = false;
+    ui.main.textContent = "Next · 10 seconds";
+    ui.hint.innerHTML = "Say the sentence together.<br>Then reveal it to check!";
+
+    updateProgress();
+    playSound("solved");
+    celebration();
+
+    announce("The missing pictures are back. Reveal the sentence when you are ready.");
+    ui.reveal.focus({preventScroll:true});
+  }
+
+  ui.main.addEventListener("click",() => {
+    unlockAudio();
+
+    if (phase==="explore" || phase==="reveal") beginRound();
+    else if (phase==="study") coverRoom();
+    else if (phase==="guess") revealObjects();
+  });
+
+  ui.reveal.addEventListener("click",() => {
+    if (phase!=="reveal") return;
+
+    answerVisible = true;
+    showSentence(missing);
+    playSound("reveal");
+    burstAt(ui.sentence,20);
+    ui.hint.innerHTML = "Great! Say it once more.<br>Then try the next round.";
+    announce(answerSentence(missing));
+    ui.main.focus({preventScroll:true});
+  });
+
+  ui.difficulty.addEventListener("click",() => {
+    if (hard || solvedRounds<3 || !["explore","reveal"].includes(phase)) return;
+    hard = true;
+    beginRound();
+  });
+
+  ui.restart.addEventListener("click",() => {
+    reset();
+    playSound("tap");
+    ui.main.focus({preventScroll:true});
+  });
+
+  if (!document.documentElement.requestFullscreen) {
+    ui.fullscreen.hidden = true;
+  }
+
+  ui.fullscreen.addEventListener("click",async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch {
+      announce("Use your browser's fullscreen option.");
+    }
+  });
+
+  document.addEventListener("fullscreenchange",() => {
+    ui.fullscreen.textContent = document.fullscreenElement
+      ? "⛶ Exit fullscreen"
+      : "⛶ Fullscreen";
+  });
+
+  /* Arrow navigation for keyboards and compatible TV remotes. */
+  document.addEventListener("keydown",event => {
+    if (!["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(event.key)) return;
+
+    const buttons = [...document.querySelectorAll("button")].filter(button =>
+      !button.disabled &&
+      !button.closest("[hidden]") &&
+      !button.closest("[inert]") &&
+      button.getClientRects().length
+    );
+
+    if (!buttons.length) return;
+    event.preventDefault();
+
+    const current = document.activeElement;
+    if (!buttons.includes(current)) {
+      (ui.main.disabled ? buttons[0] : ui.main).focus();
+      return;
+    }
+
+    function center(element) {
+      const r = element.getBoundingClientRect();
+      return {x:r.left+r.width/2,y:r.top+r.height/2};
+    }
+
+    const origin = center(current);
+    let best = null;
+    let bestScore = Infinity;
+
+    buttons.forEach(button => {
+      if (button===current) return;
+
+      const target = center(button);
+      const dx = target.x-origin.x;
+      const dy = target.y-origin.y;
+
+      let forward,sideways;
+
+      switch (event.key) {
+        case "ArrowRight": forward=dx; sideways=Math.abs(dy); break;
+        case "ArrowLeft": forward=-dx; sideways=Math.abs(dy); break;
+        case "ArrowDown": forward=dy; sideways=Math.abs(dx); break;
+        case "ArrowUp": forward=-dy; sideways=Math.abs(dx); break;
+      }
+
+      if (forward<=8) return;
+
+      const score = forward+sideways*2.5;
+      if (score<bestScore) {
+        bestScore = score;
+        best = button;
+      }
+    });
+
+    best?.focus({preventScroll:true});
+  });
+
+  if (!audio.supported) {
+    ui.sound.hidden = true;
+  }
+
+  reset();
+})();
+</script>
+
+
+</body></html>

@@ -1,0 +1,645 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin the Wheel!</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Floating emojis background */
+        .floating-emojis {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .floating-emoji {
+            position: absolute;
+            opacity: 0.15;
+            font-size: 2.5rem;
+            animation: floatAround linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes floatAround {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-120px) rotate(360deg); }
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            z-index: 1;
+            position: relative;
+        }
+
+        .title {
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            font-weight: 900;
+            color: white;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .title.spinning-title {
+            animation: rainbowPulse 0.5s infinite alternate;
+        }
+
+        @keyframes rainbowPulse {
+            0% { color: #ff6b6b; text-shadow: 0 0 30px #ff6b6b; }
+            33% { color: #ffd700; text-shadow: 0 0 30px #ffd700; }
+            66% { color: #48dbfb; text-shadow: 0 0 30px #48dbfb; }
+            100% { color: #ff9ff3; text-shadow: 0 0 30px #ff9ff3; }
+        }
+
+        .player-indicator {
+            color: rgba(255,255,255,0.85);
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            font-weight: 600;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .wheel-area {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 5px 0;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-top: 28px solid #ffd700;
+            z-index: 10;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
+        }
+
+        .wheel {
+            width: clamp(220px, 55vw, 300px);
+            height: clamp(220px, 55vw, 300px);
+            border-radius: 50%;
+            border: 8px solid #ffd700;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3), 0 0 80px rgba(255, 215, 0, 0.1), inset 0 0 30px rgba(0,0,0,0.2);
+            position: relative;
+            transition: transform 5s cubic-bezier(0.15, 0.6, 0.1, 1);
+        }
+
+        .wheel-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #ff6b6b 0deg 45deg,
+                #feca57 45deg 90deg,
+                #48dbfb 90deg 135deg,
+                #ff9ff3 135deg 180deg,
+                #54a0ff 180deg 225deg,
+                #5f27cd 225deg 270deg,
+                #01a3a4 270deg 315deg,
+                #f368e0 315deg 360deg
+            );
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .wheel-inner::after {
+            content: '';
+            position: absolute;
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            border-radius: 50%;
+            border: 3px dashed rgba(255,255,255,0.3);
+        }
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, #fff 0%, #ffd700 100%);
+            border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .buttons-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spin-btn {
+            padding: 16px 50px;
+            font-size: clamp(1.2rem, 4vw, 1.7rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.4), 0 0 60px rgba(255, 140, 0, 0.2);
+            transition: all 0.3s;
+            animation: pulseBtn 2s infinite;
+        }
+
+        @keyframes pulseBtn {
+            0%, 100% { box-shadow: 0 8px 30px rgba(255, 215, 0, 0.4); }
+            50% { box-shadow: 0 8px 50px rgba(255, 215, 0, 0.7), 0 0 80px rgba(255, 140, 0, 0.3); }
+        }
+
+        .spin-btn:hover { transform: translateY(-3px) scale(1.05); }
+        .spin-btn:active { transform: translateY(0) scale(0.97); }
+        .spin-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; animation: none; }
+
+        .add-objects-btn {
+            padding: 12px 25px;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            color: white;
+            box-shadow: 0 5px 20px rgba(17, 153, 142, 0.4);
+            transition: all 0.3s;
+            animation: pulseGreen 2.5s infinite;
+        }
+
+        @keyframes pulseGreen {
+            0%, 100% { box-shadow: 0 5px 20px rgba(17, 153, 142, 0.3); }
+            50% { box-shadow: 0 5px 35px rgba(17, 153, 142, 0.6); }
+        }
+
+        .add-objects-btn:hover { transform: translateY(-2px) scale(1.05); }
+        .add-objects-btn:active { transform: scale(0.97); }
+        .add-objects-btn.active {
+            background: linear-gradient(135deg, #636e72, #b2bec3);
+            animation: none;
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        .mode-badge {
+            font-size: clamp(0.7rem, 2vw, 0.85rem);
+            color: rgba(255,255,255,0.6);
+            background: rgba(255,255,255,0.08);
+            padding: 5px 15px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        /* Result Overlay */
+        .result-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .result-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .result-card {
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border-radius: 30px;
+            padding: 35px 30px;
+            text-align: center;
+            width: 90%;
+            max-width: 420px;
+            transform: scale(0.3) rotate(-10deg);
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 25px 80px rgba(0,0,0,0.5), 0 0 100px rgba(102, 126, 234, 0.2);
+            border: 4px solid #ffd700;
+        }
+
+        .result-overlay.visible .result-card {
+            transform: scale(1) rotate(0deg);
+        }
+
+        .result-emoji {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            margin-bottom: 15px;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 3px;
+            line-height: 1.2;
+        }
+
+        .result-question {
+            font-size: clamp(1.2rem, 4vw, 1.6rem);
+            font-weight: 800;
+            color: white;
+            margin-bottom: 20px;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .result-answer {
+            font-size: clamp(1.1rem, 3.5vw, 1.4rem);
+            font-weight: 700;
+            color: #333;
+            padding: 0px 20px;
+            background: #e8f5e9;
+            border-radius: 15px;
+            border: 3px solid #4caf50;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            margin-top: 0;
+        }
+
+        .result-answer.visible {
+            opacity: 1;
+            max-height: 100px;
+            margin-top: 15px;
+            padding: 15px 20px;
+        }
+
+        .reveal-btn, .next-btn {
+            margin-top: 20px;
+            padding: 14px 35px;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            font-weight: 700;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .reveal-btn {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+            box-shadow: 0 5px 20px rgba(17, 153, 142, 0.4);
+        }
+
+        .reveal-btn:hover { transform: translateY(-2px) scale(1.05); }
+
+        .next-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            display: none;
+        }
+
+        .next-btn:hover { transform: translateY(-2px) scale(1.05); }
+
+        .hidden { display: none !important; }
+
+        /* Confetti */
+        .confetti-container {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 2000;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            animation: confettiFall 3s linear forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="floating-emojis" id="floating-emojis"></div>
+
+<div class="game-container">
+    <div class="title" id="title">🎡 Spin the Wheel! 🎡</div>
+    <div class="player-indicator">⭐ Player <span id="player-num">1</span>'s turn! ⭐</div>
+
+    <div class="wheel-area">
+        <div class="wheel-pointer"></div>
+        <div class="wheel" id="wheel">
+            <div class="wheel-inner"></div>
+            <div class="wheel-center">❓</div>
+        </div>
+    </div>
+
+    <div class="buttons-row">
+        <button class="spin-btn" id="spin-btn" onclick="spinWheel()">🎰 SPIN!</button>
+    </div>
+
+    <button class="add-objects-btn" id="add-objects-btn" onclick="addObjects()">➕ Add Classroom Objects</button>
+    <div class="mode-badge" id="mode-badge">👨‍👩‍👧‍👦 Family only</div>
+</div>
+
+<div class="result-overlay" id="result-overlay">
+    <div class="result-card">
+        <div class="result-emoji" id="result-emoji"></div>
+        <div class="result-question" id="result-question"></div>
+        <div class="result-answer" id="result-answer"></div>
+        <button class="reveal-btn" id="reveal-btn" onclick="revealAnswer()">👀 Reveal Answer</button>
+        <button class="next-btn" id="next-btn" onclick="nextPlayer()">➡️ Next Player</button>
+    </div>
+</div>
+
+<div class="confetti-container" id="confetti-container"></div>
+
+<script>
+    const wheel = document.getElementById('wheel');
+    const spinBtn = document.getElementById('spin-btn');
+    const overlay = document.getElementById('result-overlay');
+    const resultEmoji = document.getElementById('result-emoji');
+    const resultQuestion = document.getElementById('result-question');
+    const resultAnswer = document.getElementById('result-answer');
+    const revealBtn = document.getElementById('reveal-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const playerNum = document.getElementById('player-num');
+    const title = document.getElementById('title');
+    const confettiContainer = document.getElementById('confetti-container');
+    const addObjectsBtn = document.getElementById('add-objects-btn');
+    const modeBadge = document.getElementById('mode-badge');
+    const floatingContainer = document.getElementById('floating-emojis');
+
+    let currentRotation = 0;
+    let currentPlayer = 1;
+    let spinning = false;
+    let objectsAdded = false;
+
+    // === ITEM POOLS ===
+
+    const singularPeople = [
+        { emoji: '👨', answer: 'This is my father.' },
+        { emoji: '👩', answer: 'This is my mother.' },
+        { emoji: '👴', answer: 'This is my grandfather.' },
+        { emoji: '👵', answer: 'This is my grandmother.' },
+    ];
+
+    const singularPeopleThat = [
+        { emoji: '👨', answer: 'That is my father.' },
+        { emoji: '👩', answer: 'That is my mother.' },
+        { emoji: '👴', answer: 'That is my grandfather.' },
+        { emoji: '👵', answer: 'That is my grandmother.' },
+    ];
+
+    const pluralPeople = [
+        { emoji: '👴👵', answer: 'They are my grandparents.' },
+        { emoji: '👨👩', answer: 'They are my parents.' },
+    ];
+
+    const singularObjects = [
+        { emoji: '✏️', answer: "It's a pencil." },
+        { emoji: '📏', answer: "It's a ruler." },
+        { emoji: '📖', answer: "It's a book." },
+        { emoji: '🎒', answer: "It's a bag." },
+        { emoji: '🖊️', answer: "It's a pen." },
+    ];
+
+    const singularObjectsThat = [
+        { emoji: '✏️', answer: "That's a pencil." },
+        { emoji: '📏', answer: "That's a ruler." },
+        { emoji: '📖', answer: "That's a book." },
+        { emoji: '🎒', answer: "That's a bag." },
+        { emoji: '🖊️', answer: "That's a pen." },
+    ];
+
+    const pluralObjects = [
+        { emoji: '✏️', name: 'pencils' },
+        { emoji: '📏', name: 'rulers' },
+        { emoji: '📖', name: 'books' },
+        { emoji: '🎒', name: 'bags' },
+        { emoji: '🖊️', name: 'pens' },
+    ];
+
+    const familyEmojis = ['👨', '👩', '👴', '👵', '👨👩', '👴👵'];
+    const objectEmojis = ['✏️', '📏', '📖', '🎒', '🖊️'];
+
+    // === FLOATING EMOJIS ===
+
+    let floatingInterval = null;
+
+    function startFloatingEmojis() {
+        if (floatingInterval) clearInterval(floatingInterval);
+        // Initial burst
+        for (let i = 0; i < 12; i++) {
+            setTimeout(() => spawnFloatingEmoji(), i * 300);
+        }
+        floatingInterval = setInterval(spawnFloatingEmoji, 1800);
+    }
+
+    function spawnFloatingEmoji() {
+        const pool = objectsAdded ? [...familyEmojis, ...objectEmojis] : familyEmojis;
+        const emoji = pool[Math.floor(Math.random() * pool.length)];
+
+        const el = document.createElement('div');
+        el.classList.add('floating-emoji');
+        el.textContent = emoji;
+        el.style.left = (Math.random() * 90 + 5) + '%';
+        el.style.fontSize = (1.5 + Math.random() * 2) + 'rem';
+        el.style.opacity = (0.08 + Math.random() * 0.12);
+        const duration = 12 + Math.random() * 18;
+        el.style.animationDuration = duration + 's';
+        el.style.animationDelay = '0s';
+        floatingContainer.appendChild(el);
+
+        setTimeout(() => el.remove(), duration * 1000);
+    }
+
+    function addObjectsBurst() {
+        for (let i = 0; i < 8; i++) {
+            setTimeout(() => {
+                const emoji = objectEmojis[Math.floor(Math.random() * objectEmojis.length)];
+                const el = document.createElement('div');
+                el.classList.add('floating-emoji');
+                el.textContent = emoji;
+                el.style.left = (Math.random() * 90 + 5) + '%';
+                el.style.fontSize = (1.8 + Math.random() * 2.2) + 'rem';
+                el.style.opacity = (0.1 + Math.random() * 0.15);
+                const duration = 10 + Math.random() * 15;
+                el.style.animationDuration = duration + 's';
+                floatingContainer.appendChild(el);
+                setTimeout(() => el.remove(), duration * 1000);
+            }, i * 200);
+        }
+    }
+
+    // === GAME LOGIC ===
+
+    function getRandomItem() {
+        if (!objectsAdded) {
+            // Family only
+            const roll = Math.random();
+            if (roll < 0.65) {
+                const item = singularPeople[Math.floor(Math.random() * singularPeople.length)];
+                return { emoji: item.emoji, question: "Who's this?", answer: item.answer };
+            } else {
+                const item = pluralPeople[Math.floor(Math.random() * pluralPeople.length)];
+                return { emoji: item.emoji, question: "Who are they?", answer: item.answer };
+            }
+        } else {
+            // Everything mixed
+            const roll = Math.random();
+            if (roll < 0.2) {
+                // Who's this?
+                const item = singularPeople[Math.floor(Math.random() * singularPeople.length)];
+                return { emoji: item.emoji, question: "Who's this?", answer: item.answer };
+            } else if (roll < 0.32) {
+                // Who are they?
+                const item = pluralPeople[Math.floor(Math.random() * pluralPeople.length)];
+                return { emoji: item.emoji, question: "Who are they?", answer: item.answer };
+            } else if (roll < 0.44) {
+                // Who is that?
+                const item = singularPeopleThat[Math.floor(Math.random() * singularPeopleThat.length)];
+                return { emoji: item.emoji, question: "Who is that?", answer: item.answer };
+            } else if (roll < 0.6) {
+                // What's this?
+                const item = singularObjects[Math.floor(Math.random() * singularObjects.length)];
+                return { emoji: item.emoji, question: "What's this?", answer: item.answer };
+            } else if (roll < 0.76) {
+                // What's that?
+                const item = singularObjectsThat[Math.floor(Math.random() * singularObjectsThat.length)];
+                return { emoji: item.emoji, question: "What's that?", answer: item.answer };
+            } else {
+                // What are these?
+                const item = pluralObjects[Math.floor(Math.random() * pluralObjects.length)];
+                const count = Math.floor(Math.random() * 9) + 2;
+                let emojiStr = '';
+                for (let i = 0; i < count; i++) emojiStr += item.emoji;
+                return { emoji: emojiStr, question: "What are these?", answer: `They are ${item.name}.` };
+            }
+        }
+    }
+
+    function spinWheel() {
+        if (spinning) return;
+        spinning = true;
+        spinBtn.disabled = true;
+        title.classList.add('spinning-title');
+
+        const extraRotation = 1800 + Math.random() * 1440;
+        currentRotation += extraRotation;
+        wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+        setTimeout(() => {
+            title.classList.remove('spinning-title');
+            showResult();
+        }, 5300);
+    }
+
+    function showResult() {
+        const item = getRandomItem();
+
+        resultEmoji.textContent = item.emoji;
+        resultQuestion.textContent = item.question;
+        resultAnswer.textContent = item.answer;
+        resultAnswer.classList.remove('visible');
+        revealBtn.classList.remove('hidden');
+        nextBtn.style.display = 'none';
+
+        overlay.classList.add('visible');
+    }
+
+    function revealAnswer() {
+        resultAnswer.classList.add('visible');
+        revealBtn.classList.add('hidden');
+        nextBtn.style.display = 'inline-block';
+        launchConfetti();
+    }
+
+    function nextPlayer() {
+        overlay.classList.remove('visible');
+        spinning = false;
+        spinBtn.disabled = false;
+        currentPlayer++;
+        playerNum.textContent = currentPlayer;
+    }
+
+    function addObjects() {
+        if (objectsAdded) return;
+        objectsAdded = true;
+        addObjectsBtn.classList.add('active');
+        addObjectsBtn.textContent = '✅ Objects Added!';
+        modeBadge.textContent = '👨‍👩‍👧‍👦 Family + 📚 Objects';
+        addObjectsBurst();
+    }
+
+    function launchConfetti() {
+        const colors = ['#ff6b6b', '#ffd700', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd', '#01a3a4', '#38ef7d'];
+        for (let i = 0; i < 40; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 0.5 + 's';
+            confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+            confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+            confetti.style.width = (6 + Math.random() * 8) + 'px';
+            confetti.style.height = (6 + Math.random() * 8) + 'px';
+            confettiContainer.appendChild(confetti);
+            setTimeout(() => confetti.remove(), 4000);
+        }
+    }
+
+    // Keyboard shortcut
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && !spinning && !overlay.classList.contains('visible')) {
+            spinWheel();
+        }
+    });
+
+    // Start floating emojis
+    startFloatingEmojis();
+</script>
+
+
+
+</body></html>

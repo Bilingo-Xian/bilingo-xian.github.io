@@ -1,0 +1,661 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mystery Family Game - Flashcard Flip</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .confetti {
+            position: fixed;
+            top: -10px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: fall linear forwards;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin: 10px auto 20px;
+            padding: 15px 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+            50% { box-shadow: 0 10px 60px rgba(255, 200, 0, 0.5); }
+        }
+
+        .header-text {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 650px;
+            width: 100%;
+            margin: 20px auto;
+            padding: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .cards-grid.wide {
+            grid-template-columns: repeat(8, 1fr);
+            max-width: 1100px;
+        }
+
+        .card {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3/4;
+            cursor: pointer;
+            perspective: 1000px;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card:active {
+            transform: scale(0.95);
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            border-radius: 12px;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            border: 4px solid #fff;
+            box-shadow: 0 5px 20px rgba(67, 233, 123, 0.4);
+        }
+
+        .card-front .question-mark {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.15);
+            animation: bounce 1.5s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .card-back {
+            background: white;
+            border: 4px solid #ffd700;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+            transform: rotateY(180deg);
+            justify-content: space-around;
+            padding: 8px 5px;
+        }
+
+        .card-back .card-question {
+            font-size: clamp(0.55rem, 1.5vw, 0.95rem);
+            font-weight: 800;
+            color: #f5576c;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .card-back .emoji {
+            font-size: clamp(1.5rem, 4vw, 2.8rem);
+        }
+
+        .card-back .word {
+            font-size: clamp(0.6rem, 1.6vw, 1.1rem);
+            font-weight: 800;
+            color: #333;
+            text-align: center;
+            text-transform: capitalize;
+        }
+
+        .card-back .word.long-word {
+            font-size: clamp(0.5rem, 1.2vw, 0.85rem);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 30px;
+            padding: 40px 60px;
+            text-align: center;
+            border: 6px solid #ffd700;
+            box-shadow: 0 20px 80px rgba(255, 215, 0, 0.6);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 90vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.3); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-card .modal-question {
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            font-weight: 900;
+            color: #f5576c;
+        }
+
+        .modal-card .modal-emoji {
+            font-size: clamp(4rem, 10vw, 6rem);
+        }
+
+        .modal-card .modal-word {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 900;
+            color: #333;
+            text-transform: capitalize;
+        }
+
+        .modal-close {
+            margin-top: 10px;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .modal-close:hover {
+            transform: scale(1.1);
+        }
+
+        .difficulty-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            font-size: 1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            color: #333;
+            border: 3px solid white;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 154, 158, 0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
+            z-index: 100;
+        }
+
+        .difficulty-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(255, 154, 158, 0.7);
+        }
+
+        .difficulty-btn.active {
+            background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+        }
+
+        .reset-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            padding: 15px 25px;
+            font-size: 1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #89f7fe, #66a6ff);
+            color: #333;
+            border: 3px solid white;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(102, 166, 255, 0.5);
+            transition: transform 0.2s;
+            z-index: 100;
+        }
+
+        .reset-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .sparkle {
+            position: fixed;
+            pointer-events: none;
+            border-radius: 50%;
+            animation: sparkle-anim 0.8s ease-out forwards;
+            z-index: 999;
+        }
+
+        @keyframes sparkle-anim {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        .score-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 100;
+            color: #333;
+        }
+
+        .cards-remaining {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 100;
+            color: #333;
+        }
+
+        @media (max-width: 700px) {
+            .cards-grid.wide {
+                grid-template-columns: repeat(4, 1fr);
+                max-width: 500px;
+            }
+            .difficulty-btn, .reset-btn {
+                padding: 10px 16px;
+                font-size: 0.8rem;
+                bottom: 10px;
+            }
+            .modal-card {
+                padding: 25px 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cards-remaining" id="cardsRemaining">🃏 Cards: 8</div>
+    <div class="score-display" id="scoreDisplay">⭐ Flipped: 0</div>
+
+    <div class="header">
+        <div class="header-text" id="headerText">Tap a card!! 👆</div>
+    </div>
+
+    <div class="cards-grid" id="cardsGrid"></div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-card" id="modalCard">
+            <div class="modal-question" id="modalQuestion"></div>
+            <div class="modal-emoji" id="modalEmoji"></div>
+            <div class="modal-word" id="modalWord"></div>
+            <button class="modal-close" onclick="closeModal()">✓ Got it!</button>
+        </div>
+    </div>
+
+    <button class="reset-btn" onclick="resetGame()">🔄 Reset</button>
+    <button class="difficulty-btn" id="difficultyBtn" onclick="addDifficulty()">🚀 Add Difficulty!</button>
+
+    <script>
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+        }
+
+        function playFlipSound() {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function playSuccessSound() {
+            initAudio();
+            const notes = [523, 659, 784, 1047];
+            notes.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime + i * 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.3);
+                osc.start(audioCtx.currentTime + i * 0.1);
+                osc.stop(audioCtx.currentTime + i * 0.1 + 0.3);
+            });
+        }
+
+        function playShuffleSound() {
+            initAudio();
+            for (let i = 0; i < 6; i++) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'triangle';
+                osc.frequency.value = 300 + Math.random() * 600;
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime + i * 0.08);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.08 + 0.1);
+                osc.start(audioCtx.currentTime + i * 0.08);
+                osc.stop(audioCtx.currentTime + i * 0.08 + 0.1);
+            }
+        }
+
+        const familyCards = [
+            { emoji: '👨', word: 'father', type: 'person' },
+            { emoji: '👩', word: 'mother', type: 'person' },
+            { emoji: '👴', word: 'grandfather', type: 'person' },
+            { emoji: '👵', word: 'grandmother', type: 'person' },
+            { emoji: '👨', word: 'father', type: 'person' },
+            { emoji: '👩', word: 'mother', type: 'person' },
+            { emoji: '👴', word: 'grandfather', type: 'person' },
+            { emoji: '👵', word: 'grandmother', type: 'person' },
+        ];
+
+        const objectCards = [
+            { emoji: '🪑', word: 'chair', type: 'thing' },
+            { emoji: '💻', word: 'computer', type: 'thing' },
+            { emoji: '📐', word: 'desk', type: 'thing' },
+            { emoji: '🚪', word: 'door', type: 'thing' },
+            { emoji: '📋', word: 'whiteboard', type: 'thing' },
+            { emoji: '🪟', word: 'window', type: 'thing' },
+            { emoji: '🏠', word: 'house', type: 'thing' },
+            { emoji: '🎒', word: 'bag', type: 'thing' },
+            { emoji: '🧽', word: 'eraser', type: 'thing' },
+            { emoji: '🖍️', word: 'marker', type: 'thing' },
+            { emoji: '🖊️', word: 'pen', type: 'thing' },
+            { emoji: '✏️', word: 'pencil case', type: 'thing' },
+            { emoji: '📏', word: 'ruler', type: 'thing' },
+        ];
+
+        const longWords = ['grandmother', 'grandfather', 'whiteboard', 'pencil case', 'computer'];
+
+        let currentCards = [];
+        let flippedCount = 0;
+        let difficultyAdded = false;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function getQuestion(cardData) {
+            if (!difficultyAdded) {
+                return "Who's this?";
+            }
+            const useThis = Math.random() < 0.5;
+            if (cardData.type === 'person') {
+                return useThis ? "Who's this?" : "Who's that?";
+            } else {
+                return useThis ? "What's this?" : "What's that?";
+            }
+        }
+
+        function createCardElement(cardData, index) {
+            const question = getQuestion(cardData);
+            const isLong = longWords.includes(cardData.word);
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.index = index;
+            card.dataset.question = question;
+
+            card.innerHTML = `
+                <div class="card-inner">
+                    <div class="card-front">
+                        <span class="question-mark">?</span>
+                    </div>
+                    <div class="card-back">
+                        <span class="card-question">${question}</span>
+                        <span class="emoji">${cardData.emoji}</span>
+                        <span class="word ${isLong ? 'long-word' : ''}">${cardData.word}</span>
+                    </div>
+                </div>
+            `;
+            card.addEventListener('click', () => flipCard(card, cardData, question));
+            return card;
+        }
+
+        function flipCard(card, cardData, question) {
+            if (card.classList.contains('flipped')) return;
+
+            playFlipSound();
+            card.classList.add('flipped');
+            flippedCount++;
+            document.getElementById('scoreDisplay').textContent = `⭐ Flipped: ${flippedCount}`;
+
+            createSparkles(card);
+
+            setTimeout(() => {
+                showModal(question, cardData);
+                playSuccessSound();
+                createConfetti();
+            }, 700);
+        }
+
+        function showModal(question, cardData) {
+            const overlay = document.getElementById('modalOverlay');
+            document.getElementById('modalQuestion').textContent = question;
+            document.getElementById('modalEmoji').textContent = cardData.emoji;
+            document.getElementById('modalWord').textContent = cardData.word;
+            overlay.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            updateRemainingCards();
+        }
+
+        function updateRemainingCards() {
+            const total = document.querySelectorAll('.card').length;
+            const flipped = document.querySelectorAll('.card.flipped').length;
+            document.getElementById('cardsRemaining').textContent = `🃏 Cards: ${total - flipped}`;
+
+            if (total - flipped === 0) {
+                setTimeout(() => {
+                    document.getElementById('headerText').textContent = "🎉 Amazing! All done! 🎉";
+                    for (let i = 0; i < 5; i++) {
+                        setTimeout(createConfetti, i * 300);
+                    }
+                }, 500);
+            }
+        }
+
+        function createSparkles(card) {
+            const rect = card.getBoundingClientRect();
+            const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd'];
+            for (let i = 0; i < 8; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = (rect.left + Math.random() * rect.width) + 'px';
+                sparkle.style.top = (rect.top + Math.random() * rect.height) + 'px';
+                sparkle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                const size = (10 + Math.random() * 15) + 'px';
+                sparkle.style.width = size;
+                sparkle.style.height = size;
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 800);
+            }
+        }
+
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43'];
+            for (let i = 0; i < 20; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (1 + Math.random() * 2) + 's';
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                const size = (6 + Math.random() * 10) + 'px';
+                confetti.style.width = size;
+                confetti.style.height = size;
+                if (Math.random() > 0.5) confetti.style.borderRadius = '0';
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 3500);
+            }
+        }
+
+        function addDifficulty() {
+            if (difficultyAdded) return;
+            difficultyAdded = true;
+
+            playShuffleSound();
+
+            const btn = document.getElementById('difficultyBtn');
+            btn.textContent = '✅ Difficulty Added!';
+            btn.classList.add('active');
+
+            // Pick 8 random object cards
+            const shuffledObjects = shuffle([...objectCards]);
+            const selectedObjects = shuffledObjects.slice(0, 8);
+
+            // Combine family + objects and shuffle all together
+            const allCards = shuffle([...familyCards, ...selectedObjects]);
+            currentCards = allCards;
+
+            // Switch grid to wide mode
+            const grid = document.getElementById('cardsGrid');
+            grid.classList.add('wide');
+            grid.innerHTML = '';
+
+            // Re-deal all cards face-down with staggered animation
+            flippedCount = 0;
+            document.getElementById('scoreDisplay').textContent = '⭐ Flipped: 0';
+
+            allCards.forEach((cardData, i) => {
+                const card = createCardElement(cardData, i);
+                card.style.animation = `popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${i * 0.06}s both`;
+                grid.appendChild(card);
+            });
+
+            document.getElementById('cardsRemaining').textContent = `🃏 Cards: ${allCards.length}`;
+            createConfetti();
+        }
+
+        function resetGame() {
+            flippedCount = 0;
+            difficultyAdded = false;
+            document.getElementById('scoreDisplay').textContent = '⭐ Flipped: 0';
+            document.getElementById('headerText').textContent = 'Tap a card!! 👆';
+            document.getElementById('difficultyBtn').textContent = '🚀 Add Difficulty!';
+            document.getElementById('difficultyBtn').classList.remove('active');
+            document.getElementById('cardsGrid').classList.remove('wide');
+            initGame();
+        }
+
+        function initGame() {
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+            currentCards = shuffle([...familyCards]);
+
+            currentCards.forEach((cardData, i) => {
+                const card = createCardElement(cardData, i);
+                card.style.animation = `popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${i * 0.08}s both`;
+                grid.appendChild(card);
+            });
+
+            document.getElementById('cardsRemaining').textContent = `🃏 Cards: ${currentCards.length}`;
+        }
+
+        initGame();
+    </script>
+
+
+</body></html>

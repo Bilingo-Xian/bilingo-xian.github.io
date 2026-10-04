@@ -1,0 +1,289 @@
+<!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta http-equiv="x-dns-prefetch-control" content="off"><script src="https://puc.poecdn.net/authenticated_preview_page/standard.3ef2c256959faf5a756d.js"></script>
+    <meta charset="utf-8">
+    <title>Bird or Bug or Pet?</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://puc.poecdn.net/authenticated_preview_page/disableWebRTC.9710cebe07429a9e8e06.js"></script><meta name="x-poe-allow-downloads" content="true"><meta name="x-poe-datastore-behavior" content="disabled"><script src="https://puc.poecdn.net/authenticated_preview_page/tw.50ec1b0612bf5b0c30a5.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/deps.faccd16000d314dc16d5.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/exports.b0f0f482cdeb5302b0b9.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/renderer.75c73ae6b4235f62945a.js"></script><script>Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }var _react = require('react'); var _react2 = _interopRequireDefault(_react);
+var _framermotion = require('framer-motion');
+
+const ANIMALS = [
+  { name: 'ant', emoji: '🐜', a: 'an', is: ['bug'] },
+  { name: 'bee', emoji: '🐝', a: 'a', is: ['bug'] },
+  { name: 'beetle', emoji: '🪲', a: 'a', is: ['bug'] },
+  { name: 'fly', emoji: '🪰', a: 'a', is: ['bug'] },
+  { name: 'ladybug', emoji: '🐞', a: 'a', is: ['bug'] },
+  { name: 'duck', emoji: '🦆', a: 'a', is: ['bird'] },
+  { name: 'eagle', emoji: '🦅', a: 'an', is: ['bird'] },
+  { name: 'goose', emoji: '🪿', a: 'a', is: ['bird'] },
+  { name: 'owl', emoji: '🦉', a: 'an', is: ['bird'] },
+  { name: 'parrot', emoji: '🦜', a: 'a', is: ['bird', 'pet'] },
+  { name: 'cat', emoji: '🐱', a: 'a', is: ['pet'] },
+  { name: 'dog', emoji: '🐶', a: 'a', is: ['pet'] },
+  { name: 'pig', emoji: '🐷', a: 'a', is: ['pet'] },
+];
+
+const CATS = [
+  { k: 'bug', e: '🐛', l: 'Bug' },
+  { k: 'bird', e: '🐦', l: 'Bird' },
+  { k: 'pet', e: '🐾', l: 'Pet' },
+];
+
+ function BirdOrBug() {
+  const [phase, setPhase] = _react.useState.call(void 0, 'idle');
+  const [idx, setIdx] = _react.useState.call(void 0, null);
+  const [emoji, setEmoji] = _react.useState.call(void 0, '❓');
+  const [tick, setTick] = _react.useState.call(void 0, 0);
+  const [cat, setCat] = _react.useState.call(void 0, null);
+  const [said, setSaid] = _react.useState.call(void 0, null);
+  const [ok, setOk] = _react.useState.call(void 0, null);
+  const [score, setScore] = _react.useState.call(void 0, 0);
+  const [total, setTotal] = _react.useState.call(void 0, 0);
+  const [pops, setPops] = _react.useState.call(void 0, []);
+  const tRef = _react.useRef.call(void 0, []);
+
+  const animal = idx !== null ? ANIMALS[idx] : null;
+  const truth = animal && cat ? animal.is.includes(cat) : null;
+  const canSpin = phase === 'idle' || phase === 'answered';
+
+  const spin = _react.useCallback.call(void 0, () => {
+    tRef.current.forEach(clearTimeout);
+    tRef.current = [];
+    setPhase('spinning');
+    setCat(null);
+    setSaid(null);
+    setOk(null);
+    setPops([]);
+    const target = Math.floor(Math.random() * ANIMALS.length);
+    let d = 0;
+    for (let i = 1; i <= 15; i++) {
+      d += 35 + i * i * 2.5;
+      const last = i === 15;
+      tRef.current.push(setTimeout(() => {
+        const j = last ? target : Math.floor(Math.random() * ANIMALS.length);
+        setEmoji(ANIMALS[j].emoji);
+        setTick(t => t + 1);
+        if (last) { setIdx(target); setPhase('landed'); }
+      }, d));
+    }
+  }, []);
+
+  const reveal = () => { if (phase === 'landed') setPhase('named'); };
+  const pickCat = (c) => { if (phase === 'named') { setCat(c); setPhase('asked'); } };
+  const answer = (yes) => {
+    if (phase !== 'asked' || !animal) return;
+    setSaid(yes);
+    const correct = animal.is.includes(cat) === yes;
+    setOk(correct);
+    if (correct) {
+      setScore(s => s + 1);
+      setPops(Array.from({ length: 8 }).map((_, i) => ({
+        id: Date.now() + i,
+        e: ['⭐', '✨', '🎉', '🌟', '💫', '🎊'][i % 6],
+        x: (Math.random() - 0.5) * 180,
+        y: -(Math.random() * 100 + 50),
+      })));
+    }
+    setTotal(t => t + 1);
+    setPhase('answered');
+  };
+
+  const Cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  return (
+    _react2.default.createElement('div', { className: "min-h-screen bg-gradient-to-b from-cyan-400 via-sky-200 to-lime-100 flex flex-col items-center px-4 py-3 relative overflow-hidden"           ,}
+      , _react2.default.createElement(_framermotion.motion.span, { className: "absolute top-8 left-3 text-6xl opacity-15 select-none pointer-events-none"      ,
+        animate: { x: [0, 25, 0] }, transition: { duration: 16, repeat: Infinity, ease: 'easeInOut' },}, "☁️")
+      , _react2.default.createElement(_framermotion.motion.span, { className: "absolute top-28 right-4 text-4xl opacity-10 select-none pointer-events-none"      ,
+        animate: { x: [0, -18, 0] }, transition: { duration: 12, repeat: Infinity, ease: 'easeInOut' },}, "☁️")
+      , _react2.default.createElement(_framermotion.motion.span, { className: "absolute bottom-16 left-8 text-3xl opacity-10 select-none pointer-events-none"      ,
+        animate: { x: [0, 12, 0] }, transition: { duration: 18, repeat: Infinity, ease: 'easeInOut' },}, "🌿")
+
+      , _react2.default.createElement('h1', { className: "text-3xl font-black text-teal-800 mt-3 relative z-10 text-center tracking-tight"       ,}, "🐦 Bird or Bug or Pet? 🐛"
+
+      )
+      , _react2.default.createElement('p', { className: "text-teal-600 text-xs font-semibold relative z-10 opacity-70 mb-1"      ,}, "K3076 · GE3 U5C18"   )
+
+      , total > 0 && (
+        _react2.default.createElement('div', { className: "flex items-center gap-1.5 mb-1 relative z-10"     ,}
+          , _react2.default.createElement('span', { className: "bg-white/60 text-teal-700 font-bold text-xs px-2.5 py-0.5 rounded-full shadow-sm"       ,}, score, "/", total)
+          , Array.from({ length: Math.min(score, 14) }).map((_, i) => (
+            _react2.default.createElement(_framermotion.motion.span, { key: i, initial: { scale: 0, rotate: -180 }, animate: { scale: 1, rotate: 0 },
+              transition: { delay: i * 0.03 }, className: "text-xs",}, "⭐")
+          ))
+        )
+      )
+
+      /* Animal card */
+      , _react2.default.createElement(_framermotion.motion.div, {
+        className: `bg-white rounded-3xl shadow-xl w-full max-w-sm flex flex-col items-center relative z-10 cursor-pointer mt-1 py-4 px-6 border-4 ${
+          ok === true ? 'border-emerald-400' : ok === false ? 'border-red-400' : 'border-gray-100'
+        }`,
+        onClick: reveal,
+        animate: 
+          phase === 'spinning' ? { rotate: [0, -3, 3, -3, 3, 0] }
+            : ok === true ? { scale: [1, 1.04, 1] }
+            : ok === false ? { x: [0, -10, 10, -10, 10, 0] }
+            : {}
+        ,
+        transition: phase === 'spinning' ? { duration: 0.12, repeat: Infinity } : { duration: 0.4 },}
+
+        , _react2.default.createElement(_framermotion.AnimatePresence, null
+          , pops.map(p => (
+            _react2.default.createElement(_framermotion.motion.span, { key: p.id, className: "absolute text-xl pointer-events-none"  , style: { top: '35%', left: '46%' },
+              initial: { opacity: 1, x: 0, y: 0, scale: 0 },
+              animate: { opacity: 0, x: p.x, y: p.y, scale: 1.5 },
+              exit: { opacity: 0 }, transition: { duration: 0.7, ease: 'easeOut' },}, p.e)
+          ))
+        )
+
+        , _react2.default.createElement(_framermotion.motion.span, { key: tick, className: "text-7xl block" ,
+          initial: phase === 'landed' ? { scale: 1.5 } : { y: -10, opacity: 0.3 },
+          animate: phase === 'landed' ? { scale: 1 } : { y: 0, opacity: 1 },
+          transition: phase === 'landed' ? { type: 'spring', stiffness: 200, damping: 8 } : { duration: 0.04 },}
+          , phase === 'idle' ? '❓' : emoji
+        )
+
+        , _react2.default.createElement(_framermotion.AnimatePresence, { mode: "wait",}
+          , phase === 'landed' && (
+            _react2.default.createElement(_framermotion.motion.p, { key: "tap", initial: { opacity: 0 }, animate: { opacity: [0.3, 1, 0.3] }, exit: { opacity: 0 },
+              transition: { duration: 1.5, repeat: Infinity }, className: "text-sm text-teal-500 mt-1.5 font-semibold"   ,}, "👆 What animal is this?"
+
+            )
+          )
+          , ['named', 'asked', 'answered'].includes(phase) && animal && (
+            _react2.default.createElement(_framermotion.motion.p, { key: "name", initial: { opacity: 0, scale: 0.7 }, animate: { opacity: 1, scale: 1 },
+              transition: { type: 'spring', stiffness: 300 },
+              className: "text-xl font-black text-teal-700 mt-1.5 capitalize"    ,}
+              , animal.a, " " , animal.name, "!"
+            )
+          )
+        )
+      )
+
+      /* Dialogue frame */
+      , _react2.default.createElement('div', { className: "bg-white/70 backdrop-blur rounded-2xl p-3.5 w-full max-w-sm mt-2 relative z-10 shadow-sm"         ,
+        style: { minHeight: '5.5rem' },}
+        , _react2.default.createElement(_framermotion.AnimatePresence, { mode: "wait",}
+          , phase === 'idle' && (
+            _react2.default.createElement(_framermotion.motion.p, { key: "i", initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 },
+              className: "text-gray-400 text-center text-sm py-3"   ,}, "A mystery animal is waiting… 🎲"
+
+            )
+          )
+          , phase === 'spinning' && (
+            _react2.default.createElement(_framermotion.motion.p, { key: "sp", initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 },
+              className: "text-teal-500 text-center text-sm py-3 font-semibold"    ,}, "✨ Who's it going to be? ✨"
+
+            )
+          )
+          , phase === 'landed' && (
+            _react2.default.createElement(_framermotion.motion.p, { key: "g", initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 },
+              className: "text-teal-700 text-center py-3 font-semibold text-sm"    ,}, "Hmm… do you know this one? 🤔"
+
+            )
+          )
+          , phase === 'named' && animal && (
+            _react2.default.createElement(_framermotion.motion.div, { key: "n", initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 },}
+              , _react2.default.createElement('p', { className: "text-teal-900 text-lg" ,}
+                , _react2.default.createElement('span', { className: "font-bold text-rose-500" ,}, "A: " ), "Is "
+                 , animal.a, " " , animal.name, " a"
+                , _react2.default.createElement('span', { className: "inline-block border-b-2 border-dashed border-teal-300 mx-1 px-3 text-teal-300 text-base"       ,}, "???"), "?"
+              )
+              , _react2.default.createElement('p', { className: "text-gray-300 text-lg mt-1"  ,}
+                , _react2.default.createElement('span', { className: "font-bold text-sky-300" ,}, "B: " ), "____________"
+              )
+            )
+          )
+          , (phase === 'asked' || phase === 'answered') && animal && cat && (
+            _react2.default.createElement(_framermotion.motion.div, { key: "qa", initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 },}
+              , _react2.default.createElement('p', { className: "text-teal-900 text-lg" ,}
+                , _react2.default.createElement('span', { className: "font-bold text-rose-500" ,}, "A: " ), "Is "
+                 , animal.a, " " , animal.name, " a "  , cat, "?"
+              )
+              , phase === 'asked' && (
+                _react2.default.createElement(_framermotion.motion.p, { animate: { opacity: [0.3, 0.6, 0.3] }, transition: { duration: 2, repeat: Infinity },
+                  className: "text-gray-300 text-lg mt-1"  ,}
+                  , _react2.default.createElement('span', { className: "font-bold text-sky-300" ,}, "B: " ), "____________"
+                )
+              )
+              , phase === 'answered' && (
+                _react2.default.createElement(_framermotion.motion.div, { initial: { opacity: 0, x: -8 }, animate: { opacity: 1, x: 0 },}
+                  , _react2.default.createElement('p', { className: "text-teal-900 text-lg mt-1"  ,}
+                    , _react2.default.createElement('span', { className: "font-bold text-sky-500" ,}, "B: " )
+                    , truth ? 'Yes, it is!' : "No, it isn't!"
+                  )
+                  , _react2.default.createElement(_framermotion.motion.p, { initial: { opacity: 0, y: 4 }, animate: { opacity: 1, y: 0 }, transition: { delay: 0.2 },
+                    className: `text-xs font-bold mt-1.5 ${ok ? 'text-emerald-600' : 'text-rose-500'}`,}
+                    , ok
+                      ? '🎉 That\'s right!'
+                      : `😅 Nope! ${Cap(animal.a)} ${animal.name} ${truth ? 'IS' : 'is NOT'} a ${cat}!`
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+
+      /* Category buttons */
+      , _react2.default.createElement('div', { className: "flex gap-2 mt-2 w-full max-w-sm relative z-10"      ,}
+        , CATS.map(c => {
+          const on = phase === 'named';
+          const sel = cat === c.k;
+          return (
+            _react2.default.createElement(_framermotion.motion.button, { key: c.k,
+              className: `flex-1 py-2.5 rounded-2xl font-bold text-sm shadow-sm transition-all border-2 ${
+                on ? 'bg-white text-teal-700 border-teal-300 active:bg-teal-50'
+                  : sel ? 'bg-teal-500 text-white border-teal-600'
+                  : 'bg-gray-50 text-gray-300 border-gray-200'
+              }`,
+              whileTap: on ? { scale: 0.88 } : undefined,
+              whileHover: on ? { scale: 1.05, y: -2 } : undefined,
+              onClick: () => pickCat(c.k), disabled: !on,}
+              , _react2.default.createElement('span', { className: "text-2xl block leading-tight"  ,}, c.e)
+              , c.l
+            )
+          );
+        })
+      )
+
+      /* Yes / No buttons */
+      , _react2.default.createElement('div', { className: "flex gap-2 mt-2 w-full max-w-sm relative z-10"      ,}
+        , [
+          { y: true, l: '✅ Yes, it is!', ac: 'bg-emerald-500 text-white border-emerald-600', sc: 'bg-emerald-600 text-white border-emerald-700 ring-2 ring-emerald-300' },
+          { y: false, l: "❌ No, it isn't!", ac: 'bg-rose-500 text-white border-rose-600', sc: 'bg-rose-600 text-white border-rose-700 ring-2 ring-rose-300' },
+        ].map(b => {
+          const on = phase === 'asked';
+          const sel = said === b.y && phase === 'answered';
+          return (
+            _react2.default.createElement(_framermotion.motion.button, { key: String(b.y),
+              className: `flex-1 py-3 rounded-2xl font-bold text-sm shadow-sm transition-all border-2 ${
+                on ? b.ac : sel ? b.sc : 'bg-gray-50 text-gray-300 border-gray-200'
+              }`,
+              whileTap: on ? { scale: 0.88 } : undefined,
+              whileHover: on ? { scale: 1.03 } : undefined,
+              onClick: () => answer(b.y), disabled: !on,}
+              , b.l
+            )
+          );
+        })
+      )
+
+      /* Spin button */
+      , _react2.default.createElement(_framermotion.motion.button, {
+        className: `mt-3 mb-6 px-12 py-3.5 rounded-full font-black text-lg shadow-lg relative z-10 ${
+          canSpin ? 'bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 text-white shadow-orange-200'
+            : phase === 'spinning' ? 'bg-amber-100 text-amber-400' : 'bg-gray-200 text-gray-400'
+        }`,
+        whileHover: canSpin ? { scale: 1.06, y: -2 } : undefined,
+        whileTap: canSpin ? { scale: 0.9 } : undefined,
+        onClick: spin, disabled: !canSpin,}
+        , phase === 'spinning' ? '✨ mixing ...' : total === 0 ? "🎲 Let's go!" : '🎲 Next!'
+      )
+    )
+  );
+} exports.default = BirdOrBug;
+</script></head>
+  <body>
+  
+
+<div id="preview-app"></div></body></html>

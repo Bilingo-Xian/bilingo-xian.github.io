@@ -1,0 +1,1214 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Around the House - GE3 U3C11</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(180deg, #87CEEB 0%, #B0E0E6 40%, #90EE90 70%, #228B22 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+h1 {
+    color: white;
+    font-size: 1.6rem;
+    text-align: center;
+    margin: 4px 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+#question-bar {
+    background: white;
+    color: #333;
+    padding: 10px 24px;
+    border-radius: 25px;
+    font-size: 1.15rem;
+    font-weight: bold;
+    margin: 6px 0 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    text-align: center;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 95%;
+    transition: background 0.3s;
+}
+#question-bar .room-word {
+    color: #E65100;
+    font-weight: 900;
+    margin: 0 4px;
+}
+
+#scene {
+    display: flex;
+    align-items: flex-end;
+    gap: 0;
+    width: 100%;
+    max-width: 820px;
+    justify-content: center;
+}
+
+#house-structure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+#roof {
+    width: 108%;
+    height: 65px;
+    background: linear-gradient(180deg, #C62828, #B71C1C);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+#house-body {
+    background: #6D4C41;
+    border: 5px solid #4E342E;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.floor {
+    display: flex;
+    gap: 5px;
+}
+.floor-2 .room { min-height: 110px; }
+.floor-1 .room { min-height: 135px; }
+
+#garden-wrap {
+    width: 130px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+}
+#garden-fence {
+    width: 6px;
+    height: 180px;
+    background: repeating-linear-gradient(
+        180deg,
+        #8D6E63 0px, #8D6E63 14px,
+        transparent 14px, transparent 16px
+    );
+    position: relative;
+    border-radius: 2px;
+}
+#garden-fence::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: -4px;
+    width: 14px;
+    height: 2px;
+    background: #6D4C41;
+    box-shadow: 0 20px 0 #6D4C41, 0 40px 0 #6D4C41, 0 60px 0 #6D4C41, 0 80px 0 #6D4C41, 0 100px 0 #6D4C41, 0 120px 0 #6D4C41, 0 140px 0 #6D4C41;
+}
+
+.room {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: box-shadow 0.3s, transform 0.3s;
+    cursor: pointer;
+}
+.room:hover {
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.5), 0 0 12px rgba(255,255,255,0.3);
+}
+.room.correct-flash {
+    box-shadow: 0 0 0 4px #4CAF50, 0 0 25px rgba(76,175,80,0.7) !important;
+}
+.room.wrong-flash { animation: shake 0.5s ease !important; }
+@keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-6px)}
+    40%{transform:translateX(6px)}
+    60%{transform:translateX(-4px)}
+    80%{transform:translateX(4px)}
+}
+
+.room-bedroom { width: 150px; background: linear-gradient(180deg, #F3E5F5, #E1BEE7); }
+.room-bathroom { width: 130px; background: linear-gradient(180deg, #E0F7FA, #B2EBF2); }
+.room-living { width: 160px; background: linear-gradient(180deg, #FFF3E0, #FFE0B2); }
+.room-kitchen { width: 200px; background: linear-gradient(180deg, #FFFDE7, #FFF9C4); }
+.room-dining { width: 240px; background: linear-gradient(180deg, #FBE9E7, #FFCCBC); }
+.room-garden {
+    width: 120px;
+    min-height: 180px !important;
+    background: linear-gradient(180deg, #C8E6C9, #A5D6A7);
+    border-radius: 6px;
+    border: 3px solid #66BB6A;
+}
+
+.room-label {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+.room-label.visible { opacity: 1; }
+
+.bubble {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: rgba(255,255,255,0.9);
+    cursor: pointer;
+    z-index: 10;
+    animation: bubbleFloat 2.5s ease-in-out infinite;
+    box-shadow: inset -3px -3px 10px rgba(0,0,0,0.1), inset 3px 3px 10px rgba(255,255,255,0.5), 0 3px 10px rgba(0,0,0,0.15);
+    transition: transform 0.2s;
+}
+.bubble:hover { transform: translate(-50%,-50%) scale(1.2); }
+.bubble.popped { animation: popBurst 0.4s ease-out forwards; pointer-events: none; }
+@keyframes bubbleFloat {
+    0%,100%{transform:translate(-50%,-50%) translateY(0)}
+    50%{transform:translate(-50%,-50%) translateY(-5px)}
+}
+@keyframes popBurst {
+    0%{transform:translate(-50%,-50%) scale(1);opacity:1}
+    50%{transform:translate(-50%,-50%) scale(1.6);opacity:0.4}
+    100%{transform:translate(-50%,-50%) scale(2);opacity:0}
+}
+
+.sparkle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 15;
+    animation: sparkleFly 0.5s ease-out forwards;
+}
+@keyframes sparkleFly {
+    0%{opacity:1;transform:scale(1) translate(0,0)}
+    100%{opacity:0;transform:scale(0.5) translate(var(--dx),var(--dy))}
+}
+
+.furniture-item {
+    position: absolute;
+    left: var(--x, 50%);
+    top: var(--y, 50%);
+    transform: translate(-50%, -50%) scale(var(--scale, 1)) rotate(var(--rotate, 0deg)) scaleX(var(--flip-x, 1));
+    z-index: 3;
+    pointer-events: none;
+    line-height: 1;
+}
+.furniture-item img {
+    width: var(--w, 40px);
+    height: auto;
+    display: block;
+}
+.furniture-item .emoji {
+    font-size: var(--size, 1.5rem);
+    display: block;
+}
+
+.room-character {
+    position: absolute;
+    top: var(--char-y, 8px);
+    right: var(--char-x, 8px);
+    width: 36px;
+    height: auto;
+    opacity: 0;
+    transition: opacity 0.4s;
+    z-index: 6;
+    pointer-events: none;
+}
+.room-character.show { opacity: 1; }
+
+.room-action-indicator {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    font-size: 1.3rem;
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+    z-index: 6;
+}
+.room-action-indicator.show { opacity: 1; }
+
+#options-area {
+    width: 100%;
+    max-width: 820px;
+    margin-top: 10px;
+    display: none;
+}
+#options-area.active { display: block; }
+
+#options-hint {
+    text-align: center;
+    color: white;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    opacity: 0.9;
+}
+
+#options-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    padding: 12px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 14px;
+    min-height: 60px;
+}
+.option-card {
+    background: white;
+    border-radius: 14px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: grab;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    touch-action: none;
+    border: 3px solid transparent;
+}
+.option-card:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+.option-card .card-emoji { font-size: 1.6rem; line-height: 1; }
+.option-card.dragging { opacity: 0.4; transform: scale(0.95); }
+.option-card.selected {
+    border-color: #FFEB3B;
+    box-shadow: 0 0 0 2px #FFEB3B, 0 6px 25px rgba(255,235,59,0.4);
+    transform: translateY(-4px) scale(1.05);
+    animation: selectedPulse 1.5s ease-in-out infinite;
+}
+@keyframes selectedPulse {
+    0%,100% { box-shadow: 0 0 0 2px #FFEB3B, 0 6px 25px rgba(255,235,59,0.4); }
+    50% { box-shadow: 0 0 0 4px #FFEB3B, 0 6px 30px rgba(255,235,59,0.6); }
+}
+.option-card.wrong {
+    border-color: #E53935;
+    animation: cardShake 0.4s ease;
+}
+.option-card.correct-card {
+    border-color: #4CAF50;
+    background: #E8F5E9;
+}
+@keyframes cardShake {
+    0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 50%{transform:translateX(5px)} 75%{transform:translateX(-3px)}
+}
+
+#drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1000;
+    background: white;
+    border-radius: 14px;
+    padding: 10px 16px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+    font-size: 1rem;
+    font-weight: 600;
+    transform: translate(-50%,-50%) rotate(-2deg) scale(1.1);
+    border: 2px solid #FFEB3B;
+}
+#drag-ghost .card-emoji { font-size: 1.6rem; }
+
+#sentence-display {
+    display: none;
+    background: #E8F5E9;
+    border: 2px solid #4CAF50;
+    border-radius: 12px;
+    padding: 10px 20px;
+    margin-top: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #2E7D32;
+    text-align: center;
+    max-width: 820px;
+    width: 100%;
+    animation: fadeSlideUp 0.4s ease;
+}
+@keyframes fadeSlideUp {
+    0%{opacity:0;transform:translateY(10px)} 100%{opacity:1;transform:translateY(0)}
+}
+
+#action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.btn {
+    border: none;
+    padding: 10px 22px;
+    border-radius: 22px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    transition: transform 0.2s, background 0.2s;
+    display: none;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+.btn-reveal { background: #42A5F5; color: white; }
+.btn-reveal:hover { background: #1E88E5; }
+.btn-next { background: #66BB6A; color: white; }
+.btn-next:hover { background: #43A047; }
+.btn-reset { background: #FF7043; color: white; }
+.btn-reset:hover { background: #F4511E; }
+.btn.show { display: inline-block; }
+
+#progress-wrap {
+    width: 100%;
+    max-width: 820px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+#progress-wrap.active { display: flex; }
+#progress-bar {
+    flex: 1;
+    height: 10px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 5px;
+    overflow: hidden;
+}
+#progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #66BB6A, #43A047);
+    border-radius: 5px;
+    transition: width 0.4s ease;
+    width: 0%;
+}
+#progress-text {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+    white-space: nowrap;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+#complete-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+#complete-overlay.show { display: flex; }
+#complete-box {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    animation: bounceIn 0.5s ease;
+}
+@keyframes bounceIn {
+    0%{transform:scale(0)} 60%{transform:scale(1.1)} 100%{transform:scale(1)}
+}
+#complete-box h2 { font-size: 1.8rem; margin-bottom: 8px; }
+#complete-box p { font-size: 1rem; color: #555; margin-bottom: 15px; }
+
+.confetti-piece {
+    position: fixed;
+    top: -10px;
+    z-index: 3000;
+    pointer-events: none;
+    animation: confDrop linear forwards;
+}
+@keyframes confDrop {
+    0%{transform:translateY(0) rotate(0deg);opacity:1}
+    100%{transform:translateY(105vh) rotate(720deg);opacity:0}
+}
+
+/* Mini confetti burst */
+.mini-confetti {
+    position: fixed;
+    pointer-events: none;
+    z-index: 3000;
+    animation: miniConfBurst ease-out forwards;
+}
+@keyframes miniConfBurst {
+    0%{opacity:1;transform:translate(var(--tx-start), var(--ty-start)) scale(1) rotate(0deg);}
+    100%{opacity:0;transform:translate(var(--tx-end), var(--ty-end)) scale(0.5) rotate(360deg);}
+}
+
+/* Screen flash */
+.screen-flash {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1500;
+    animation: flashAnim 0.3s ease-out forwards;
+}
+@keyframes flashAnim {
+    0%{opacity:0.3} 100%{opacity:0}
+}
+
+@media (max-width: 750px) {
+    #scene { flex-direction: column; align-items: center; }
+    #garden-wrap { flex-direction: row; width: 100%; justify-content: center; }
+    #garden-fence { width: 100%; height: 6px; background: repeating-linear-gradient(90deg, #8D6E63 0px, #8D6E63 14px, transparent 14px, transparent 16px); }
+    #garden-fence::before { display: none; }
+    .room-garden { width: 100% !important; min-height: 100px !important; }
+    .room-bedroom { width: 130px; }
+    .room-bathroom { width: 110px; }
+    .room-living { width: 140px; }
+    .room-kitchen { width: 180px; }
+    .room-dining { width: 200px; }
+    .floor-2 .room { min-height: 90px; }
+    .floor-1 .room { min-height: 110px; }
+    #roof { height: 50px; }
+}
+</style>
+</head>
+<body>
+
+<h1>🏠 Around the House 🏠</h1>
+<div id="question-bar">What's this room? Pop the bubbles! 🫧</div>
+
+<div id="scene">
+
+    <!-- HOUSE -->
+    <div id="house-structure">
+        <div id="roof"></div>
+        <div id="house-body">
+            <!-- SECOND FLOOR -->
+            <div class="floor floor-2">
+                <div class="room room-bedroom" id="room-bedroom" data-room="bedroom">
+                    <div class="furniture-item" style="--x:40%; --y:55%; --scale:1;">
+                        <span class="emoji" style="--size:2.2rem;">🛏️</span>
+                    </div>
+                    <div class="furniture-item" style="--x:82%; --y:35%; --scale:0.7;">
+                        <img src="lamp.png" style="width:80px;" alt="lamp">
+                    </div>
+                    <div class="furniture-item" style="--x:20%; --y:35%; --scale:1;">
+                        <span class="emoji" style="--size:1.2rem;">🧸</span>
+                    </div>
+                    <div class="room-label" id="label-bedroom">bedroom</div>
+                    <div class="bubble" data-target="bedroom" style="background: radial-gradient(circle at 30% 30%, rgba(255,200,255,0.9), #CE93D8);">?</div>
+                    <img class="room-character" id="char-bedroom" src="Nani.png" alt="character" style="--char-y:5px; --char-x:5px;">
+                    <div class="room-action-indicator" id="action-bedroom"></div>
+                </div>
+
+                <div class="room room-bathroom" id="room-bathroom" data-room="bathroom">
+                    <div class="furniture-item" style="--x:35%; --y:55%; --scale:1;">
+                        <span class="emoji" style="--size:2rem;">🛁</span>
+                    </div>
+                    <div class="furniture-item" style="--x:80%; --y:50%; --scale:1;">
+                        <span class="emoji" style="--size:1.3rem;">🚽</span>
+                    </div>
+                    <div class="furniture-item" style="--x:78%; --y:22%; --scale:1;">
+                        <span class="emoji" style="--size:1.1rem;">🚰</span>
+                    </div>
+                    <div class="room-label" id="label-bathroom">bathroom</div>
+                    <div class="bubble" data-target="bathroom" style="background: radial-gradient(circle at 30% 30%, rgba(200,240,255,0.9), #4FC3F7);">?</div>
+                    <img class="room-character" id="char-bathroom" src="Lele.png" alt="character" style="--char-y:5px; --char-x:5px;">
+                    <div class="room-action-indicator" id="action-bathroom"></div>
+                </div>
+
+                <div class="room room-living" id="room-living" data-room="living room">
+                    <div class="furniture-item" style="--x:35%; --y:60%; --scale:1;">
+                        <span class="emoji" style="--size:2rem;">🛋️</span>
+                    </div>
+                    <div class="furniture-item" style="--x:78%; --y:35%; --scale:1;">
+                        <span class="emoji" style="--size:1.6rem;">📺</span>
+                    </div>
+                    <div class="furniture-item" style="--x:15%; --y:30%; --scale:1;">
+                        <span class="emoji" style="--size:1.1rem;">🪴</span>
+                    </div>
+                    <div class="room-label" id="label-living">living room</div>
+                    <div class="bubble" data-target="living" style="background: radial-gradient(circle at 30% 30%, rgba(255,220,180,0.9), #FFB74D);">?</div>
+                    <img class="room-character" id="char-living" src="Pili.png" alt="character" style="--char-y:5px; --char-x:5px;">
+                    <div class="room-action-indicator" id="action-living"></div>
+                </div>
+            </div>
+
+            <!-- FIRST FLOOR -->
+            <div class="floor floor-1">
+                <div class="room room-kitchen" id="room-kitchen" data-room="kitchen">
+                    <div class="furniture-item" style="--x:30%; --y:50%; --scale:1;">
+                        <img src="stove.png" style="width:45px;" alt="stove">
+                    </div>
+                    <div class="furniture-item" style="--x:72%; --y:20%; --scale:1;">
+                        <img src="fridge.png" style="width:80px;" alt="fridge">
+                    </div>
+                    <div class="furniture-item" style="--x:72%; --y:72%; --scale:1;">
+                        <span class="emoji" style="--size:1.3rem;">🚰</span>
+                    </div>
+                    <div class="room-label" id="label-kitchen">kitchen</div>
+                    <div class="bubble" data-target="kitchen" style="background: radial-gradient(circle at 30% 30%, rgba(255,255,200,0.9), #FFD54F);">?</div>
+                    <img class="room-character" id="char-kitchen" src="Ola.png" alt="character" style="--char-y:5px; --char-x:5px;">
+                    <div class="room-action-indicator" id="action-kitchen"></div>
+                </div>
+
+                <div class="room room-dining" id="room-dining" data-room="dining room">
+                    <div class="furniture-item" style="--x:50%; --y:50%; --scale:1;">
+                        <div style="width:70px; height:36px; background:linear-gradient(180deg,#8D6E63,#6D4C41); border-radius:6px; border:2px solid #4E342E; box-shadow:0 3px 6px rgba(0,0,0,0.3);"></div>
+                    </div>
+                    <div class="furniture-item" style="--x:25%; --y:52%; --scale:1; --flip-x:1;">
+                        <span class="emoji" style="--size:1.5rem;">🪑</span>
+                    </div>
+                    <div class="furniture-item" style="--x:75%; --y:52%; --scale:1; --flip-x:-1;">
+                        <span class="emoji" style="--size:1.5rem;">🪑</span>
+                    </div>
+                    <div class="furniture-item" style="--x:42%; --y:45%; --scale:1;">
+                        <span class="emoji" style="--size:0.9rem;">🍽️</span>
+                    </div>
+                    <div class="furniture-item" style="--x:58%; --y:45%; --scale:1;">
+                        <span class="emoji" style="--size:0.9rem;">🍽️</span>
+                    </div>
+                    <div class="room-label" id="label-dining">dining room</div>
+                    <div class="bubble" data-target="dining" style="background: radial-gradient(circle at 30% 30%, rgba(255,210,200,0.9), #FF8A65);">?</div>
+                    <img class="room-character" id="char-dining" src="Laki.png" alt="character" style="--char-y:5px; --char-x:5px;">
+                    <div class="room-action-indicator" id="action-dining"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GARDEN -->
+    <div id="garden-wrap">
+        <div id="garden-fence"></div>
+        <div class="room room-garden" id="room-garden" data-room="garden" style="margin-top:-180px;">
+            <div class="furniture-item" style="--x:30%; --y:35%; --scale:1;">
+                <span class="emoji" style="--size:2rem;">🌳</span>
+            </div>
+            <div class="furniture-item" style="--x:65%; --y:60%; --scale:1;">
+                <span class="emoji" style="--size:1.4rem;">🌷</span>
+            </div>
+            <div class="furniture-item" style="--x:80%; --y:45%; --scale:1;">
+                <span class="emoji" style="--size:1.2rem;">🌻</span>
+            </div>
+            <div class="furniture-item" style="--x:55%; --y:25%; --scale:1;">
+                <span class="emoji" style="--size:1rem;">🦋</span>
+            </div>
+            <div class="furniture-item" style="--x:85%; --y:10%; --scale:1;">
+                <span class="emoji" style="--size:1.2rem;">☀️</span>
+            </div>
+            <div class="room-label" id="label-garden">garden</div>
+            <div class="bubble" data-target="garden" style="background: radial-gradient(circle at 30% 30%, rgba(200,255,200,0.9), #81C784);">?</div>
+            <img class="room-character" id="char-garden" src="Ola.png" alt="character" style="--char-y:5px; --char-x:5px;">
+            <div class="room-action-indicator" id="action-garden"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Sentence Display -->
+<div id="sentence-display"></div>
+
+<!-- Action Buttons -->
+<div id="action-buttons">
+    <button class="btn btn-reveal" id="btn-reveal" onclick="revealSentence()">📝 Reveal Sentence</button>
+    <button class="btn btn-next" id="btn-next" onclick="nextPlayer()">Next Player ➡️</button>
+    <button class="btn btn-reset" id="btn-reset" onclick="resetGame()">🔄 Play Again</button>
+</div>
+
+<!-- Options -->
+<div id="options-area">
+    <div id="options-hint">👆 Click an action, then click the room — or drag it there!</div>
+    <div id="options-container"></div>
+</div>
+
+<!-- Progress -->
+<div id="progress-wrap">
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div id="progress-text">0 / 12</div>
+</div>
+
+<!-- Drag Ghost -->
+<div id="drag-ghost"></div>
+
+<!-- Completion Overlay -->
+<div id="complete-overlay">
+    <div id="complete-box">
+        <h2>🎉 Well done! 🎉</h2>
+        <p>You matched all the actions to the right rooms!</p>
+        <button class="btn btn-next show" onclick="resetGame(); document.getElementById('complete-overlay').classList.remove('show');">Play Again 🔄</button>
+    </div>
+</div>
+
+<script>
+// ===================== SOUND ENGINE =====================
+let audioCtx = null;
+function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+}
+
+function playCorrectSound() {
+    try {
+        const ctx = getAudioCtx();
+        if (ctx.state === 'suspended') ctx.resume();
+        // Ba-ding: two ascending notes
+        const t = ctx.currentTime;
+        
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.value = 523.25; // C5
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        gain1.gain.setValueAtTime(0.25, t);
+        gain1.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
+        osc1.start(t);
+        osc1.stop(t + 0.2);
+        
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.value = 783.99; // G5
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        gain2.gain.setValueAtTime(0.25, t + 0.12);
+        gain2.gain.exponentialRampToValueAtTime(0.01, t + 0.45);
+        osc2.start(t + 0.12);
+        osc2.stop(t + 0.45);
+        
+        const osc3 = ctx.createOscillator();
+        const gain3 = ctx.createGain();
+        osc3.type = 'sine';
+        osc3.frequency.value = 1046.5; // C6
+        osc3.connect(gain3);
+        gain3.connect(ctx.destination);
+        gain3.gain.setValueAtTime(0.2, t + 0.24);
+        gain3.gain.exponentialRampToValueAtTime(0.01, t + 0.6);
+        osc3.start(t + 0.24);
+        osc3.stop(t + 0.6);
+    } catch(e) {}
+}
+
+function playWrongSound() {
+    try {
+        const ctx = getAudioCtx();
+        if (ctx.state === 'suspended') ctx.resume();
+        const t = ctx.currentTime;
+        
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(180, t);
+        osc.frequency.linearRampToValueAtTime(120, t + 0.3);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        gain.gain.setValueAtTime(0.2, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.35);
+        osc.start(t);
+        osc.stop(t + 0.35);
+    } catch(e) {}
+}
+
+function playPopSound() {
+    try {
+        const ctx = getAudioCtx();
+        if (ctx.state === 'suspended') ctx.resume();
+        const t = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, t);
+        osc.frequency.exponentialRampToValueAtTime(200, t + 0.1);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        gain.gain.setValueAtTime(0.2, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
+        osc.start(t);
+        osc.stop(t + 0.12);
+    } catch(e) {}
+}
+
+// ===================== CONFETTI BURST =====================
+function burstConfetti(x, y, count) {
+    const colors = ['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#CE93D8','#FF8A65','#4DD0E1'];
+    for (let i = 0; i < count; i++) {
+        const el = document.createElement('div');
+        el.className = 'mini-confetti';
+        const angle = (Math.random() * Math.PI * 2);
+        const dist = 60 + Math.random() * 120;
+        const endX = Math.cos(angle) * dist;
+        const endY = Math.sin(angle) * dist - 40;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.style.width = (5 + Math.random()*7) + 'px';
+        el.style.height = (5 + Math.random()*7) + 'px';
+        el.style.background = colors[Math.floor(Math.random()*colors.length)];
+        el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        el.style.setProperty('--tx-start', '0px');
+        el.style.setProperty('--ty-start', '0px');
+        el.style.setProperty('--tx-end', endX + 'px');
+        el.style.setProperty('--ty-end', endY + 'px');
+        el.style.animationDuration = (0.5 + Math.random()*0.5) + 's';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1200);
+    }
+}
+
+function flashScreen(color) {
+    const el = document.createElement('div');
+    el.className = 'screen-flash';
+    el.style.background = color;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 400);
+}
+
+// ===================== GAME DATA =====================
+const questions = [
+    { room: 'kitchen', action: 'cook', emoji: '🍳', char: 'Ola.png' },
+    { room: 'kitchen', action: 'wash dishes', emoji: '🧽', char: 'Lele.png' },
+    { room: 'bathroom', action: 'wash hair', emoji: '🚿', char: 'Nani.png' },
+    { room: 'bathroom', action: 'brush teeth', emoji: '🪥', char: 'Laki.png' },
+    { room: 'living room', action: 'watch TV', emoji: '📺', char: 'Pili.png' },
+    { room: 'living room', action: 'read a newspaper', emoji: '📰', char: 'Ola.png' },
+    { room: 'bedroom', action: 'sleep', emoji: '😴', char: 'Nani.png' },
+    { room: 'bedroom', action: 'read a book', emoji: '📖', char: 'Lele.png' },
+    { room: 'dining room', action: 'eat', emoji: '🍽️', char: 'Laki.png' },
+    { room: 'dining room', action: 'drink milk', emoji: '🥛', char: 'Pili.png' },
+    { room: 'garden', action: 'play', emoji: '⚽', char: 'Ola.png' },
+    { room: 'garden', action: 'run', emoji: '🏃', char: 'Laki.png' },
+];
+
+// Multiple valid answers per room (freer sentences)
+const roomAcceptableActions = {
+    'kitchen': ['cook', 'wash dishes'],
+    'bathroom': ['wash hair', 'brush teeth'],
+    'living room': ['watch TV', 'read a newspaper', 'read a book'],
+    'bedroom': ['sleep', 'read a book'],
+    'dining room': ['eat', 'drink milk'],
+    'garden': ['play', 'run', 'read a book']
+};
+
+const roomKeyMap = {
+    'kitchen': 'kitchen',
+    'bathroom': 'bathroom',
+    'living room': 'living',
+    'bedroom': 'bedroom',
+    'dining room': 'dining',
+    'garden': 'garden'
+};
+
+// ===================== STATE =====================
+let phase = 1;
+let bubblesPopped = 0;
+let currentQuestion = 0;
+let shuffledQuestions = [];
+let dragState = null;
+let answered = false;
+let selectedCard = null;
+let lastCorrectAction = '';
+let lastCorrectRoom = '';
+
+// ===================== PHASE 1: BUBBLE POP =====================
+document.querySelectorAll('.bubble').forEach(bubble => {
+    bubble.addEventListener('click', function() {
+        if (this.classList.contains('popped')) return;
+        const target = this.dataset.target;
+        this.classList.add('popped');
+        playPopSound();
+        
+        const rect = this.getBoundingClientRect();
+        const parent = this.parentElement;
+        const parentRect = parent.getBoundingClientRect();
+        const cx = rect.left - parentRect.left + rect.width/2;
+        const cy = rect.top - parentRect.top + rect.height/2;
+        const colors = ['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#CE93D8','#FF8A65'];
+        for (let i = 0; i < 8; i++) {
+            const sp = document.createElement('div');
+            sp.className = 'sparkle';
+            const angle = (i/8) * Math.PI * 2;
+            const dist = 25 + Math.random()*20;
+            sp.style.left = cx + 'px';
+            sp.style.top = cy + 'px';
+            sp.style.background = colors[i % colors.length];
+            sp.style.setProperty('--dx', Math.cos(angle)*dist + 'px');
+            sp.style.setProperty('--dy', Math.sin(angle)*dist + 'px');
+            parent.appendChild(sp);
+            setTimeout(() => sp.remove(), 500);
+        }
+        
+        setTimeout(() => {
+            document.getElementById('label-' + target).classList.add('visible');
+        }, 300);
+        
+        bubblesPopped++;
+        if (bubblesPopped >= 6) {
+            setTimeout(startPhase2, 1200);
+        }
+    });
+});
+
+// ===================== PHASE 2 =====================
+function startPhase2() {
+    phase = 2;
+    document.getElementById('options-area').classList.add('active');
+    document.getElementById('progress-wrap').classList.add('active');
+    
+    shuffledQuestions = shuffle([...questions]);
+    currentQuestion = 0;
+    showQuestion();
+}
+
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+function showQuestion() {
+    if (currentQuestion >= shuffledQuestions.length) {
+        showCompletion();
+        return;
+    }
+    
+    answered = false;
+    selectedCard = null;
+    lastCorrectAction = '';
+    lastCorrectRoom = '';
+    const q = shuffledQuestions[currentQuestion];
+    
+    // Update question bar
+    document.getElementById('question-bar').innerHTML = 
+        `Where do you <span class="room-word">${q.action}</span>? 🤔`;
+    
+    // NO room highlighting — player must identify it themselves
+    document.querySelectorAll('.room').forEach(r => r.classList.remove('highlighted','correct-flash'));
+    
+    // Hide sentence & buttons
+    document.getElementById('sentence-display').style.display = 'none';
+    document.getElementById('btn-reveal').classList.remove('show');
+    document.getElementById('btn-next').classList.remove('show');
+    document.getElementById('btn-reset').classList.remove('show');
+    
+    // Generate options: correct room + 3 distractor rooms
+    const correctRoom = q.room;
+    const allRooms = ['kitchen','bathroom','living room','bedroom','dining room','garden'];
+    const otherRooms = allRooms.filter(r => r !== correctRoom);
+    const distractorRooms = shuffle([...otherRooms]).slice(0, 3);
+    const optionRooms = shuffle([correctRoom, ...distractorRooms]);
+    
+    // Map rooms to display data
+    const roomDisplayData = {
+        'kitchen': { emoji: '🍳', label: 'kitchen' },
+        'bathroom': { emoji: '🛁', label: 'bathroom' },
+        'living room': { emoji: '🛋️', label: 'living room' },
+        'bedroom': { emoji: '🛏️', label: 'bedroom' },
+        'dining room': { emoji: '🍽️', label: 'dining room' },
+        'garden': { emoji: '🌳', label: 'garden' }
+    };
+    
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
+    optionRooms.forEach(room => {
+        const data = roomDisplayData[room];
+        const card = document.createElement('div');
+        card.className = 'option-card';
+        card.dataset.room = room;
+        card.innerHTML = `<span class="card-emoji">${data.emoji}</span><span>${data.label}</span>`;
+        card.addEventListener('pointerdown', onPointerDown);
+        container.appendChild(card);
+    });
+    
+    // Update progress
+    document.getElementById('progress-text').textContent = `${currentQuestion + 1} / ${shuffledQuestions.length}`;
+    document.getElementById('progress-fill').style.width = (currentQuestion / shuffledQuestions.length * 100) + '%';
+}
+
+// ===================== CLICK-TO-SELECT ON ROOMS =====================
+document.querySelectorAll('.room').forEach(roomEl => {
+    roomEl.addEventListener('click', function(e) {
+        if (phase !== 2 || answered) return;
+        if (e.target.closest('.bubble')) return; // don't interfere with bubble popping
+        
+        if (selectedCard) {
+            const cardRoom = selectedCard.dataset.room;
+            const clickedRoomId = this.id.replace('room-', '');
+            const clickedRoomName = this.dataset.room;
+            
+            // Check: does the card's room match this room?
+            const q = shuffledQuestions[currentQuestion];
+            const targetRoomKey = roomKeyMap[q.room];
+            
+            if (cardRoom === clickedRoomName && roomAcceptableActions[clickedRoomName] && roomAcceptableActions[clickedRoomName].includes(q.action)) {
+                handleCorrect(this, q, q.action);
+            } else if (cardRoom === clickedRoomName && clickedRoomId === targetRoomKey) {
+                handleCorrect(this, q, q.action);
+            } else {
+                handleWrong(this, selectedCard);
+            }
+            
+            // Deselect
+            selectedCard.classList.remove('selected');
+            selectedCard = null;
+        }
+    });
+});
+
+// ===================== DRAG & CLICK HANDLING =====================
+const ghost = document.getElementById('drag-ghost');
+
+function onPointerDown(e) {
+    if (answered) return;
+    const card = e.currentTarget;
+    e.preventDefault();
+    card.setPointerCapture(e.pointerId);
+    
+    dragState = {
+        card, room: card.dataset.room,
+        startX: e.clientX, startY: e.clientY, active: false
+    };
+    card.addEventListener('pointermove', onPointerMove);
+    card.addEventListener('pointerup', onPointerUp);
+    card.addEventListener('pointercancel', onPointerUp);
+}
+
+function onPointerMove(e) {
+    if (!dragState) return;
+    const dx = e.clientX - dragState.startX;
+    const dy = e.clientY - dragState.startY;
+    if (!dragState.active && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+        dragState.active = true;
+        dragState.card.classList.add('dragging');
+        // Deselect any previously selected card
+        if (selectedCard) {
+            selectedCard.classList.remove('selected');
+            selectedCard = null;
+        }
+        ghost.innerHTML = dragState.card.innerHTML;
+        ghost.style.display = 'flex';
+    }
+    if (dragState.active) {
+        ghost.style.left = e.clientX + 'px';
+        ghost.style.top = e.clientY + 'px';
+    }
+}
+
+function onPointerUp(e) {
+    if (!dragState) return;
+    const card = dragState.card;
+    card.removeEventListener('pointermove', onPointerMove);
+    card.removeEventListener('pointerup', onPointerUp);
+    card.removeEventListener('pointercancel', onPointerUp);
+    card.classList.remove('dragging');
+    ghost.style.display = 'none';
+    
+    if (dragState.active) {
+        // Was dragged — check drop target
+        const elBelow = document.elementFromPoint(e.clientX, e.clientY);
+        const roomEl = elBelow ? elBelow.closest('.room') : null;
+        
+        if (roomEl) {
+            const q = shuffledQuestions[currentQuestion];
+            const targetRoomKey = roomKeyMap[q.room];
+            const droppedRoomId = roomEl.id.replace('room-', '');
+            const droppedRoomName = roomEl.dataset.room;
+            const cardRoom = dragState.room;
+            
+            // Correct if: card's room matches the dropped room AND it's the right answer
+            if (cardRoom === droppedRoomName && droppedRoomId === targetRoomKey) {
+                handleCorrect(roomEl, q, q.action);
+            } else {
+                handleWrong(roomEl, card);
+            }
+        }
+    } else {
+        // Was clicked (no drag) — toggle selection
+        if (selectedCard === card) {
+            card.classList.remove('selected');
+            selectedCard = null;
+        } else {
+            if (selectedCard) selectedCard.classList.remove('selected');
+            card.classList.add('selected');
+            selectedCard = card;
+        }
+    }
+    dragState = null;
+}
+
+// ===================== CORRECT / WRONG =====================
+function handleCorrect(roomEl, q, action) {
+    answered = true;
+    const roomKey = roomKeyMap[q.room];
+    lastCorrectAction = action;
+    lastCorrectRoom = q.room;
+    
+    roomEl.classList.add('correct-flash');
+    
+    // Show character
+    const charEl = document.getElementById('char-' + roomKey);
+    charEl.src = q.char;
+    charEl.classList.add('show');
+    
+    // Show action indicator
+    const indicator = document.getElementById('action-' + roomKey);
+    indicator.textContent = q.emoji;
+    indicator.classList.add('show');
+    
+    // Update question bar
+    document.getElementById('question-bar').innerHTML = `✅ Correct! 👏`;
+    
+    // Sound & effects
+    playCorrectSound();
+    const roomRect = roomEl.getBoundingClientRect();
+    burstConfetti(roomRect.left + roomRect.width/2, roomRect.top + roomRect.height/2, 20);
+    flashScreen('rgba(76,175,80,0.2)');
+    
+    // Highlight correct card
+    document.querySelectorAll('.option-card').forEach(c => {
+        c.style.pointerEvents = 'none';
+        if (c.dataset.room === q.room) c.classList.add('correct-card');
+    });
+    
+    // Show Reveal Sentence button (NOT the sentence itself yet)
+    document.getElementById('btn-reveal').classList.add('show');
+}
+
+function handleWrong(roomEl, card) {
+    roomEl.classList.add('wrong-flash');
+    card.classList.add('wrong');
+    
+    playWrongSound();
+    flashScreen('rgba(229,57,53,0.15)');
+    
+    document.getElementById('question-bar').innerHTML = `❌ Try again!`;
+    
+    setTimeout(() => {
+        roomEl.classList.remove('wrong-flash');
+        card.classList.remove('wrong');
+        const q = shuffledQuestions[currentQuestion];
+        document.getElementById('question-bar').innerHTML = 
+            `Where do you <span class="room-word">${q.action}</span>? 🤔`;
+    }, 1200);
+}
+
+// ===================== REVEAL SENTENCE & NEXT =====================
+function revealSentence() {
+    const sentence = `I ${lastCorrectAction} in the ${lastCorrectRoom}.`;
+    const sentenceEl = document.getElementById('sentence-display');
+    sentenceEl.innerHTML = `📝 <em>${sentence}</em>`;
+    sentenceEl.style.display = 'block';
+    
+    // Hide reveal, show next
+    document.getElementById('btn-reveal').classList.remove('show');
+    document.getElementById('btn-next').classList.add('show');
+}
+
+function nextPlayer() {
+    currentQuestion++;
+    document.getElementById('progress-fill').style.width = (currentQuestion / shuffledQuestions.length * 100) + '%';
+    
+    // Hide characters from previous
+    document.querySelectorAll('.room-character').forEach(c => c.classList.remove('show'));
+    document.querySelectorAll('.room-action-indicator').forEach(a => { a.classList.remove('show'); a.textContent = ''; });
+    
+    showQuestion();
+}
+
+// ===================== COMPLETION =====================
+function showCompletion() {
+    document.querySelectorAll('.room').forEach(r => r.classList.remove('highlighted','correct-flash'));
+    document.getElementById('question-bar').innerHTML = '🌟 Amazing! All done! 🌟';
+    document.getElementById('options-area').classList.remove('active');
+    document.getElementById('sentence-display').style.display = 'none';
+    document.getElementById('btn-reveal').classList.remove('show');
+    document.getElementById('btn-next').classList.remove('show');
+    document.getElementById('btn-reset').classList.add('show');
+    document.getElementById('progress-fill').style.width = '100%';
+    
+    setTimeout(() => {
+        document.getElementById('complete-overlay').classList.add('show');
+        launchConfetti();
+        playCorrectSound();
+        setTimeout(playCorrectSound, 300);
+    }, 500);
+}
+
+function launchConfetti() {
+    const colors = ['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#CE93D8','#FF8A65','#4DD0E1'];
+    for (let i = 0; i < 80; i++) {
+        setTimeout(() => {
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+            piece.style.left = (Math.random()*100) + 'vw';
+            piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+            piece.style.width = (6+Math.random()*10)+'px';
+            piece.style.height = (6+Math.random()*10)+'px';
+            piece.style.borderRadius = Math.random()>0.5?'50%':'2px';
+            piece.style.animationDuration = (2+Math.random()*2)+'s';
+            document.body.appendChild(piece);
+            setTimeout(() => piece.remove(), 4500);
+        }, i * 30);
+    }
+}
+
+// ===================== RESET =====================
+function resetGame() {
+    phase = 2;
+    currentQuestion = 0;
+    shuffledQuestions = shuffle([...questions]);
+    selectedCard = null;
+    
+    document.querySelectorAll('.room').forEach(r => r.classList.remove('highlighted','correct-flash','wrong-flash'));
+    document.querySelectorAll('.room-character').forEach(c => c.classList.remove('show'));
+    document.querySelectorAll('.room-action-indicator').forEach(a => { a.classList.remove('show'); a.textContent = ''; });
+    
+    document.getElementById('sentence-display').style.display = 'none';
+    document.getElementById('progress-fill').style.width = '0%';
+    document.getElementById('complete-overlay').classList.remove('show');
+    document.getElementById('options-area').classList.add('active');
+    document.getElementById('progress-wrap').classList.add('active');
+    
+    showQuestion();
+}
+
+// Prevent scroll on touch drag
+document.addEventListener('touchmove', function(e) {
+    if (dragState && dragState.active) e.preventDefault();
+}, { passive: false });
+</script>
+
+
+
+</body></html>

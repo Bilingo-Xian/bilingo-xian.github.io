@@ -1,0 +1,315 @@
+{
+  "GE3": {
+    "lessons": {
+      "GE3 U1C1": [
+        {
+          "name": "Part 1.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U1C1 (reading story + chinese vs english)/Part 1.jpg"
+        },
+        {
+          "name": "Part 2.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U1C1 (reading story + chinese vs english)/Part 2.jpg"
+        },
+        {
+          "name": "Part 3.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U1C1 (reading story + chinese vs english)/Part 3.jpg"
+        },
+        {
+          "name": "Part 4.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U1C1 (reading story + chinese vs english)/Part 4.jpg"
+        },
+        {
+          "name": "index.html",
+          "type": "game",
+          "path": "content/GE3/GE3 U1C1 (reading story + chinese vs english)/index.html"
+        }
+      ],
+      "GE3 U1C2": [
+        {
+          "name": "GE3 U1C2. It's a-an.html",
+          "type": "game",
+          "path": "content/GE3/GE3 U1C2 (classroom objects + fruits + a and an)/GE3 U1C2. It's a-an.html"
+        }
+      ],
+      "GE3 U1C4": [
+        {
+          "name": "classroom1.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom1.png"
+        },
+        {
+          "name": "classroom2.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom2.jpg"
+        },
+        {
+          "name": "classroom3.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom3.jpg"
+        },
+        {
+          "name": "classroom4.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom4.jpg"
+        },
+        {
+          "name": "classroom5.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom5.jpg"
+        },
+        {
+          "name": "classroom6.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom6.jpg"
+        },
+        {
+          "name": "park.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/park.jpg"
+        },
+        {
+          "name": "playground.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/playground.jpg"
+        },
+        {
+          "name": "playground2.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/playground2.jpg"
+        },
+        {
+          "name": "playground3.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/playground3.jpg"
+        }
+      ],
+      "GE3 U2C5": [
+        {
+          "name": "GE3 U2C5. Who's this? Game.html",
+          "type": "game",
+          "path": "content/GE3/GE3 U2C5 (family)/GE3 U2C5. Who's this? Game.html"
+        }
+      ],
+      "GE3 U2C6": [
+        {
+          "name": "GE3 U2C6. Who's this (vs What's this) Game.html",
+          "type": "game",
+          "path": "content/GE3/GE3 U2C6 (more family)/GE3 U2C6. Who's this (vs What's this) Game.html"
+        }
+      ],
+      "GE3 U2C8": [
+        {
+          "name": "GE3 U2C8. Dialogue with cards — How + family.html",
+          "type": "game",
+          "path": "content/GE3/GE3 U2C8 (describing relatives)/GE3 U2C8. Dialogue with cards — How + family.html"
+        }
+      ],
+      "GE3 U3C10": [
+        {
+          "name": "GE3 U3C10. What's Missing?.html",
+          "type": "game",
+          "path": "content/GE3/GE3 U3C10 (what's missing game)/GE3 U3C10. What's Missing?.html"
+        }
+      ],
+      "GE3 U3C11": [
+        {
+          "name": "GE3 U3C11 — Around the House.html",
+          "type": "game",
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/GE3 U3C11 — Around the House.html"
+        },
+        {
+          "name": "Laki.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/Laki.png"
+        },
+        {
+          "name": "Lele.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/Lele.png"
+        },
+        {
+          "name": "Nani.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/Nani.png"
+        },
+        {
+          "name": "Ola.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/Ola.png"
+        },
+        {
+          "name": "Pili.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/Pili.png"
+        },
+        {
+          "name": "fridge.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/fridge.png"
+        },
+        {
+          "name": "lamp.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/lamp.png"
+        },
+        {
+          "name": "stove.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/stove.png"
+        }
+      ],
+      "GE3 U3C12": [
+        {
+          "name": "clean bathroom.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/clean bathroom.png"
+        },
+        {
+          "name": "clean bedroom.jpeg",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/clean bedroom.jpeg"
+        },
+        {
+          "name": "clean classroom.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/clean classroom.jpg"
+        },
+        {
+          "name": "clean kitchen.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/clean kitchen.jpg"
+        },
+        {
+          "name": "clean living room.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/clean living room.png"
+        },
+        {
+          "name": "messy bathroom.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/messy bathroom.png"
+        },
+        {
+          "name": "messy bedroom.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/messy bedroom.png"
+        },
+        {
+          "name": "messy classroom.jpg",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/messy classroom.jpg"
+        },
+        {
+          "name": "messy kitchen.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/messy kitchen.png"
+        },
+        {
+          "name": "messy living room.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/messy living room.png"
+        }
+      ],
+      "GE3 U3C9": [
+        {
+          "name": "GE3 U3C9 — where is she or he + rooms in the house.html",
+          "type": "game",
+          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/GE3 U3C9 — where is she or he + rooms in the house.html"
+        },
+        {
+          "name": "Laki.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/Laki.png"
+        },
+        {
+          "name": "Lele.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/Lele.png"
+        },
+        {
+          "name": "Nani.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/Nani.png"
+        },
+        {
+          "name": "Ola.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/Ola.png"
+        },
+        {
+          "name": "Pili.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/Pili.png"
+        }
+      ],
+      "GE3 U5C17": [
+        {
+          "name": "Bugs [Kids Vocab] Insects & Bugs  Butterfly, Bee & Ant Words - 1080p.mp4",
+          "type": "video",
+          "path": "content/GE3/GE3 U5C17 (bugs videos)/Bugs [Kids Vocab] Insects & Bugs  Butterfly, Bee & Ant Words - 1080p.mp4"
+        },
+        {
+          "name": "Insects Hidden Pictures Game  Find Insects for Kids Education - 1080p.mp4",
+          "type": "video",
+          "path": "content/GE3/GE3 U5C17 (bugs videos)/Insects Hidden Pictures Game  Find Insects for Kids Education - 1080p.mp4"
+        }
+      ],
+      "GE3 U5C18": [
+        {
+          "name": "GE3 U5C18. Bird or Bug or Pet?.html",
+          "type": "game",
+          "path": "content/GE3/GE3 U5C18 (is ... a ...?)/GE3 U5C18. Bird or Bug or Pet?.html"
+        }
+      ],
+      "GE3 U5C19": [
+        {
+          "name": "Fastest, Biggest & Smallest Animals   Amazing Animal Facts for Kids #fast #big #small #adiskids - 1080p.mp4",
+          "type": "video",
+          "path": "content/GE3/GE3 U5C19 (largest animals)/Fastest, Biggest & Smallest Animals   Amazing Animal Facts for Kids #fast #big #small #adiskids - 1080p.mp4"
+        },
+        {
+          "name": "Sizing Up the World’s Largest and Smallest Animals  National Geographic - 1080p.mp4",
+          "type": "video",
+          "path": "content/GE3/GE3 U5C19 (largest animals)/Sizing Up the World’s Largest and Smallest Animals  National Geographic - 1080p.mp4"
+        }
+      ],
+      "GE3 U5C20": [
+        {
+          "name": "GE3 U5C20. Animal Talk.html",
+          "type": "game",
+          "path": "content/GE3/GE3 U5C20 (animals review)/GE3 U5C20. Animal Talk.html"
+        },
+        {
+          "name": "Laki.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U5C20 (animals review)/Laki.png"
+        },
+        {
+          "name": "Lele.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U5C20 (animals review)/Lele.png"
+        },
+        {
+          "name": "Nani.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U5C20 (animals review)/Nani.png"
+        },
+        {
+          "name": "Ola.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U5C20 (animals review)/Ola.png"
+        },
+        {
+          "name": "Pili.png",
+          "type": "image",
+          "path": "content/GE3/GE3 U5C20 (animals review)/Pili.png"
+        }
+      ]
+    },
+    "extras": []
+  }
+}
