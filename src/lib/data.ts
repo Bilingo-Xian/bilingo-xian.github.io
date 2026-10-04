@@ -1,22 +1,37 @@
-import type { ContentFile, LessonData, LevelInfo } from '@/types'
+import type { ContentFile, LessonData, LevelInfo, TierData } from '@/types'
 import curriculumJson from '@/data/curriculum.json'
 import contentJson from '@/data/content.json'
 
 // ---------------------------------------------------------------------------
 // levels: only GE3 is live; the rest are "coming someday maybe"
 // ---------------------------------------------------------------------------
-export const LEVELS: LevelInfo[] = [3, 4, 5, 6, 7, 8].map((n) => ({
+export const LEVELS: LevelInfo[] = [2, 3, 4, 5, 6, 7, 8].map((n) => ({
   id: `GE${n}`,
   name: `GE ${n}`,
   active: n === 3,
-  blurb:
-    n === 3
-      ? 'Bonus activities ready to go!'
-      : 'Coming someday maybe…',
+  blurb: n === 3 ? 'Bonus activities ready to go!' : 'Coming someday maybe…',
 }))
 
 export function getLevel(id: string): LevelInfo | undefined {
   return LEVELS.find((l) => l.id === id)
+}
+
+// ---------------------------------------------------------------------------
+// tier colors — straight from the master file (A/B/C cell fills)
+// ---------------------------------------------------------------------------
+const tierColors = (curriculumJson as { tierColors: Record<string, string> }).tierColors
+
+export const TIER_COLORS: Record<'A' | 'B' | 'C', string> = {
+  A: tierColors.A ?? '#00B050',
+  B: tierColors.B ?? '#FFC000',
+  C: tierColors.C ?? '#FF767A',
+}
+
+export const TIERS = ['A', 'B', 'C'] as const
+export type Tier = (typeof TIERS)[number]
+
+export function tierIsEmpty(t: TierData): boolean {
+  return !t.A.length && !t.B.length && !t.C.length
 }
 
 // ---------------------------------------------------------------------------
@@ -46,6 +61,17 @@ export function unitsForLevel(levelId: string) {
   return [...seen.entries()].map(([unit, title]) => ({ unit, title }))
 }
 
+/** all searchable text for a lesson (titles, code, vocab, structures) */
+export function searchBlob(l: LessonData): string {
+  return [
+    l.code,
+    l.classTitle,
+    l.unitTitle,
+    ...l.vocabulary.A, ...l.vocabulary.B, ...l.vocabulary.C,
+    ...l.structures.A, ...l.structures.B, ...l.structures.C,
+  ].join(' ').toLowerCase()
+}
+
 // ---------------------------------------------------------------------------
 // content manifest (scanned from public/content)
 // ---------------------------------------------------------------------------
@@ -63,6 +89,24 @@ export function lessonFiles(lessonCode: string): ContentFile[] {
 
 export function levelExtras(levelId: string): ContentFile[] {
   return contentDb[levelId]?.extras ?? []
+}
+
+/** images that form a standalone picture set (not part of an HTML game) */
+export function pictureSetImages(lessonCode: string): ContentFile[] {
+  return lessonFiles(lessonCode).filter((f) => f.type === 'image' && f.role === 'set')
+}
+
+export function levelActivityCount(levelId: string) {
+  const lessons = contentDb[levelId]?.lessons ?? {}
+  let games = 0
+  let videos = 0
+  let sets = 0
+  for (const files of Object.values(lessons)) {
+    games += files.filter((f) => f.type === 'game').length
+    videos += files.filter((f) => f.type === 'video').length
+    if (files.some((f) => f.role === 'set')) sets += 1
+  }
+  return { games, videos, sets, total: games + videos + sets }
 }
 
 // ---------------------------------------------------------------------------

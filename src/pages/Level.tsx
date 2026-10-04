@@ -6,6 +6,7 @@ import {
   lessonFiles,
   levelExtras,
   unitsForLevel,
+  searchBlob,
   UNIT_COLORS,
   TYPE_ICONS,
   fileUrl,
@@ -57,12 +58,8 @@ function LevelContent({ levelId }: { levelId: string }) {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     if (!q) return lessons
-    return lessons.filter(
-      (l) =>
-        l.classTitle.toLowerCase().includes(q) ||
-        l.code.toLowerCase().includes(q) ||
-        l.vocabulary.some((v) => v.toLowerCase().includes(q)),
-    )
+    // search everything: codes, lesson titles, unit titles, vocab and structures
+    return lessons.filter((l) => searchBlob(l).includes(q))
   }, [lessons, query])
 
   const totalFiles = lessons.reduce((n, l) => n + lessonFiles(l.code).length, 0)

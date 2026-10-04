@@ -3,23 +3,22 @@ import { Link, useParams } from 'react-router'
 import {
   findLesson,
   lessonFiles,
+  pictureSetImages,
   fileUrl,
   fileLabel,
+  tierIsEmpty,
+  TIER_COLORS,
+  TIERS,
   UNIT_COLORS,
   TYPE_ICONS,
 } from '@/lib/data'
-import type { ContentFile, LessonData } from '@/types'
+import type { ContentFile, LessonData, TierData } from '@/types'
 
 export default function Lesson() {
   const { levelId = '', unit = '', cycle = '' } = useParams()
-  const lesson = findLevel()
+  const lesson = findLesson(levelId, parseInt(unit, 10), parseInt(cycle, 10))
   const [lightbox, setLightbox] = useState<string | null>(null)
 
-  function findLevel(): LessonData | undefined {
-    return findLesson(levelId, parseInt(unit, 10), parseInt(cycle, 10))
-  }
-
-  // close lightbox on Escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setLightbox(null)
     window.addEventListener('keydown', onKey)
@@ -43,12 +42,13 @@ export default function Lesson() {
   const files = lessonFiles(lesson.code)
   const games = files.filter((f) => f.type === 'game')
   const videos = files.filter((f) => f.type === 'video')
-  const images = files.filter((f) => f.type === 'image')
+  const setImages = pictureSetImages(lesson.code)
   const others = files.filter((f) => !['game', 'video', 'image'].includes(f.type))
   const color = UNIT_COLORS[lesson.unit] ?? UNIT_COLORS[1]
+  const hasMaterialsBelow = games.length > 0 || setImages.length > 0
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-rose-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-rose-50 pb-28">
       {/* header */}
       <div className="mx-auto max-w-5xl px-6 pt-8">
         <Link
@@ -63,33 +63,29 @@ export default function Lesson() {
             <span className={`font-display text-lg font-bold text-white rounded-2xl px-4 py-1.5 ${color.bg}`}>
               {lesson.code}
             </span>
-            <span className={`text-sm font-semibold ${color.text}`}>Unit {lesson.unit} · {lesson.unitTitle}</span>
+            <span className={`text-sm font-semibold ${color.text}`}>
+              Unit {lesson.unit} · {lesson.unitTitle}
+            </span>
           </div>
           <h1 className="mt-3 font-display text-4xl md:text-5xl font-bold text-slate-800">
             {lesson.classTitle}
           </h1>
 
-          {/* target language */}
-          <div className="mt-6 grid md:grid-cols-2 gap-5">
-            <div className={`rounded-2xl p-5 ${color.soft}`}>
-              <h2 className={`font-display font-semibold ${color.text} mb-3`}>🎯 Target Vocabulary</h2>
-              <div className="flex flex-wrap gap-2">
-                {lesson.vocabulary.map((v) => (
-                  <span key={v} className="rounded-full bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm">
-                    {v}
-                  </span>
-                ))}
-              </div>
+          {/* target language + activities */}
+          <div className="mt-6 grid md:grid-cols-2 gap-5 items-start">
+            <div className="space-y-5">
+              <TierBox title="Target Vocabulary" icon="🎯" tiers={lesson.vocabulary} variant="chips" />
+              <TierBox title="Target Structures" icon="🗣️" tiers={lesson.structures} variant="list" />
             </div>
-            <div className="rounded-2xl p-5 bg-slate-50">
-              <h2 className="font-display font-semibold text-slate-600 mb-3">🗣️ Target Structures</h2>
-              <ul className="space-y-2">
-                {lesson.structures.map((s) => (
-                  <li key={s} className="rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm">
-                    {s}
-                  </li>
-                ))}
-              </ul>
+            <div className="space-y-5">
+              <TierBox
+                title="Target Grammar"
+                icon="📐"
+                tiers={lesson.grammar}
+                variant="list"
+                emptyNote="No new grammar focus — review and combine previous patterns."
+              />
+              <ActivitiesBox lesson={lesson} hasMaterialsBelow={hasMaterialsBelow} />
             </div>
           </div>
         </div>
@@ -134,11 +130,11 @@ export default function Lesson() {
           </section>
         )}
 
-        {images.length > 0 && (
+        {setImages.length > 0 && (
           <section>
-            <SectionTitle icon="🖼️" title="Pictures" count={images.length} />
+            <SectionTitle icon="🖼️" title="Picture Set" count={setImages.length} />
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {images.map((f) => (
+              {setImages.map((f) => (
                 <button
                   key={f.path}
                   onClick={() => setLightbox(f.path)}
@@ -201,6 +197,103 @@ export default function Lesson() {
   )
 }
 
+// ---------------------------------------------------------------------------
+// tiered A/B/C box (vocabulary / structures / grammar)
+// ---------------------------------------------------------------------------
+function TierBox({
+  title,
+  icon,
+  tiers,
+  variant,
+  emptyNote,
+}: {
+  title: string
+  icon: string
+  tiers: TierData
+  variant: 'chips' | 'list'
+  emptyNote?: string
+}) {
+  return (
+    <div className="rounded-2xl p-4 bg-slate-50 border border-slate-200">
+      <h2 className="font-display font-semibold text-slate-600 mb-3">
+        {icon} {title}
+      </h2>
+      {tierIsEmpty(tiers) ? (
+        <p className="text-sm text-slate-400 italic">{emptyNote ?? 'No targets listed for this lesson.'}</p>
+      ) : (
+        <div className="space-y-2">
+          {TIERS.map(
+            (tier) =>
+              tiers[tier].length > 0 && (
+                <div
+                  key={tier}
+                  className="relative rounded-xl border-l-4 p-3 pr-9"
+                  style={{
+                    borderColor: TIER_COLORS[tier],
+                    backgroundColor: `${TIER_COLORS[tier]}14`,
+                  }}
+                >
+                  <span
+                    className="absolute top-2 right-2 w-5 h-5 grid place-items-center rounded-md text-[11px] font-black"
+                    style={{ backgroundColor: TIER_COLORS[tier], color: '#1c1917' }}
+                  >
+                    {tier.toLowerCase()}
+                  </span>
+                  {variant === 'chips' ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {tiers[tier].map((v) => (
+                        <span key={v} className="rounded-full bg-white/90 px-2.5 py-1 text-sm font-medium text-slate-700 shadow-sm">
+                          {v}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <ul className="space-y-1.5">
+                      {tiers[tier].map((s) => (
+                        <li key={s} className="text-sm font-medium text-slate-700 leading-snug">
+                          {s}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ),
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// bonus activities (from the master file), purple & scrollable
+// ---------------------------------------------------------------------------
+function ActivitiesBox({ lesson, hasMaterialsBelow }: { lesson: LessonData; hasMaterialsBelow: boolean }) {
+  const LINKED = /html|interactive|picture/i
+  return (
+    <div className="rounded-2xl p-4 bg-violet-50 border border-violet-200">
+      <h2 className="font-display font-semibold text-violet-700 mb-3">🎲 Bonus Activity Ideas</h2>
+      {lesson.activities.length === 0 ? (
+        <p className="text-sm text-violet-300 italic">No extra activities listed — improvise and have fun!</p>
+      ) : (
+        <ol className="space-y-2.5 max-h-72 overflow-y-auto pr-2">
+          {lesson.activities.map((a, i) => (
+            <li key={i} className="text-sm text-slate-700 leading-snug flex gap-2">
+              <span className="shrink-0 font-display font-bold text-violet-400">{i + 1}.</span>
+              <span>
+                {a}
+                {hasMaterialsBelow && LINKED.test(a) && (
+                  <span className="text-violet-500 font-semibold"> (see below)</span>
+                )}
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  )
+}
+
 function SectionTitle({ icon, title, count }: { icon: string; title: string; count: number }) {
   return (
     <h2 className="font-display text-2xl font-bold text-slate-800 mb-4">
@@ -241,7 +334,7 @@ function GameCard({ file }: { file: ContentFile }) {
           rel="noreferrer"
           className="shrink-0 rounded-full bg-slate-100 hover:bg-orange-100 hover:text-orange-500 px-3 py-1 text-xs font-semibold text-slate-500 transition-colors"
         >
-          fullscreen ↗
+          open in new tab ↗
         </a>
       </div>
     </div>
@@ -255,25 +348,35 @@ function PrevNext({ lesson }: { lesson: LessonData }) {
     ?? findLesson(lesson.level, lesson.unit + 1, 1)
 
   return (
-    <nav className="mx-auto max-w-5xl px-6 mt-12 flex items-stretch justify-between gap-4">
+    <nav className="mx-auto max-w-5xl px-6 mt-12 flex flex-col sm:flex-row gap-4">
       {prev ? (
         <Link
           to={`/lesson/${prev.level}/${prev.unit}/${prev.cycle}`}
-          className="flex-1 rounded-2xl bg-white/80 border border-slate-200 px-5 py-4 hover:border-orange-300 hover:shadow transition-all"
+          className="rounded-2xl bg-white/80 border border-slate-200 px-5 py-4 hover:border-orange-300 hover:shadow transition-all sm:w-64"
         >
-          <div className="text-xs font-semibold text-slate-400">← previous</div>
+          <div className="text-xs font-semibold text-slate-400">← previous lesson</div>
           <div className="font-display font-semibold text-slate-700">{prev.code} · {prev.classTitle}</div>
         </Link>
-      ) : <div className="flex-1" />}
+      ) : (
+        <div className="sm:w-64" />
+      )}
       {next ? (
         <Link
           to={`/lesson/${next.level}/${next.unit}/${next.cycle}`}
-          className="flex-1 text-right rounded-2xl bg-white/80 border border-slate-200 px-5 py-4 hover:border-orange-300 hover:shadow transition-all"
+          className="flex-1 group rounded-2xl bg-gradient-to-r from-amber-400 to-rose-400 px-6 py-4 shadow-lg shadow-orange-200
+            hover:shadow-xl hover:-translate-y-0.5 transition-all"
         >
-          <div className="text-xs font-semibold text-slate-400">next →</div>
-          <div className="font-display font-semibold text-slate-700">{next.code} · {next.classTitle}</div>
+          <div className="text-xs font-semibold text-white/80">next lesson →</div>
+          <div className="font-display font-bold text-white text-lg">
+            {next.code} · {next.classTitle}
+          </div>
+          <div className="text-white/80 text-sm mt-0.5 group-hover:translate-x-1 transition-transform">keep going! 🚀</div>
         </Link>
-      ) : <div className="flex-1" />}
+      ) : (
+        <div className="flex-1 rounded-2xl border-2 border-dashed border-slate-300 grid place-items-center p-4 text-slate-400 text-sm">
+          🏁 That's the last GE3 lesson — for now!
+        </div>
+      )}
     </nav>
   )
 }

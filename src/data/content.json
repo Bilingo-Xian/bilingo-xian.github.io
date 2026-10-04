@@ -5,22 +5,26 @@
         {
           "name": "Part 1.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U1C1 (reading story + chinese vs english)/Part 1.jpg"
+          "path": "content/GE3/GE3 U1C1 (reading story + chinese vs english)/Part 1.jpg",
+          "role": "asset"
         },
         {
           "name": "Part 2.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U1C1 (reading story + chinese vs english)/Part 2.jpg"
+          "path": "content/GE3/GE3 U1C1 (reading story + chinese vs english)/Part 2.jpg",
+          "role": "asset"
         },
         {
           "name": "Part 3.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U1C1 (reading story + chinese vs english)/Part 3.jpg"
+          "path": "content/GE3/GE3 U1C1 (reading story + chinese vs english)/Part 3.jpg",
+          "role": "asset"
         },
         {
           "name": "Part 4.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U1C1 (reading story + chinese vs english)/Part 4.jpg"
+          "path": "content/GE3/GE3 U1C1 (reading story + chinese vs english)/Part 4.jpg",
+          "role": "asset"
         },
         {
           "name": "index.html",
@@ -39,52 +43,62 @@
         {
           "name": "classroom1.png",
           "type": "image",
-          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom1.png"
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom1.png",
+          "role": "set"
         },
         {
           "name": "classroom2.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom2.jpg"
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom2.jpg",
+          "role": "set"
         },
         {
           "name": "classroom3.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom3.jpg"
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom3.jpg",
+          "role": "set"
         },
         {
           "name": "classroom4.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom4.jpg"
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom4.jpg",
+          "role": "set"
         },
         {
           "name": "classroom5.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom5.jpg"
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom5.jpg",
+          "role": "set"
         },
         {
           "name": "classroom6.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom6.jpg"
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/classroom6.jpg",
+          "role": "set"
         },
         {
           "name": "park.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/park.jpg"
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/park.jpg",
+          "role": "set"
         },
         {
           "name": "playground.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/playground.jpg"
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/playground.jpg",
+          "role": "set"
         },
         {
           "name": "playground2.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/playground2.jpg"
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/playground2.jpg",
+          "role": "set"
         },
         {
           "name": "playground3.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/playground3.jpg"
+          "path": "content/GE3/GE3 U1C4 (good:bad:fun — describe pictures)/playground3.jpg",
+          "role": "set"
         }
       ],
       "GE3 U2C5": [
@@ -124,94 +138,112 @@
         {
           "name": "Laki.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/Laki.png"
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/Laki.png",
+          "role": "asset"
         },
         {
           "name": "Lele.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/Lele.png"
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/Lele.png",
+          "role": "asset"
         },
         {
           "name": "Nani.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/Nani.png"
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/Nani.png",
+          "role": "asset"
         },
         {
           "name": "Ola.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/Ola.png"
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/Ola.png",
+          "role": "asset"
         },
         {
           "name": "Pili.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/Pili.png"
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/Pili.png",
+          "role": "asset"
         },
         {
           "name": "fridge.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/fridge.png"
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/fridge.png",
+          "role": "asset"
         },
         {
           "name": "lamp.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/lamp.png"
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/lamp.png",
+          "role": "asset"
         },
         {
           "name": "stove.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/stove.png"
+          "path": "content/GE3/GE3 U3C11 (rooms and actions in the house)/stove.png",
+          "role": "asset"
         }
       ],
       "GE3 U3C12": [
         {
           "name": "clean bathroom.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/clean bathroom.png"
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/clean bathroom.png",
+          "role": "set"
         },
         {
           "name": "clean bedroom.jpeg",
           "type": "image",
-          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/clean bedroom.jpeg"
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/clean bedroom.jpeg",
+          "role": "set"
         },
         {
           "name": "clean classroom.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/clean classroom.jpg"
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/clean classroom.jpg",
+          "role": "set"
         },
         {
           "name": "clean kitchen.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/clean kitchen.jpg"
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/clean kitchen.jpg",
+          "role": "set"
         },
         {
           "name": "clean living room.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/clean living room.png"
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/clean living room.png",
+          "role": "set"
         },
         {
           "name": "messy bathroom.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/messy bathroom.png"
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/messy bathroom.png",
+          "role": "set"
         },
         {
           "name": "messy bedroom.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/messy bedroom.png"
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/messy bedroom.png",
+          "role": "set"
         },
         {
           "name": "messy classroom.jpg",
           "type": "image",
-          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/messy classroom.jpg"
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/messy classroom.jpg",
+          "role": "set"
         },
         {
           "name": "messy kitchen.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/messy kitchen.png"
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/messy kitchen.png",
+          "role": "set"
         },
         {
           "name": "messy living room.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/messy living room.png"
+          "path": "content/GE3/GE3 U3C12 (clean and messy — describe the pictures)/messy living room.png",
+          "role": "set"
         }
       ],
       "GE3 U3C9": [
@@ -223,27 +255,32 @@
         {
           "name": "Laki.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/Laki.png"
+          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/Laki.png",
+          "role": "asset"
         },
         {
           "name": "Lele.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/Lele.png"
+          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/Lele.png",
+          "role": "asset"
         },
         {
           "name": "Nani.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/Nani.png"
+          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/Nani.png",
+          "role": "asset"
         },
         {
           "name": "Ola.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/Ola.png"
+          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/Ola.png",
+          "role": "asset"
         },
         {
           "name": "Pili.png",
           "type": "image",
-          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/Pili.png"
+          "path": "content/GE3/GE3 U3C9 (where's he or she + rooms in the house)/Pili.png",
+          "role": "asset"
         }
       ],
       "GE3 U5C17": [
@@ -286,27 +323,32 @@
         {
           "name": "Laki.png",
           "type": "image",
-          "path": "content/GE3/GE3 U5C20 (animals review)/Laki.png"
+          "path": "content/GE3/GE3 U5C20 (animals review)/Laki.png",
+          "role": "set"
         },
         {
           "name": "Lele.png",
           "type": "image",
-          "path": "content/GE3/GE3 U5C20 (animals review)/Lele.png"
+          "path": "content/GE3/GE3 U5C20 (animals review)/Lele.png",
+          "role": "set"
         },
         {
           "name": "Nani.png",
           "type": "image",
-          "path": "content/GE3/GE3 U5C20 (animals review)/Nani.png"
+          "path": "content/GE3/GE3 U5C20 (animals review)/Nani.png",
+          "role": "set"
         },
         {
           "name": "Ola.png",
           "type": "image",
-          "path": "content/GE3/GE3 U5C20 (animals review)/Ola.png"
+          "path": "content/GE3/GE3 U5C20 (animals review)/Ola.png",
+          "role": "set"
         },
         {
           "name": "Pili.png",
           "type": "image",
-          "path": "content/GE3/GE3 U5C20 (animals review)/Pili.png"
+          "path": "content/GE3/GE3 U5C20 (animals review)/Pili.png",
+          "role": "set"
         }
       ]
     },

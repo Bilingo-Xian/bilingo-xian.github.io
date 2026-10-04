@@ -7,17 +7,38 @@
       "code": "GE3 U1C1",
       "unitTitle": "Ready For School",
       "classTitle": "Say Hello",
-      "vocabulary": [
-        "name",
-        "Chinese",
-        "question",
-        "English",
-        "ask",
-        "speak"
-      ],
-      "structures": [
-        "My name is [name].",
-        "What's your name?"
+      "vocabulary": {
+        "A": [
+          "name",
+          "English"
+        ],
+        "B": [
+          "Chinese",
+          "ask",
+          "speak"
+        ],
+        "C": [
+          "question"
+        ]
+      },
+      "structures": {
+        "A": [
+          "My name is [name]."
+        ],
+        "B": [
+          "What's your name?"
+        ],
+        "C": []
+      },
+      "grammar": {
+        "A": [],
+        "B": [],
+        "C": []
+      },
+      "activities": [
+        "After vocabulary teaching, with a short repeat during speaking practice. Prepare printed cards or flashcards for target vocabulary. Students pick a random card. They read the selected word aloud. They use it in their own short sentence, e.g. \"My name is (Eric)\".",
+        "Reading the story expansion (HTML Interactive): match story sentences to panels; sort examples by language — Chinese or English.",
+        "Story Role-Play: after the second reading, act as the teacher and Ola, then substitute students' own names."
       ]
     },
     {
@@ -27,17 +48,48 @@
       "code": "GE3 U1C2",
       "unitTitle": "Ready For School",
       "classTitle": "In My Bag",
-      "vocabulary": [
-        "bag",
-        "pencil case",
-        "eraser",
-        "marker",
-        "pen",
-        "ruler"
-      ],
-      "structures": [
-        "What's this?",
-        "It's a/an [object]."
+      "vocabulary": {
+        "A": [
+          "bag",
+          "eraser",
+          "pen",
+          "ruler"
+        ],
+        "B": [
+          "pencil case",
+          "marker"
+        ],
+        "C": []
+      },
+      "structures": {
+        "A": [
+          "What's this?",
+          "It's a/an [object]."
+        ],
+        "B": [
+          "It's a/an [object]."
+        ],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Understand that 'this' refers to a nearby person or thing.",
+          "Use it to refer back to the object in the answer.",
+          "Use it + is in \"It's a/an [...]\"."
+        ],
+        "B": [
+          "Consistently use 'a' with bag, marker, pen, pencil case and ruler, and 'an' with eraser",
+          "Apply a/an to familiar review words beyond the six target words",
+          "Choose according to the first sound of the following word: a before a consonant sound, an before a vowel sound"
+        ],
+        "C": [
+          "Choose he/she/it for a pictured referent and combine it with is to complete a meaningful sentence using familiar names or vocabulary"
+        ]
+      },
+      "activities": [
+        "A/An Sorting Game (HTML interactive): students sort target and familiar review vocabulary into a/an sentences, then say the sentences.",
+        "What's in the Bag?: the teacher hides a classroom object in a bag and asks \"What's this?\"; a student feels the object without looking and guesses using \"It's a/an [...]\".",
+        "Musical Pass: students pass a pencil case containing classroom objects; when the music stops, the student holding it takes out one object and says \"It's a/an [...]\"."
       ]
     },
     {
@@ -47,18 +99,47 @@
       "code": "GE3 U1C3",
       "unitTitle": "Ready For School",
       "classTitle": "My Classroom",
-      "vocabulary": [
-        "chair",
-        "whiteboard",
-        "door",
-        "computer",
-        "window",
-        "desk"
-      ],
-      "structures": [
-        "What's that?",
-        "That's a/an [object].",
-        "Review and contrast: What's this?"
+      "vocabulary": {
+        "A": [
+          "chair",
+          "door",
+          "computer",
+          "window",
+          "desk"
+        ],
+        "B": [
+          "whiteboard"
+        ],
+        "C": []
+      },
+      "structures": {
+        "A": [
+          "What's that?",
+          "That's a/an [object].",
+          "Review and contrast: What's this?",
+          "It's a/an [object]."
+        ],
+        "B": [
+          "That's a/an [object]."
+        ],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Understand and independently use this for a nearby object and that for an object farther away.",
+          "Use it in the answer to refer to the object."
+        ],
+        "B": [
+          "Review a/an:"
+        ],
+        "C": [
+          "Choose a/an when combining current and familiar review vocabulary beyond the exact practised examples"
+        ]
+      },
+      "activities": [
+        "Near or Far?: place objects or flashcards near students and farther away; partners point, ask \"What's this/that?\" and answer \"It's a/an [...]\".",
+        "Classroom Detectives: students take turns pointing to classroom objects farther away and asking a partner \"What's that?\".",
+        "Move and Ask: show an object nearby, then move it farther away; students change their question from \"What's this?\" to \"What's that?\" and answer."
       ]
     },
     {
@@ -68,18 +149,43 @@
       "code": "GE3 U1C4",
       "unitTitle": "Ready For School",
       "classTitle": "Good and Bad",
-      "vocabulary": [
-        "bad",
-        "yell",
-        "good",
-        "chat",
-        "fun",
-        "calm down"
-      ],
-      "structures": [
-        "It's good to [verb/verb phrase].",
-        "It's bad to [verb/verb phrase].",
-        "It's fun to [verb/verb phrase]."
+      "vocabulary": {
+        "A": [
+          "bad",
+          "good",
+          "fun"
+        ],
+        "B": [
+          "yell",
+          "chat",
+          "calm down"
+        ],
+        "C": []
+      },
+      "structures": {
+        "A": [
+          "It's good to [verb/verb phrase].",
+          "It's bad to [verb/verb phrase].",
+          "It's fun to [verb/verb phrase]."
+        ],
+        "B": [],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Use it's + good/bad/fun + to + base verb in familiar, practised sentences.",
+          "Keep calm down together as a verb phrase, e.g. \"It's good to calm down.\"",
+          "Apply the patterns independently without requiring grammatical terminology."
+        ],
+        "B": [
+          "Substitute familiar verbs or verb phrases into the three patterns while retaining to and the base verb, with a word bank or sentence frame if needed."
+        ],
+        "C": []
+      },
+      "activities": [
+        "Good, Bad or Fun?: show pictures of actions in different situations (see the cloud folder); students choose a label and say \"It's good/bad/fun to [...]\". Accept more than one suitable label.",
+        "Good Side / Bad Side: split the room in half: one side is GOOD, one side is BAD. Teacher calls out an action: \"Yell!\"-> kids run to the BAD side; \"Listen!\"-> kids run to the GOOD side. First, they repeat sentences together; in the second half of the game, the last kid to the correct side has to say the sentence solo.",
+        "Build a Sentence: teacher prepares word cards; students arrange them into \"It's good/bad/fun to [...]\" sentences, read them aloud, then change the action or situation."
       ]
     },
     {
@@ -89,21 +195,50 @@
       "code": "GE3 U2C5",
       "unitTitle": "My Family and Friends",
       "classTitle": "At Pili's House",
-      "vocabulary": [
-        "father",
-        "meet",
-        "Nice to meet you",
-        "mother",
-        "grandfather",
-        "Note: also accept grandma/grandpa for grandmother/grandfather.",
-        "grandmother",
-        "house",
-        "nice"
-      ],
-      "structures": [
-        "Who's this?",
-        "This is my [family member].",
-        "This is his/her/[name]'s [family member]."
+      "vocabulary": {
+        "A": [
+          "father",
+          "mother",
+          "grandfather",
+          "grandmother",
+          "house",
+          "nice"
+        ],
+        "B": [
+          "meet",
+          "Note: also accept grandma/grandpa for grandmother/grandfather."
+        ],
+        "C": [
+          "Nice to meet you"
+        ]
+      },
+      "structures": {
+        "A": [
+          "Who's this?",
+          "This is my [family member]."
+        ],
+        "B": [
+          "This is his/her/[name]'s [family member]."
+        ],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Understand who as a question word asking about a person.",
+          "Understand and use Who's = Who is in the target question.",
+          "Understand that my shows who the family member belongs to."
+        ],
+        "B": [
+          "Answer \"Who's this?\" with \"This is my [family member].\" for any pictured family member",
+          "Switch between my and your when the speaker changes (review I-my, you-your)"
+        ],
+        "C": []
+      },
+      "activities": [
+        "Mystery Family Game (Flashcard Flip) — place family member flashcards face-down on the board. Students take turns choosing a card; before flipping it, the class asks \"Who's this?\" The student flips it and answers \"This is my [father].\" Correct answers keep the card; most cards wins.",
+        "Who's this? Game (HTML) — eight face-down family cards on screen. Students choose a card, the class asks \"Who's this?\", and the student flips it and answers \"This is my [...].\" Use \"Add Difficulty!\" to mix in classroom objects and \"Who's that?\"/\"What's this/that?\" questions.",
+        "Family Photo Tour — students bring or draw a simple family picture, walk around the room and introduce two family members to each partner using \"This is my [...].\"",
+        "Meet the Family Role-Play — the co-teacher plays a visitor; students take turns introducing their \"family\" (flashcards on the board) with \"This is my [...]\"; encourage \"Nice to meet you.\""
       ]
     },
     {
@@ -113,20 +248,46 @@
       "code": "GE3 U2C6",
       "unitTitle": "My Family and Friends",
       "classTitle": "My Family Photo",
-      "vocabulary": [
-        "beautiful",
-        "grandparents",
-        "love",
-        "parents",
-        "photo",
-        "young",
-        "old"
-      ],
-      "structures": [
-        "Who are they?",
-        "They are my [family members].",
-        "They are his/her/[name]'s [family members].",
-        "Review: Who's this? — This is my [family member]."
+      "vocabulary": {
+        "A": [
+          "beautiful",
+          "love",
+          "photo",
+          "young",
+          "old"
+        ],
+        "B": [
+          "grandparents",
+          "parents"
+        ],
+        "C": []
+      },
+      "structures": {
+        "A": [
+          "Who are they?",
+          "They are my [family members].",
+          "Review: Who's this? — This is my [family member]."
+        ],
+        "B": [
+          "They are his/her/[name]'s [family members]."
+        ],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Understand parents as mother + father and grandparents as grandfather + grandmother.",
+          "Understand that they refers to two or more people.",
+          "Understand and use the agreement They are in the answer."
+        ],
+        "B": [
+          "Choose between singular \"This is my...\" and plural \"They are my...\" when shown one or more family members"
+        ],
+        "C": []
+      },
+      "activities": [
+        "Who's this vs What's this — Spin the Wheel (HTML) — spin the wheel to show family members or classroom objects; students ask and answer \"Who's this/that?\" — \"This/That is my [...]\" or \"What's this/that?\" — \"It's/That's a [...]\". Play \"Family only\" first, then \"Add Classroom Objects\" for review.",
+        "Photo Guess — students look at a partner's simple family drawing for ten seconds, then ask \"Who are they?\"; the partner answers \"They are my [...].\"",
+        "Family Tree Sort — groups arrange family word cards (father, mother, parents, grandfather, grandmother, grandparents) into a tree on the board and present each pair with \"They are my [...].\""
       ]
     },
     {
@@ -136,19 +297,45 @@
       "code": "GE3 U2C7",
       "unitTitle": "My Family and Friends",
       "classTitle": "Let's Look in the Mirror",
-      "vocabulary": [
-        "big",
-        "mirror",
-        "little",
-        "short",
-        "tall",
-        "thin",
-        "fat"
-      ],
-      "structures": [
-        "I'm [name].",
-        "I'm [adjective/adjectives].",
-        "Review: Who are they? — They are my [family members]."
+      "vocabulary": {
+        "A": [
+          "big",
+          "little",
+          "short",
+          "tall",
+          "thin",
+          "fat"
+        ],
+        "B": [],
+        "C": [
+          "mirror"
+        ]
+      },
+      "structures": {
+        "A": [
+          "I'm [name].",
+          "I'm [adjective/adjectives].",
+          "Review: Who are they? — They are my [family members]."
+        ],
+        "B": [],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Use I am / I'm with a target adjective to describe themselves.",
+          "Review the patterns This is / They are with family words."
+        ],
+        "B": [
+          "Choose the correct form of be (am/is/are) for I, he/she/it and they in familiar sentences"
+        ],
+        "C": [
+          "Join two adjectives with and in one self-description, e.g. \"I'm tall and fat.\""
+        ]
+      },
+      "activities": [
+        "Mirror Self-intro — take the class to the mirror in turns; each student looks in the mirror and records a self-introduction: \"I'm [name]. I'm [adjective].\"",
+        "Body Adjective TPR Game — call out \"big!\" and students puff up and stretch wide, \"little!\" they crouch tiny, \"tall!\" they stand on tiptoes with arms up, \"short!\" they squat down, \"thin!\" they squeeze in sideways, \"fat!\" they puff out their cheeks and spread their arms. Speed up until it gets chaotic and funny, then flip it: one student does a pose and the others shout the word.",
+        "Opposites Action Chorus — the teacher calls opposite pairs (big-little, tall-short, thin-fat); the class acts out each word and chants it, then individual students give commands for the class to perform."
       ]
     },
     {
@@ -158,17 +345,44 @@
       "code": "GE3 U2C8",
       "unitTitle": "My Family and Friends",
       "classTitle": "Our Friends",
-      "vocabulary": [
-        "helpful",
-        "funny",
-        "kind",
-        "polite",
-        "strong",
-        "smart"
-      ],
-      "structures": [
-        "[Name] is [adjective] and [adjective].",
-        "Review and contrast: I'm [name]. I'm [adjective]."
+      "vocabulary": {
+        "A": [
+          "helpful",
+          "kind",
+          "strong"
+        ],
+        "B": [
+          "funny",
+          "polite",
+          "smart"
+        ],
+        "C": []
+      },
+      "structures": {
+        "A": [
+          "[Name] is [adjective] and [adjective]."
+        ],
+        "B": [
+          "Review and contrast: I'm [name]. I'm [adjective]."
+        ],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Use a name or he/she as the subject, followed by is + an adjective, to describe a pictured person.",
+          "Understand and use He's = He is and She's = She is in the target sentence."
+        ],
+        "B": [
+          "Choose the correct subject (he/she/it or a name) for a pictured person or thing",
+          "Review and select the correct be-verb pattern (This is / They are / I am / He-She is) for the subject"
+        ],
+        "C": []
+      },
+      "activities": [
+        "Adjective Slap — write each adjective (funny, helpful, kind, polite, smart, strong) on a separate card and spread them face-up on the table. Two students stand on each side, hands behind their backs. The teacher acts out or gives a clue, e.g. flexes muscles; both race to slap the correct card (\"strong!\"). The first to slap says the full sentence, e.g. \"Daddy is strong and helpful!\" The winner keeps the card; most cards wins.",
+        "Guess My Classmate — one student thinks of a classmate and gives two clues: \"She is kind and funny.\" The class guesses until they can get a correct answer.",
+        "Two Words, One Person (HTML) — Student 1 flips a name card and a family card and reveals the question \"How is/are [Name]'s [family]?\"; Student 2 flips two adjective cards and answers \"[Name]'s [family] is/are [adj1] and [adj2].\" Draw again for a new pair.",
+        "Compliment Circle — in a circle, each student describes a classmate with two adjectives: \"[Name] is [kind] and [smart].\" The class confirms with a thumbs up."
       ]
     },
     {
@@ -178,20 +392,47 @@
       "code": "GE3 U3C9",
       "unitTitle": "At Home",
       "classTitle": "Where's My Rabbit?",
-      "vocabulary": [
-        "bathroom",
-        "dining room",
-        "bedroom",
-        "garden",
-        "kitchen",
-        "living room",
-        "room"
-      ],
-      "structures": [
-        "Where is she?",
-        "She's in the [room].",
-        "Where is he?",
-        "He's in the [room]."
+      "vocabulary": {
+        "A": [
+          "bathroom",
+          "bedroom",
+          "garden",
+          "kitchen",
+          "living room",
+          "room"
+        ],
+        "B": [
+          "dining room"
+        ],
+        "C": []
+      },
+      "structures": {
+        "A": [
+          "Where is she?",
+          "She's in the [room].",
+          "Where is he?",
+          "He's in the [room]."
+        ],
+        "B": [],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Understand where as a question word asking about place.",
+          "Understand and use Where's = Where is in the target question.",
+          "Use in the + room word to say where someone is."
+        ],
+        "B": [
+          "Choose between He's and She's according to the pictured person",
+          "Ask and answer about people in an unfamiliar house picture"
+        ],
+        "C": []
+      },
+      "activities": [
+        "Where Is She? Where Is He? (HTML) — a character appears in a room of the house; students ask and answer \"Where is she/he?\" — \"She's/He's in the [room].\" Cover all six rooms and both pronouns.",
+        "Find the Rabbit — place the room flashcards around the classroom. Ask the kids to close their eyes and hide a rabbit flashcard behind one of the room flashcards; ask \"Where's the rabbit?\"; students guess \"It's in the [room].\" (or \"is it in the [room]?\" for higher level students). Until it is found, then a student hides it again and leads the game.",
+        "Room Corners — put the six room cards in different corners or on different tables; the teacher or co-teacher goes to a corner; students ask \"Where is he/she?\" and answer in full sentences.",
+        "Guess My Room — one student chooses a room card without showing it to anyone; the class asks \"Are you in the kitchen?\"; the student answers \"Yes.\" or \"No.\"; when the room is guessed, the student says \"I'm in the [room].\""
       ]
     },
     {
@@ -201,20 +442,49 @@
       "code": "GE3 U3C10",
       "unitTitle": "At Home",
       "classTitle": "The Dollhouse",
-      "vocabulary": [
-        "bed",
-        "fridge",
-        "table",
-        "sink",
-        "sofa",
-        "stove",
-        "dollhouse"
-      ],
-      "structures": [
-        "What's in the [room]?",
-        "A [furniture] and a [furniture] are in the [room].",
-        "A [furniture] is in the [room].",
-        "Review: — Where is she/he?\n— She's/He's in the [room]."
+      "vocabulary": {
+        "A": [
+          "bed",
+          "table"
+        ],
+        "B": [
+          "fridge",
+          "sink",
+          "sofa",
+          "stove",
+          "dollhouse"
+        ],
+        "C": []
+      },
+      "structures": {
+        "A": [
+          "What's in the [room]?",
+          "A/An [item] is in the [room].",
+          "Review: — Where is she/he?",
+          "— She's/He's in the [room]."
+        ],
+        "B": [
+          "A [bed] and a [table] are in the [room]."
+        ],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Understand and use What's = What is in the target question.",
+          "Review a/an with singular furniture nouns in \"A [bed] is in the [bedroom].\"."
+        ],
+        "B": [
+          "Join two singular nouns with and and use the plural verb: \"A [bed] and a [table] are in the [room].\""
+        ],
+        "C": [
+          "Answer with a number and a plural noun, e.g. \"Two beds are in the bedroom.\""
+        ]
+      },
+      "activities": [
+        "Paper Dollhouse — use a printable dollhouse with room and furniture cards (or a real dollhouse if one is available); groups furnish the rooms and present each room with \"A [bed] is in the [bedroom].\"",
+        "What’s Missing? (HTML) — students study a furnished room, then spot the missing objects and answer “What’s missing?” Reveal the objects and practise “A chair is in the room” or “A table and a chair are in the room.” Add difficulty with shuffled furniture, multiple missing objects, and funny emoji surprises.",
+        "Furniture Sentence Builders — show two furniture cards and a room card; students arrange word cards into \"A [...] and a [...] are in the [...].\" and read the sentence aloud.",
+        "Draw and Describe — each student draws one room with two or three items, then describes it to a partner using the target structure; partners ask \"What's in the [room]?\""
       ]
     },
     {
@@ -224,19 +494,47 @@
       "code": "GE3 U3C11",
       "unitTitle": "At Home",
       "classTitle": "Around the House",
-      "vocabulary": [
-        "cook",
-        "dishes",
-        "hair",
-        "newspaper",
-        "TV",
-        "watch"
-      ],
-      "structures": [
-        "What do you do in the [room]?",
-        "He/She [actions] in the [room].",
-        "I [action] in the [room].",
-        "Review: — What's in the [room]?\n— A [furniture] is in the [room]."
+      "vocabulary": {
+        "A": [
+          "cook",
+          "hair",
+          "newspaper",
+          "TV",
+          "watch"
+        ],
+        "B": [
+          "dishes"
+        ],
+        "C": []
+      },
+      "structures": {
+        "A": [
+          "What do you do in the [room]?",
+          "I [action] in the [room].",
+          "Review: — What's in the [room]?",
+          "— A/An [item] is in the [room]."
+        ],
+        "B": [
+          "He/She [actions] in the [room]."
+        ],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Understand what as a question word asking about actions.",
+          "Use I + action (taught as a verb phrase) + in the + room to answer about own actions."
+        ],
+        "B": [
+          "Change the room and the action in the answer using familiar vocabulary",
+          "Describe what someone else does with he/she + action"
+        ],
+        "C": []
+      },
+      "activities": [
+        "Around the House (HTML) — a character appears in a room doing an action (the character pictures are in the same folder as the file); students ask and answer \"What do you do in the [room]?\" — \"I [action] in the [room].\" using full sentences.",
+        "Mime the Action — one student mimes a house action; the others ask \"What do you do in the [room]?\" and the student answers with the full sentence.",
+        "Action-Room Match Relay — teams match action cards to the correct room cards on the board, then say one full sentence per match.",
+        "My Saturday — students tell a partner three true sentences about their own home: \"I [action] in the [room].\"; partners report one sentence back to the class."
       ]
     },
     {
@@ -246,19 +544,47 @@
       "code": "GE3 U3C12",
       "unitTitle": "At Home",
       "classTitle": "Let's Clean the Bathroom",
-      "vocabulary": [
-        "clean",
-        "bath",
-        "dirty",
-        "floor",
-        "shower",
-        "toilet"
-      ],
-      "structures": [
-        "Do you want to [clean the bath]?",
-        "I want to [clean the bath/floor/etc.].",
-        "Yes. / No.",
-        "Review: — What do you do in the [room]?\n— I [action] in the [room]."
+      "vocabulary": {
+        "A": [
+          "clean",
+          "dirty",
+          "floor",
+          "shower",
+          "toilet"
+        ],
+        "B": [
+          "bath"
+        ],
+        "C": []
+      },
+      "structures": {
+        "A": [
+          "Do you want to [clean the bath]?",
+          "Yes. / No.",
+          "Review: — What do you do in the [room]?",
+          "— I [action] in the [room]."
+        ],
+        "B": [
+          "I want to [clean the bath/floor/etc.]."
+        ],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Ask and answer \"Do you want to [...]?\" with \"Yes, I do.\" / \"No, I don't.\""
+        ],
+        "B": [
+          "Add \"I want to [...]\" or \"I don't want to [...]\" after the short answer to give a fuller reply"
+        ],
+        "C": [
+          "Ask and answer \"What do you want to do?\" with \"I want to [...].\""
+        ]
+      },
+      "activities": [
+        "Clean or Dirty? Picture Talk — show the clean/messy room pictures one by one (clean kitchen, clean living room, messy bathroom, messy bedroom, messy classroom); students label each \"clean\" or \"dirty\" and use \"Do you want to [clean the bath]?\" — \"Yes. / No.\" exchanges about the pictures.",
+        "Cleaning Charades — one student mimes cleaning the floor, the toilet, the shower or the bath; the others ask \"Do you want to [clean the floor]?\" and the student answers.",
+        "Tidy-Up Race — scatter furniture and rubbish picture cards on the floor; call \"Clean the [floor]!\"; two teams race to collect the matching cards and say a full sentence for each one.",
+        "Messy Room Makeover — show the messy bedroom picture (you can find them in the cloud); students take turns suggesting what to clean with \"Do you want to [clean the [...]]?\"; the class answers and orders the suggestions with first, second and third."
       ]
     },
     {
@@ -268,21 +594,50 @@
       "code": "GE3 U4C13",
       "unitTitle": "All About Me",
       "classTitle": "My Body",
-      "vocabulary": [
-        "leg",
-        "foot",
-        "arm",
-        "feet",
-        "toe",
-        "shoulder",
-        "point"
-      ],
-      "structures": [
-        "This is my [body part].",
-        "What's this?",
-        "Point to your [body part].",
-        "These are my [body parts].",
-        "What's that?"
+      "vocabulary": {
+        "A": [
+          "leg",
+          "arm"
+        ],
+        "B": [
+          "foot",
+          "feet",
+          "toe",
+          "shoulder",
+          "point"
+        ],
+        "C": []
+      },
+      "structures": {
+        "A": [
+          "This is my [body part].",
+          "These are my [body parts]."
+        ],
+        "B": [
+          "What's this?",
+          "What's that?"
+        ],
+        "C": [
+          "Point to your [body part]."
+        ]
+      },
+      "grammar": {
+        "A": [
+          "Use This is my + singular body part and These are my + plural body parts.",
+          "Understand this as one (singular) and these as more than one (plural)."
+        ],
+        "B": [
+          "Use point to + my/your + body part, choosing the correct possessive word"
+        ],
+        "C": [
+          "Choose this is or these are to match singular and plural, including irregular plurals (foot-feet)"
+        ]
+      },
+      "activities": [
+        "Freeze Dance Body Parts — play music; students dance freely; when the music stops, call a body part (\"Shoulders!\"); students freeze, touch it and say \"These are my shoulders!\"; the last one to freeze and say the sentence sits out one round.",
+        "Point Relay Race — two teams line up; call \"Point to your toes!\"; the first child in each line points, says \"These are my toes!\" and runs to the back; the fastest team with correct sentences wins.",
+        "Simon Says, Full Sentences — play Simon Says with body parts; students only stay in the game if they say the full sentence (\"This is my nose.\") while touching the part.",
+        "Body Trace — in pairs, students trace a hand or a foot on paper and present it: a hand trace goes with \"These are my fingers.\" and a foot trace goes with \"These are my toes.\""
       ]
     },
     {
@@ -292,21 +647,48 @@
       "code": "GE3 U4C14",
       "unitTitle": "All About Me",
       "classTitle": "Your Body",
-      "vocabulary": [
-        "tooth",
-        "elbow",
-        "teeth",
-        "finger",
-        "thumb",
-        "knee",
-        "ankle"
-      ],
-      "structures": [
-        "That's your [body part].",
-        "What's that?",
-        "Those are your [body parts].",
-        "What are those?",
-        "Review: This is my [body part]. / These are my [body parts]."
+      "vocabulary": {
+        "A": [
+          "tooth",
+          "teeth"
+        ],
+        "B": [
+          "elbow",
+          "finger",
+          "thumb",
+          "knee",
+          "ankle"
+        ],
+        "C": []
+      },
+      "structures": {
+        "A": [
+          "That's your [body part].",
+          "Those are your [body parts].",
+          "Review: This is my [body part]. / These are my [body parts]."
+        ],
+        "B": [
+          "What's that?",
+          "What are those?"
+        ],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Use That is your + singular body part and Those are your + plural body parts.",
+          "Understand that as one (singular) and those as more than one (plural)."
+        ],
+        "B": [
+          "Choose between my and your according to who the body part belongs to"
+        ],
+        "C": [
+          "Contrast this/these (near) with that/those (far) and choose the correct be-verb"
+        ]
+      },
+      "activities": [
+        "Point to a Partner's ... — students walk around the room; call \"Point to your partner's elbow!\" (point from a small distance, no touching); they find a partner, point to the part and say \"That's your elbow!\"; switch partners each round — cannot be the same two rounds in a row!",
+        "Mystery Body Part — one student hides behind a large card or a teacher and sticks out one body part; the class guesses \"That's your knee!\"; the hidden student confirms or denies.",
+        "How Many? — in groups, students count body parts (\"How many knees? Eight knees!\"); each student then points and says \"These are my knees.\""
       ]
     },
     {
@@ -316,18 +698,43 @@
       "code": "GE3 U4C15",
       "unitTitle": "All About Me",
       "classTitle": "Feelings",
-      "vocabulary": [
-        "angry",
-        "sleepy",
-        "excited",
-        "thirsty",
-        "hungry",
-        "feel"
-      ],
-      "structures": [
-        "How do you feel?",
-        "He/She feels [feeling].",
-        "I feel [feeling]."
+      "vocabulary": {
+        "A": [
+          "angry",
+          "excited",
+          "hungry",
+          "feel"
+        ],
+        "B": [
+          "sleepy",
+          "thirsty"
+        ],
+        "C": []
+      },
+      "structures": {
+        "A": [
+          "How do you feel?",
+          "I feel [feeling]."
+        ],
+        "B": [
+          "He/She feels [feeling]."
+        ],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Ask and answer \"How do you feel?\" with \"I feel + feeling.\""
+        ],
+        "B": [
+          "Describe a pictured character's feeling with \"He/She feels [...].\""
+        ],
+        "C": []
+      },
+      "activities": [
+        "Feelings Charades — one student secretly picks a feeling card and acts it out; the class asks \"How do you feel?\"; the actor answers \"I feel [hungry]!\"; rotate actors quickly to keep the energy up.",
+        "Feelings Chain — students sit in a circle; the first asks the next \"How do you feel?\"; the answerer says \"I feel thirsty!\" and asks the next; no repeats allowed until all six target words are used; if someone repeats, the group counts the used feelings on their fingers as a cue and the student tries again — everyone stays in the chain.",
+        "Die of Feelings — a student throws a die, makes the matching face and says \"I feel [excited]!\"; the class repeats; add a silly rule (on \"sleepy\", everyone pretends to snore for three seconds).",
+        "Feeling Corners — place the six feeling cards in different corners; describe a situation (\"It's bedtime.\" / \"You dropped your ice cream.\"); students move to a corner and say \"I feel [sleepy].\""
       ]
     },
     {
@@ -337,18 +744,43 @@
       "code": "GE3 U4C16",
       "unitTitle": "All About Me",
       "classTitle": "My Toys",
-      "vocabulary": [
-        "blocks",
-        "board game",
-        "cards",
-        "marbles",
-        "puzzle",
-        "soft toy"
-      ],
-      "structures": [
-        "I like [your marbles].",
-        "Do you like [my puzzle]?",
-        "I don't like [my soft toy]."
+      "vocabulary": {
+        "A": [],
+        "B": [
+          "blocks",
+          "cards",
+          "marbles",
+          "puzzle",
+          "soft toy"
+        ],
+        "C": [
+          "board game"
+        ]
+      },
+      "structures": {
+        "A": [
+          "I like [your marbles].",
+          "I don't like [my soft toy]."
+        ],
+        "B": [
+          "Do you like [my puzzle]?"
+        ],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Use I like + my/your + noun and I don't like + my/your + noun to talk about toys."
+        ],
+        "B": [
+          "Change the toy word and switch between my and your in the pattern"
+        ],
+        "C": []
+      },
+      "activities": [
+        "Toy Shop Role-Play — display the six toy flashcards (or real toys) as a shop; student A is the shopkeeper (\"I like my blocks!\"); student B responds \"I like your blocks!\" or \"I don't like your blocks!\"; then swap roles.",
+        "Like / Don't Like Line-Up — call a toy; students run to the LIKE side or the DON'T LIKE side of the room and say the full sentence; check both sides each round.",
+        "Mystery Bag — put real toys or flashcards in a bag; a student pulls one out and says \"I like my [...]!\" or \"I don't like my [...]!\"; the class guesses which toy it is.",
+        "Draw Your Favourite Toy — students draw their favourite toy (real or imaginary) and tell a partner \"I like my [...].\"; partners ask \"Do you like my [...]?\""
       ]
     },
     {
@@ -358,17 +790,43 @@
       "code": "GE3 U5C17",
       "unitTitle": "Animals",
       "classTitle": "Bugs",
-      "vocabulary": [
-        "bee",
-        "ant",
-        "fly",
-        "beetle",
-        "ladybug",
-        "bug"
-      ],
-      "structures": [
-        "A [bee] is a [bug].",
-        "An [ant] is a [bug]."
+      "vocabulary": {
+        "A": [
+          "bee",
+          "fly"
+        ],
+        "B": [
+          "ant",
+          "beetle",
+          "ladybug",
+          "bug"
+        ],
+        "C": []
+      },
+      "structures": {
+        "A": [
+          "A [bee] is a [bug].",
+          "An [ant] is a [bug]."
+        ],
+        "B": [],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Use A/An + animal + is a bug to classify pictured insects (review of a/an)."
+        ],
+        "B": [
+          "Choose a or an according to the animal word and apply the pattern across the target vocabulary"
+        ],
+        "C": [
+          "Sort unfamiliar pictures into the broader categories (bug, bird, animal, toy, fruit, fish)"
+        ]
+      },
+      "activities": [
+        "Bugs Videos — watch the two insect clips from the DingTalk cloud folder; pause on each insect and ask \"What is it?\"; students answer \"A [bee] is a bug.\"",
+        "Bug Hunt — hide the bug flashcards around the room; students find them and say \"A [ladybug] is a bug.\"; the fastest collector with correct sentences wins.",
+        "Bug or Not? — show a mix of creatures and objects; students decide together whether each one is a bug and answer with \"An [ant] is a bug.\" or \"A [dog] is not a bug.\"",
+        "Move Like a Bug — call an insect; students move like it (crawl like an ant, buzz like a bee); when the music stops they freeze and say \"I'm a [bee]. A bee is a bug.\""
       ]
     },
     {
@@ -378,18 +836,47 @@
       "code": "GE3 U5C18",
       "unitTitle": "Animals",
       "classTitle": "Birds",
-      "vocabulary": [
-        "duck",
-        "eagle",
-        "geese",
-        "goose",
-        "owl",
-        "parrot"
-      ],
-      "structures": [
-        "Is a [duck] a [bird]?",
-        "Yes, it is. / No, it isn't.",
-        "Review: A [bee] is a [bug]."
+      "vocabulary": {
+        "A": [
+          "duck"
+        ],
+        "B": [
+          "eagle",
+          "goose",
+          "owl",
+          "parrot"
+        ],
+        "C": [
+          "geese"
+        ]
+      },
+      "structures": {
+        "A": [
+          "Is a [duck] a [bird]?",
+          "Yes, it is. / No, it isn't.",
+          "Review: A [bee] is a [bug]."
+        ],
+        "B": [],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Ask \"Is a [duck] a [bird]?\" and answer with \"Yes, it is.\" / \"No, it isn't.\"",
+          "Use it to refer back to the animal in the answer."
+        ],
+        "B": [
+          "Choose a or an for the animal word in the question",
+          "Use isn't = is not in the negative answer"
+        ],
+        "C": [
+          "Review the contrast between this/these and that/those with the correct be-verb"
+        ]
+      },
+      "activities": [
+        "Bird or Bug or Pet? (HTML) — an animal appears on screen; students name it and classify it as a bird, a bug or a pet, practising \"Is a [parrot] a bird?\" and the answers \"Yes, it is. / No, it isn't.\"",
+        "Bird or Bug Sort — teams sort animal picture cards into birds and bugs on the board, saying \"A [duck] is a bird.\" or \"A [bee] is a bug.\" for each card.",
+        "Animal Twenty Questions — one student secretly chooses an animal; the class asks up to twenty \"Is it a [bird]?\" questions; the student answers \"Yes, it is. / No, it isn't.\" until the animal is guessed.",
+        "Flap or Crawl — ask \"Is a [goose] a bird?\"; if yes, students flap their wings; if no, they squat; keep everyone in the game — give a cue and have the group repeat the correct move together instead of sitting anyone out."
       ]
     },
     {
@@ -399,18 +886,44 @@
       "code": "GE3 U5C19",
       "unitTitle": "Animals",
       "classTitle": "Large Animals",
-      "vocabulary": [
-        "bear",
-        "hippo",
-        "elephant",
-        "giraffe",
-        "animal",
-        "large"
-      ],
-      "structures": [
-        "What is a [bear]?",
-        "A [bear] is a large animal.",
-        "Review: Is a [duck] a [bird]? — Yes, it is."
+      "vocabulary": {
+        "A": [
+          "bear",
+          "elephant",
+          "giraffe",
+          "animal",
+          "large"
+        ],
+        "B": [
+          "hippo"
+        ],
+        "C": []
+      },
+      "structures": {
+        "A": [
+          "What is a [bear]?",
+          "A [bear] is a large animal.",
+          "Review: Is a [duck] a [bird]? — Yes, it is."
+        ],
+        "B": [],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Ask \"What is a [bear]?\" and answer \"A [bear] is a large animal.\""
+        ],
+        "B": [
+          "Change the animal and choose between large and small in the answer"
+        ],
+        "C": [
+          "Classify unfamiliar animals as large or small and justify the choice with the target sentence"
+        ]
+      },
+      "activities": [
+        "Large Animal Videos — watch the animal-size clips from the courseware folder; pause on each large animal and ask \"What is it?\"; students answer \"A [giraffe] is a large animal.\"",
+        "Size Sort — teams sort the unit's animal cards into large and small piles; each card is announced with \"A [...] is a large/small animal.\" (completed in C20).",
+        "Animal Riddles — describe a large animal one feature at a time (\"It is large. It has a long neck.\"); students guess and answer with the full sentence \"A [giraffe] is a large animal.\"",
+        "Draw and Guess — students draw a large animal in secret; the class asks \"Is it a [hippo]?\"; the artist answers, then reveals the drawing and says \"A [...] is a large animal.\""
       ]
     },
     {
@@ -420,19 +933,50 @@
       "code": "GE3 U5C20",
       "unitTitle": "Animals",
       "classTitle": "Small Animals",
-      "vocabulary": [
-        "small",
-        "crab",
-        "frog",
-        "hamster",
-        "rat",
-        "worm"
-      ],
-      "structures": [
-        "Is a [crab] a small animal?",
-        "Yes, a [crab] is a small animal.",
-        "Review: A [bear] is a large animal."
+      "vocabulary": {
+        "A": [
+          "small"
+        ],
+        "B": [
+          "crab",
+          "frog",
+          "hamster",
+          "rat",
+          "worm"
+        ],
+        "C": []
+      },
+      "structures": {
+        "A": [
+          "Is a [crab] a small animal?",
+          "Yes, a [crab] is a small animal.",
+          "Review: A [bear] is a large animal."
+        ],
+        "B": [],
+        "C": []
+      },
+      "grammar": {
+        "A": [
+          "Ask \"Is a [crab] a small animal?\" and answer by reformulating: \"Yes, a [crab] is a small animal.\"; for a negative example, ask \"Is a [bear] a small animal?\" and answer: \"No, a [bear] is a large animal.\""
+        ],
+        "B": [
+          "Choose between large and small according to the pictured animal"
+        ],
+        "C": [
+          "Contrast the short answer \"No, it isn't.\" with the full reformulated answer"
+        ]
+      },
+      "activities": [
+        "Animal Talk (HTML) — the characters ask three question types: \"What is this?\", \"What is a [giraffe]?\" and \"Is a [duck] a bird?\"; students answer with full sentences to review the whole unit (the character pictures are in the same folder as the file).",
+        "Finish the Size Sort — complete the large/small sort from C19 with the small animals, saying \"A [crab] is a small animal.\" for each card.",
+        "Guess My Animal — one student thinks of a unit animal; the class asks \"Is it a small animal?\" and \"Is it a [bird]?\"; the student answers \"Yes, it is. / No, it isn't.\" until the animal is guessed.",
+        "Unit Animal Bingo — students fill bingo cards with unit animals; the teacher gives a description (\"It is a small animal. It jumps.\"); students cover the animal and say its sentence."
       ]
     }
-  ]
+  ],
+  "tierColors": {
+    "A": "#00B050",
+    "B": "#FFC000",
+    "C": "#FF767A"
+  }
 }
