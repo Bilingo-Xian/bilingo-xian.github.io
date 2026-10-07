@@ -436,4 +436,48 @@
 
 
 
+<!-- Bilingo sound FX: synthesized WebAudio, no asset files needed -->
+<style>
+.bilingo-redflash{position:fixed;inset:0;z-index:2147483647;pointer-events:none;background:rgba(229,57,53,.22);animation:bilingoFlash .45s ease-out forwards}
+@keyframes bilingoFlash{from{opacity:1}to{opacity:0}}
+.bilingo-shake{animation:bilingoShake .4s ease!important}
+@keyframes bilingoShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+</style>
+<script>
+(function(){
+if(window.__bilingoSfx)return;window.__bilingoSfx=true;
+var CFG={GOOD:[".slot.correct", "#sortSuccess.show"],BAD:[".slot.wrong", ".word.wrong-pop"],DING:[],TICK:"",TAP:"button, .word"};
+var ctx=null,lastGood=0,lastBad=0,lastDing=0;
+function ac(){if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ctx&&ctx.state==='suspended')ctx.resume();return ctx}
+function tone(f,d,type,v,delay,slide){var c=ac();if(!c)return;var t=c.currentTime+(delay||0);var o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.05)}
+function gate(t,ms){var n=Date.now();if(n-t<ms)return 0;return n}
+function tap(){tone(950,.05,'sine',.05)}
+function good(){var t=gate(lastGood,120);if(!t)return;lastGood=t;[523.25,659.25,783.99,1046.5].forEach(function(f,i){tone(f,.18,'triangle',.18,i*.07)})}
+function ding(){var t=gate(lastDing,120);if(!t)return;lastDing=t;tone(880,.12,'sine',.12);tone(1318.5,.2,'sine',.09,.08)}
+function bad(){var t=gate(lastBad,120);if(!t)return;lastBad=t;tone(170,.3,'sawtooth',.15,0,85)}
+function tickS(){tone(1500,.03,'square',.035)}
+function redflash(){var d=document.createElement('div');d.className='bilingo-redflash';(document.body||document.documentElement).appendChild(d);setTimeout(function(){d.remove()},500);var b=document.body;if(!b)return;b.classList.remove('bilingo-shake');void b.offsetWidth;b.classList.add('bilingo-shake');setTimeout(function(){b.classList.remove('bilingo-shake')},450)}
+if(CFG.TAP){document.addEventListener('pointerdown',function(e){var t=e.target;if(t&&t.closest&&t.closest(CFG.TAP))tap()},true)}
+var fired=new Map();
+function scan(){
+CFG.GOOD.concat(CFG.BAD,CFG.DING).forEach(function(sel){
+document.querySelectorAll(sel).forEach(function(el){
+var rec=fired.get(el);if(!rec){rec={};fired.set(el,rec)}
+if(!rec[sel]){rec[sel]=1;
+if(CFG.GOOD.indexOf(sel)>=0)good();
+else if(CFG.DING.indexOf(sel)>=0)ding();
+else{bad();redflash()}}})});
+fired.forEach(function(rec,el){Object.keys(rec).forEach(function(sel){try{if(!el.matches(sel))delete rec[sel]}catch(e){delete rec[sel]}});if(!Object.keys(rec).length)fired.delete(el)})}
+var scanT=null;
+function schedule(){clearTimeout(scanT);scanT=setTimeout(scan,80)}
+var mo=new MutationObserver(function(muts){
+var need=false;
+for(var i=0;i<muts.length;i++){var m=muts[i];
+if(m.type==='attributes'){need=true}
+else if(m.type==='childList'){need=true;
+if(CFG.TICK&&m.addedNodes){for(var j=0;j<m.addedNodes.length;j++){var n=m.addedNodes[j];if(n&&n.matches&&n.matches(CFG.TICK))tickS()}}}}
+if(need)schedule()});
+mo.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+})();
+</script>
 </body></html>

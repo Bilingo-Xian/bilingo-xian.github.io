@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FEEDBACK_ENDPOINT } from '@/config'
+import { FEEDBACK_EMAIL } from '@/config'
 
 const FEEDBACK_TYPES = [
   'Technical problem',
@@ -8,7 +8,7 @@ const FEEDBACK_TYPES = [
   'Something else',
 ]
 
-type Status = 'idle' | 'sending' | 'sent' | 'error'
+type Status = 'idle' | 'sent'
 
 /** Floating feedback button + modal form, shown on every page. */
 export default function Feedback() {
@@ -48,23 +48,14 @@ function FeedbackDialog({ onClose }: { onClose: () => void }) {
   const [message, setMessage] = useState('')
   const [status, setStatus] = useState<Status>('idle')
 
-  async function submit(e: React.FormEvent) {
+  function submit(e: React.FormEvent) {
     e.preventDefault()
-    if (!FEEDBACK_ENDPOINT) {
-      setStatus('error')
-      return
-    }
-    setStatus('sending')
-    try {
-      const res = await fetch(FEEDBACK_ENDPOINT, {
-        method: 'POST',
-        headers: { Accept: 'application/json' },
-        body: new FormData(e.target as HTMLFormElement),
-      })
-      setStatus(res.ok ? 'sent' : 'error')
-    } catch {
-      setStatus('error')
-    }
+    const subject = encodeURIComponent(`Bonus Box feedback: ${type}`)
+    const body = encodeURIComponent(
+      `Name: ${name || '(not given)'}\nType: ${type}\n\n${message}\n\n— sent from the Bilingo Bonus Box`,
+    )
+    window.location.href = `mailto:${FEEDBACK_EMAIL}?subject=${subject}&body=${body}`
+    setStatus('sent')
   }
 
   return (
@@ -76,12 +67,12 @@ function FeedbackDialog({ onClose }: { onClose: () => void }) {
     >
       {status === 'sent' ? (
         <div className="text-center py-6">
-          <div className="text-5xl mb-3">🎉</div>
-          <h3 className="font-display text-2xl font-bold text-slate-800">Thanks!</h3>
+          <div className="text-5xl mb-3">📮</div>
+          <h3 className="font-display text-2xl font-bold text-slate-800">Check your email app!</h3>
           <p className="mt-2 text-slate-500 text-sm">
-            Your message flew straight to Alex's inbox.
+            A pre-filled email to Alex should have opened — just press <b>send</b>.
             <br />
-            You can also communicate to Alex by <b>WeChat</b> for a follow up!
+            Nothing opened? You can also communicate to Alex by <b>WeChat</b> for a follow up!
           </p>
           <button
             onClick={onClose}
@@ -135,20 +126,11 @@ function FeedbackDialog({ onClose }: { onClose: () => void }) {
             You can also communicate to Alex by <b>WeChat</b> for a follow up!
           </p>
 
-          {status === 'error' && (
-            <p className="text-sm text-rose-500 mb-3">
-              {!FEEDBACK_ENDPOINT
-                ? 'The form isn’t wired up yet — poke Alex to connect Formspree (takes him 2 minutes).'
-                : 'Something went wrong sending — try again, or use WeChat!'}
-            </p>
-          )}
-
           <button
             type="submit"
-            disabled={status === 'sending'}
-            className="w-full rounded-full bg-orange-500 hover:bg-orange-400 disabled:opacity-60 text-white font-display font-semibold py-3 transition-colors"
+            className="w-full rounded-full bg-orange-500 hover:bg-orange-400 text-white font-display font-semibold py-3 transition-colors"
           >
-            {status === 'sending' ? 'Sending…' : 'Send feedback 🚀'}
+            Open email app & send 🚀
           </button>
         </form>
       )}

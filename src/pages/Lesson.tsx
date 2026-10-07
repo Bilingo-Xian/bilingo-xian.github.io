@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import {
   findLesson,
+  lessonsForLevel,
   lessonFiles,
   pictureSetImages,
   fileUrl,
@@ -342,10 +343,10 @@ function GameCard({ file }: { file: ContentFile }) {
 }
 
 function PrevNext({ lesson }: { lesson: LessonData }) {
-  const prev = findLesson(lesson.level, lesson.unit, lesson.cycle - 1)
-    ?? (lesson.unit > 1 ? findLesson(lesson.level, lesson.unit - 1, 99) : undefined)
-  const next = findLesson(lesson.level, lesson.unit, lesson.cycle + 1)
-    ?? findLesson(lesson.level, lesson.unit + 1, 1)
+  // cycle numbers run C1–C20 across the whole book, so prev/next is just cycle ± 1
+  const all = lessonsForLevel(lesson.level)
+  const prev = all.find((l) => l.cycle === lesson.cycle - 1)
+  const next = all.find((l) => l.cycle === lesson.cycle + 1)
 
   return (
     <nav className="mx-auto max-w-5xl px-6 mt-12 flex flex-col sm:flex-row gap-4">
@@ -373,9 +374,7 @@ function PrevNext({ lesson }: { lesson: LessonData }) {
           <div className="text-white/80 text-sm mt-0.5 group-hover:translate-x-1 transition-transform">keep going! 🚀</div>
         </Link>
       ) : (
-        <div className="flex-1 rounded-2xl border-2 border-dashed border-slate-300 grid place-items-center p-4 text-slate-400 text-sm">
-          🏁 That's the last GE3 lesson — for now!
-        </div>
+        <div className="flex-1" />
       )}
     </nav>
   )

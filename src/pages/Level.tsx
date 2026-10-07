@@ -4,6 +4,7 @@ import {
   getLevel,
   lessonsForLevel,
   lessonFiles,
+  levelActivityCount,
   levelExtras,
   unitsForLevel,
   searchBlob,
@@ -62,7 +63,7 @@ function LevelContent({ levelId }: { levelId: string }) {
     return lessons.filter((l) => searchBlob(l).includes(q))
   }, [lessons, query])
 
-  const totalFiles = lessons.reduce((n, l) => n + lessonFiles(l.code).length, 0)
+  const counts = levelActivityCount(levelId)
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-rose-50 pb-20">
@@ -77,7 +78,7 @@ function LevelContent({ levelId }: { levelId: string }) {
               {levelId.replace('GE', 'GE ')} <span className="text-2xl text-slate-400 font-semibold">· General English</span>
             </h1>
             <p className="mt-2 text-slate-600">
-              {lessons.length} lessons · {totalFiles} bonus activities · tap a lesson to see target language & materials
+              {lessons.length} lessons · {counts.total} bonus activities · tap a lesson to see target language & materials
             </p>
           </div>
           {extras.map((f) => (

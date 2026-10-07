@@ -1,10 +1,8 @@
 /**
  * Site configuration.
  *
- * FEEDBACK_ENDPOINT: paste a Formspree endpoint here to activate the feedback
- * form (free tier: 50 submissions/month, delivered to your email).
- * Get one at https://formspree.io — create a form, copy the endpoint that
- * looks like "https://formspree.io/f/abcdwxyz" into the quotes below.
- * Leave empty to show a "not wired yet" notice instead.
+ * FEEDBACK_EMAIL: where the feedback form sends. The form opens the teacher's
+ * email app with a pre-filled message — no external service needed (which also
+ * means it works from China, where form services like Formspree are unreliable).
  */
-export const FEEDBACK_ENDPOINT = ''
+export const FEEDBACK_EMAIL = 'bilingo2014@proton.me'
