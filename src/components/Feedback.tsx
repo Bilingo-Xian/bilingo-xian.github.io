@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FEEDBACK_EMAIL } from '@/config'
+import { FEEDBACK_EMAIL, WJX_SURVEY_URL } from '@/config'
 
 const FEEDBACK_TYPES = [
   'Technical problem',
@@ -35,13 +35,57 @@ export default function Feedback() {
           className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-[2px] grid place-items-center p-4"
           onClick={() => setOpen(false)}
         >
-          <FeedbackDialog onClose={() => setOpen(false)} />
+          {WJX_SURVEY_URL ? <WjxDialog onClose={() => setOpen(false)} /> : <FeedbackDialog onClose={() => setOpen(false)} />}
         </div>
       )}
     </>
   )
 }
 
+/** Embedded 问卷星 questionnaire — primary feedback channel. */
+function WjxDialog({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl p-4 flex flex-col"
+      style={{ height: 'min(80vh, 760px)' }}
+      onClick={(e) => e.stopPropagation()}
+      role="dialog"
+      aria-label="Feedback form"
+    >
+      <div className="flex items-start justify-between px-1 pb-3">
+        <h3 className="font-display text-2xl font-bold text-slate-800">📝 Feedback</h3>
+        <div className="flex items-center gap-3">
+          <a
+            href={WJX_SURVEY_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs text-orange-500 hover:text-orange-400 font-semibold"
+          >
+            在新标签页打开 ↗
+          </a>
+          <button type="button" onClick={onClose} aria-label="Close" className="text-slate-300 hover:text-slate-500 text-2xl leading-none">
+            ×
+          </button>
+        </div>
+      </div>
+
+      <iframe
+        src={WJX_SURVEY_URL}
+        title="Feedback questionnaire"
+        className="w-full flex-1 rounded-2xl border border-slate-200 bg-white"
+      />
+
+      <p className="px-1 pt-3 text-xs text-slate-400">
+        也可以微信联系 Alex 进行反馈！Prefer email? Write to{' '}
+        <a className="text-orange-500 font-semibold" href={`mailto:${FEEDBACK_EMAIL}`}>
+          {FEEDBACK_EMAIL}
+        </a>
+      </p>
+    </div>
+  )
+}
+
+/** Fallback: pre-filled email form (used until the wjx.cn link is configured). */
 function FeedbackDialog({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState('')
   const [type, setType] = useState(FEEDBACK_TYPES[0])
