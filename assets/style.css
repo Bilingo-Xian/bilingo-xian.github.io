@@ -201,6 +201,12 @@ img { max-width: 100%; }
 .unit-tile.u3 { background: linear-gradient(140deg, #38bdf8, #2563eb); }
 .unit-tile.u4 { background: linear-gradient(140deg, #a3e635, #059669); }
 .unit-tile.u5 { background: linear-gradient(140deg, #a78bfa, #7c3aed); }
+/* unit color code — any element with a u1..u5 class (tile, section or lesson) */
+.u1 { --unit-color: #f97316; }
+.u2 { --unit-color: #e41362; }
+.u3 { --unit-color: #2563eb; }
+.u4 { --unit-color: #059669; }
+.u5 { --unit-color: #7c3aed; }
 
 .unit-section { margin-top: 46px; scroll-margin-top: 80px; }
 .unit-section > h2 { font-size: 1.7rem; margin: 0 0 4px; }
@@ -217,7 +223,7 @@ img { max-width: 100%; }
   transition: transform .16s, border-color .16s;
 }
 .lesson-tile:hover { transform: translateY(-3px); border-color: var(--accent); }
-.lesson-tile .code { font-weight: 800; font-size: .74rem; letter-spacing: .04em; color: var(--accent); }
+.lesson-tile .code { font-weight: 800; font-size: .74rem; letter-spacing: .04em; color: var(--unit-color, var(--accent)); }
 .lesson-tile h3 { margin: 5px 0 8px; font-size: 1.06rem; font-weight: 700; font-family: 'Fredoka', sans-serif; }
 .badges { display: flex; flex-wrap: wrap; gap: 5px; }
 .badge {
@@ -253,11 +259,12 @@ img { max-width: 100%; }
 .lesson-head .crumb a:hover { color: var(--accent); }
 .lesson-head h1 { font-size: clamp(1.9rem, 5vw, 2.7rem); margin: 8px 0 4px; }
 .lesson-head .unit-line { color: var(--muted); font-weight: 700; margin: 0 0 16px; }
+.lesson-head .chip, .lesson .chip { background: var(--unit-color, var(--accent)); }
 
-/* six-box panel: fills the screen on desktop */
+/* six-box panel: fills the screen on desktop, 25% taller than one viewport */
 .panels {
   display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 1fr);
-  gap: 14px; height: calc(100vh - 170px); min-height: 480px;
+  gap: 14px; height: calc(125vh - 210px); min-height: 600px;
 }
 @media (max-width: 860px) {
   .panels { grid-template-columns: 1fr; grid-template-rows: none; height: auto; }
@@ -266,24 +273,23 @@ img { max-width: 100%; }
 .panel {
   display: flex; flex-direction: column;
   background: var(--surface); border: 1px solid var(--border);
+  border-left: 6px solid var(--unit-color, var(--accent));
   border-radius: 20px; padding: 14px 16px; box-shadow: var(--shadow);
   min-height: 0;
 }
 .panel > h3 { margin: 0 0 10px; font-size: 1.02rem; display: flex; align-items: center; gap: 8px; }
 .panel-body { overflow-y: auto; min-height: 0; padding-right: 4px; }
 
-.panel.leadins { border-color: var(--accent); }
-.panel.bonus { border-left: 6px solid #a855f7; }
-.panel.bonus > h3 { color: #a855f7; }
+.panel.bonus > h3 { color: var(--unit-color, var(--accent)); }
 
 .leadins-list { list-style: none; margin: 0; padding: 0; }
 .leadins-list li { padding: 8px 10px; border-radius: 12px; margin-bottom: 8px; background: var(--panel); font-size: .9rem; line-height: 1.45; }
 .leadins-list li b { color: var(--accent); }
 
 /* A/B/C tier boxes */
-.tier { position: relative; border-radius: 14px; padding: 10px 12px; margin-bottom: 9px; font-size: .92rem; line-height: 1.5; }
+.tier { position: relative; border-radius: 14px; padding: 10px 38px 10px 12px; margin-bottom: 9px; font-size: .92rem; line-height: 1.5; }
 .tier .tier-tag {
-  position: absolute; top: -8px; right: 10px;
+  position: absolute; top: 10px; right: 10px;
   width: 24px; height: 24px; border-radius: 999px;
   display: grid; place-items: center;
   font-weight: 900; font-size: .8rem; color: #fff; font-family: 'Nunito', sans-serif;
@@ -295,7 +301,7 @@ img { max-width: 100%; }
 .tier.c { background: var(--tier-c-bg); border-left: 5px solid var(--tier-c); }
 .tier.c .tier-tag { background: var(--tier-c); }
 .tier ul { margin: 0; padding-left: 18px; }
-.tier li { margin: 2px 0; }
+.tier li { margin: 2px 0; padding-right: 4px; }
 
 .vocab-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .vocab-chips span {
@@ -313,10 +319,10 @@ img { max-width: 100%; }
 .bonus-list li::before {
   content: counter(act); position: absolute; left: 10px; top: 8px;
   width: 22px; height: 22px; border-radius: 8px;
-  background: #a855f7; color: #fff; font-weight: 900; font-size: .78rem;
+  background: var(--unit-color, #a855f7); color: #fff; font-weight: 900; font-size: .78rem;
   display: grid; place-items: center;
 }
-.bonus-list li .see-below { color: #a855f7; font-weight: 800; white-space: nowrap; }
+.bonus-list li .see-below { color: var(--unit-color, #a855f7); font-weight: 800; white-space: nowrap; }
 
 .empty-note { color: var(--muted); font-style: italic; }
 
