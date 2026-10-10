@@ -1,0 +1,1049 @@
+<!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏠 Where Is She? Where Is He?</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', 'Comic Sans MS', sans-serif;
+  background: #87CEEB;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* SKY */
+.sky {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, #4FA4E0 0%, #87CEEB 40%, #B0E0F0 70%, #90EE90 85%, #2E8B2E 100%);
+  z-index: 0;
+}
+.sun {
+  position: fixed;
+  top: 30px;
+  left: 60px;
+  width: 70px;
+  height: 70px;
+  background: radial-gradient(circle, #FFE45C, #FFA500);
+  border-radius: 50%;
+  box-shadow: 0 0 40px #FFE45C, 0 0 80px rgba(255,165,0,0.3);
+  z-index: 1;
+  animation: pulse 4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 40px #FFE45C, 0 0 80px rgba(255,165,0,0.3); }
+  50% { transform: scale(1.05); box-shadow: 0 0 50px #FFE45C, 0 0 100px rgba(255,165,0,0.4); }
+}
+.cloud {
+  position: fixed;
+  color: white;
+  font-size: 3em;
+  z-index: 1;
+  opacity: 0.85;
+  animation: drift linear infinite;
+}
+.cloud:nth-child(2) { top: 40px; font-size: 4em; animation-duration: 35s; left: -200px; }
+.cloud:nth-child(3) { top: 90px; font-size: 2.5em; animation-duration: 28s; left: -150px; animation-delay: -10s; }
+.cloud:nth-child(4) { top: 20px; font-size: 3.5em; animation-duration: 40s; left: -180px; animation-delay: -20s; }
+.cloud:nth-child(5) { top: 120px; font-size: 2em; animation-duration: 32s; left: -120px; animation-delay: -5s; }
+@keyframes drift {
+  0% { transform: translateX(-200px); }
+  100% { transform: translateX(calc(100vw + 200px)); }
+}
+
+/* MAIN LAYOUT */
+.game-wrapper {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 10px 30px;
+  min-height: 100vh;
+}
+h1 {
+  color: white;
+  text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+  font-size: 2em;
+  margin-bottom: 4px;
+  text-align: center;
+}
+.phase-title {
+  color: white;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  margin-bottom: 12px;
+  text-align: center;
+  min-height: 1.5em;
+}
+
+/* HOUSE + GARDEN CONTAINER */
+.scene {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  width: 100%;
+  max-width: 900px;
+  justify-content: center;
+}
+
+/* HOUSE */
+.house-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+.roof {
+  width: 0;
+  height: 0;
+  border-left: 260px solid transparent;
+  border-right: 260px solid transparent;
+  border-bottom: 70px solid #A0522D;
+  position: relative;
+  filter: drop-shadow(0 -2px 4px rgba(0,0,0,0.2));
+}
+.roof::after {
+  content: '🏠';
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.8em;
+}
+.house {
+  width: 520px;
+  background: #654321;
+  border: 5px solid #4A2F0A;
+  border-top: none;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.floor {
+  display: flex;
+  gap: 5px;
+}
+.floor-top .room { flex: 1; height: 150px; }
+.floor-bottom .room { flex: 1; height: 150px; }
+
+/* ROOMS */
+.room {
+  position: relative;
+  background: #FFF8DC;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.room:hover:not(.revealed) {
+  box-shadow: inset 0 0 25px rgba(255,215,0,0.5);
+  transform: scale(1.02);
+}
+.room.revealed { cursor: default; }
+
+/* Room background icons */
+.room-bg-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.5em;
+  opacity: 0;
+  transition: opacity 0.6s;
+  pointer-events: none;
+  filter: grayscale(0.3);
+}
+.room.revealed .room-bg-icon { opacity: 0.2; }
+
+/* Bubble layer */
+.bubble-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  transition: opacity 0.5s, transform 0.3s;
+  overflow: hidden;
+}
+.room.revealed .bubble-layer { opacity: 0; transform: scale(0.5); pointer-events: none; }
+
+.bubble {
+  font-size: 1.8em;
+  animation: floatB 3s ease-in-out infinite;
+  display: inline-block;
+}
+.bubble:nth-child(2) { animation-delay: -0.8s; }
+.bubble:nth-child(3) { animation-delay: -1.6s; }
+.bubble:nth-child(4) { animation-delay: -2.4s; }
+@keyframes floatB {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+/* Room label */
+.room-label {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  background: rgba(0,0,0,0.75);
+  color: white;
+  padding: 4px 14px;
+  border-radius: 14px;
+  font-size: 0.8em;
+  font-weight: bold;
+  white-space: nowrap;
+  z-index: 5;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.room.revealed .room-label { transform: translateX(-50%) scale(1); }
+
+/* Room colors */
+.room[data-room="bedroom"].revealed { background: #FFF3CD; }
+.room[data-room="bathroom"].revealed { background: #E3F2FD; }
+.room[data-room="kitchen"].revealed { background: #FCE4EC; }
+.room[data-room="dining room"].revealed { background: #FFF8E1; }
+.room[data-room="living room"].revealed { background: #E0F7FA; }
+
+/* GARDEN */
+.garden-area {
+  position: relative;
+  width: 200px;
+  height: 310px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: -5px;
+}
+.garden-bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  pointer-events: none;
+  z-index: 0;
+}
+.trees {
+  font-size: 2.5em;
+  margin-bottom: 5px;
+}
+.fence {
+  width: 100%;
+  height: 30px;
+  background: repeating-linear-gradient(90deg, #DEB887 0px, #DEB887 12px, #8B6914 12px, #8B6914 14px);
+  border-top: 4px solid #8B6914;
+  position: absolute;
+  bottom: 0;
+  border-radius: 0 0 8px 0;
+}
+.garden-room {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, transparent 0%, rgba(34,139,34,0.1) 50%, rgba(34,139,34,0.3) 100%);
+  border: 3px dashed #2E8B57;
+  border-left: none;
+  border-radius: 0 12px 12px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+  z-index: 1;
+}
+.garden-room:hover:not(.revealed) {
+  box-shadow: inset 0 0 20px rgba(50,205,50,0.4);
+}
+.garden-room.revealed { cursor: default; }
+.garden-room.revealed .bubble-layer { opacity: 0; transform: scale(0.5); pointer-events: none; }
+.garden-room.revealed .room-label { transform: translateX(-50%) scale(1); }
+.garden-room .room-label {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  background: rgba(0,0,0,0.75);
+  color: white;
+  padding: 4px 14px;
+  border-radius: 14px;
+  font-size: 0.8em;
+  font-weight: bold;
+  white-space: nowrap;
+  z-index: 5;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.garden-room .bubble-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 15px;
+  transition: opacity 0.5s, transform 0.3s;
+  overflow: hidden;
+}
+.garden-room .bubble {
+  font-size: 1.6em;
+}
+.garden-room .room-bg-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3em;
+  opacity: 0;
+  pointer-events: none;
+}
+.garden-room.revealed .room-bg-icon { opacity: 0.15; }
+.garden-door {
+  position: absolute;
+  left: -2px;
+  bottom: 40px;
+  width: 30px;
+  height: 50px;
+  background: #8B4513;
+  border-radius: 15px 15px 0 0;
+  border: 2px solid #5C2E00;
+  z-index: 3;
+}
+.garden-door::after {
+  content: '•';
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  color: gold;
+  font-size: 1.2em;
+}
+
+/* CHARACTER — lives inside room but no overflow clip issues since thought is separate */
+.character {
+  position: absolute;
+  z-index: 10;
+  pointer-events: none;
+  display: none;
+}
+.character img {
+  width: 65px;
+  height: 65px;
+  object-fit: contain;
+}
+.character.walking { animation: charBounce 0.4s ease-in-out infinite; }
+.character.flipped img { transform: scaleX(-1); }
+@keyframes charBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* FLOATING THOUGHT BUBBLE — fixed position, never clipped */
+.thought-bubble {
+  position: fixed;
+  z-index: 9999;
+  background: white;
+  border-radius: 18px;
+  padding: 5px 14px;
+  font-size: 0.85em;
+  font-weight: bold;
+  white-space: nowrap;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  transform: translateX(-50%) translateY(0);
+}
+.thought-bubble.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-5px);
+}
+.thought-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid white;
+}
+
+/* QUESTION AREA */
+.question-area {
+  width: 100%;
+  max-width: 700px;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.question-area.hidden { display: none; }
+
+.question-box {
+  background: white;
+  border-radius: 20px;
+  padding: 16px 28px;
+  font-size: 1.5em;
+  font-weight: bold;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  color: #2d3436;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.question-box.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+.question-box.clickable {
+  background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+  color: white;
+  animation: glowBtn 2s ease-in-out infinite;
+}
+@keyframes glowBtn {
+  0%, 100% { box-shadow: 0 4px 15px rgba(108,92,231,0.4); }
+  50% { box-shadow: 0 4px 25px rgba(108,92,231,0.7); }
+}
+
+.options {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.options.hidden { display: none; }
+
+.option-btn {
+  background: white;
+  border: 3px solid #dfe6e9;
+  border-radius: 16px;
+  padding: 14px 22px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 200px;
+  text-align: center;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: #74b9ff;
+  background: #f0f8ff;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.option-btn.correct {
+  background: #00b894 !important;
+  border-color: #00b894 !important;
+  color: white !important;
+  font-size: 1.2em;
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(0,184,148,0.5);
+  opacity: 1 !important;
+}
+.option-btn.wrong {
+  background: #e17055 !important;
+  border-color: #e17055 !important;
+  color: white !important;
+  animation: shake 0.5s ease;
+}
+.option-btn.grayed {
+  opacity: 0.4;
+  transform: scale(0.95);
+}
+.option-btn:disabled { cursor: not-allowed; }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+
+/* Screen shake */
+.game-wrapper.shake {
+  animation: screenShake 0.5s ease;
+}
+@keyframes screenShake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-5px) rotate(-0.5deg); }
+  30% { transform: translateX(5px) rotate(0.5deg); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+}
+
+/* Again button */
+.btn-again {
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  color: white;
+  border: none;
+  padding: 18px 44px;
+  font-size: 1.3em;
+  font-weight: bold;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(108,92,231,0.4);
+  transition: all 0.2s;
+  display: none;
+  margin-top: 8px;
+}
+.btn-again:hover { transform: scale(1.07); box-shadow: 0 8px 25px rgba(108,92,231,0.6); }
+.btn-again.show { display: block; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+@keyframes popIn {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+
+/* Pop animation on rooms */
+.room.pop-anim, .garden-room.pop-anim {
+  animation: popReveal 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popReveal {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+/* Confetti */
+.confetti {
+  position: fixed;
+  top: -20px;
+  font-size: 1.5em;
+  z-index: 999;
+  pointer-events: none;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+}
+
+/* Responsive */
+@media (max-width: 750px) {
+  .scene { flex-direction: column; align-items: center; }
+  .house { width: 95vw; max-width: 520px; }
+  .roof { border-left-width: 47.5vw; border-right-width: 47.5vw; max-width: 520px; }
+  .garden-area { width: 95vw; max-width: 520px; height: 120px; margin-left: 0; margin-top: -5px; }
+  .garden-room { border: 3px dashed #2E8B57; border-radius: 0 0 12px 12px; }
+  .garden-door { display: none; }
+  .floor-top .room, .floor-bottom .room { height: 120px; }
+  h1 { font-size: 1.5em; }
+  .question-box { font-size: 1.2em; padding: 12px 20px; }
+  .option-btn { min-width: 160px; font-size: 0.95em; padding: 11px 16px; }
+  .character img { width: 50px; height: 50px; }
+}
+@media (max-width: 400px) {
+  .floor-top .room, .floor-bottom .room { height: 100px; }
+  .bubble { font-size: 1.3em; }
+}
+</style>
+</head>
+<body>
+
+<div class="sky"></div>
+<div class="sun"></div>
+<div class="cloud">☁️</div>
+<div class="cloud">☁️</div>
+<div class="cloud">☁️</div>
+<div class="cloud">☁️</div>
+
+<!-- FLOATING THOUGHT BUBBLE — outside everything, position:fixed -->
+<div class="thought-bubble" id="thought-bubble">Where am I?</div>
+
+<div class="game-wrapper" id="game-wrapper">
+  <h1>🏠 Where Is She? Where Is He?</h1>
+  <div class="phase-title" id="phase-title">👆 Pop the bubbles! What room is it?</div>
+
+  <div class="scene">
+    <!-- HOUSE -->
+    <div class="house-wrapper">
+      <div class="roof"></div>
+      <div class="house" id="house">
+        <!-- TOP FLOOR -->
+        <div class="floor floor-top">
+          <div class="room" data-room="bedroom" onclick="revealRoom(this)">
+            <div class="room-bg-icon">🛏️</div>
+            <div class="bubble-layer">
+              <span class="bubble">🛏️</span>
+              <span class="bubble">💤</span>
+              <span class="bubble">🧸</span>
+              <span class="bubble">🌙</span>
+            </div>
+            <div class="room-label">bedroom</div>
+          </div>
+          <div class="room" data-room="bathroom" onclick="revealRoom(this)">
+            <div class="room-bg-icon">🛁</div>
+            <div class="bubble-layer">
+              <span class="bubble">🚿</span>
+              <span class="bubble">🛁</span>
+              <span class="bubble">🧼</span>
+              <span class="bubble">🪥</span>
+            </div>
+            <div class="room-label">bathroom</div>
+          </div>
+        </div>
+        <!-- BOTTOM FLOOR -->
+        <div class="floor floor-bottom">
+          <div class="room" data-room="kitchen" onclick="revealRoom(this)">
+            <div class="room-bg-icon">🍳</div>
+            <div class="bubble-layer">
+              <span class="bubble">🍳</span>
+              <span class="bubble">🥘</span>
+              <span class="bubble">👨‍🍳</span>
+              <span class="bubble">🔪</span>
+            </div>
+            <div class="room-label">kitchen</div>
+          </div>
+          <div class="room" data-room="dining room" onclick="revealRoom(this)">
+            <div class="room-bg-icon">🍽️</div>
+            <div class="bubble-layer">
+              <span class="bubble">🍽️</span>
+              <span class="bubble">🪑</span>
+              <span class="bubble">🍴</span>
+              <span class="bubble">🥤</span>
+            </div>
+            <div class="room-label">dining room</div>
+          </div>
+          <div class="room" data-room="living room" onclick="revealRoom(this)">
+            <div class="room-bg-icon">📺</div>
+            <div class="bubble-layer">
+              <span class="bubble">📺</span>
+              <span class="bubble">🛋️</span>
+              <span class="bubble">🎮</span>
+              <span class="bubble">🖼️</span>
+            </div>
+            <div class="room-label">living room</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GARDEN -->
+    <div class="garden-area">
+      <div class="garden-door"></div>
+      <div class="garden-room" data-room="garden" onclick="revealRoom(this)">
+        <div class="room-bg-icon">🌳</div>
+        <div class="bubble-layer">
+          <span class="bubble">🌸</span>
+          <span class="bubble">🌳</span>
+          <span class="bubble">🦋</span>
+          <span class="bubble">🌻</span>
+          <span class="bubble">🐝</span>
+        </div>
+        <div class="room-label">garden</div>
+      </div>
+      <div class="garden-bg">
+        <div class="trees">🌲🌳🌲</div>
+        <div class="fence"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUESTION AREA -->
+  <div class="question-area hidden" id="question-area">
+    <div class="question-box clickable" id="question-box" onclick="revealQuestion()">
+      👀 Who's in the house? Tap to ask!
+    </div>
+    <div class="options hidden" id="options"></div>
+    <button class="btn-again" id="btn-again" onclick="nextRound()">🔄 One more time!</button>
+  </div>
+</div>
+
+<!-- CHARACTER (will be appended into rooms) -->
+<div class="character" id="character">
+  <img id="char-img" src="" alt="character">
+</div>
+
+<script>
+// === AUDIO ===
+var audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playPop() {
+  try {
+    var ctx = getAudioCtx();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(600, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.15);
+  } catch(e) {}
+}
+
+function playCorrect() {
+  try {
+    var ctx = getAudioCtx();
+    var notes = [523, 659, 784];
+    notes.forEach(function(freq, i) {
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.1);
+      gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.1 + 0.3);
+      osc.start(ctx.currentTime + i * 0.1);
+      osc.stop(ctx.currentTime + i * 0.1 + 0.3);
+    });
+  } catch(e) {}
+}
+
+function playWrong() {
+  try {
+    var ctx = getAudioCtx();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(200, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.35);
+  } catch(e) {}
+}
+
+// === GAME DATA ===
+var characters = [
+  { name: "Laki", pronoun: "he", img: "Laki.png" },
+  { name: "Ola",  pronoun: "he", img: "Ola.png" },
+  { name: "Pili", pronoun: "he", img: "Pili.png" },
+  { name: "Nani", pronoun: "she", img: "Nani.png" },
+  { name: "Lele", pronoun: "she", img: "Lele.png" }
+];
+
+var rooms = ["bedroom", "bathroom", "kitchen", "dining room", "living room", "garden"];
+var revealedCount = 0;
+var totalRooms = 6;
+var currentChar = null;
+var currentRoom = null;
+var moveInterval = null;
+var thoughtInterval = null;
+var positionTracker = null;
+var phase = 'discover';
+var questionRevealed = false;
+
+// History for no-repeat-within-3
+var charHistory = [];
+var roomHistory = [];
+
+var idleThoughts = ["Where am I? 🤔", "Hello? 👋", "This house is big!", "Hmm... 🏠", "Look! 👀", "What's here?", "So cool! ✨"];
+var correctSpeech = ["YES! 🎉", "AWESOME! ⭐", "RIGHT! ✅", "GREAT! 💪", "WOOHOO! 🥳", "YAY! 🌟"];
+var wrongSpeech = ["Oh... 😢", "Maybe next time! 💭", "Not quite... 🤔", "Oops! 😅", "Try again! 🔄"];
+
+// === THOUGHT BUBBLE POSITIONING ===
+function updateThoughtPosition() {
+  var charEl = document.getElementById('character');
+  var bubble = document.getElementById('thought-bubble');
+  if (!charEl || charEl.style.display === 'none') {
+    bubble.classList.remove('show');
+    return;
+  }
+  var rect = charEl.getBoundingClientRect();
+  bubble.style.left = (rect.left + rect.width / 2) + 'px';
+  bubble.style.top = (rect.top - 10) + 'px';
+}
+
+function startPositionTracking() {
+  stopPositionTracking();
+  positionTracker = setInterval(updateThoughtPosition, 50);
+}
+
+function stopPositionTracking() {
+  if (positionTracker) clearInterval(positionTracker);
+}
+
+// === ROOM REVEAL ===
+function revealRoom(el) {
+  if (el.classList.contains('revealed')) return;
+  el.classList.add('revealed', 'pop-anim');
+  revealedCount++;
+  playPop();
+  setTimeout(function() { el.classList.remove('pop-anim'); }, 500);
+
+  if (revealedCount >= totalRooms) {
+    setTimeout(startQuiz, 1000);
+  }
+}
+
+// === QUIZ START ===
+function startQuiz() {
+  phase = 'quiz';
+  document.getElementById('phase-title').textContent = '🔍 Find the character in the house!';
+  document.getElementById('question-area').classList.remove('hidden');
+  nextRound();
+}
+
+// === PICK WITHOUT REPEAT ===
+function pickChar() {
+  var available = characters.filter(function(c) {
+    return charHistory.indexOf(c.name) === -1;
+  });
+  if (available.length === 0) available = characters;
+  var pick = available[Math.floor(Math.random() * available.length)];
+  charHistory.push(pick.name);
+  if (charHistory.length > 2) charHistory.shift();
+  return pick;
+}
+
+function pickRoom() {
+  var available = rooms.filter(function(r) {
+    return roomHistory.indexOf(r) === -1;
+  });
+  if (available.length === 0) available = rooms;
+  var pick = available[Math.floor(Math.random() * available.length)];
+  roomHistory.push(pick);
+  if (roomHistory.length > 2) roomHistory.shift();
+  return pick;
+}
+
+// === NEXT ROUND ===
+function nextRound() {
+  document.getElementById('btn-again').classList.remove('show');
+  document.getElementById('options').innerHTML = '';
+  document.getElementById('options').classList.add('hidden');
+  questionRevealed = false;
+
+  currentChar = pickChar();
+  currentRoom = pickRoom();
+
+  // Reset question box
+  var qBox = document.getElementById('question-box');
+  qBox.textContent = '👀 Who\'s in the house? Tap to ask!';
+  qBox.classList.add('clickable');
+  qBox.style.pointerEvents = 'auto';
+
+  // Show character
+  var charEl = document.getElementById('character');
+  var charImg = document.getElementById('char-img');
+  charImg.src = currentChar.img;
+  charImg.alt = currentChar.name;
+  charEl.style.display = 'block';
+  charEl.classList.remove('flipped');
+
+  placeCharacter();
+  startMovement();
+  startPositionTracking();
+}
+
+// === PLACE CHARACTER ===
+function placeCharacter() {
+  var charEl = document.getElementById('character');
+  var roomEl;
+
+  if (currentRoom === 'garden') {
+    roomEl = document.querySelector('.garden-room');
+  } else {
+    roomEl = document.querySelector('.room[data-room="' + currentRoom + '"]');
+  }
+
+  roomEl.appendChild(charEl);
+  charEl.style.left = '30%';
+  charEl.style.top = '20%';
+  charEl.classList.add('walking');
+}
+
+// === MOVEMENT ===
+function startMovement() {
+  clearInterval(moveInterval);
+  clearInterval(thoughtInterval);
+
+  var charEl = document.getElementById('character');
+
+  moveInterval = setInterval(function() {
+    var newLeft = 5 + Math.random() * 45;
+    var newTop = 5 + Math.random() * 35;
+    charEl.style.left = newLeft + '%';
+    charEl.style.top = newTop + '%';
+
+    if (Math.random() > 0.5) charEl.classList.toggle('flipped');
+    if (Math.random() > 0.7) {
+      charEl.classList.remove('walking');
+      setTimeout(function() { charEl.classList.add('walking'); }, 800);
+    }
+  }, 2200);
+
+  // Idle thoughts
+  showThought(idleThoughts[Math.floor(Math.random() * idleThoughts.length)]);
+  thoughtInterval = setInterval(function() {
+    showThought(idleThoughts[Math.floor(Math.random() * idleThoughts.length)]);
+  }, 3500);
+}
+
+function showThought(text) {
+  var bubble = document.getElementById('thought-bubble');
+  bubble.textContent = text;
+  bubble.classList.add('show');
+  updateThoughtPosition();
+  setTimeout(function() { bubble.classList.remove('show'); }, 2200);
+}
+
+// === REVEAL QUESTION ===
+function revealQuestion() {
+  if (questionRevealed) return;
+  questionRevealed = true;
+  playPop();
+
+  var pronoun = currentChar.pronoun;
+  var qBox = document.getElementById('question-box');
+  qBox.classList.remove('clickable');
+  qBox.style.pointerEvents = 'none';
+  qBox.innerHTML = 'Where is ' + pronoun + '? <span style="opacity:0.6">(' + currentChar.name + ')</span>';
+
+  // Show options after short delay
+  setTimeout(function() {
+    document.getElementById('options').classList.remove('hidden');
+    generateOptions();
+  }, 500);
+}
+
+// === GENERATE OPTIONS ===
+function generateOptions() {
+  var he = currentChar.pronoun === 'he' ? "He" : "She";
+  var she = currentChar.pronoun === 'he' ? "She" : "He";
+  var correctAnswer = he + "'s in the " + currentRoom + ".";
+
+  var wrongAnswers = [];
+
+  // Type 1: wrong pronoun, correct room
+  wrongAnswers.push(she + "'s in the " + currentRoom + ".");
+
+  // Type 2: correct pronoun, wrong room
+  rooms.forEach(function(r) {
+    if (r !== currentRoom) {
+      wrongAnswers.push(he + "'s in the " + r + ".");
+    }
+  });
+
+  // Type 3: wrong pronoun, wrong room
+  rooms.forEach(function(r) {
+    if (r !== currentRoom) {
+      wrongAnswers.push(she + "'s in the " + r + ".");
+    }
+  });
+
+  // Shuffle wrong answers and pick 2
+  wrongAnswers.sort(function() { return Math.random() - 0.5; });
+  var selected = wrongAnswers.slice(0, 2);
+
+  // Combine and deduplicate
+  var allOptions = [correctAnswer, selected[0], selected[1]];
+  var unique = [];
+  allOptions.forEach(function(o) { if (unique.indexOf(o) === -1) unique.push(o); });
+  while (unique.length < 3) {
+    var extra = she + "'s in the " + rooms[Math.floor(Math.random() * rooms.length)] + ".";
+    if (unique.indexOf(extra) === -1) unique.push(extra);
+  }
+  allOptions = unique;
+
+  // Shuffle final options
+  allOptions.sort(function() { return Math.random() - 0.5; });
+
+  var optionsEl = document.getElementById('options');
+  optionsEl.innerHTML = '';
+  allOptions.forEach(function(opt) {
+    var btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = function() { checkAnswer(btn, opt, correctAnswer); };
+    optionsEl.appendChild(btn);
+  });
+}
+
+// === CHECK ANSWER ===
+function checkAnswer(btn, chosen, correct) {
+  var buttons = document.querySelectorAll('.option-btn');
+  buttons.forEach(function(b) { b.disabled = true; });
+
+  clearInterval(moveInterval);
+  clearInterval(thoughtInterval);
+  var charEl = document.getElementById('character');
+  charEl.classList.remove('walking');
+
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    buttons.forEach(function(b) {
+      if (b !== btn) b.classList.add('grayed');
+    });
+    playCorrect();
+    showThought(correctSpeech[Math.floor(Math.random() * correctSpeech.length)]);
+    spawnConfetti();
+  } else {
+    btn.classList.add('wrong');
+    // Shake screen
+    var wrapper = document.getElementById('game-wrapper');
+    wrapper.classList.add('shake');
+    setTimeout(function() { wrapper.classList.remove('shake'); }, 600);
+
+    playWrong();
+    showThought(wrongSpeech[Math.floor(Math.random() * wrongSpeech.length)]);
+
+    // Highlight correct + gray others
+    buttons.forEach(function(b) {
+      if (b.textContent === correct) {
+        b.classList.add('correct');
+      } else if (b !== btn) {
+        b.classList.add('grayed');
+      }
+    });
+  }
+
+  setTimeout(function() {
+    document.getElementById('btn-again').classList.add('show');
+  }, 1200);
+}
+
+// === CONFETTI ===
+function spawnConfetti() {
+  var emojis = ['⭐','🌟','✨','🎉','💫','🎊','🌈'];
+  for (var i = 0; i < 15; i++) {
+    (function(i) {
+      setTimeout(function() {
+        var el = document.createElement('div');
+        el.className = 'confetti';
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        el.style.left = (Math.random() * 100) + 'vw';
+        el.style.animationDuration = (2 + Math.random() * 2) + 's';
+        document.body.appendChild(el);
+        setTimeout(function() { el.remove(); }, 4500);
+      }, i * 80);
+    })(i);
+  }
+}
+</script>
+
+
+</body></html>

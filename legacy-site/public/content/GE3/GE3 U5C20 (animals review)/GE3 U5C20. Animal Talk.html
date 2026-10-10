@@ -1,0 +1,934 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐾 Unit 5: Animals — Talk Time!</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    user-select: none;
+}
+
+.confetti-container {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.confetti {
+    position: absolute;
+    top: -20px;
+    opacity: 0;
+    animation: confettiFall 3s ease-in forwards;
+}
+
+@keyframes confettiFall {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+}
+
+.screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 650px;
+    padding: 20px;
+    animation: fadeIn 0.4s ease;
+}
+.screen.active { display: flex; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* START */
+.start-title {
+    font-size: 2.8rem;
+    color: white;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+    margin-bottom: 5px;
+    text-align: center;
+}
+.start-sub {
+    color: rgba(255,255,255,0.85);
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.mode-btn {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 20px 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white;
+}
+.mode-btn:hover {
+    transform: scale(1.05);
+    background: rgba(255,255,255,0.25);
+    border-color: white;
+}
+.mode-btn .mode-emoji { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+.mode-btn .mode-label { font-size: 1rem; font-weight: 700; }
+
+.start-all-btn {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+    border: none;
+    padding: 18px 55px;
+    font-size: 1.6rem;
+    font-weight: 800;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
+    transition: all 0.3s ease;
+    animation: pulse 2s ease-in-out infinite;
+}
+.start-all-btn:hover { transform: scale(1.08); }
+.endless-tag {
+    font-size: 0.7rem;
+    display: block;
+    opacity: 0.8;
+    margin-top: 4px;
+    letter-spacing: 1px;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 8px 25px rgba(245,87,108,0.4); }
+    50% { box-shadow: 0 8px 45px rgba(245,87,108,0.7); }
+}
+
+/* GAME */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.pill {
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    padding: 6px 16px;
+    border-radius: 30px;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.streak-pill {
+    background: linear-gradient(135deg, #feca57, #f093fb);
+    color: #333;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #feca57, #f093fb);
+    border-radius: 10px;
+    transition: width 0.4s ease;
+}
+
+.home-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    padding: 6px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.home-btn:hover { background: rgba(255,255,255,0.35); }
+
+/* CARD */
+.dialogue-card {
+    background: white;
+    border-radius: 30px;
+    padding: 28px 22px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    text-align: center;
+    position: relative;
+    min-height: 440px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.dialogue-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #f093fb, #f5576c, #feca57, #00f260);
+    border-radius: 30px 30px 0 0;
+}
+
+/* EMOJI STAGE */
+.emoji-stage {
+    font-size: 5.5rem;
+    margin: 10px 0;
+    animation: emojiFloat 3s ease-in-out infinite;
+    display: inline-block;
+}
+
+@keyframes emojiFloat {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    25% { transform: translateY(-6px) rotate(1deg); }
+    50% { transform: translateY(-3px) rotate(3deg); }
+    75% { transform: translateY(-8px) rotate(-1deg); }
+}
+
+.emoji-stage.correct-bounce {
+    animation: correctBounce 0.6s ease;
+}
+@keyframes correctBounce {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.4) rotate(10deg); }
+    60% { transform: scale(0.9) rotate(-5deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+/* EMOJI CHOICES */
+.emoji-choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    max-width: 320px;
+    margin: 15px 0;
+}
+
+.emoji-choice {
+    font-size: 3rem;
+    background: #f8f9ff;
+    border: 3px solid #e0e5f0;
+    border-radius: 20px;
+    padding: 18px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    animation: choiceWiggle 4s ease-in-out infinite;
+}
+.emoji-choice:nth-child(1) { animation-delay: 0s; }
+.emoji-choice:nth-child(2) { animation-delay: 0.7s; }
+.emoji-choice:nth-child(3) { animation-delay: 1.4s; }
+.emoji-choice:nth-child(4) { animation-delay: 2.1s; }
+
+@keyframes choiceWiggle {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    15% { transform: translateY(-3px) rotate(2deg); }
+    30% { transform: translateY(0) rotate(-1deg); }
+    45% { transform: translateY(-2px) rotate(1deg); }
+    60% { transform: translateY(0) rotate(0deg); }
+}
+
+.emoji-choice:hover {
+    transform: scale(1.12) !important;
+    border-color: #764ba2;
+    background: #f0e8ff;
+    box-shadow: 0 6px 20px rgba(118,75,162,0.2);
+}
+.emoji-choice.correct {
+    border-color: #00c853;
+    background: #e8f5e9;
+    animation: correctPulse 0.5s ease !important;
+}
+.emoji-choice.wrong {
+    border-color: #ff5252;
+    background: #ffebee;
+    animation: shake 0.4s ease !important;
+    opacity: 0.5;
+}
+
+@keyframes correctPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+@keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}
+
+/* SPEECH BUBBLES */
+.speech-bubble {
+    background: #f0f4ff;
+    border: 3px solid #d0d8f0;
+    border-radius: 20px;
+    padding: 14px 20px;
+    margin: 8px 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #333;
+    position: relative;
+    width: 100%;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.4s ease;
+}
+.speech-bubble.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.speech-bubble.teacher {
+    background: #e8f5e9;
+    border-color: #a5d6a7;
+}
+.speech-bubble.teacher::before {
+    content: '🧑‍🏫';
+    position: absolute;
+    top: -14px;
+    left: 14px;
+    font-size: 1.3rem;
+}
+
+.speech-bubble.student {
+    background: #fff3e0;
+    border-color: #ffcc80;
+}
+.speech-bubble.student::before {
+    content: '🧒';
+    position: absolute;
+    top: -14px;
+    right: 14px;
+    font-size: 1.3rem;
+}
+
+.speech-bubble .blank {
+    display: inline-block;
+    min-width: 70px;
+    border-bottom: 3px dashed #bbb;
+    margin: 0 3px;
+    color: transparent;
+    transition: all 0.3s ease;
+    padding: 0 4px;
+}
+.speech-bubble .blank.revealed {
+    color: #f5576c;
+    border-bottom-color: #f5576c;
+    font-weight: 800;
+    animation: blankPop 0.4s ease;
+}
+@keyframes blankPop {
+    0% { transform: scale(0.8); }
+    60% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+.highlight { color: #764ba2; font-weight: 800; }
+
+/* BUTTONS */
+.action-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.reveal-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 13px 32px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 6px 20px rgba(118,75,162,0.3);
+}
+.reveal-btn:hover { transform: scale(1.06); }
+.reveal-btn:active { transform: scale(0.95); }
+
+.reveal-btn.next {
+    background: linear-gradient(135deg, #00f260, #0575e6);
+    box-shadow: 0 6px 20px rgba(0,242,96,0.3);
+}
+
+.step-hint {
+    font-size: 0.8rem;
+    color: #999;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 6px;
+}
+
+/* PHASE INDICATOR */
+.phase-badge {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* BG */
+.bg-emoji {
+    position: fixed;
+    font-size: 2rem;
+    opacity: 0.12;
+    animation: floatBg 7s ease-in-out infinite;
+    pointer-events: none;
+}
+@keyframes floatBg {
+    0%,100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(8deg); }
+}
+
+/* END */
+.end-screen { text-align: center; color: white; }
+.end-screen h1 { font-size: 2.5rem; margin-bottom: 10px; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); }
+.end-emoji { font-size: 5rem; margin: 20px 0; animation: bounce 1.5s ease-in-out infinite; }
+@keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+.end-msg { font-size: 1.2rem; margin-bottom: 30px; opacity: 0.9; }
+.play-again-btn {
+    background: linear-gradient(135deg, #00f260, #0575e6);
+    color: white;
+    border: none;
+    padding: 16px 45px;
+    font-size: 1.4rem;
+    font-weight: 800;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.play-again-btn:hover { transform: scale(1.08); }
+
+@media (max-width: 500px) {
+    .start-title { font-size: 2rem; }
+    .emoji-stage { font-size: 4rem; }
+    .speech-bubble { font-size: 1.1rem; padding: 12px 14px; }
+    .dialogue-card { padding: 20px 14px; min-height: 400px; }
+    .emoji-choice { font-size: 2.4rem; padding: 14px 8px; }
+    .emoji-choices { max-width: 260px; gap: 10px; }
+}
+</style>
+</head>
+<body>
+
+<div class="confetti-container" id="confettiBox"></div>
+
+<div class="bg-emoji" style="top:8%;left:6%;animation-delay:0s;">🐜</div>
+<div class="bg-emoji" style="top:15%;right:10%;animation-delay:1.2s;">🦅</div>
+<div class="bg-emoji" style="top:55%;left:4%;animation-delay:2.4s;">🐘</div>
+<div class="bg-emoji" style="top:80%;right:8%;animation-delay:0.8s;">🐸</div>
+<div class="bg-emoji" style="top:40%;right:5%;animation-delay:3s;">🐝</div>
+<div class="bg-emoji" style="top:70%;left:12%;animation-delay:1.8s;">🦜</div>
+
+<!-- START -->
+<div class="screen active" id="startScreen">
+    <div class="start-title">🐾 Talk Time!</div>
+    <div class="start-sub">Unit 5 Animals — Say it together!</div>
+    <div class="mode-grid">
+        <div class="mode-btn" onclick="startGame('bugs')">
+            <span class="mode-emoji">🐛</span>
+            <span class="mode-label">Bugs</span>
+        </div>
+        <div class="mode-btn" onclick="startGame('birds')">
+            <span class="mode-emoji">🐦</span>
+            <span class="mode-label">Birds</span>
+        </div>
+        <div class="mode-btn" onclick="startGame('large')">
+            <span class="mode-emoji">🐘</span>
+            <span class="mode-label">Large Animals</span>
+        </div>
+        <div class="mode-btn" onclick="startGame('small')">
+            <span class="mode-emoji">🦀</span>
+            <span class="mode-label">Small Animals</span>
+        </div>
+    </div>
+    <button class="start-all-btn" onclick="startGame('all')">MIX ALL! 🎲<span class="endless-tag">∞ ENDLESS MODE</span></button>
+</div>
+
+<!-- GAME -->
+<div class="screen" id="gameScreen">
+    <div class="top-bar">
+        <button class="home-btn" onclick="showScreen('startScreen')">🏠</button>
+        <div class="pill" id="catPill">🐛 Bugs</div>
+        <div class="pill streak-pill" id="streakPill">🔥 0</div>
+    </div>
+    <div class="progress-bar" id="progBar"><div class="progress-fill" id="progFill"></div></div>
+    <div class="dialogue-card" id="card"></div>
+</div>
+
+<!-- END -->
+<div class="screen" id="endScreen">
+    <div class="end-screen">
+        <h1>Great Talking! 🎉</h1>
+        <div class="end-emoji">🏆</div>
+        <div class="end-msg" id="endMsg">You practised all the sentences!</div>
+        <button class="play-again-btn" onclick="showScreen('startScreen')">Again! 🔄</button>
+    </div>
+</div>
+
+<script>
+// ===== DATA =====
+const animals = {
+    bugs: [
+        { name: 'bee', emoji: '🐝', article: 'A' },
+        { name: 'ant', emoji: '🐜', article: 'An' },
+        { name: 'beetle', emoji: '🪲', article: 'A' },
+        { name: 'fly', emoji: '🪰', article: 'A' },
+        { name: 'ladybug', emoji: '🐞', article: 'A' },
+        { name: 'butterfly', emoji: '🦋', article: 'A' },
+    ],
+    birds: [
+        { name: 'duck', emoji: '🦆', article: 'A' },
+        { name: 'eagle', emoji: '🦅', article: 'An' },
+        { name: 'owl', emoji: '🦉', article: 'An' },
+        { name: 'goose', emoji: '🪿', article: 'A' },
+        { name: 'parrot', emoji: '🦜', article: 'A' },
+        { name: 'penguin', emoji: '🐧', article: 'A' },
+    ],
+    large: [
+        { name: 'bear', emoji: '🐻', article: 'A' },
+        { name: 'elephant', emoji: '🐘', article: 'An' },
+        { name: 'giraffe', emoji: '🦒', article: 'A' },
+        { name: 'hippo', emoji: '🦛', article: 'A' },
+        { name: 'whale', emoji: '🐋', article: 'A' },
+    ],
+    small: [
+        { name: 'crab', emoji: '🦀', article: 'A' },
+        { name: 'frog', emoji: '🐸', article: 'A' },
+        { name: 'hamster', emoji: '🐹', article: 'A' },
+        { name: 'rat', emoji: '🐀', article: 'A' },
+        { name: 'snail', emoji: '🐌', article: 'A' },
+        { name: 'worm', emoji: '🪱', article: 'A' },
+    ]
+};
+
+const catNames = { bugs: 'bug', birds: 'bird', large: 'large animal', small: 'small animal' };
+const catLabels = { bugs: '🐛 Bugs', birds: '🐦 Birds', large: '🐘 Large', small: '🦀 Small', all: '🎲 Mix' };
+
+let mode = 'all';
+let isEndless = false;
+let cards = [];
+let currentIdx = 0;
+let phase = 'emoji'; // 'emoji' or 'sentence'
+let revealStep = 0;
+let streak = 0;
+let totalDone = 0;
+
+// ===== CARD GENERATORS =====
+function getRandomFrom(cat) {
+    const arr = animals[cat];
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function getDistractors(correct, count) {
+    const allEmojis = Object.values(animals).flat();
+    const others = allEmojis.filter(a => a.emoji !== correct.emoji);
+    shuffle(others);
+    return others.slice(0, count);
+}
+
+function getCatOf(animal) {
+    for (const [cat, arr] of Object.entries(animals)) {
+        if (arr.find(a => a.name === animal.name)) return cat;
+    }
+    return 'bugs';
+}
+
+// Generate a single card
+function generateCard(forceCat) {
+    const cats = forceCat ? [forceCat] : ['bugs','birds','large','small'];
+    const cat = cats[Math.floor(Math.random() * cats.length)];
+    const item = getRandomFrom(cat);
+    const catName = catNames[cat];
+
+    // For "all" mode, also create cross-category "No" questions
+    const questionTypes = ['whatIsThis', 'whatIsX', 'isItA_yes'];
+
+    if (mode === 'all' || !forceCat) {
+        questionTypes.push('isItA_no');
+    }
+
+    const type = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+
+    let card = { cat, item, type };
+
+    if (type === 'whatIsThis') {
+        // Show emoji -> "What is this?" -> "A bee is a bug."
+        const distractors = getDistractors(item, 3);
+        card.emojiPhase = {
+            question: 'What is this? 👆',
+            correct: item,
+            choices: shuffle([item, ...distractors])
+        };
+        card.sentencePhase = {
+            teacher: `What is this?`,
+            student: `${item.article} <b id="b1" class="blank">${item.name}</b> is a <b id="b2" class="blank">${catName}</b>.`,
+            reveals: [['b1'], ['b2']]
+        };
+    } else if (type === 'whatIsX') {
+        // "What is a giraffe?" -> emoji choice -> sentence
+        const distractors = getDistractors(item, 3);
+        card.emojiPhase = {
+            question: `What is ${item.article.toLowerCase()} <span class="highlight">${item.name}</span>?`,
+            correct: item,
+            choices: shuffle([item, ...distractors])
+        };
+        card.sentencePhase = {
+            teacher: `What is ${item.article.toLowerCase()} ${item.name}?`,
+            student: `${item.article} <b id="b1" class="blank">${item.name}</b> is a <b id="b2" class="blank">${catName}</b>.`,
+            reveals: [['b1'], ['b2']]
+        };
+    } else if (type === 'isItA_yes') {
+        // "Is a duck a bird?" -> Yes
+        card.emojiPhase = null; // skip emoji choice sometimes
+        card.showEmoji = item.emoji;
+        card.sentencePhase = {
+            teacher: `Is ${item.article.toLowerCase()} <span class="highlight">${item.name}</span> a ${catName}?`,
+            student: `<b id="b1" class="blank">Yes</b>, ${item.article.toLowerCase()} <b id="b2" class="blank">${item.name}</b> is a <b id="b3" class="blank">${catName}</b>.`,
+            reveals: [['b1'], ['b2','b3']]
+        };
+    } else if (type === 'isItA_no') {
+        // Pick a WRONG category to ask about
+        const otherCats = Object.keys(catNames).filter(c => c !== cat);
+        const wrongCat = otherCats[Math.floor(Math.random() * otherCats.length)];
+        const wrongCatName = catNames[wrongCat];
+
+        card.emojiPhase = null;
+        card.showEmoji = item.emoji;
+        card.sentencePhase = {
+            teacher: `Is ${item.article.toLowerCase()} <span class="highlight">${item.name}</span> a ${wrongCatName}?`,
+            student: `<b id="b1" class="blank">No</b>, ${item.article.toLowerCase()} ${item.name} is <b id="b2" class="blank">not</b> a ${wrongCatName}. It's a <b id="b3" class="blank">${catName}</b>!`,
+            reveals: [['b1','b2'], ['b3']]
+        };
+    }
+
+    return card;
+}
+
+// ===== GAME LOGIC =====
+function startGame(m) {
+    mode = m;
+    isEndless = (m === 'all');
+    streak = 0;
+    totalDone = 0;
+    currentIdx = 0;
+
+    if (isEndless) {
+        cards = [];
+        for (let i = 0; i < 5; i++) cards.push(generateCard(null));
+    } else {
+        cards = [];
+        // Generate ~8 cards for the category, mix of types
+        for (let i = 0; i < 8; i++) cards.push(generateCard(m));
+    }
+
+    showScreen('gameScreen');
+    document.getElementById('progBar').style.display = isEndless ? 'none' : 'block';
+    updateUI();
+    loadCard();
+}
+
+function updateUI() {
+    document.getElementById('catPill').textContent = catLabels[mode] || '🎲 Mix';
+    document.getElementById('streakPill').textContent = `🔥 ${streak}`;
+    if (!isEndless) {
+        document.getElementById('progFill').style.width = (currentIdx / cards.length * 100) + '%';
+    }
+}
+
+function loadCard() {
+    const card = cards[currentIdx];
+    phase = card.emojiPhase ? 'emoji' : 'sentence';
+    revealStep = 0;
+
+    if (phase === 'emoji') {
+        renderEmojiPhase(card);
+    } else {
+        renderSentencePhase(card);
+    }
+}
+
+function renderEmojiPhase(card) {
+    const ep = card.emojiPhase;
+    let html = `<div class="phase-badge">Step 1: Pick!</div>`;
+    html += `<div class="speech-bubble teacher visible">${ep.question}</div>`;
+    html += `<div class="emoji-choices">`;
+    ep.choices.forEach((ch, i) => {
+        html += `<div class="emoji-choice" onclick="pickEmoji(${i})" id="ec${i}" data-name="${ch.name}">${ch.emoji}</div>`;
+    });
+    html += `</div>`;
+    html += `<div class="step-hint" id="stepHint">👆 Tap the right animal!</div>`;
+    html += `<div class="action-row" id="actionRow"></div>`;
+
+    document.getElementById('card').innerHTML = html;
+}
+
+function pickEmoji(idx) {
+    const card = cards[currentIdx];
+    const ep = card.emojiPhase;
+    const chosen = ep.choices[idx];
+    const el = document.getElementById('ec' + idx);
+
+    if (chosen.name === ep.correct.name) {
+        // Correct!
+        el.classList.add('correct');
+        streak++;
+        miniCelebration();
+        updateUI();
+        document.getElementById('stepHint').textContent = '✅ Correct! Now say the sentence!';
+
+        // Disable all choices
+        document.querySelectorAll('.emoji-choice').forEach(c => c.onclick = null);
+
+        // After short delay, go to sentence phase
+        setTimeout(() => {
+            phase = 'sentence';
+            renderSentencePhase(card);
+        }, 1200);
+    } else {
+        // Wrong
+        el.classList.add('wrong');
+        el.onclick = null;
+        streak = 0;
+        updateUI();
+        document.getElementById('stepHint').textContent = '❌ Try again!';
+    }
+}
+
+function renderSentencePhase(card) {
+    const sp = card.sentencePhase;
+    revealStep = 0;
+
+    let html = `<div class="phase-badge">${card.emojiPhase ? 'Step 2: Say it!' : 'Say it!'}</div>`;
+
+    // Show the emoji
+    const emoji = card.showEmoji || card.item.emoji;
+    html += `<div class="emoji-stage" id="emojiStage">${emoji}</div>`;
+
+    // Teacher bubble
+    html += `<div class="speech-bubble teacher visible">${sp.teacher}</div>`;
+
+    // Student bubble with blanks
+    html += `<div class="speech-bubble student" id="studentBubble">${sp.student}</div>`;
+
+    html += `<div class="step-hint" id="stepHint">🗣️ Students say it first, then reveal!</div>`;
+    html += `<div class="action-row" id="actionRow">`;
+    html += `<button class="reveal-btn" id="revealBtn" onclick="revealNext()">Reveal 👀</button>`;
+    html += `</div>`;
+
+    document.getElementById('card').innerHTML = html;
+
+    setTimeout(() => {
+        const sb = document.getElementById('studentBubble');
+        if (sb) sb.classList.add('visible');
+    }, 300);
+}
+
+function revealNext() {
+    const card = cards[currentIdx];
+    const sp = card.sentencePhase;
+
+    if (revealStep < sp.reveals.length) {
+        sp.reveals[revealStep].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('revealed');
+        });
+        revealStep++;
+        miniCelebration();
+
+        if (revealStep >= sp.reveals.length) {
+            // All revealed!
+            document.getElementById('revealBtn').textContent = 'Next ➡️';
+            document.getElementById('revealBtn').className = 'reveal-btn next';
+            document.getElementById('revealBtn').onclick = nextCard;
+            document.getElementById('stepHint').textContent = '🎉 Say it all together!';
+            const es = document.getElementById('emojiStage');
+            if (es) { es.classList.remove('emoji-stage'); void es.offsetWidth; es.classList.add('emoji-stage','correct-bounce'); }
+            fireConfetti();
+
+            if (!card.emojiPhase) { streak++; updateUI(); }
+        } else {
+            document.getElementById('stepHint').textContent = '👆 Keep revealing!';
+        }
+    }
+}
+
+function nextCard() {
+    totalDone++;
+    currentIdx++;
+
+    // Endless: add more cards
+    if (isEndless) {
+        cards.push(generateCard(null));
+        loadCardAnimated();
+    } else {
+        if (currentIdx >= cards.length) {
+            endGame();
+        } else {
+            updateUI();
+            loadCardAnimated();
+        }
+    }
+    updateUI();
+}
+
+function loadCardAnimated() {
+    const card = document.getElementById('card');
+    card.style.animation = 'none';
+    void card.offsetHeight;
+    card.style.animation = 'fadeIn 0.4s ease';
+    loadCard();
+}
+
+function endGame() {
+    showScreen('endScreen');
+    document.getElementById('endMsg').textContent = `You practised ${totalDone} dialogues! Best streak: 🔥${streak}`;
+    megaConfetti();
+}
+
+// ===== UTILS =====
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+// ===== EFFECTS =====
+function fireConfetti() {
+    const box = document.getElementById('confettiBox');
+    const emojis = ['⭐','✨','🌟','💫','🎉','🎊','❤️','💛','💚'];
+    for (let i = 0; i < 30; i++) {
+        const el = document.createElement('div');
+        el.className = 'confetti';
+        el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+        el.style.left = Math.random() * 100 + '%';
+        el.style.fontSize = (Math.random()*14 + 10) + 'px';
+        el.style.animationDelay = Math.random()*0.5 + 's';
+        el.style.animationDuration = (Math.random()*2 + 2) + 's';
+        box.appendChild(el);
+        setTimeout(() => el.remove(), 3500);
+    }
+}
+
+function miniCelebration() {
+    const box = document.getElementById('confettiBox');
+    const emojis = ['✨','⭐','💛'];
+    for (let i = 0; i < 6; i++) {
+        const el = document.createElement('div');
+        el.className = 'confetti';
+        el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+        el.style.left = (30 + Math.random()*40) + '%';
+        el.style.fontSize = '16px';
+        el.style.animationDelay = Math.random()*0.3 + 's';
+        el.style.animationDuration = '2s';
+        box.appendChild(el);
+        setTimeout(() => el.remove(), 2500);
+    }
+}
+
+function megaConfetti() {
+    for (let i = 0; i < 4; i++) setTimeout(() => fireConfetti(), i * 400);
+}
+</script>
+
+
+
+<!-- Bilingo sound FX: synthesized WebAudio, no asset files needed -->
+<style>
+.bilingo-redflash{position:fixed;inset:0;z-index:2147483647;pointer-events:none;background:rgba(229,57,53,.22);animation:bilingoFlash .45s ease-out forwards}
+@keyframes bilingoFlash{from{opacity:1}to{opacity:0}}
+.bilingo-shake{animation:bilingoShake .4s ease!important}
+@keyframes bilingoShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+</style>
+<script>
+(function(){
+if(window.__bilingoSfx)return;window.__bilingoSfx=true;
+var CFG={GOOD:[".emoji-choice.correct",".reveal-btn.next"],BAD:[".emoji-choice.wrong"],DING:[],TICK:"",TAP:"button, .emoji-choice"};
+var ctx=null,lastGood=0,lastBad=0,lastDing=0;
+function ac(){if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ctx&&ctx.state==='suspended')ctx.resume();return ctx}
+function tone(f,d,type,v,delay,slide){var c=ac();if(!c)return;var t=c.currentTime+(delay||0);var o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.05)}
+function gate(t,ms){var n=Date.now();if(n-t<ms)return 0;return n}
+function tap(){tone(950,.05,'sine',.05)}
+function good(){var t=gate(lastGood,120);if(!t)return;lastGood=t;[523.25,659.25,783.99,1046.5].forEach(function(f,i){tone(f,.18,'triangle',.18,i*.07)})}
+function ding(){var t=gate(lastDing,120);if(!t)return;lastDing=t;tone(880,.12,'sine',.12);tone(1318.5,.2,'sine',.09,.08)}
+function bad(){var t=gate(lastBad,120);if(!t)return;lastBad=t;tone(170,.3,'sawtooth',.15,0,85)}
+function tickS(){tone(1500,.03,'square',.035)}
+function redflash(){var d=document.createElement('div');d.className='bilingo-redflash';(document.body||document.documentElement).appendChild(d);setTimeout(function(){d.remove()},500);var b=document.body;if(!b)return;b.classList.remove('bilingo-shake');void b.offsetWidth;b.classList.add('bilingo-shake');setTimeout(function(){b.classList.remove('bilingo-shake')},450)}
+if(CFG.TAP){document.addEventListener('pointerdown',function(e){var t=e.target;if(t&&t.closest&&t.closest(CFG.TAP))tap()},true)}
+var fired=new Map();
+function scan(){
+CFG.GOOD.concat(CFG.BAD,CFG.DING).forEach(function(sel){
+document.querySelectorAll(sel).forEach(function(el){
+var rec=fired.get(el);if(!rec){rec={};fired.set(el,rec)}
+if(!rec[sel]){rec[sel]=1;
+if(CFG.GOOD.indexOf(sel)>=0)good();
+else if(CFG.DING.indexOf(sel)>=0)ding();
+else{bad();redflash()}}})});
+fired.forEach(function(rec,el){Object.keys(rec).forEach(function(sel){try{if(!el.matches(sel))delete rec[sel]}catch(e){delete rec[sel]}});if(!Object.keys(rec).length)fired.delete(el)})}
+var scanT=null;
+function schedule(){clearTimeout(scanT);scanT=setTimeout(scan,80)}
+var mo=new MutationObserver(function(muts){
+var need=false;
+for(var i=0;i<muts.length;i++){var m=muts[i];
+if(m.type==='attributes'){need=true}
+else if(m.type==='childList'){need=true;
+if(CFG.TICK&&m.addedNodes){for(var j=0;j<m.addedNodes.length;j++){var n=m.addedNodes[j];if(n&&n.matches&&n.matches(CFG.TICK))tickS()}}}}
+if(need)schedule()});
+mo.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+})();
+</script>
+</body></html>

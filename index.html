@@ -1,18 +1,60 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap"
-      rel="stylesheet"
-    />
-    <title>Bilingo Bonus Box 🎁</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bilingo Bonus Box</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a href="index.html"><img class="logo" src="assets/logo.png" alt="Bilingo logo"></a>
+  <a class="wordmark" href="index.html">Bilingo Bonus Box<small>teaching materials hub</small></a>
+  <nav class="header-nav">
+    <a class="nav-pill active" href="index.html">🏠 Books</a>
+    <a class="nav-pill" href="GE3.html">GE 3</a>
+    <span class="theme-switch" title="Theme">
+      <button data-theme="day" title="Day theme">☀️</button>
+      <button data-theme="night" title="Night theme">🌙</button>
+      <button data-theme="bilingo" title="Bilingo rainbow theme">🌈</button>
+    </span>
+  </nav>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <img class="big-logo" src="assets/logo.png" alt="Bilingo logo">
+    <h1>Bilingo <span class="rainbow-text">Bonus Box</span></h1>
+    <p>Bonus activities, games and teaching materials for Bilingo teachers</p>
+  </section>
+  <section class="book-grid">
+    <a class="book-tile ge3" href="GE3.html">
+      <span class="chip live">✨ live now</span>
+      <h2>GE 3</h2>
+      <div class="stats">20 lessons · ~70 bonus activities ideas · 10 HTML interactives · 3 picture sets · 4 videos</div>
+    </a>
+    <div class="book-tile soon"><span class="chip dim">GE 2</span><h2>GE 2</h2><p class="soon-note">Coming someday maybe…</p></div>
+<div class="book-tile soon"><span class="chip dim">GE 4</span><h2>GE 4</h2><p class="soon-note">Coming someday maybe…</p></div>
+<div class="book-tile soon"><span class="chip dim">GE 5</span><h2>GE 5</h2><p class="soon-note">Coming someday maybe…</p></div>
+<div class="book-tile soon"><span class="chip dim">GE 6</span><h2>GE 6</h2><p class="soon-note">Coming someday maybe…</p></div>
+<div class="book-tile soon"><span class="chip dim">GE 7</span><h2>GE 7</h2><p class="soon-note">Coming someday maybe…</p></div>
+<div class="book-tile soon"><span class="chip dim">GE 8</span><h2>GE 8</h2><p class="soon-note">Coming someday maybe…</p></div>
+  </section>
+  <p class="section-note">NCC and Think books — coming later, after the GE series.</p>
+</main>
+<a class="feedback-fab" href="mailto:bilingo2014@proton.me?subject=Bonus%20Box%20feedback">📝 Feedback</a>
+<footer class="site-footer">Made with 🧡 for Bilingo teachers · problems or ideas? Use the feedback button!</footer>
+<div class="viewer" id="viewer">
+  <span class="v-count" id="viewer-count"></span>
+  <button class="v-close v-arrow" id="viewer-close" style="width:44px;height:44px">×</button>
+  <button class="v-arrow v-prev" id="viewer-prev" aria-label="Previous picture">◀</button>
+  <img id="viewer-img" alt="">
+  <button class="v-arrow v-next" id="viewer-next" aria-label="Next picture">▶</button>
+  <span class="v-name" id="viewer-name"></span>
+</div>
+
+<script src="assets/site.js"></script>
+</body>
 </html>

@@ -19,15 +19,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-      - run: npm ci
-      - run: npm run build
+      - name: Assemble the static site
+        # The repo also contains legacy-site/ (the old app, videos included),
+        # which must NEVER be published. Only these files go online:
+        run: |
+          mkdir _site
+          cp index.html GE3.html _site/
+          cp -r assets content tests _site/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/
+          path: _site/
 
   deploy:
     needs: build
