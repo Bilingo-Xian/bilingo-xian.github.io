@@ -194,8 +194,8 @@ img { max-width: 100%; }
   transition: transform .16s;
 }
 .unit-tile:hover { transform: translateY(-3px); }
-.unit-tile .u-num { font-size: .75rem; font-weight: 700; opacity: .85; letter-spacing: .08em; }
-.unit-tile .u-title { font-size: 1.02rem; font-weight: 600; line-height: 1.25; margin-top: 4px; }
+.unit-tile .u-num { display: block; font-size: .75rem; font-weight: 700; opacity: .85; letter-spacing: .08em; }
+.unit-tile .u-title { display: block; font-size: 1.02rem; font-weight: 600; line-height: 1.25; margin-top: 4px; }
 .unit-tile.u1 { background: linear-gradient(140deg, #fbbf24, #f97316); }
 .unit-tile.u2 { background: linear-gradient(140deg, #fb7185, #e41362); }
 .unit-tile.u3 { background: linear-gradient(140deg, #38bdf8, #2563eb); }
@@ -363,7 +363,7 @@ img { max-width: 100%; }
 
 /* ---------- floating feedback ---------- */
 .feedback-fab {
-  position: fixed; bottom: 20px; right: 20px; z-index: 60;
+  position: fixed; bottom: 20px; left: 20px; z-index: 60;
   display: inline-flex; align-items: center; gap: 7px; text-decoration: none;
   background: var(--ink); color: var(--surface);
   padding: 12px 18px; border-radius: 999px; font-weight: 800; font-size: .86rem;
@@ -374,7 +374,7 @@ img { max-width: 100%; }
 
 /* ---------- picture viewer ---------- */
 .viewer {
-  position: fixed; inset: 0; z-index: 100; display: none;
+  position: fixed; inset: 0; z-index: 2147483647; display: none;
   background: rgb(10 8 20 / .92);
   align-items: center; justify-content: center;
 }
@@ -395,4 +395,26 @@ img { max-width: 100%; }
 .viewer .v-arrow:hover { background: rgb(255 255 255 / .3); }
 .viewer .v-prev { left: 14px; }
 .viewer .v-next { right: 14px; }
+.viewer .v-close {
+  position: absolute; top: 14px; right: 16px; transform: none;
+  width: 48px; height: 48px; font-size: 1.5rem;
+}
 .viewer .v-name { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); color: #cbd5e1; font-size: .8rem; font-weight: 700; }
+
+/* ---------- floating zoom + fullscreen controls (site-wide) ---------- */
+.bilingo-ui {
+  position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.bilingo-ui button {
+  width: 48px; height: 48px; border: 0; border-radius: 14px;
+  background: rgb(18 18 32 / .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 4px 14px rgb(0 0 0 / .35);
+  display: grid; place-items: center; transition: background .15s, transform .15s;
+}
+.bilingo-ui button:hover { background: rgb(70 60 150 / .75); transform: scale(1.08); }
+.bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .85; }
+.bilingo-ui .b-handle { display: none; }
+.bilingo-ui.mini > *:not(.b-handle) { display: none; }
+.bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }

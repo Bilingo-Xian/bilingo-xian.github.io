@@ -154,6 +154,59 @@
     try { saved = localStorage.getItem('bilingo-theme') } catch (e) {}
     applyTheme(saved || 'day')
 
+    /* ---------------- zoom + fullscreen controls (same as the games) -------- */
+    if (!window.__bilingoUI) {
+      window.__bilingoUI = true
+      var bar = document.createElement('div')
+      bar.className = 'bilingo-ui'
+      bar.innerHTML =
+        '<button type="button" class="b-handle" title="Show controls" aria-label="Show controls">⚙️</button>' +
+        '<button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>' +
+        '<div class="b-pct">100%</div>' +
+        '<button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>' +
+        '<button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>'
+      document.body.appendChild(bar)
+      var pct = bar.querySelector('.b-pct')
+      var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom'
+      var z = parseFloat(localStorage.getItem(KEY) || '1')
+      if (isNaN(z)) z = 1
+      z = Math.min(MAX, Math.max(MIN, z))
+      function applyZoom() {
+        document.documentElement.style.setProperty('zoom', z)
+        pct.textContent = Math.round(z * 100) + '%'
+      }
+      function poke() {
+        bar.classList.remove('mini')
+        clearTimeout(bar._idle)
+        bar._idle = setTimeout(function () { bar.classList.add('mini') }, 5000)
+      }
+      bar.querySelector('.b-plus').addEventListener('click', function () {
+        z = Math.min(MAX, Math.round((z + STEP) * 100) / 100)
+        try { localStorage.setItem(KEY, z) } catch (e) {}
+        applyZoom(); poke()
+      })
+      bar.querySelector('.b-minus').addEventListener('click', function () {
+        z = Math.max(MIN, Math.round((z - STEP) * 100) / 100)
+        try { localStorage.setItem(KEY, z) } catch (e) {}
+        applyZoom(); poke()
+      })
+      bar.querySelector('.b-fs').addEventListener('click', function () {
+        var el = document.documentElement
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          (document.exitFullscreen || document.webkitExitFullscreen).call(document)
+        } else if (el.requestFullscreen) {
+          el.requestFullscreen().catch(function () {})
+        } else if (el.webkitRequestFullscreen) {
+          el.webkitRequestFullscreen()
+        }
+        poke()
+      })
+      bar.querySelector('.b-handle').addEventListener('click', poke)
+      bar.addEventListener('pointerdown', poke)
+      applyZoom()
+      poke()
+    }
+
     route()
   })
 })()
