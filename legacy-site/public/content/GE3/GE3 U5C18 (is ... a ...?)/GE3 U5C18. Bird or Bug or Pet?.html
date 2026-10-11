@@ -330,4 +330,48 @@ if(need)schedule()});
 mo.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
 })();
 </script>
+<!-- Bilingo game controls: zoom (+/-) and fullscreen toggle -->
+<style>
+.bilingo-ui{position:fixed;right:12px;bottom:12px;z-index:2147483647;display:flex;flex-direction:column;gap:8px;align-items:center;font-family:'Nunito',system-ui,sans-serif}
+.bilingo-ui button{width:48px;height:48px;border-radius:14px;border:0;background:rgba(18,18,32,.55);color:#fff;font-size:1.4rem;line-height:1;cursor:pointer;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);touch-action:manipulation;user-select:none;-webkit-user-select:none;display:grid;place-items:center;padding:0;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.bilingo-ui button:active{transform:scale(.9)}
+.bilingo-ui .bilingo-zoomlbl{min-width:48px;text-align:center;font-size:.8rem;font-weight:800;color:#fff;background:rgba(18,18,32,.55);border-radius:10px;padding:4px 6px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+</style>
+<script>
+(function(){
+if(window.__bilingoUI)return;window.__bilingoUI=true;
+var z=1;
+try{z=parseFloat(localStorage.getItem('bilingo-zoom'))||1}catch(e){}
+var zoomOK=(function(){try{return CSS.supports&&CSS.supports('zoom','2')}catch(e){return false}})();
+function apply(){
+  if(zoomOK){document.documentElement.style.zoom=z}
+  else{document.body.style.transformOrigin='0 0';document.body.style.transform='scale('+z+')';
+       document.body.style.width=(100/z)+'%';document.body.style.height=(100/z)+'%'}
+  var el=document.querySelector('.bilingo-zoomlbl');
+  if(el)el.textContent=Math.round(z*100)+'%';
+  try{localStorage.setItem('bilingo-zoom',z)}catch(e){}
+}
+function step(d){z=Math.min(2.5,Math.max(0.4,Math.round((z+d)*10)/10));apply()}
+function toggleFS(){
+  if(document.fullscreenElement){if(document.exitFullscreen)document.exitFullscreen()}
+  else{var el=document.documentElement;
+    if(el.requestFullscreen){try{var p=el.requestFullscreen();if(p&&p.catch)p.catch(function(){})}catch(e){}}}
+}
+var bar=document.createElement('div');bar.className='bilingo-ui';
+bar.innerHTML='<button type="button" title="Bigger" aria-label="Make game bigger">+</button>'+
+ '<span class="bilingo-zoomlbl" title="Tap to reset size">100%</span>'+
+ '<button type="button" title="Smaller" aria-label="Make game smaller">&minus;</button>'+
+ '<button type="button" title="Fullscreen on / off" aria-label="Toggle fullscreen" style="font-size:1.15rem">&#x26F6;</button>';
+function wire(){
+  if(!document.body)return;
+  document.body.appendChild(bar);apply();
+  var b=bar.querySelectorAll('button');
+  b[0].addEventListener('click',function(){step(0.1)});
+  b[1].addEventListener('click',function(){step(-0.1)});
+  b[2].addEventListener('click',toggleFS);
+  bar.querySelector('.bilingo-zoomlbl').addEventListener('click',function(){z=1;apply()});
+}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',wire)}else{wire()}
+})();
+</script>
 </body></html>
