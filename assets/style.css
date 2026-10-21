@@ -418,3 +418,32 @@ img { max-width: 100%; }
 .bilingo-ui .b-handle { display: none; }
 .bilingo-ui.mini > *:not(.b-handle) { display: none; }
 .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
+
+/* ---------- main idea + homework panels (every lesson) ---------- */
+.panel.main-idea {
+  border: 2px solid #f4c430;
+  background: color-mix(in srgb, #ffd93d 16%, var(--surface));
+  margin-bottom: 14px;
+}
+.panel.main-idea > h3 { color: #92610a; }
+.panel.main-idea .main-idea-text { font-size: 1.02rem; line-height: 1.55; font-weight: 600; color: var(--ink); }
+.panel.homework {
+  margin-top: 14px;
+  border: 2px solid var(--unit-color, var(--accent));
+  background: color-mix(in srgb, var(--unit-color, var(--accent)) 9%, var(--surface));
+}
+.panel.homework > h3 { color: var(--unit-color, var(--accent)); }
+.panel.homework .panel-body { max-height: 220px; }
+
+/* grayed-out unit tiles (units not ready yet) */
+.unit-tile.soon {
+  filter: grayscale(.9); opacity: .5; cursor: default; pointer-events: none;
+}
+.unit-tile.soon:hover { transform: none; }
+
+/* GE4 book tile on the index page */
+.book-tile.ge4 {
+  background: linear-gradient(140deg, #fbbf24, #f97316);
+  color: #fff;
+}
+.book-tile.ge4 .stats { color: rgb(255 255 255 / .92); }

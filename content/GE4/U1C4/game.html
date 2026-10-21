@@ -1,0 +1,366 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go or Goes?</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:'Segoe UI',Tahoma,sans-serif;
+    background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+    color:#fff;min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;
+    padding:20px;user-select:none;overflow-x:hidden;
+  }
+  h1{font-size:2.8rem;margin-bottom:2px;text-shadow:0 2px 10px rgba(0,0,0,.3)}
+  .subtitle{font-size:1rem;opacity:.55;margin-bottom:18px}
+  .level-badge{
+    background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+    padding:6px 20px;border-radius:30px;font-size:.95rem;margin-bottom:22px;
+    letter-spacing:.4px;transition:all .3s;
+  }
+  .display-area{
+    display:flex;align-items:center;justify-content:center;
+    gap:22px;margin-bottom:28px;flex-wrap:wrap;
+  }
+  .card{
+    width:230px;height:230px;border-radius:24px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    box-shadow:0 10px 30px rgba(0,0,0,.4);transition:transform .3s;
+  }
+  .card:hover{transform:scale(1.03)}
+  .subject-card{background:linear-gradient(145deg,#e94560,#c81e45)}
+  .subject-card .emoji{font-size:5rem;line-height:1}
+  .subject-card .label{font-size:2.2rem;font-weight:800;margin-top:6px}
+  .place-card{
+    background:linear-gradient(145deg,#0f3460,#16213e);
+    border:2px solid rgba(255,255,255,.1);
+  }
+  .place-card .place-icon{font-size:4rem;line-height:1;margin-bottom:4px}
+  .place-card img{
+    width:130px;height:85px;object-fit:contain;
+    margin-bottom:8px;border-radius:8px;
+  }
+  .place-card .place-name{
+    font-size:1.55rem;font-weight:700;text-align:center;
+    padding:0 12px;line-height:1.2;
+  }
+  .arrow{font-size:2.5rem;opacity:.6}
+  .answer-area{width:100%;max-width:720px;margin-bottom:22px}
+  .answer-box{
+    width:100%;background:rgba(255,255,255,.07);
+    border:2px solid rgba(255,255,255,.13);border-radius:18px;
+    padding:20px 28px;font-size:2rem;font-weight:700;text-align:center;
+    cursor:pointer;transition:all .3s;min-height:72px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .answer-box:hover{background:rgba(255,255,255,.12)}
+  .answer-box .verb{color:#e94560;font-size:2.15rem}
+  .tap-hint{opacity:.35;font-weight:400;font-size:1.2rem}
+  .btn-next{
+    background:linear-gradient(145deg,#e94560,#c81e45);color:#fff;border:none;
+    padding:15px 48px;border-radius:16px;font-size:1.4rem;font-weight:700;
+    cursor:pointer;box-shadow:0 6px 20px rgba(233,69,96,.4);transition:all .2s;
+  }
+  .btn-next:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(233,69,96,.5)}
+  .btn-next:active{transform:translateY(0)}
+  .corner-btns{
+    position:fixed;bottom:18px;right:18px;
+    display:flex;flex-direction:column;gap:10px;align-items:flex-end;
+  }
+  .btn-level{
+    padding:10px 18px;border:2px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.07);color:#bbb;border-radius:12px;
+    font-size:.92rem;font-weight:600;cursor:pointer;transition:all .2s;
+    backdrop-filter:blur(8px);
+  }
+  .btn-level:hover{background:rgba(255,255,255,.14);color:#fff}
+  .btn-level.active{background:rgba(233,69,96,.28);border-color:#e94560;color:#fff}
+  .hidden{display:none!important}
+  .flag-fallback{
+    width:130px;height:85px;border-radius:8px;margin-bottom:8px;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.08);font-size:2.5rem;font-weight:800;
+    letter-spacing:1px;border:2px dashed rgba(255,255,255,.15);
+  }
+</style>
+</head>
+<body>
+
+<h1>Go or Goes?</h1>
+<p class="subtitle">Say the sentence with the correct verb!</p>
+<div class="level-badge" id="levelBadge">⭐ Level 1 — Countries</div>
+
+<div class="display-area">
+  <div class="card subject-card">
+    <div class="emoji" id="subjectEmoji">🙋</div>
+    <div class="label" id="subjectLabel">I</div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="card place-card">
+    <div class="place-icon hidden" id="placeIcon"></div>
+    <img id="placeImg" class="hidden" src="" alt="" onerror="this.classList.add('hidden');showFlagFallback();">
+    <div class="flag-fallback hidden" id="flagFallback"></div>
+    <div class="place-name" id="placeName"></div>
+  </div>
+</div>
+
+<div class="answer-area">
+  <div class="answer-box" id="answerBox" onclick="revealAnswer()">
+    <span class="tap-hint">👆 tap to reveal the sentence</span>
+  </div>
+</div>
+
+<button class="btn-next" onclick="nextRound()">Next ▶</button>
+
+<div class="corner-btns">
+  <button class="btn-level hidden" id="btnWorkers" onclick="toggleWorkers()">➕ Add Workers</button>
+  <button class="btn-level" id="btnWorkplaces" onclick="toggleWorkplaces()">➕ Add Workplaces</button>
+</div>
+
+<script>
+/* === SOUND KIT (added Oct 2026) === */
+let _AC=null;
+function _ac(){if(!_AC)_AC=new(window.AudioContext||window.webkitAudioContext)();if(_AC.state==='suspended')_AC.resume();return _AC}
+function _t(f,type,dur,vol,del){const c=_ac(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(vol,c.currentTime+del);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+del+dur);o.connect(g);g.connect(c.destination);o.start(c.currentTime+del);o.stop(c.currentTime+del+dur)}
+function tone(f,type,dur,vol=.2,del=0){try{_t(f,type,dur,vol,del)}catch(e){}}
+function sndOK(){tone(523,'sine',.18,.22);tone(659,'sine',.18,.22,.09);tone(784,'sine',.25,.28,.18);tone(1047,'sine',.35,.18,.3)}
+function sndPop(){try{const c=_ac(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(600,c.currentTime);o.frequency.exponentialRampToValueAtTime(1300,c.currentTime+.07);g.gain.setValueAtTime(.13,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.12);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.12)}catch(e){}}
+function sndNext(){try{const c=_ac(),o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.setValueAtTime(350,c.currentTime);o.frequency.exponentialRampToValueAtTime(900,c.currentTime+.12);g.gain.setValueAtTime(.1,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.18);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.18)}catch(e){}}
+
+/* ===== DATA ===== */
+const countries = [
+  {name:'America',img:'America.png',code:'US'},
+  {name:'China',img:'China.png',code:'CN'},
+  {name:'England',img:'England.png',code:'EN'},
+  {name:'Japan',img:'Japan.png',code:'JP'}
+];
+const workplacePlaces = [
+  {name:'bakery',icon:'🍞',the:true},
+  {name:'fire station',icon:'🚒',the:true},
+  {name:'office',icon:'🏢',the:true},
+  {name:'police station',icon:'🚔',the:true},
+  {name:'post office',icon:'📮',the:true},
+  {name:'library',icon:'📚',the:true},
+  {name:'school',icon:'🏫',the:false},
+  {name:'hospital',icon:'🏥',the:true},
+  {name:'zoo',icon:'🦁',the:true}
+];
+const workerExtraPlaces = [
+  {name:'park',icon:'🌳',the:true}
+];
+const baseSubjects = [
+  {label:'I',emoji:'🙋',verb:'go'},
+  {label:'He',emoji:'👨',verb:'goes'},
+  {label:'She',emoji:'👩',verb:'goes'}
+];
+const workerSubjects = [
+  {label:'A baker',emoji:'🧑‍🍳',verb:'goes'},
+  {label:'A farmer',emoji:'🧑‍🌾',verb:'goes'},
+  {label:'A fireman',emoji:'🧑‍🚒',verb:'goes'},
+  {label:'A postman',emoji:'📬',verb:'goes'},
+  {label:'A policeman',emoji:'👮',verb:'goes'},
+  {label:'A shopkeeper',emoji:'🏪',verb:'goes'},
+  {label:'A teacher',emoji:'🧑‍🏫',verb:'goes'},
+  {label:'A doctor',emoji:'🧑‍⚕️',verb:'goes'},
+  {label:'A zookeeper',emoji:'🐘',verb:'goes'}
+];
+
+let includeWorkplaces=false, includeWorkers=false;
+let currentAnswer='', revealed=false, currentCountryCode='';
+
+/* ===== HELPERS ===== */
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function $(id){return document.getElementById(id)}
+function hide(el){el.classList.add('hidden')}
+function show(el){el.classList.remove('hidden')}
+
+function getPlaces(){
+  let p=countries.map(c=>({name:c.name,img:c.img,code:c.code,icon:null,the:false,isCountry:true}));
+  if(includeWorkplaces) p=p.concat(workplacePlaces.map(w=>({...w,img:null,code:null,isCountry:false})));
+  if(includeWorkers) p=p.concat(workerExtraPlaces.map(w=>({...w,img:null,code:null,isCountry:false})));
+  return p;
+}
+function getSubjects(){
+  let s=[...baseSubjects];
+  if(includeWorkers) s=s.concat(workerSubjects);
+  return s;
+}
+
+function showFlagFallback(){
+  if(currentCountryCode){
+    const fb=$('flagFallback');
+    fb.textContent=currentCountryCode;
+    show(fb);
+  }
+}
+
+/* ===== CORE ===== */
+function nextRound(){
+  revealed=false;
+  sndNext();
+  const place=pick(getPlaces());
+  const subject=pick(getSubjects());
+
+  /* subject */
+  $('subjectEmoji').textContent=subject.emoji;
+  $('subjectLabel').textContent=subject.label;
+
+  /* place */
+  const img=$('placeImg'), icon=$('placeIcon'), fb=$('flagFallback');
+  hide(img);hide(icon);hide(fb);
+  currentCountryCode='';
+
+  if(place.isCountry&&place.img){
+    currentCountryCode=place.code;
+    img.src=place.img;
+    img.alt=place.name;
+    show(img);
+  }else if(place.icon){
+    icon.textContent=place.icon;
+    show(icon);
+  }
+  $('placeName').textContent=place.name;
+
+  /* answer */
+  const dest=place.the?'the '+place.name:place.name;
+  currentAnswer = '<span>' + subject.label + ' <span class="verb">' + subject.verb + '</span> to ' + dest + '.</span>';
+
+  $('answerBox').innerHTML='<span class="tap-hint">👆 tap to reveal the sentence</span>';
+}
+
+function revealAnswer(){
+  if(revealed)return;
+  revealed=true;
+  $('answerBox').innerHTML=currentAnswer;
+  sndOK();
+}
+
+/* ===== LEVEL BUTTONS ===== */
+function toggleWorkplaces(){
+  includeWorkplaces=!includeWorkplaces;
+  const btn=$('btnWorkplaces');
+  btn.classList.toggle('active',includeWorkplaces);
+  btn.textContent=includeWorkplaces?'✅ Workplaces':'➕ Add Workplaces';
+  if(includeWorkplaces){show($('btnWorkers'))}
+  else{
+    hide($('btnWorkers'));
+    includeWorkers=false;
+    $('btnWorkers').classList.remove('active');
+    $('btnWorkers').textContent='➕ Add Workers';
+  }
+  updateBadge();nextRound();
+  sndPop();
+}
+function toggleWorkers(){
+  includeWorkers=!includeWorkers;
+  const btn=$('btnWorkers');
+  btn.classList.toggle('active',includeWorkers);
+  btn.textContent=includeWorkers?'✅ Workers':'➕ Add Workers';
+  updateBadge();nextRound();
+  sndPop();
+}
+function updateBadge(){
+  const b=$('levelBadge');
+  if(includeWorkers) b.textContent='⭐⭐⭐ Level 3 — + Workers';
+  else if(includeWorkplaces) b.textContent='⭐⭐ Level 2 — + Workplaces';
+  else b.textContent='⭐ Level 1 — Countries';
+}
+
+/* ===== KEYBOARD ===== */
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'||e.code==='Enter'){
+    e.preventDefault();
+    revealed?nextRound():revealAnswer();
+  }
+});
+
+/* ===== START ===== */
+nextRound();
+</script>
+
+
+
+<!-- Bilingo game controls: zoom + fullscreen toggle (auto-collapsing) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .85; }
+  .bilingo-ui .b-handle { display: none; }
+  .bilingo-ui.mini > *:not(.b-handle) { display: none; }
+  .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-handle" title="Show controls" aria-label="Show controls">⚙️</button>
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom';
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() {
+    z = Math.max(MIN, Math.round((z - STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function grow() {
+    z = Math.min(MAX, Math.round((z + STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+  }
+
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.remove('mini');
+    poke();
+  });
+
+  // Collapse to just the handle after 5s without interaction, so the bar
+  // never sits on top of the game's own buttons.
+  var idleTimer = null;
+  function poke() {
+    bar.classList.remove('mini');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.add('mini'); }, 5000);
+  }
+  bar.addEventListener('pointerdown', poke);
+  poke();
+  apply();
+})();
+</script>
+
+</body></html>

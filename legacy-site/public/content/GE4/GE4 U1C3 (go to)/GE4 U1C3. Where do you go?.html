@@ -1,0 +1,1862 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GE4 U1C3 -- Where do you go?</title>
+
+<style>
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: #edf4ff;
+  color: #23334f;
+  font-family: "Trebuchet MS", Arial, sans-serif;
+}
+
+button, input { font: inherit; }
+
+button {
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+button:focus-visible, summary:focus-visible {
+  outline: 3px solid #8464ee;
+  outline-offset: 3px;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: .42;
+}
+
+.app {
+  max-width: 1500px;
+  margin: auto;
+  padding: 10px 16px 14px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  background: #ffd466;
+  color: #50411f;
+  font-size: 29px;
+  font-weight: bold;
+  border-radius: 17px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 11px;
+  transform: rotate(-7deg);
+  box-shadow: 0 4px 0 #e6b443;
+}
+
+h1 {
+  font-size: 26px;
+  margin: 0;
+  letter-spacing: -.6px;
+}
+
+.subtitle {
+  margin-top: 3px;
+  color: #687c98;
+  font-size: 12px;
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.pill {
+  background: white;
+  border: 2px solid #d8e3f3;
+  border-radius: 12px;
+  margin-left: 6px;
+  padding: 9px 11px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.pill.gold {
+  background: #fff2c4;
+  border-color: #f5d270;
+}
+
+.small-button {
+  min-height: 39px;
+  padding: 7px 11px;
+  margin-left: 6px;
+  border-radius: 11px;
+  background: #fff;
+  color: #3c4d6b;
+  border: 2px solid #d8e3f3;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.game-shell {
+  background: #15203b;
+  border: 4px solid #fff;
+  border-radius: 23px;
+  overflow: hidden;
+  box-shadow: 0 5px 0 #d2dfef;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 330px);
+  min-height: 270px;
+  max-height: 710px;
+  background: #000;
+  overflow: hidden;
+  touch-action: none;
+  -ms-touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: crosshair;
+}
+
+.stage.uncovered { cursor: default; }
+
+.stage:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 3px #b69dff;
+}
+
+#scene {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#scene * { pointer-events: none; }
+
+.stage-badge {
+  position: absolute;
+  top: 11px;
+  left: 12px;
+  background: rgba(28,37,61,.91);
+  border: 1px solid #546482;
+  color: #e6edff;
+  padding: 7px 11px;
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: .5px;
+  pointer-events: none;
+}
+
+.lens-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 7px 10px;
+  background: #243452;
+  color: white;
+}
+
+.lens-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.lens-label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #c2cee4;
+  margin-right: 7px;
+}
+
+.lens-button {
+  background: #3b4f72;
+  color: #fff;
+  border: 1px solid #697b9c;
+  border-radius: 10px;
+  min-height: 38px;
+  padding: 6px 12px;
+  margin: 3px;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.lens-button.size {
+  min-width: 43px;
+  font-size: 21px;
+  line-height: 22px;
+}
+
+.lens-button.active {
+  background: #7756d8;
+  border-color: #bda7ff;
+}
+
+.lens-meter {
+  width: 74px;
+  height: 7px;
+  background: #111d35;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0 9px;
+}
+
+.lens-meter span {
+  display: block;
+  height: 100%;
+  width: 8%;
+  background: #ffda72;
+  border-radius: 10px;
+}
+
+.scan-hint {
+  color: #c2cee4;
+  font-size: 12px;
+  padding: 5px 8px;
+}
+
+.teacher-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 10px -4px 5px;
+}
+
+.action {
+  min-height: 43px;
+  border-radius: 12px;
+  margin: 4px;
+  padding: 9px 13px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #283b5e;
+  border: 2px solid #d3def0;
+  background: white;
+  box-shadow: 0 3px 0 #d3def0;
+}
+
+.action:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+.action.primary {
+  background: #7654e4;
+  border-color: #6242c5;
+  box-shadow: 0 3px 0 #5836b9;
+  color: #fff;
+}
+
+.action.gold {
+  background: #ffd469;
+  border-color: #e9b846;
+  box-shadow: 0 3px 0 #d7a737;
+}
+
+.action.green {
+  background: #6fd5b4;
+  border-color: #4db393;
+  box-shadow: 0 3px 0 #3e9e80;
+}
+
+.action.active {
+  background: #ece5ff;
+  border-color: #ac94ee;
+}
+
+.action.next { margin-left: auto; }
+
+.status {
+  min-height: 25px;
+  padding: 3px 4px 6px;
+  font-size: 14px;
+  color: #536888;
+  font-weight: bold;
+}
+
+.language-row {
+  display: flex;
+  align-items: stretch;
+  margin: 0 -5px;
+}
+
+.language-card {
+  width: 50%;
+  padding: 11px 14px;
+  margin: 0 5px;
+  border-radius: 15px;
+  background: #fff;
+  border: 2px solid #dce5f3;
+  min-height: 84px;
+}
+
+.language-card.challenge {
+  background: #f4efff;
+  border-color: #dfd2f7;
+}
+
+.card-heading {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #7183a0;
+  font-weight: bold;
+  margin-bottom: 7px;
+}
+
+.sentence {
+  font-size: 24px;
+  font-weight: bold;
+  color: #334a73;
+  line-height: 1.25;
+}
+
+.question {
+  font-size: 18px;
+  color: #674db1;
+  font-weight: bold;
+  line-height: 1.25;
+}
+
+.answer {
+  font-size: 21px;
+  color: #344b73;
+  font-weight: bold;
+  margin-top: 6px;
+  line-height: 1.25;
+}
+
+.hidden-text {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: normal;
+  color: #7a8aa2;
+  background: #edf2f8;
+  border: 1px dashed #c0ccdd;
+  border-radius: 8px;
+  padding: 5px 9px;
+}
+
+.challenge .hidden-text {
+  background: #eae3f6;
+  border-color: #cbbce4;
+  color: #8c7eaa;
+}
+
+details {
+  font-size: 12px;
+  line-height: 1.65;
+  margin: 10px 4px 0;
+  color: #657a98;
+}
+
+summary {
+  cursor: pointer;
+  display: list-item;
+  font-weight: bold;
+}
+
+.help-content {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #dce5f3;
+  padding: 10px 14px;
+  margin-top: 7px;
+}
+
+.help-content p { margin: 5px 0; }
+
+.confetti {
+  position: fixed;
+  z-index: 100;
+  top: -25px;
+  width: 11px;
+  height: 17px;
+  pointer-events: none;
+  animation: fall 1.7s ease-in forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(105vh) rotate(630deg);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 1050px) {
+  .app { padding: 8px; }
+  h1 { font-size: 22px; }
+  .logo { height: 43px; width: 43px; font-size: 24px; }
+  .action { font-size: 12px; padding: 8px 9px; }
+  .sentence { font-size: 22px; }
+  .question { font-size: 16px; }
+  .answer { font-size: 18px; }
+  .scan-hint { display: none; }
+}
+
+@media (max-width: 700px) {
+  .header { align-items: flex-start; }
+  .logo { display: none; }
+  h1 { font-size: 20px; }
+  .subtitle { font-size: 10px; }
+  .pill { font-size: 11px; padding: 7px; }
+  .small-button { font-size: 11px; padding: 6px; }
+  .top-right { max-width: 48%; }
+  .stage { height: 340px; min-height: 250px; }
+  .action.next { margin-left: 4px; }
+  .language-row { flex-direction: column; }
+  .language-card { width: auto; margin: 4px 5px; }
+  .lens-label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti { display: none; }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <header class="header">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">?</div>
+      <div>
+        <h1>Where do you go?</h1>
+        <div class="subtitle">
+           GE4 U1C3
+        </div>
+      </div>
+    </div>
+
+    <div class="top-right">
+      <span class="pill" id="progress">Place 1 / 11</span>
+      <span class="pill gold" id="score">★ 0</span>
+      <button class="small-button" id="sound" aria-pressed="true">Sound ON</button>
+      <button class="small-button" id="fullscreen">Full screen</button>
+    </div>
+  </header>
+
+  <div class="game-shell">
+    <div class="stage" id="stage" tabindex="0" role="group" aria-label="Mystery place. Move the window using a mouse, touch, or arrow keys.">
+      <svg id="scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#91d9f0"></stop>
+            <stop offset="100%" stop-color="#e0f7fa"></stop>
+          </linearGradient>
+
+          <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#9bdb8e"></stop>
+            <stop offset="100%" stop-color="#73bc78"></stop>
+          </linearGradient>
+
+          <mask id="windowMask" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="1000" height="560" style="mask-type:luminance">
+            <rect x="0" y="0" width="1000" height="560" fill="white"></rect>
+            <circle id="maskHole" cx="500" cy="280" r="18" fill="black"></circle>
+          </mask>
+        </defs>
+
+        <g id="picture"></g>
+
+        <g id="walker" visibility="hidden">
+          <g id="walkerArt"></g>
+        </g>
+
+        <g id="curtain">
+          <rect x="0" y="0" width="1000" height="560" fill="#000" mask="url(#windowMask)"></rect>
+          <circle id="windowRim" cx="500" cy="280" r="19" fill="none" stroke="#b7abd7" stroke-width="1.5" stroke-opacity=".7"></circle>
+        </g>
+      </svg>
+
+      <div class="stage-badge" id="stageBadge">MYSTERY WINDOW</div>
+    </div>
+
+    <div class="lens-bar">
+      <div class="lens-group">
+        <span class="lens-label">WINDOW</span>
+        <button class="lens-button size" id="smaller" aria-label="Make window smaller">−</button>
+        <div class="lens-meter" aria-hidden="true"><span id="meter"></span></div>
+        <button class="lens-button size" id="bigger" aria-label="Make window bigger">+</button>
+        <button class="lens-button" id="tiny">Tiny again</button>
+        <button class="lens-button" id="auto" aria-pressed="false">Slow grow OFF</button>
+      </div>
+
+      <div class="scan-hint">Mouse: move · Board: slide your finger · Keyboard: arrow keys</div>
+    </div>
+  </div>
+
+  <div class="teacher-bar" aria-label="Teacher controls">
+    <button class="action gold" id="uncover">✓ Word said — uncover!</button>
+    <button class="action" id="goSentence" aria-pressed="false">Show I go sentence</button>
+    <button class="action" id="whoQuestion" aria-pressed="false" disabled="">Extra-hard question</button>
+    <button class="action green" id="workerAnswer" aria-pressed="false" disabled="">✓ Answer said — send worker!</button>
+    <button class="action" id="hideAll">Hide language</button>
+    <button class="action primary next" id="next" disabled="">Next place →</button>
+  </div>
+
+  <div class="status" id="status" role="status" aria-live="polite">
+    Move the tiny window. Guess the place. Say your sentence!
+  </div>
+
+  <div class="language-row">
+    <section class="language-card" aria-label="Main sentence">
+      <div class="card-heading">Say where you go</div>
+      <div class="sentence" id="mainSentence">
+        <span class="hidden-text">Sentence hidden — children speak first</span>
+      </div>
+    </section>
+
+    <section class="language-card challenge" aria-label="Optional worker challenge">
+      <div class="card-heading">Extra-hard worker challenge</div>
+      <div class="question" id="questionText">
+        <span class="hidden-text">Question hidden</span>
+      </div>
+      <div class="answer" id="answerText">
+        <span class="hidden-text">Answer hidden</span>
+      </div>
+    </section>
+  </div>
+
+  <details>
+    <summary>Teacher notes &amp; controls</summary>
+    <div class="help-content">
+      <p>
+        <strong>Flow:</strong> explore the hidden picture → child guesses and produces
+        the “I go…” sentence → click <strong>Word said — uncover!</strong>
+        Optional: reveal the worker question → child answers orally →
+        click <strong>Answer said — send worker!</strong>
+      </p>
+      <p>
+        Revealing the picture does not reveal any sentence.
+        Each language button is a show/hide toggle. <strong>Hide language</strong>
+        closes all three. Every new place starts with all language hidden.
+      </p>
+      <p>
+        <strong>Window:</strong> starts at 36 scene-pixels in diameter.
+        Slow grow increases the diameter by about 1.3 scene-pixels per second.
+        You can resize it manually at any time. Each new place resets it to tiny.
+        The slow-grow setting carries over between places.
+      </p>
+      <p>
+        <strong>Locations:</strong> bakery, fire station, office, police station,
+        post office, shop, farm, hospital, library, school, park.
+        Every shuffled tour includes all 11 once. The final Next button starts
+        a fresh shuffled tour.
+      </p>
+      <p>
+        <strong>Articles:</strong> “I go to the library / the park / the hospital,”
+        but “I go to school” for attending school.
+        Worker questions use “in the…” except “on the farm” and “at school.”
+        Answers include “An office worker…” and “A librarian…”
+      </p>
+      <p>
+        The park's example worker is a gardener. Other sensible oral answers
+        can be accepted by the teacher; this activity does not judge speech.
+        Each uncovered place earns one star; sending its worker earns one more.
+      </p>
+      <p>
+        Offline artwork and synthesized sound effects are built in.
+        Scores last for this browser session. If sound is unavailable,
+        the activity still works silently.
+      </p>
+    </div>
+  </details>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* Everything is local: no network, external assets or speech services. */
+
+  var DATA = [
+    {
+      id:"baker", job:"baker", place:"bakery",
+      color:"#ed8cba", prep:"in", entry:160
+    },
+    {
+      id:"fireman", job:"fireman", place:"fire station",
+      color:"#ed655b", prep:"in", entry:120, male:true
+    },
+    {
+      id:"office", job:"office worker", place:"office",
+      color:"#779bb4", prep:"in", entry:121
+    },
+    {
+      id:"policeman", job:"policeman", place:"police station",
+      color:"#567ade", prep:"in", entry:121, male:true
+    },
+    {
+      id:"postman", job:"postman", place:"post office",
+      color:"#39aaa8", prep:"in", entry:121, male:true
+    },
+    {
+      id:"shopkeeper", job:"shopkeeper", place:"shop",
+      color:"#e8a744", prep:"in", entry:166
+    },
+    {
+      id:"farmer", job:"farmer", place:"farm",
+      color:"#62b776", prep:"on", entry:116
+    },
+    {
+      id:"doctor", job:"doctor", place:"hospital",
+      color:"#57b9d4", prep:"in", entry:121
+    },
+    {
+      id:"librarian", job:"librarian", place:"library",
+      color:"#ad83d1", prep:"in", entry:120
+    },
+    {
+      id:"teacher", job:"teacher", place:"school",
+      color:"#e9ab55", prep:"at", entry:120
+    },
+    {
+      id:"gardener", job:"gardener", place:"park",
+      color:"#68ad75", prep:"in", entry:120
+    }
+  ];
+
+  var state = {
+    deck: [],
+    index: 0,
+    tour: 0,
+    stars: 0,
+    current: null,
+    revealed: false,
+    showGo: false,
+    showWho: false,
+    showAnswer: false,
+    workerSent: false,
+    walking: false,
+    sound: true,
+    auto: false,
+    radius: 40,
+    x: 500,
+    y: 280,
+    animationToken: 0
+  };
+
+  var audio = null;
+  var touchId = null;
+  var activePointer = null;
+  var lastPlaceId = null;
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  var BUILD_X = 116;
+  var BUILD_Y = 40;
+  var BUILD_SCALE = 3.2;
+
+  var raf = window.requestAnimationFrame ||
+    function (fn) { return window.setTimeout(fn, 16); };
+
+  function $(id) { return document.getElementById(id); }
+  function text(el, value) { el.textContent = value; }
+  function now() { return new Date().getTime(); }
+
+  function clamp(n, low, high) {
+    return Math.max(low, Math.min(high, n));
+  }
+
+  function shuffle(input) {
+    var a = input.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = a[i];
+      a[i] = a[j];
+      a[j] = temp;
+    }
+    return a;
+  }
+
+  function status(message) {
+    text($("status"), message);
+  }
+
+  function reducedMotion() {
+    return !!(window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }
+
+  /*
+   * Parse SVG with DOMParser rather than depending on SVG innerHTML.
+   * This also helps with older browser engines.
+   */
+  function setSvg(target, markup) {
+    while (target.firstChild) target.removeChild(target.firstChild);
+
+    var doc = new DOMParser().parseFromString(
+      '<svg xmlns="' + SVG_NS + '">' + markup + '</svg>',
+      "image/svg+xml"
+    );
+
+    var root = doc.documentElement;
+    for (var i = 0; i < root.childNodes.length; i++) {
+      target.appendChild(document.importNode(root.childNodes[i], true));
+    }
+  }
+
+  /* --------------------- CHARACTER ART --------------------- */
+
+  function personArt(d) {
+    var skin = d.skin;
+    var female = d.gender === "she";
+    var hat = "";
+    var prop = "";
+    var uniform = "";
+    var c = d.color;
+
+    if (d.id === "baker") {
+      hat =
+        '<path d="M30 32V17Q20 10 28 4Q36-1 42 7Q50-4 58 7Q71-1 76 9Q80 18 70 20V32Z" fill="#fff" stroke="#9f9bb3" stroke-width="2"/>';
+      uniform =
+        '<path d="M38 60H63L70 91H30Z" fill="#fff4ed"/>' +
+        '<path d="M39 61L36 54M61 61L64 54" stroke="#fff4ed" stroke-width="4"/>';
+      prop =
+        '<g transform="rotate(-25 78 72)">' +
+        '<rect x="68" y="52" width="17" height="38" rx="8" fill="#d99943"/>' +
+        '<path d="M72 61L80 64M72 70L80 73M72 79L80 82" stroke="#ffdb91" stroke-width="3"/>' +
+        '</g>';
+
+    } else if (d.id === "fireman") {
+      hat =
+        '<path d="M26 29Q26 5 50 5Q74 5 74 29Z" fill="#ffd24d" stroke="#c79023" stroke-width="2"/>' +
+        '<rect x="21" y="26" width="58" height="7" rx="3" fill="#ffdc62"/>' +
+        '<path d="M46 8H55V29H46Z" fill="#ed655b"/>';
+      uniform =
+        '<path d="M28 74H72M29 85H71" stroke="#ffe260" stroke-width="6"/>' +
+        '<path d="M50 55V93" stroke="#3d4761" stroke-width="3"/>';
+      prop =
+        '<path d="M76 64Q92 91 76 93Q62 92 76 79" fill="none" stroke="#3d5268" stroke-width="7"/>' +
+        '<path d="M74 64L84 58" stroke="#bbc7d2" stroke-width="8"/>';
+
+    } else if (d.id === "farmer" || d.id === "gardener") {
+      hat =
+        '<path d="M30 28L36 9H63L71 28Z" fill="#e1af53"/>' +
+        '<ellipse cx="50" cy="28" rx="34" ry="6" fill="#f8ce73"/>' +
+        '<path d="M32 23H68" stroke="#8e7046" stroke-width="5"/>';
+      uniform =
+        '<path d="M37 55V68H63V55M34 69H67V94H33Z" fill="#5878b3" stroke="#5878b3" stroke-width="5"/>' +
+        '<rect x="43" y="73" width="15" height="10" rx="2" fill="#9ab6de"/>';
+      prop = d.id === "farmer" ?
+        '<path d="M80 91V54" stroke="#377d47" stroke-width="4"/>' +
+        '<ellipse cx="81" cy="57" rx="7" ry="14" fill="#ffda58"/>' +
+        '<path d="M80 74Q64 54 72 79Z" fill="#4eaa5d"/>' :
+        '<path d="M80 89V56" stroke="#438b50" stroke-width="4"/>' +
+        '<circle cx="80" cy="54" r="10" fill="#ee8aaa"/>' +
+        '<circle cx="80" cy="54" r="4" fill="#ffdc6a"/>' +
+        '<path d="M80 75Q64 59 68 76Z" fill="#53a763"/>';
+
+    } else if (d.id === "policeman") {
+      hat =
+        '<path d="M26 17Q50 0 75 17L68 30H32Z" fill="#263c70"/>' +
+        '<path d="M31 27H70Q66 38 46 33Z" fill="#172b50"/>' +
+        '<path d="M47 13L53 13L56 19L50 24L44 19Z" fill="#ffdb67"/>';
+      uniform =
+        '<path d="M44 54L50 64L57 54" fill="#fff"/>' +
+        '<path d="M50 62L46 82L51 88L55 82Z" fill="#233957"/>' +
+        '<path d="M30 59H39M62 59H71" stroke="#ffda60" stroke-width="4"/>';
+      prop =
+        '<path d="M31 66L36 70L34 77L28 77L26 70Z" fill="#ffda60"/>';
+
+    } else if (d.id === "postman") {
+      hat =
+        '<path d="M28 23Q31 6 54 9Q71 10 73 29H28Z" fill="#248e93"/>' +
+        '<path d="M48 27H81Q77 35 58 32Z" fill="#236c80"/>';
+      uniform =
+        '<path d="M31 56L70 89" stroke="#6f563c" stroke-width="7"/>' +
+        '<rect x="57" y="72" width="30" height="22" rx="5" fill="#a87a4b"/>';
+      prop =
+        '<rect x="14" y="65" width="28" height="20" rx="3" fill="#fff" stroke="#90a6b8"/>' +
+        '<path d="M15 66L28 76L41 66" fill="none" stroke="#e76d67" stroke-width="2"/>';
+
+    } else if (d.id === "shopkeeper") {
+      hat =
+        '<path d="M27 27Q30 9 52 10Q72 9 74 27" fill="#664134"/>' +
+        '<path d="M30 26H72" stroke="#e8a744" stroke-width="7"/>';
+      uniform =
+        '<path d="M37 59H65L72 94H29Z" fill="#669681"/>' +
+        '<path d="M39 60V54M63 60V54" stroke="#669681" stroke-width="4"/>' +
+        '<rect x="41" y="72" width="18" height="12" rx="3" fill="#b8dfbb"/>';
+      prop =
+        '<path d="M70 67H91L87 92H73Z" fill="#f0c589"/>' +
+        '<path d="M75 67Q80 50 86 67" fill="none" stroke="#9e7047" stroke-width="3"/>' +
+        '<circle cx="76" cy="66" r="5" fill="#ed6a61"/>' +
+        '<path d="M84 66L90 54" stroke="#559c59" stroke-width="5"/>';
+
+    } else if (d.id === "doctor") {
+      c = "#f4fafc";
+      hat =
+        '<path d="M27 28Q26 9 49 8Q73 7 74 29L62 21L33 27Z" fill="#553b35"/>';
+      uniform =
+        '<path d="M42 55L50 81L59 55" fill="#66bfd0"/>' +
+        '<path d="M33 58V70Q33 85 45 77M63 58V70Q63 80 55 79" fill="none" stroke="#46566c" stroke-width="3"/>' +
+        '<circle cx="54" cy="80" r="4" fill="#667d90"/>' +
+        '<path d="M68 66V80M61 73H75" stroke="#ed7672" stroke-width="4"/>';
+      prop =
+        '<rect x="10" y="69" width="21" height="25" rx="4" fill="#73b7cb"/>' +
+        '<path d="M15 70V65H25V69" fill="none" stroke="#365875" stroke-width="3"/>' +
+        '<path d="M20 76V88M14 82H26" stroke="#fff" stroke-width="3"/>';
+
+    } else if (d.id === "librarian" || d.id === "teacher") {
+      hat =
+        '<path d="M27 29Q24 6 47 8Q72 1 75 30L59 21L33 29Z" fill="#614331"/>';
+      uniform =
+        '<path d="M39 54L50 66L61 54" fill="#fff2d8"/>' +
+        '<path d="M50 65V93" stroke="#ffffff" stroke-opacity=".6" stroke-width="3"/>' +
+        '<circle cx="55" cy="75" r="1.5" fill="#fff"/>' +
+        '<circle cx="55" cy="84" r="1.5" fill="#fff"/>';
+      prop =
+        '<rect x="65" y="63" width="27" height="30" rx="3" fill="' +
+        (d.id === "librarian" ? "#694bac" : "#50a7a1") + '"/>' +
+        '<path d="M70 66V89M76 71H87M76 77H87" stroke="#fff0c9" stroke-width="2.5"/>';
+      if (d.id === "teacher") {
+        prop += '<path d="M15 88L23 55" stroke="#ffda68" stroke-width="6"/>';
+      } else {
+        prop +=
+          '<g fill="none" stroke="#48536d" stroke-width="2">' +
+          '<circle cx="41" cy="36" r="7"/><circle cx="60" cy="36" r="7"/>' +
+          '<path d="M48 35H53"/></g>';
+      }
+
+    } else {
+      hat =
+        '<path d="M27 29Q24 6 47 8Q72 1 75 30L59 21L33 29Z" fill="#614331"/>';
+      uniform =
+        '<path d="M39 54L50 68L61 54" fill="#fff"/>' +
+        '<path d="M50 66L45 85L50 91L55 85Z" fill="#f0ba55"/>';
+      prop =
+        '<rect x="66" y="69" width="28" height="23" rx="4" fill="#655777"/>' +
+        '<path d="M74 69V63H85V69" fill="none" stroke="#655777" stroke-width="4"/>';
+    }
+
+    return (
+      '<ellipse cx="50" cy="100" rx="31" ry="4" fill="#263f56" opacity=".15"/>' +
+      '<path d="M35 88V98M63 88V98" stroke="#34435c" stroke-width="12" stroke-linecap="round"/>' +
+      (female ?
+        '<path d="M26 30Q17 41 25 61L40 54H68L77 61Q84 43 72 28Z" fill="#614031"/>' : '') +
+      '<path d="M30 60L19 79M70 60L81 79" stroke="' + c + '" stroke-width="13" stroke-linecap="round"/>' +
+      '<circle cx="19" cy="81" r="6" fill="' + skin + '"/>' +
+      '<circle cx="81" cy="81" r="6" fill="' + skin + '"/>' +
+      '<path d="M30 58Q50 48 70 58L74 94H26Z" fill="' + c + '" stroke="#29435e" stroke-opacity=".15" stroke-width="2"/>' +
+      uniform +
+      '<rect x="43" y="45" width="14" height="15" rx="6" fill="' + skin + '"/>' +
+      '<circle cx="28" cy="37" r="5" fill="' + skin + '"/>' +
+      '<circle cx="72" cy="37" r="5" fill="' + skin + '"/>' +
+      '<rect x="29" y="17" width="43" height="37" rx="18" fill="' + skin + '"/>' +
+      '<circle cx="41" cy="36" r="2.5" fill="#29334d"/>' +
+      '<circle cx="60" cy="36" r="2.5" fill="#29334d"/>' +
+      '<path d="M43 44Q50 50 58 43" fill="none" stroke="#9c534c" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<ellipse cx="36" cy="42" rx="4" ry="2" fill="#ef9b89" opacity=".6"/>' +
+      '<ellipse cx="65" cy="42" rx="4" ry="2" fill="#ef9b89" opacity=".6"/>' +
+      hat + prop
+    );
+  }
+
+  /* ---------------------- BUILDING ART ---------------------- */
+
+  function windowArt(x, y, w, h) {
+    return (
+      '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h +
+      '" rx="3" fill="#b9eaf6" stroke="#fff" stroke-width="4"/>' +
+      '<path d="M' + (x + 4) + ' ' + (y + h - 4) +
+      'L' + (x + w - 4) + ' ' + (y + 4) +
+      '" stroke="#e9fcff" stroke-width="3"/>'
+    );
+  }
+
+  function buildingArt(d) {
+    var base =
+      '<ellipse cx="120" cy="130" rx="100" ry="7" fill="#799b9f" opacity=".18"/>';
+    var wall =
+      '<rect x="40" y="39" width="160" height="87" rx="5" fill="' + d.color + '"/>';
+    var roof =
+      '<path d="M30 43L50 19H191L211 43Z" fill="#425975"/>';
+    var door =
+      '<rect x="104" y="80" width="33" height="46" rx="4" fill="#344c6a"/>' +
+      '<rect x="110" y="86" width="21" height="24" rx="2" fill="#a8e4f1"/>' +
+      '<circle cx="130" cy="116" r="2" fill="#ffdf79"/>';
+    var out = "";
+
+    if (d.id === "baker") {
+      out = wall +
+        '<path d="M28 43L50 18H191L211 43Z" fill="#b45482"/>' +
+        '<rect x="50" y="74" width="69" height="43" rx="4" fill="#ffe6b4" stroke="#fff" stroke-width="4"/>' +
+        '<path d="M60 107Q70 77 81 107M82 107Q94 77 104 107" fill="#cc8a42" stroke="#edb964" stroke-width="4"/>' +
+        '<rect x="144" y="76" width="35" height="50" rx="4" fill="#774967"/>' +
+        '<rect x="149" y="82" width="25" height="27" rx="2" fill="#b9eaf6"/>' +
+        '<path d="M34 56H205L212 75H28Z" fill="#fff3e7"/>' +
+        '<path d="M45 56L40 75M76 56L73 75M108 56V75M140 56L143 75M173 56L178 75M196 56L204 75" stroke="#ed7d9c" stroke-width="14"/>' +
+        '<ellipse cx="121" cy="28" rx="31" ry="13" fill="#ffdc8e"/>' +
+        '<path d="M107 22L114 32M119 20L126 32M130 22L137 31" stroke="#c2873e" stroke-width="3"/>';
+
+    } else if (d.id === "fireman") {
+      out = wall + roof +
+        '<rect x="57" y="72" width="122" height="54" rx="6" fill="#743b44"/>' +
+        '<path d="M61 79H174M61 87H174M61 95H174" stroke="#a95e60" stroke-width="3"/>' +
+        '<rect x="63" y="97" width="85" height="26" rx="5" fill="#ef4d4c"/>' +
+        '<path d="M149 98H167L177 110V123H149Z" fill="#ed655b"/>' +
+        '<rect x="152" y="102" width="14" height="11" rx="2" fill="#b9eaf6"/>' +
+        '<path d="M70 94H142M75 90V98M88 90V98M101 90V98M114 90V98M127 90V98" stroke="#e5eff2" stroke-width="3"/>' +
+        '<circle cx="82" cy="123" r="9" fill="#354156"/>' +
+        '<circle cx="162" cy="123" r="9" fill="#354156"/>' +
+        '<path d="M118 28Q96 47 113 59Q128 70 136 51Q139 41 128 33Q133 51 121 50Q112 49 118 28Z" fill="#ffdf69"/>';
+
+    } else if (d.id === "farmer") {
+      out =
+        '<path d="M15 117Q47 76 93 106Q139 76 226 112V129H15Z" fill="#9ed77e"/>' +
+        '<rect x="66" y="60" width="99" height="66" fill="#de6557"/>' +
+        '<path d="M53 63L115 15L177 63Z" fill="#a64548"/>' +
+        '<path d="M91 126V79H141V126" fill="#a33f43" stroke="#fff5df" stroke-width="5"/>' +
+        '<path d="M94 83L138 122M138 83L94 122" stroke="#fff5df" stroke-width="4"/>' +
+        '<rect x="104" y="44" width="22" height="19" fill="#a8e3f1" stroke="#fff5df" stroke-width="4"/>' +
+        '<path d="M18 104V131M39 104V131M178 104V131M202 104V131M221 104V131M15 112H53M170 112H227M15 123H53M170 123H227" stroke="#fff0c7" stroke-width="5"/>' +
+        '<path d="M185 96V74M208 97V70" stroke="#488e48" stroke-width="4"/>' +
+        '<ellipse cx="185" cy="72" rx="7" ry="12" fill="#ffdb5c"/>' +
+        '<ellipse cx="208" cy="69" rx="7" ry="12" fill="#ffdb5c"/>';
+
+    } else if (d.id === "policeman") {
+      out = wall + roof + door +
+        windowArt(54,79,33,28) + windowArt(153,79,33,28) +
+        '<path d="M107 44L121 49L135 44V59Q132 70 121 75Q109 69 107 59Z" fill="#ffdb6b"/>' +
+        '<path d="M121 49L123 55L130 55L125 59L127 65L121 61L115 65L117 59L112 55L119 55Z" fill="#b08430"/>' +
+        '<rect x="165" y="111" width="56" height="16" rx="6" fill="#fff"/>' +
+        '<path d="M178 112L184 102H201L210 113" fill="#415678"/>' +
+        '<path d="M185 101H191" stroke="#ed6d70" stroke-width="4"/>' +
+        '<path d="M191 101H197" stroke="#63b9e7" stroke-width="4"/>' +
+        '<circle cx="177" cy="127" r="6" fill="#34435c"/>' +
+        '<circle cx="209" cy="127" r="6" fill="#34435c"/>';
+
+    } else if (d.id === "postman") {
+      out = wall + roof + door +
+        windowArt(54,81,33,28) + windowArt(153,81,33,28) +
+        '<rect x="91" y="43" width="59" height="29" rx="4" fill="#fff6de"/>' +
+        '<path d="M93 45L121 63L148 45" fill="none" stroke="#dd7367" stroke-width="4"/>' +
+        '<rect x="13" y="94" width="28" height="35" rx="6" fill="#e56b63"/>' +
+        '<path d="M19 106H35" stroke="#713e4c" stroke-width="4"/>' +
+        '<path d="M21 121H33" stroke="#fff0d4" stroke-width="3"/>';
+
+    } else if (d.id === "shopkeeper") {
+      out = wall +
+        '<path d="M29 43L49 19H191L211 43Z" fill="#9d704a"/>' +
+        '<rect x="54" y="79" width="77" height="36" rx="3" fill="#d5f4ef" stroke="#fff7df" stroke-width="4"/>' +
+        '<rect x="149" y="78" width="35" height="48" rx="4" fill="#78624a"/>' +
+        '<rect x="154" y="85" width="25" height="25" fill="#c4ebef"/>' +
+        '<path d="M33 55H205L214 77H25Z" fill="#fff4d6"/>' +
+        '<path d="M48 55L42 76M83 55L80 76M119 55V76M154 55L158 76M190 55L196 76" stroke="#71a97b" stroke-width="18"/>' +
+        '<circle cx="68" cy="104" r="8" fill="#ed7666"/>' +
+        '<circle cx="91" cy="104" r="8" fill="#ffcf57"/>' +
+        '<circle cx="115" cy="104" r="8" fill="#85b86a"/>' +
+        '<path d="M105 28H132L128 43H109Z" fill="#fff1bd"/>' +
+        '<path d="M112 28Q119 15 127 28" fill="none" stroke="#fff1bd" stroke-width="3"/>';
+
+    } else if (d.id === "doctor") {
+      out =
+        '<rect x="31" y="63" width="178" height="64" rx="5" fill="#8dd2e2"/>' +
+        '<rect x="76" y="23" width="91" height="104" rx="5" fill="#eefaff"/>' +
+        '<path d="M69 24H174" stroke="#459dbb" stroke-width="9"/>' +
+        windowArt(40,78,23,23) + windowArt(177,78,23,23) +
+        '<rect x="103" y="88" width="37" height="39" rx="4" fill="#57a6c6"/>' +
+        '<path d="M121 92V127" stroke="#d8f5fc" stroke-width="3"/>' +
+        '<path d="M121 38V74M103 56H139" stroke="#f07479" stroke-width="12"/>' +
+        '<rect x="157" y="111" width="65" height="18" rx="5" fill="#fff"/>' +
+        '<path d="M198 110V102H209L220 114" fill="#fff"/>' +
+        '<path d="M209 105L216 113H204V105Z" fill="#a9e4f4"/>' +
+        '<path d="M177 114V124M172 119H182" stroke="#f07479" stroke-width="3"/>' +
+        '<circle cx="168" cy="128" r="6" fill="#40516a"/>' +
+        '<circle cx="210" cy="128" r="6" fill="#40516a"/>';
+
+    } else if (d.id === "office") {
+      out =
+        '<rect x="54" y="20" width="133" height="107" rx="5" fill="#91afc8"/>' +
+        '<path d="M48 21H193" stroke="#526b88" stroke-width="9"/>' +
+        windowArt(67,34,24,23) + windowArt(109,34,24,23) + windowArt(151,34,24,23) +
+        windowArt(67,70,24,23) + windowArt(109,70,24,23) + windowArt(151,70,24,23) +
+        '<rect x="104" y="101" width="34" height="26" fill="#405776"/>' +
+        '<path d="M121 104V127" stroke="#aacbdf" stroke-width="3"/>' +
+        '<path d="M29 128V100M213 128V100" stroke="#837053" stroke-width="5"/>' +
+        '<circle cx="29" cy="90" r="17" fill="#79b884"/>' +
+        '<circle cx="213" cy="90" r="17" fill="#79b884"/>';
+
+    } else if (d.id === "librarian") {
+      out =
+        '<rect x="36" y="45" width="168" height="81" rx="4" fill="#b795d8"/>' +
+        '<path d="M24 46L120 10L216 46Z" fill="#775598"/>' +
+        '<path d="M100 28Q111 21 120 27Q131 21 141 28V43Q130 36 120 43Q110 36 100 43Z" fill="#fff0ca"/>' +
+        '<path d="M120 28V42" stroke="#bc9368" stroke-width="2"/>' +
+        '<rect x="49" y="65" width="43" height="44" rx="3" fill="#624a7e" stroke="#f4e6ff" stroke-width="4"/>' +
+        '<rect x="149" y="65" width="43" height="44" rx="3" fill="#624a7e" stroke="#f4e6ff" stroke-width="4"/>' +
+        '<path d="M55 85H87M55 103H87M155 85H187M155 103H187" stroke="#ead4a4" stroke-width="3"/>' +
+        '<path d="M59 68V82M68 70V82M79 68V82M60 89V100M71 89V100M82 89V100" stroke="#f1b95e" stroke-width="6"/>' +
+        '<path d="M160 68V82M170 70V82M181 68V82M160 89V100M170 89V100M181 89V100" stroke="#85d0bf" stroke-width="6"/>' +
+        '<rect x="104" y="76" width="33" height="50" rx="4" fill="#54456e"/>' +
+        '<rect x="109" y="82" width="23" height="25" rx="2" fill="#bae6eb"/>' +
+        '<circle cx="130" cy="116" r="2" fill="#ffe299"/>' +
+        '<path d="M30 125H211" stroke="#e1d4ee" stroke-width="7"/>';
+
+    } else if (d.id === "teacher") {
+      out =
+        '<rect x="32" y="58" width="176" height="69" rx="4" fill="#f0b965"/>' +
+        '<rect x="84" y="36" width="73" height="91" fill="#f7d495"/>' +
+        '<path d="M24 59L41 39H83V59ZM158 59V39H201L217 59Z" fill="#b96c59"/>' +
+        '<path d="M76 38L120 6L165 38Z" fill="#ad655c"/>' +
+        '<circle cx="120" cy="49" r="15" fill="#fff9e9" stroke="#aa7955" stroke-width="3"/>' +
+        '<path d="M120 39V49L128 53" fill="none" stroke="#4c6381" stroke-width="3" stroke-linecap="round"/>' +
+        windowArt(44,74,26,26) + windowArt(171,74,26,26) +
+        '<rect x="103" y="83" width="35" height="44" rx="3" fill="#6b80a8"/>' +
+        '<path d="M120 86V126" stroke="#d1e9f1" stroke-width="3"/>' +
+        '<path d="M184 39V9" stroke="#69798c" stroke-width="3"/>' +
+        '<path d="M185 9H211L204 17L211 25H185Z" fill="#ec7f86"/>' +
+        '<path d="M88 129H153" stroke="#e0cbb1" stroke-width="6"/>' +
+        '<path d="M17 128V108M28 128V108M211 128V108M222 128V108M12 116H35M205 116H229" stroke="#fff2d6" stroke-width="4"/>';
+
+    } else if (d.id === "gardener") {
+      out =
+        '<ellipse cx="120" cy="112" rx="106" ry="22" fill="#a4d77e"/>' +
+        '<path d="M112 77Q144 99 114 134H141Q165 99 129 77Z" fill="#e8d0a0"/>' +
+        '<path d="M47 115V50M190 116V47" stroke="#93744d" stroke-width="8"/>' +
+        '<circle cx="45" cy="46" r="30" fill="#6abd78"/>' +
+        '<circle cx="27" cy="61" r="22" fill="#74c983"/>' +
+        '<circle cx="66" cy="64" r="24" fill="#65b573"/>' +
+        '<circle cx="188" cy="41" r="29" fill="#7bc776"/>' +
+        '<circle cx="168" cy="59" r="23" fill="#8bcf79"/>' +
+        '<circle cx="210" cy="62" r="24" fill="#6bbb78"/>' +
+        '<path d="M42 94H93M42 103H93" stroke="#b78a56" stroke-width="7" stroke-linecap="round"/>' +
+        '<path d="M48 104V120M85 104V120" stroke="#62726b" stroke-width="5"/>' +
+        '<path d="M90 126V77Q90 61 106 61H139Q153 61 153 77V126" fill="none" stroke="#477e68" stroke-width="4"/>' +
+        '<path d="M95 66Q103 43 118 57Q132 41 146 66" fill="none" stroke="#6daf6f" stroke-width="9"/>' +
+        '<path d="M163 127V105M178 127V108M202 127V102" stroke="#438f57" stroke-width="2"/>' +
+        '<circle cx="163" cy="103" r="6" fill="#ed8da6"/>' +
+        '<circle cx="178" cy="106" r="6" fill="#ffcc5f"/>' +
+        '<circle cx="202" cy="100" r="6" fill="#ab87cf"/>' +
+        '<ellipse cx="32" cy="123" rx="17" ry="8" fill="#91cb79"/>';
+    }
+
+    return base + out;
+  }
+
+  /* ---------------------- SCENE ---------------------- */
+
+  function sceneArt(d) {
+    return (
+      '<rect width="1000" height="560" fill="url(#sky)"/>' +
+
+      '<circle cx="865" cy="80" r="41" fill="#ffe083"/>' +
+      '<circle cx="865" cy="80" r="54" fill="#ffe083" opacity=".16"/>' +
+
+      '<g fill="#fff" opacity=".8">' +
+      '<ellipse cx="167" cy="81" rx="72" ry="20"/>' +
+      '<circle cx="146" cy="67" r="26"/>' +
+      '<circle cx="183" cy="61" r="31"/>' +
+      '<ellipse cx="683" cy="106" rx="57" ry="16"/>' +
+      '<circle cx="670" cy="91" r="24"/>' +
+      '<circle cx="705" cy="98" r="20"/>' +
+      '</g>' +
+
+      '<path d="M0 365Q140 275 285 356Q472 283 654 352Q816 268 1000 348V560H0Z" fill="#addca9"/>' +
+      '<rect x="0" y="404" width="1000" height="156" fill="url(#grass)"/>' +
+
+      '<path d="M0 454H1000V501H0Z" fill="#eddcbb"/>' +
+      '<path d="M0 499H1000V560H0Z" fill="#718899"/>' +
+      '<path d="M0 507H1000" stroke="#d7e7e9" stroke-width="4"/>' +
+      '<path d="M15 540H985" stroke="#fff0b8" stroke-width="5" stroke-dasharray="45 30"/>' +
+
+      '<g transform="translate(' + BUILD_X + ' ' + BUILD_Y + ') scale(' + BUILD_SCALE + ')">' +
+      buildingArt(d) +
+      '</g>' +
+
+      '<g opacity=".9">' +
+      '<path d="M45 443V424M58 443V428M925 444V423M945 445V429" stroke="#468a59" stroke-width="3"/>' +
+      '<circle cx="45" cy="422" r="5" fill="#ef97ae"/>' +
+      '<circle cx="58" cy="426" r="4" fill="#ffe07b"/>' +
+      '<circle cx="925" cy="421" r="5" fill="#ffe07b"/>' +
+      '<circle cx="945" cy="427" r="4" fill="#d99ada"/>' +
+      '</g>'
+    );
+  }
+
+  /* ---------------------- SOUND ---------------------- */
+
+  function unlockAudio() {
+    if (!state.sound) return;
+
+    try {
+      if (!audio) {
+        var AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audio = new AudioContext();
+      }
+
+      if (audio && audio.state === "suspended" && audio.resume) {
+        var p = audio.resume();
+        if (p && p.catch) p.catch(function () {});
+      }
+    } catch (ignore) {}
+  }
+
+  function play(kind) {
+    if (!state.sound) return;
+    unlockAudio();
+    if (!audio) return;
+
+    var notes;
+    if (kind === "uncover") notes = [523,659,784,1047];
+    else if (kind === "worker") notes = [659,784,988];
+    else if (kind === "arrive") notes = [784,1047];
+    else if (kind === "tour") notes = [523,659,784,1047,784,1047,1319];
+    else notes = [660];
+
+    try {
+      for (var i = 0; i < notes.length; i++) {
+        var t = audio.currentTime + i * .105;
+        var osc = audio.createOscillator();
+        var gain = audio.createGain();
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(notes[i], t);
+        gain.gain.setValueAtTime(.0001, t);
+        gain.gain.exponentialRampToValueAtTime(.075, t + .015);
+        gain.gain.exponentialRampToValueAtTime(.0001, t + .19);
+
+        osc.connect(gain);
+        gain.connect(audio.destination);
+        osc.start(t);
+        osc.stop(t + .21);
+      }
+    } catch (ignore) {}
+  }
+
+  function celebrate() {
+    if (reducedMotion()) return;
+    var colors = ["#ffcf57","#f17ea8","#78d9ca","#9675ee","#70bcee"];
+
+    for (var i = 0; i < 24; i++) {
+      var bit = document.createElement("i");
+      bit.className = "confetti";
+      bit.style.left = (Math.random() * 98) + "%";
+      bit.style.background = colors[i % colors.length];
+      bit.style.animationDelay = (Math.random() * .3) + "s";
+      bit.setAttribute("aria-hidden", "true");
+      document.body.appendChild(bit);
+
+      (function (el) {
+        window.setTimeout(function () {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        }, 2300);
+      }(bit));
+    }
+  }
+
+  /* ---------------------- LANGUAGE ---------------------- */
+
+  function goSentence(d) {
+    if (d.id === "teacher") return "I go to school.";
+    return "I go to the " + d.place + ".";
+  }
+
+  function workplace(d) {
+    if (d.id === "teacher") return "at school";
+    return d.prep + " the " + d.place;
+  }
+
+  function whoQuestion(d) {
+    return "Who works " + workplace(d) + "?";
+  }
+
+  function workerAnswer(d) {
+    var article = d.id === "office" ? "An" : "A";
+    return article + " " + d.job + " works " + workplace(d) + ".";
+  }
+
+  function setLine(id, visible, sentence, placeholder) {
+    var el = $(id);
+    if (visible) {
+      text(el, sentence);
+    } else {
+      el.innerHTML = '<span class="hidden-text">' + placeholder + '</span>';
+    }
+  }
+
+  function toggleAppearance(id, on, base) {
+    $(id).setAttribute("aria-pressed", on ? "true" : "false");
+    $(id).className = base + (on ? " active" : "");
+  }
+
+  function updateLanguage() {
+    var d = state.current;
+
+    setLine(
+      "mainSentence",
+      state.showGo,
+      goSentence(d),
+      "Sentence hidden — children speak first"
+    );
+
+    setLine(
+      "questionText",
+      state.showWho,
+      whoQuestion(d),
+      "Question hidden"
+    );
+
+    setLine(
+      "answerText",
+      state.showAnswer,
+      workerAnswer(d),
+      "Answer hidden"
+    );
+
+    text(
+      $("goSentence"),
+      state.showGo ? "Hide I go sentence" : "Show I go sentence"
+    );
+
+    text(
+      $("whoQuestion"),
+      state.showWho ? "Hide worker question" : "Extra-hard question"
+    );
+
+    if (!state.workerSent) {
+      text($("workerAnswer"), "✓ Answer said — send worker!");
+    } else {
+      text(
+        $("workerAnswer"),
+        state.showAnswer ? "Hide worker answer" : "Show answer + replay"
+      );
+    }
+
+    toggleAppearance("goSentence", state.showGo, "action");
+    toggleAppearance("whoQuestion", state.showWho, "action");
+    toggleAppearance("workerAnswer", state.showAnswer, "action green");
+
+    $("whoQuestion").disabled = !state.revealed;
+
+    $("workerAnswer").disabled =
+      !state.revealed ||
+      (!state.showWho && !state.workerSent) ||
+      (state.walking && !state.showAnswer);
+  }
+
+  /* ---------------------- WINDOW ---------------------- */
+
+  function drawWindow() {
+    $("maskHole").setAttribute("cx", state.x);
+    $("maskHole").setAttribute("cy", state.y);
+    $("maskHole").setAttribute("r", state.radius);
+
+    $("windowRim").setAttribute("cx", state.x);
+    $("windowRim").setAttribute("cy", state.y);
+    $("windowRim").setAttribute("r", state.radius + 1);
+
+    $("meter").style.width =
+      (6 + (state.radius - 8) / (180 - 8) * 94) + "%";
+
+    $("smaller").disabled = state.revealed || state.radius <= 8;
+    $("bigger").disabled = state.revealed || state.radius >= 180;
+    $("tiny").disabled = state.revealed;
+
+    $("auto").disabled = state.revealed;
+    $("auto").className = "lens-button" + (state.auto ? " active" : "");
+    $("auto").setAttribute("aria-pressed", state.auto ? "true" : "false");
+
+    text(
+      $("auto"),
+      state.revealed && state.auto ?
+        "Slow grow PAUSED" :
+        "Slow grow " + (state.auto ? "ON" : "OFF")
+    );
+  }
+
+  function resizeWindow(change) {
+    if (state.revealed) return;
+    state.radius = clamp(state.radius + change, 8, 180);
+    drawWindow();
+  }
+
+  function moveWindow(clientX, clientY) {
+    if (state.revealed) return;
+
+    var svg = $("scene");
+    var matrix = svg.getScreenCTM();
+    if (!matrix) return;
+
+    try {
+      var point = svg.createSVGPoint();
+      point.x = clientX;
+      point.y = clientY;
+      var local = point.matrixTransform(matrix.inverse());
+
+      state.x = clamp(local.x, 0, 1000);
+      state.y = clamp(local.y, 0, 560);
+      drawWindow();
+    } catch (ignore) {}
+  }
+
+  $("smaller").onclick = function () { resizeWindow(-10); };
+  $("bigger").onclick = function () { resizeWindow(10); };
+
+  $("tiny").onclick = function () {
+    if (state.revealed) return;
+    state.radius = 40;
+    drawWindow();
+  };
+
+  $("auto").onclick = function () {
+    if (state.revealed) return;
+    state.auto = !state.auto;
+    drawWindow();
+  };
+
+  var lastTick = now();
+
+  window.setInterval(function () {
+    var time = now();
+    var delta = Math.min((time - lastTick) / 1000, .25);
+    lastTick = time;
+
+    if (
+      document.hidden ||
+      !state.auto ||
+      state.revealed ||
+      state.radius >= 180
+    ) return;
+
+    state.radius = Math.min(180, state.radius + delta * .65);
+    drawWindow();
+  }, 100);
+
+  /* ---------------------- POINTER / TOUCH ---------------------- */
+
+  var passiveFalse = false;
+
+  try {
+    var opts = Object.defineProperty({}, "passive", {
+      get: function () { passiveFalse = { passive:false }; }
+    });
+    var noop = function () {};
+    window.addEventListener("passive-test", noop, opts);
+    window.removeEventListener("passive-test", noop, opts);
+  } catch (ignore) {}
+
+  function prevent(e) {
+    if (e.cancelable !== false) e.preventDefault();
+  }
+
+  if (window.PointerEvent) {
+    $("stage").addEventListener("pointerdown", function (e) {
+      if (state.revealed || e.isPrimary === false) return;
+      if (e.button !== undefined && e.button !== 0) return;
+      if (activePointer !== null) return;
+
+      activePointer = e.pointerId;
+      moveWindow(e.clientX, e.clientY);
+      prevent(e);
+
+      try { $("stage").focus({preventScroll:true}); } catch (ignore) {}
+
+      try {
+        $("stage").setPointerCapture(e.pointerId);
+      } catch (ignore) {}
+    }, false);
+
+    $("stage").addEventListener("pointermove", function (e) {
+      if (state.revealed) return;
+
+      if (e.pointerType === "mouse" || e.pointerType === "pen") {
+        moveWindow(e.clientX, e.clientY);
+      } else if (activePointer === e.pointerId) {
+        moveWindow(e.clientX, e.clientY);
+        prevent(e);
+      }
+    }, passiveFalse);
+
+    function endPointer(e) {
+      if (activePointer === e.pointerId) activePointer = null;
+    }
+
+    $("stage").addEventListener("pointerup", endPointer, false);
+    $("stage").addEventListener("pointercancel", endPointer, false);
+    $("stage").addEventListener("lostpointercapture", endPointer, false);
+
+  } else {
+    $("stage").addEventListener("mousemove", function (e) {
+      moveWindow(e.clientX, e.clientY);
+    }, false);
+
+    $("stage").addEventListener("touchstart", function (e) {
+      if (state.revealed || touchId !== null || !e.changedTouches.length) return;
+      var t = e.changedTouches[0];
+      touchId = t.identifier;
+      moveWindow(t.clientX, t.clientY);
+      prevent(e);
+    }, passiveFalse);
+
+    $("stage").addEventListener("touchmove", function (e) {
+      if (state.revealed) return;
+      for (var i = 0; i < e.touches.length; i++) {
+        var t = e.touches[i];
+        if (t.identifier === touchId) {
+          moveWindow(t.clientX, t.clientY);
+          prevent(e);
+          break;
+        }
+      }
+    }, passiveFalse);
+
+    function endTouch(e) {
+      for (var i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === touchId) touchId = null;
+      }
+    }
+
+    $("stage").addEventListener("touchend", endTouch, false);
+    $("stage").addEventListener("touchcancel", endTouch, false);
+  }
+
+  window.addEventListener("blur", function () {
+    activePointer = null;
+    touchId = null;
+  }, false);
+
+  $("stage").addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+  }, false);
+
+  $("stage").addEventListener("keydown", function (e) {
+    if (state.revealed) return;
+
+    var key = e.key || e.keyCode;
+    var amount = e.shiftKey ? 40 : 15;
+    var used = true;
+
+    if (key === "ArrowLeft" || key === 37) state.x -= amount;
+    else if (key === "ArrowRight" || key === 39) state.x += amount;
+    else if (key === "ArrowUp" || key === 38) state.y -= amount;
+    else if (key === "ArrowDown" || key === 40) state.y += amount;
+    else if (key === "+" || key === "=") resizeWindow(10);
+    else if (key === "-") resizeWindow(-10);
+    else used = false;
+
+    if (used) {
+      state.x = clamp(state.x, 0, 1000);
+      state.y = clamp(state.y, 0, 560);
+      drawWindow();
+      e.preventDefault();
+    }
+  }, false);
+
+  /* ---------------------- WORKER ARRIVAL ---------------------- */
+
+  function stopWorker() {
+    state.animationToken++;
+    state.walking = false;
+    $("walker").setAttribute("visibility", "hidden");
+    $("walker").setAttribute("opacity", "1");
+  }
+
+  function walkWorker() {
+    if (state.walking || !state.revealed) return;
+
+    var token = ++state.animationToken;
+    var d = state.current;
+    var walker = $("walker");
+
+    setSvg($("walkerArt"), personArt(d));
+
+    state.walking = true;
+    updateLanguage();
+
+    walker.setAttribute("visibility", "visible");
+    walker.setAttribute("opacity", "1");
+
+    var destinationX = BUILD_X + d.entry * BUILD_SCALE;
+    var destinationY = BUILD_Y + 126 * BUILD_SCALE;
+
+    /* Alternate arrival side so repeated tours feel a little different. */
+    var fromLeft = Math.random() < .5;
+    var startX = fromLeft ? -85 : 1085;
+    var startY = 479;
+
+    var startTime = now();
+    var duration = reducedMotion() ? 650 : 3900;
+
+    function pose(cx, feetY, scale, opacity) {
+      walker.setAttribute(
+        "transform",
+        "translate(" + (cx - 50 * scale) + " " +
+        (feetY - 100 * scale) + ") scale(" + scale + ")"
+      );
+      walker.setAttribute("opacity", opacity);
+    }
+
+    function finished() {
+      if (token !== state.animationToken) return;
+
+      walker.setAttribute("visibility", "hidden");
+      state.walking = false;
+      updateLanguage();
+      play("arrive");
+
+      status(
+        d.id === "gardener" ?
+          "The worker has arrived in the park! Ready for the next mystery?" :
+          "The worker has gone inside! Ready for the next mystery?"
+      );
+    }
+
+    if (reducedMotion()) {
+      pose(destinationX, destinationY, 1.12, 1);
+      window.setTimeout(finished, duration);
+      return;
+    }
+
+    function frame() {
+      if (token !== state.animationToken) return;
+
+      var p = clamp((now() - startTime) / duration, 0, 1);
+
+      if (p < .77) {
+        var t = p / .77;
+        var cx = startX + (destinationX - startX) * t;
+        var bob = Math.abs(Math.sin(t * Math.PI * 15)) * 5;
+        pose(cx, startY - bob, 1.36, 1);
+      } else {
+        var enter = (p - .77) / .23;
+        var feetY = startY + (destinationY - startY) * enter;
+        var scale = 1.36 - enter * .38;
+        var opacity = enter < .48 ? 1 : 1 - (enter - .48) / .52;
+        var littleBob = Math.sin(enter * Math.PI * 4) * 1.5;
+        pose(destinationX, feetY - littleBob, scale, clamp(opacity,0,1));
+      }
+
+      if (p < 1) raf(frame);
+      else finished();
+    }
+
+    raf(frame);
+  }
+
+  /* ---------------------- TOURS ---------------------- */
+
+  function updateScore() {
+    text($("progress"), "Place " + (state.index + 1) + " / " + state.deck.length);
+    text($("score"), "★ " + state.stars);
+  }
+
+  function startTour() {
+    state.deck = shuffle(DATA);
+
+    /* Avoid an immediate repeat across the boundary between two tours. */
+    if (
+      lastPlaceId &&
+      state.deck.length > 1 &&
+      state.deck[0].id === lastPlaceId
+    ) {
+      var swap = state.deck[0];
+      state.deck[0] = state.deck[1];
+      state.deck[1] = swap;
+    }
+
+    state.index = 0;
+    state.tour++;
+    loadPlace();
+  }
+
+  function loadPlace() {
+    stopWorker();
+
+    activePointer = null;
+    touchId = null;
+
+    var source = state.deck[state.index];
+    var d = {};
+    var key;
+
+    for (key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        d[key] = source[key];
+      }
+    }
+
+    var skins = ["#f5c59d","#dca273","#b97851","#e9b58a","#9a6348"];
+    d.skin = skins[Math.floor(Math.random() * skins.length)];
+    d.gender = d.male ? "he" : (Math.random() < .5 ? "he" : "she");
+
+    state.current = d;
+    state.revealed = false;
+    state.showGo = false;
+    state.showWho = false;
+    state.showAnswer = false;
+    state.workerSent = false;
+
+    state.radius = 40;
+    state.x = 360 + Math.random() * 280;
+    state.y = 210 + Math.random() * 130;
+
+    setSvg($("picture"), sceneArt(d));
+
+    $("curtain").style.display = "";
+    $("stage").className = "stage";
+    text($("stageBadge"), "MYSTERY WINDOW");
+
+    $("uncover").disabled = false;
+    text($("uncover"), "✓ Word said — uncover!");
+    $("next").disabled = true;
+
+    text(
+      $("next"),
+      state.index === state.deck.length - 1 ?
+        "New shuffled tour ↻" :
+        "Next place →"
+    );
+
+    drawWindow();
+    updateLanguage();
+    updateScore();
+
+    status("Move the tiny window. Guess the place. Say your sentence!");
+  }
+
+  $("uncover").onclick = function () {
+    if (state.revealed) return;
+
+    state.revealed = true;
+    state.stars++;
+    lastPlaceId = state.current.id;
+
+    $("curtain").style.display = "none";
+    $("stage").className = "stage uncovered";
+    text($("stageBadge"), "MYSTERY SOLVED!");
+
+    $("uncover").disabled = true;
+    text($("uncover"), "✓ Picture uncovered");
+    $("next").disabled = false;
+
+    drawWindow();
+    updateLanguage();
+    updateScore();
+
+    if (state.index === state.deck.length - 1) {
+      status("All 11 places explored! Try the worker challenge, or start a new shuffled tour.");
+      play("tour");
+    } else {
+      status("Great speaking! Try the extra-hard worker question — or go to the next place.");
+      play("uncover");
+    }
+
+    celebrate();
+  };
+
+  $("next").onclick = function () {
+    if (!state.revealed) return;
+
+    lastPlaceId = state.current.id;
+
+    if (state.index === state.deck.length - 1) {
+      startTour();
+    } else {
+      state.index++;
+      loadPlace();
+    }
+
+    play("tap");
+  };
+
+  $("goSentence").onclick = function () {
+    state.showGo = !state.showGo;
+    updateLanguage();
+  };
+
+  $("whoQuestion").onclick = function () {
+    if (!state.revealed) return;
+    state.showWho = !state.showWho;
+    updateLanguage();
+  };
+
+  $("workerAnswer").onclick = function () {
+    if (!state.revealed) return;
+
+    if (state.showAnswer) {
+      state.showAnswer = false;
+      updateLanguage();
+      return;
+    }
+
+    if (!state.workerSent && !state.showWho) return;
+    if (state.walking) return;
+
+    state.showAnswer = true;
+
+    if (!state.workerSent) {
+      state.workerSent = true;
+      state.stars++;
+      updateScore();
+    }
+
+    updateLanguage();
+    status("Great answer! Here comes the worker…");
+    play("worker");
+    walkWorker();
+  };
+
+  $("hideAll").onclick = function () {
+    state.showGo = false;
+    state.showWho = false;
+    state.showAnswer = false;
+    updateLanguage();
+  };
+
+  /* ---------------------- GENERAL CONTROLS ---------------------- */
+
+  $("sound").onclick = function () {
+    state.sound = !state.sound;
+    text(this, "Sound " + (state.sound ? "ON" : "OFF"));
+    this.setAttribute("aria-pressed", state.sound ? "true" : "false");
+    if (state.sound) play("tap");
+  };
+
+  $("fullscreen").onclick = function () {
+    var root = document.documentElement;
+
+    var current =
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.msFullscreenElement;
+
+    var fn = current ?
+      (document.exitFullscreen ||
+       document.webkitExitFullscreen ||
+       document.msExitFullscreen) :
+      (root.requestFullscreen ||
+       root.webkitRequestFullscreen ||
+       root.msRequestFullscreen);
+
+    if (!fn) {
+      status("Use your browser's full-screen command, or F11 on a Windows keyboard.");
+      return;
+    }
+
+    try {
+      var result = fn.call(current ? document : root);
+
+      if (result && result.catch) {
+        result.catch(function () {
+          status("Full screen was blocked. Try your browser's full-screen command.");
+        });
+      }
+    } catch (ignore) {
+      status("Try your browser's full-screen command, or F11 on Windows.");
+    }
+  };
+
+  startTour();
+}());
+</script>
+
+
+
+<!-- Bilingo game controls: zoom + fullscreen toggle (auto-collapsing) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .85; }
+  .bilingo-ui .b-handle { display: none; }
+  .bilingo-ui.mini > *:not(.b-handle) { display: none; }
+  .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-handle" title="Show controls" aria-label="Show controls">⚙️</button>
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom';
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() {
+    z = Math.max(MIN, Math.round((z - STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function grow() {
+    z = Math.min(MAX, Math.round((z + STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+  }
+
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.remove('mini');
+    poke();
+  });
+
+  // Collapse to just the handle after 5s without interaction, so the bar
+  // never sits on top of the game's own buttons.
+  var idleTimer = null;
+  function poke() {
+    bar.classList.remove('mini');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.add('mini'); }, 5000);
+  }
+  bar.addEventListener('pointerdown', poke);
+  poke();
+  apply();
+})();
+</script>
+
+</body></html>

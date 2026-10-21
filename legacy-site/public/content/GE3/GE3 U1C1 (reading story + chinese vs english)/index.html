@@ -1,5 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>GE3 U1C1 — Let's Speak English</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -107,10 +108,12 @@
     font-weight: bold;
     cursor: grab;
     user-select: none;
+    touch-action: none;
     box-shadow: 0 3px 6px rgba(0,0,0,0.2);
   }
   .sentence:hover { transform: scale(1.05); }
   .sentence.dragging { opacity: 0.4; }
+  .sentence.selected { outline: 3px dashed #ff9800; transform: scale(1.08); background: #fff8e1; }
   .sentence.used { display: none; }
 
   .nav {
@@ -164,6 +167,7 @@
     padding: 10px;
     background: rgba(255,255,255,0.5);
     border-radius: 12px;
+    transition: background 0.2s;
   }
   .sort-items.drag-over { background: #fff59d; }
   .word {
@@ -174,8 +178,11 @@
     font-weight: bold;
     cursor: grab;
     user-select: none;
+    touch-action: none;
     box-shadow: 0 3px 6px rgba(0,0,0,0.15);
   }
+  .word:hover { transform: scale(1.05); }
+  .word.selected { outline: 3px dashed #ff9800; transform: scale(1.08); background: #fff8e1; }
   .word.wrong-pop { animation: shake 0.4s; background: #ffcdd2; }
   .word-bank {
     background: #fff8e1;
@@ -200,6 +207,40 @@
   }
   .success.show { display: block; animation: pop 0.5s; }
   @keyframes pop { 0% { transform: scale(0.5); } 100% { transform: scale(1); } }
+
+  /* floating sort button — the "second half" of the lesson, one click away */
+  #sortFab {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 500;
+    border: none;
+    border-radius: 999px;
+    padding: 14px 22px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(135deg, #7e57c2, #512da8);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+    cursor: pointer;
+    animation: fabpulse 2.4s ease-in-out infinite;
+  }
+  #sortFab:hover { transform: scale(1.06); }
+  @keyframes fabpulse {
+    0%,100% { box-shadow: 0 6px 18px rgba(0,0,0,0.3); }
+    50% { box-shadow: 0 6px 26px rgba(126,87,194,0.65); }
+  }
+
+  /* the floating clone while dragging with a finger / mouse */
+  .drag-clone {
+    position: fixed;
+    z-index: 10000;
+    pointer-events: none;
+    opacity: 0.95;
+    transform: scale(1.08) rotate(2deg);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+  }
 </style>
 </head>
 <body>
@@ -212,7 +253,7 @@
     <div class="story-layout">
       <div class="pic-box"><img src="Part 1.jpg" alt="Part 1"></div>
       <div class="slots-area">
-        <h3>Drag the sentences here ⬇️</h3>
+        <h3>Drag — or tap a sentence, then tap a box ⬇️</h3>
         <div class="slot" data-answer="The teacher asks Ola a question."><span class="tag narrator">Narrator</span><span class="placeholder">Drop here...</span></div>
         <div class="slot" data-answer="What's your name?"><span class="tag teacher">Teacher</span><span class="placeholder">Drop here...</span></div>
       </div>
@@ -224,7 +265,7 @@
     <div class="story-layout">
       <div class="pic-box"><img src="Part 2.jpg" alt="Part 2"></div>
       <div class="slots-area">
-        <h3>Drag the sentences here ⬇️</h3>
+        <h3>Drag — or tap a sentence, then tap a box ⬇️</h3>
         <div class="slot" data-answer="我..."><span class="tag ola">Ola</span><span class="placeholder">Drop here...</span></div>
         <div class="slot" data-answer="No Chinese, please. Speak English."><span class="tag teacher">Teacher</span><span class="placeholder">Drop here...</span></div>
       </div>
@@ -236,7 +277,7 @@
     <div class="story-layout">
       <div class="pic-box"><img src="Part 3.jpg" alt="Part 3"></div>
       <div class="slots-area">
-        <h3>Drag the sentences here ⬇️</h3>
+        <h3>Drag — or tap a sentence, then tap a box ⬇️</h3>
         <div class="slot" data-answer="What's your name?"><span class="tag teacher">Teacher</span><span class="placeholder">Drop here...</span></div>
         <div class="slot" data-answer="My name is Ola."><span class="tag ola">Ola</span><span class="placeholder">Drop here...</span></div>
       </div>
@@ -248,7 +289,7 @@
     <div class="story-layout">
       <div class="pic-box"><img src="Part 4.jpg" alt="Part 4"></div>
       <div class="slots-area">
-        <h3>Drag the sentence here ⬇️</h3>
+        <h3>Drag — or tap a sentence, then tap a box ⬇️</h3>
         <div class="slot" data-answer="Good job, Ola!"><span class="tag teacher">Teacher</span><span class="placeholder">Drop here...</span></div>
       </div>
     </div>
@@ -271,7 +312,7 @@
   <!-- ===== SORT PAGE 5 ===== -->
   <div class="page" data-page="5">
     <h2 class="page-title">🌏 Sort: English or Chinese?</h2>
-    <p style="text-align:center; color:#666; margin-bottom:10px;">Drag each word into the correct box!</p>
+    <p style="text-align:center; color:#666; margin-bottom:10px;">Drag each word into the correct box — or tap a word, then tap a box!</p>
 
     <div class="word-bank">
       <h4>Words to sort:</h4>
@@ -314,10 +355,26 @@
 
 </div>
 
+<button type="button" id="sortFab" onclick="goSort()">🌏 Now sort the words from the story!</button>
+
 <script>
+  /* === SOUND KIT (added Oct 2026) === */
+  let _AC=null;
+  function _ac(){if(!_AC)_AC=new(window.AudioContext||window.webkitAudioContext)();if(_AC.state==='suspended')_AC.resume();return _AC}
+  function _t(f,type,dur,vol,del){const c=_ac(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(vol,c.currentTime+del);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+del+dur);o.connect(g);g.connect(c.destination);o.start(c.currentTime+del);o.stop(c.currentTime+del+dur)}
+  function tone(f,type,dur,vol=.2,del=0){try{_t(f,type,dur,vol,del)}catch(e){}}
+  function sndOK(){tone(523,'sine',.18,.22);tone(659,'sine',.18,.22,.09);tone(784,'sine',.25,.28,.18);tone(1047,'sine',.35,.18,.3)}
+  function sndNo(){tone(160,'square',.35,.18);tone(120,'sawtooth',.25,.12,.12)}
+  function sndPop(){try{const c=_ac(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(600,c.currentTime);o.frequency.exponentialRampToValueAtTime(1300,c.currentTime+.07);g.gain.setValueAtTime(.13,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.12);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.12)}catch(e){}}
+  function sndNext(){try{const c=_ac(),o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.setValueAtTime(350,c.currentTime);o.frequency.exponentialRampToValueAtTime(900,c.currentTime+.12);g.gain.setValueAtTime(.1,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.18);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.18)}catch(e){}}
+  function confettiBurst(n=30){const em=['⭐','✨','🌟','🎉','🎊','💫'];for(let i=0;i<n;i++){const e=document.createElement('div');e.textContent=em[~~(Math.random()*em.length)];e.style.cssText='position:fixed;top:-30px;z-index:9999;pointer-events:none;font-size:'+(14+Math.random()*16)+'px;left:'+(Math.random()*100)+'vw;transition:transform '+(1.6+Math.random()*1.4)+'s ease-in,opacity '+(1.6+Math.random()*1.4)+'s;';document.body.appendChild(e);requestAnimationFrame(()=>{e.style.transform='translateY('+(innerHeight+60)+'px) rotate('+(Math.random()*720-360)+'deg)';e.style.opacity='0'});setTimeout(()=>e.remove(),3400)}}
+
   let currentPage = 1;
   const totalPages = 5;
-  let dragged = null;
+  let dragged = null;          // item selected via tap-tap
+  let dragEl = null;           // item being pointer-dragged
+  let cloneEl = null;          // floating visual clone
+  let startX = 0, startY = 0, moved = false;
 
   // Shuffle bank on load
   (function shuffleBank() {
@@ -333,17 +390,192 @@
     document.getElementById('prevBtn').disabled = (n === 1);
     document.getElementById('nextBtn').disabled = (n === totalPages);
     document.getElementById('masterBank').style.display = (n === 5) ? 'none' : 'block';
+    const fab = document.getElementById('sortFab');
+    if (n === 5) { fab.textContent = '📖 Back to the story'; }
+    else { fab.textContent = '🌏 Now sort the words from the story!'; }
   }
   function changePage(dir) {
     const next = currentPage + dir;
     if (next >= 1 && next <= totalPages) {
       currentPage = next;
+      sndNext();
       showPage(currentPage);
     }
   }
+  function goSort() {
+    currentPage = (currentPage === 5) ? 1 : 5;
+    sndNext();
+    showPage(currentPage);
+  }
   showPage(1);
 
-  function setupStoryDrag() {
+  /* ============================================================
+     PLACE LOGIC (shared by drag, tap-tap and HTML5 drop)
+     ============================================================ */
+  function clearSelection() {
+    document.querySelectorAll('.selected').forEach(x => x.classList.remove('selected'));
+    dragged = null;
+  }
+
+  function placeSentenceInSlot(sentence, slot) {
+    if (!sentence || slot.classList.contains('correct')) return false;
+    const droppedText = sentence.textContent.trim();
+    const correct = slot.dataset.answer;
+    if (droppedText === correct) {
+      const tag = slot.querySelector('.tag').outerHTML;
+      slot.innerHTML = tag + ' ' + droppedText + ' ✅';
+      slot.classList.add('correct');
+      sentence.classList.add('used');
+      sentence.classList.remove('selected');
+      dragged = null;
+      sndOK();
+      const page = slot.closest('.page');
+      if (page && page.querySelectorAll('.slot:not(.correct)').length === 0) {
+        sndOK();
+        confettiBurst(30);
+      }
+      return true;
+    } else {
+      slot.classList.add('wrong');
+      sndNo();
+      setTimeout(() => slot.classList.remove('wrong'), 500);
+      return false;
+    }
+  }
+
+  function placeWordInZone(word, zone) {
+    if (!word || !word.classList.contains('word')) return false;
+    if (word.dataset.lang === zone.dataset.lang) {
+      sndOK();
+      zone.appendChild(word);
+      word.classList.remove('selected');
+      if (dragged === word) dragged = null;
+      checkSortDone();
+      return true;
+    } else {
+      sndNo();
+      word.classList.add('wrong-pop');
+      setTimeout(() => word.classList.remove('wrong-pop'), 500);
+      return false;
+    }
+  }
+
+  // what drop target is under this point? returns {kind:'slot'|'zone', el}
+  function targetAt(x, y) {
+    cloneEl && (cloneEl.style.display = 'none');
+    const el = document.elementFromPoint(x, y);
+    cloneEl && (cloneEl.style.display = '');
+    if (!el) return null;
+    const slot = el.closest('.slot');
+    if (slot && slot.closest('.page').classList.contains('active')) return { kind: 'slot', el: slot };
+    const zone = el.closest('.sort-items');
+    if (zone && zone.closest('.page').classList.contains('active')) return { kind: 'zone', el: zone };
+    return null;
+  }
+
+  /* ============================================================
+     TAP-TAP MODE: tap item to select, tap target to place
+     ============================================================ */
+  function setupTapTap() {
+    document.querySelectorAll('.sentence').forEach(s => {
+      s.addEventListener('click', () => {
+        if (s.classList.contains('used')) return;
+        if (dragged === s) { clearSelection(); return; }
+        clearSelection();
+        dragged = s;
+        s.classList.add('selected');
+        sndPop();
+      });
+    });
+    document.querySelectorAll('.slot').forEach(slot => {
+      slot.addEventListener('click', () => {
+        if (dragged && dragged.classList.contains('sentence')) placeSentenceInSlot(dragged, slot);
+      });
+    });
+    document.querySelectorAll('.word').forEach(w => {
+      w.addEventListener('click', () => {
+        if (dragged === w) { clearSelection(); return; }
+        clearSelection();
+        dragged = w;
+        w.classList.add('selected');
+        sndPop();
+      });
+    });
+    document.querySelectorAll('.sort-box .sort-items').forEach(zone => {
+      zone.addEventListener('click', () => {
+        if (dragged && dragged.classList.contains('word')) placeWordInZone(dragged, zone);
+      });
+    });
+  }
+
+  /* ============================================================
+     POINTER DRAGGING — works with mouse, touch AND smart-TV
+     pointers (HTML5 drag-and-drop does NOT fire on touch)
+     ============================================================ */
+  function setupPointerDrag() {
+    document.querySelectorAll('.sentence, .word').forEach(item => {
+      item.addEventListener('pointerdown', e => {
+        if (item.classList.contains('used')) return;
+        dragEl = item;
+        startX = e.clientX; startY = e.clientY;
+        moved = false;
+      });
+    });
+    document.addEventListener('pointermove', e => {
+      if (!dragEl) return;
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      if (!moved && Math.hypot(dx, dy) < 12) return;   // small threshold: a tap stays a tap
+      if (!moved) {
+        moved = true;
+        dragEl.classList.add('dragging');
+        cloneEl = dragEl.cloneNode(true);
+        cloneEl.classList.remove('selected', 'dragging');
+        cloneEl.classList.add('drag-clone');
+        const r = dragEl.getBoundingClientRect();
+        cloneEl.style.width = r.width + 'px';
+        document.body.appendChild(cloneEl);
+        sndPop();
+      }
+      e.preventDefault();
+      cloneEl.style.left = (e.clientX + 12) + 'px';
+      cloneEl.style.top = (e.clientY - 10) + 'px';
+      const t = targetAt(e.clientX, e.clientY);
+      document.querySelectorAll('.slot.drag-over, .sort-items.drag-over')
+        .forEach(z => z.classList.remove('drag-over'));
+      if (t && ((t.kind === 'slot' && dragEl.classList.contains('sentence')) ||
+                (t.kind === 'zone' && dragEl.classList.contains('word')))) {
+        t.el.classList.add('drag-over');
+      }
+    }, { passive: false });
+    document.addEventListener('pointerup', e => {
+      if (!dragEl) return;
+      const item = dragEl;
+      dragEl = null;
+      document.querySelectorAll('.slot.drag-over, .sort-items.drag-over')
+        .forEach(z => z.classList.remove('drag-over'));
+      if (cloneEl) { cloneEl.remove(); cloneEl = null; }
+      if (!moved) return;                      // it was a tap — click handler deals with it
+      item.classList.remove('dragging');
+      const t = targetAt(e.clientX, e.clientY);
+      if (t && t.kind === 'slot' && item.classList.contains('sentence')) {
+        placeSentenceInSlot(item, t.el);
+      } else if (t && t.kind === 'zone' && item.classList.contains('word')) {
+        placeWordInZone(item, t.el);
+      }
+    });
+    document.addEventListener('pointercancel', () => {
+      if (cloneEl) { cloneEl.remove(); cloneEl = null; }
+      if (dragEl) dragEl.classList.remove('dragging');
+      dragEl = null;
+      document.querySelectorAll('.slot.drag-over, .sort-items.drag-over')
+        .forEach(z => z.classList.remove('drag-over'));
+    });
+  }
+
+  /* ============================================================
+     CLASSIC HTML5 DRAG (desktop mouse) — kept as a bonus path
+     ============================================================ */
+  function setupHtml5Drag() {
     document.querySelectorAll('.sentence').forEach(s => {
       s.addEventListener('dragstart', e => {
         dragged = s;
@@ -361,27 +593,9 @@
       slot.addEventListener('drop', e => {
         e.preventDefault();
         slot.classList.remove('drag-over');
-        if (!dragged || slot.classList.contains('correct')) return;
-        if (!dragged.classList.contains('sentence')) return;
-
-        const droppedText = dragged.textContent.trim();
-        const correct = slot.dataset.answer;
-
-        if (droppedText === correct) {
-          const tag = slot.querySelector('.tag').outerHTML;
-          slot.innerHTML = tag + ' ' + droppedText + ' ✅';
-          slot.classList.add('correct');
-          dragged.classList.add('used');
-        } else {
-          slot.classList.add('wrong');
-          setTimeout(() => slot.classList.remove('wrong'), 500);
-        }
+        placeSentenceInSlot(dragged, slot);
       });
     });
-  }
-  setupStoryDrag();
-
-  function setupSortDrag() {
     document.querySelectorAll('.word').forEach(w => {
       w.addEventListener('dragstart', () => { dragged = w; w.classList.add('dragging'); });
       w.addEventListener('dragend',   () => w.classList.remove('dragging'));
@@ -392,24 +606,26 @@
       zone.addEventListener('drop', e => {
         e.preventDefault();
         zone.classList.remove('drag-over');
-        if (!dragged || !dragged.classList.contains('word')) return;
-        if (dragged.dataset.lang === zone.dataset.lang) {
-          zone.appendChild(dragged);
-          checkSortDone();
-        } else {
-          dragged.classList.add('wrong-pop');
-          setTimeout(() => dragged.classList.remove('wrong-pop'), 500);
-        }
+        placeWordInZone(dragged, zone);
       });
     });
   }
+
+  setupTapTap();
+  setupPointerDrag();
+  setupHtml5Drag();
+
   function checkSortDone() {
     const remaining = document.getElementById('wordBank').querySelectorAll('.word').length;
-    if (remaining === 0) document.getElementById('sortSuccess').classList.add('show');
+    if (remaining === 0) {
+      sndOK();
+      confettiBurst(40);
+      document.getElementById('sortSuccess').classList.add('show');
+    }
   }
-  setupSortDrag();
 
   function resetCurrent() {
+    clearSelection();
     if (currentPage <= 4) {
       const page = document.querySelector(`.page[data-page="${currentPage}"]`);
       const slotsToReset = page.querySelectorAll('.slot');
@@ -420,7 +636,6 @@
         slot.innerHTML = tag + '<span class="placeholder">Drop here...</span>';
         slot.classList.remove('correct', 'wrong');
       });
-      // Restore ONE used sentence per answer (handles duplicates correctly)
       answersToRestore.forEach(answer => {
         const hidden = Array.from(document.querySelectorAll('.sentence.used'))
           .find(s => s.textContent.trim() === answer);
@@ -435,73 +650,6 @@
 </script>
 
 
-
-<!-- Bilingo sound FX: synthesized WebAudio, no asset files needed -->
-<style>
-.bilingo-redflash{position:fixed;inset:0;z-index:2147483647;pointer-events:none;background:rgba(229,57,53,.22);animation:bilingoFlash .45s ease-out forwards}
-@keyframes bilingoFlash{from{opacity:1}to{opacity:0}}
-.bilingo-shake{animation:bilingoShake .4s ease!important}
-@keyframes bilingoShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
-</style>
-<script>
-(function(){
-if(window.__bilingoSfx)return;window.__bilingoSfx=true;
-var CFG={GOOD:[".slot.correct", "#sortSuccess.show"],BAD:[".slot.wrong", ".word.wrong-pop"],DING:[],TICK:"",TAP:"button, .word"};
-var ctx=null,lastGood=0,lastBad=0,lastDing=0;
-function ac(){if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ctx&&ctx.state==='suspended')ctx.resume();return ctx}
-function tone(f,d,type,v,delay,slide){var c=ac();if(!c)return;var t=c.currentTime+(delay||0);var o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.05)}
-function gate(t,ms){var n=Date.now();if(n-t<ms)return 0;return n}
-function tap(){tone(950,.05,'sine',.05)}
-function good(){var t=gate(lastGood,120);if(!t)return;lastGood=t;[523.25,659.25,783.99,1046.5].forEach(function(f,i){tone(f,.18,'triangle',.18,i*.07)})}
-function ding(){var t=gate(lastDing,120);if(!t)return;lastDing=t;tone(880,.12,'sine',.12);tone(1318.5,.2,'sine',.09,.08)}
-function bad(){var t=gate(lastBad,120);if(!t)return;lastBad=t;tone(170,.3,'sawtooth',.15,0,85)}
-function tickS(){tone(1500,.03,'square',.035)}
-function redflash(){var d=document.createElement('div');d.className='bilingo-redflash';(document.body||document.documentElement).appendChild(d);setTimeout(function(){d.remove()},500);var b=document.body;if(!b)return;b.classList.remove('bilingo-shake');void b.offsetWidth;b.classList.add('bilingo-shake');setTimeout(function(){b.classList.remove('bilingo-shake')},450)}
-if(CFG.TAP){document.addEventListener('pointerdown',function(e){var t=e.target;if(t&&t.closest&&t.closest(CFG.TAP))tap()},true)}
-var fired=new Map();
-function scan(){
-CFG.GOOD.concat(CFG.BAD,CFG.DING).forEach(function(sel){
-document.querySelectorAll(sel).forEach(function(el){
-var rec=fired.get(el);if(!rec){rec={};fired.set(el,rec)}
-if(!rec[sel]){rec[sel]=1;
-if(CFG.GOOD.indexOf(sel)>=0)good();
-else if(CFG.DING.indexOf(sel)>=0)ding();
-else{bad();redflash()}}})});
-fired.forEach(function(rec,el){Object.keys(rec).forEach(function(sel){try{if(!el.matches(sel))delete rec[sel]}catch(e){delete rec[sel]}});if(!Object.keys(rec).length)fired.delete(el)})}
-var scanT=null;
-function schedule(){clearTimeout(scanT);scanT=setTimeout(scan,80)}
-var mo=new MutationObserver(function(muts){
-var need=false;
-for(var i=0;i<muts.length;i++){var m=muts[i];
-if(m.type==='attributes'){need=true}
-else if(m.type==='childList'){need=true;
-if(CFG.TICK&&m.addedNodes){for(var j=0;j<m.addedNodes.length;j++){var n=m.addedNodes[j];if(n&&n.matches&&n.matches(CFG.TICK))tickS()}}}}
-if(need)schedule()});
-mo.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
-})();
-</script>
-
-
-
-<style>
-  .bilingo-ui {
-    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-    font-family: system-ui, sans-serif;
-  }
-  .bilingo-ui button {
-    width: 48px; height: 48px; border: 0; border-radius: 14px;
-    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
-    display: grid; place-items: center; transition: background .15s, transform .15s;
-  }
-  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
-  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .85; }
-  .bilingo-ui .b-handle { display: none; }
-  .bilingo-ui.mini > *:not(.b-handle) { display: none; }
-  .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
-</style>
 
 
 <!-- Bilingo game controls: zoom + fullscreen toggle (auto-collapsing) -->
