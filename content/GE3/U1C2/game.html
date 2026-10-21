@@ -185,7 +185,7 @@ body{
 
 <div id="game">
   <div id="cornerBtns">
-    <button type="button" class="cbtn" id="moreBtn" title="Add more words">＋ more words</button>
+    <button type="button" class="cbtn" id="moreBtn" title="Switch difficulty">😈 Difficult</button>
     <button type="button" class="cbtn" id="endBtn" title="End the game">🏁 End</button>
   </div>
   <div id="counter"></div>
@@ -194,8 +194,8 @@ body{
     <div class="big-emoji">🍎🤔🍊</div>
     <h1>What's <span>this</span>?</h1>
     <p>Choose the right word — then sort <b>a</b> or <b>an</b>!</p>
-    <button type="button" class="mode class" id="startClass">🎒 Class Words<small>words from this unit + apple, orange, banana</small></button>
-    <button type="button" class="mode all" id="startAll">🚀 All the Words<small>everything — for kids who want a challenge</small></button>
+    <button type="button" class="mode class" id="startClass">😊 Easy</button>
+    <button type="button" class="mode all" id="startAll">😈 Difficult</button>
   </div>
 
   <div id="quiz">
@@ -247,6 +247,8 @@ const W=[
   {w:"pen",     e:"🖊️", a:"a",  lvl:0, bg:["#2d3436","#636e72"]},
   {w:"pencil",  e:"✏️", a:"a",  lvl:0, bg:["#fdcb6e","#e67e22"]},
   {w:"ruler",   e:"📏", a:"a",  lvl:0, bg:["#74b9ff","#0984e3"]},
+  {w:"pencil case",e:"🖍️", a:"a", lvl:0, img:"pencil case.png", bg:["#8e44ad","#9b59b6"]},
+  {w:"marker",    e:"🖊️", a:"a",  lvl:0, img:"marker.png", bg:["#e91e63","#c2185b"]},
   {w:"ice cream",e:"🍦",a:"an", lvl:1, bg:["#fdcb6e","#e17055"]},
   {w:"egg",     e:"🥚", a:"an", lvl:1, bg:["#ffeaa7","#dfe6e9"]},
   {w:"drum",    e:"🥁", a:"a",  lvl:1, bg:["#d63031","#e17055"]},
@@ -343,7 +345,7 @@ function startGame(withMore){
   titleEl.style.display='none';
   doneEl.style.display='none';nxtBtn.style.display='none';
   moreBtn.classList.toggle('on',withMore);
-  moreBtn.textContent=withMore?'🎒 class words':'＋ more words';
+  moreBtn.textContent=withMore?'😊 Easy':'😈 Difficult';
   quiz();
 }
 
@@ -365,7 +367,11 @@ function quiz(){
   nxtBtn.style.display='none';
   setBg(cur);
 
-  emojiEl.textContent=cur.e;
+  if(cur.img){
+    emojiEl.innerHTML=`<img src="${cur.img}" alt="${cur.w}" style="max-width:min(16rem,40vw);max-height:min(10rem,26vh);border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.18)" onerror="this.parentNode.textContent='${cur.e}'">`;
+  }else{
+    emojiEl.textContent=cur.e;
+  }
   emojiEl.style.animation='none';void emojiEl.offsetWidth;emojiEl.style.animation='';
 
   const pool3=shuf(pool.filter(w=>w.w!==cur.w)).slice(0,3);
