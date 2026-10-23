@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feed the Habit Monster! — GE7 U1C2 Adverbs of Frequency</title>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(160deg, #2b1055 0%, #7597de 100%);
+        min-height: 100vh;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow-x: hidden;
+    }
+    h1 {
+        color: white;
+        font-size: 1.6rem;
+        text-align: center;
+        text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+        margin-bottom: 2px;
+    }
+    .topbar {
+        width: 100%;
+        max-width: 680px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+    }
+    .progress { color: rgba(255,255,255,0.95); font-size: 0.9rem; font-weight: 700; }
+    .top-icons { display: flex; gap: 6px; align-items: center; }
+    .streak {
+        background: rgba(0,0,0,0.35);
+        color: #ffd54f;
+        border-radius: 20px;
+        padding: 4px 12px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        display: none;
+    }
+    .streak.show { display: block; animation: popIn 0.3s ease; }
+
+    /* ---------- MONSTER STAGE ---------- */
+    .stage {
+        width: 100%;
+        max-width: 680px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+    .monster-wrap {
+        position: relative;
+        flex-shrink: 0;
+    }
+    .monster {
+        font-size: 4.5rem;
+        display: inline-block;
+        transition: transform 0.2s;
+        animation: idleWiggle 2.4s ease-in-out infinite;
+        user-select: none;
+        filter: drop-shadow(0 6px 8px rgba(0,0,0,0.35));
+    }
+    @keyframes idleWiggle {
+        0%, 100% { transform: rotate(-4deg) translateY(0); }
+        50% { transform: rotate(4deg) translateY(-6px); }
+    }
+    .monster.happy { animation: happyJump 0.7s ease; }
+    @keyframes happyJump {
+        0% { transform: scale(1); }
+        30% { transform: scale(1.25) rotate(-10deg) translateY(-14px); }
+        60% { transform: scale(0.95) rotate(8deg); }
+        100% { transform: scale(1); }
+    }
+    .monster.eat { animation: chomp 0.6s ease; }
+    @keyframes chomp {
+        0% { transform: scale(1); }
+        40% { transform: scale(1.4, 0.7); }
+        70% { transform: scale(0.85, 1.2); }
+        100% { transform: scale(1); }
+    }
+    .monster.yuck { animation: yuckShake 0.8s ease; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.35)) hue-rotate(70deg) saturate(0.6); }
+    @keyframes yuckShake {
+        0%, 100% { transform: translateX(0) rotate(0); }
+        20% { transform: translateX(-10px) rotate(-12deg); }
+        40% { transform: translateX(10px) rotate(12deg); }
+        60% { transform: translateX(-8px) rotate(-8deg); }
+        80% { transform: translateX(8px) rotate(8deg); }
+    }
+    .monster.starve { animation: starveSway 1.6s ease-in-out infinite; opacity: 0.9; }
+    @keyframes starveSway {
+        0%, 100% { transform: rotate(-8deg); }
+        50% { transform: rotate(8deg) scale(0.96); }
+    }
+    .speech-bubble {
+        position: relative;
+        background: white;
+        border-radius: 16px;
+        padding: 10px 14px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #333;
+        flex: 1;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+        min-height: 46px;
+        display: flex;
+        align-items: center;
+    }
+    .speech-bubble::before {
+        content: '';
+        position: absolute;
+        left: -10px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 10px solid transparent;
+        border-right-color: white;
+        border-left: 0;
+    }
+    .speech-bubble em { color: #e65100; font-style: normal; font-weight: 800; }
+
+    /* fullness meter */
+    .fullness {
+        width: 100%;
+        max-width: 680px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    .fullness-label { color: white; font-size: 0.8rem; font-weight: 700; white-space: nowrap; }
+    .fullness-track {
+        flex: 1;
+        height: 16px;
+        background: rgba(0,0,0,0.35);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .fullness-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #ff9800, #ffeb3b, #4caf50);
+        border-radius: 10px;
+        transition: width 0.6s ease;
+    }
+
+    /* ---------- GAME CARD ---------- */
+    .game-container {
+        background: white;
+        border-radius: 20px;
+        padding: 18px;
+        max-width: 680px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+    .phase-label {
+        text-align: center;
+        font-size: 0.8rem;
+        color: #777;
+        margin-bottom: 8px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .emoji-clue {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 12px;
+        background: #f3f0ff;
+        border-radius: 15px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+    }
+    .emoji-person, .emoji-action { font-size: 2.4rem; }
+    .battery-container { display: flex; align-items: center; gap: 6px; }
+    .battery-emoji { font-size: 1.2rem; }
+    .battery {
+        width: 100px; height: 30px;
+        border: 3px solid #333; border-radius: 5px;
+        position: relative; background: #f1f1f1; overflow: hidden;
+    }
+    .battery::after {
+        content: '';
+        position: absolute;
+        right: -7px; top: 50%;
+        transform: translateY(-50%);
+        width: 4px; height: 14px;
+        background: #333; border-radius: 0 2px 2px 0;
+    }
+    .battery-fill { height: 100%; transition: width 0.5s ease; border-radius: 2px; }
+    .battery-fill.fill-0 { width: 0%; background: transparent; }
+    .battery-fill.fill-10 { width: 10%; background: #f44336; }
+    .battery-fill.fill-50 { width: 50%; background: #ff9800; }
+    .battery-fill.fill-90 { width: 90%; background: #8bc34a; }
+    .battery-fill.fill-100 { width: 100%; background: #4caf50; }
+    .battery-percent { font-size: 0.85rem; font-weight: 800; color: #333; min-width: 38px; }
+
+    .sentence-area {
+        min-height: 56px;
+        border: 3px dashed #bbb;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+        transition: all 0.3s;
+        background: #fafafa;
+    }
+    .sentence-area.drag-over { border-color: #7c4dff; background: #f3f0ff; }
+    .sentence-area.correct { border-color: #4CAF50; background: #e8f5e9; animation: popIn 0.3s ease; }
+    .sentence-area.wrong { border-color: #f44336; background: #ffebee; animation: shake 0.5s; }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-6px); }
+        75% { transform: translateX(6px); }
+    }
+    @keyframes popIn {
+        from { opacity: 0; transform: scale(0.85) translateY(8px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .word-bank-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        padding: 8px;
+        background: #f5f5f5;
+        border-radius: 10px;
+        margin-bottom: 8px;
+    }
+    .word {
+        padding: 8px 16px;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: grab;
+        user-select: none;
+        transition: transform 0.15s, opacity 0.2s;
+        border: 2px solid transparent;
+    }
+    .word:active { cursor: grabbing; transform: scale(1.08); }
+    .word.subject { background: #e3f2fd; color: #1565c0; border-color: #90caf9; }
+    .word.frequency { background: #fff3e0; color: #e65100; border-color: #ffcc80; }
+    .word.verb { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+    .word.placed { opacity: 0.25; cursor: default; }
+    .word.in-sentence { cursor: pointer; }
+
+    .big-btn {
+        display: block;
+        margin: 0 auto 12px;
+        padding: 11px 34px;
+        background: #7c4dff;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 0 #5e35b1;
+    }
+    .big-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #5e35b1; }
+    .big-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #5e35b1; }
+    .big-btn:disabled { background: #ccc; box-shadow: none; cursor: default; transform: none; }
+
+    /* sort phase */
+    .categories { display: none; gap: 10px; margin-bottom: 12px; }
+    .categories.show { display: flex; animation: popIn 0.4s ease; }
+    .category-box {
+        flex: 1;
+        padding: 14px 6px;
+        border-radius: 12px;
+        text-align: center;
+        font-weight: 800;
+        font-size: 0.85rem;
+        border: 3px dashed;
+        min-height: 78px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    .category-box.drag-over { transform: scale(1.06); }
+    .cat-good { background: #e8f5e9; border-color: #4CAF50; color: #2e7d32; }
+    .cat-okay { background: #fff8e1; border-color: #FFB300; color: #f57f17; }
+    .cat-bad { background: #ffebee; border-color: #f44336; color: #c62828; }
+    .category-box .cat-emoji { font-size: 1.6rem; margin-bottom: 4px; }
+    .category-box .cat-sub { font-size: 0.68rem; font-weight: 600; opacity: 0.8; margin-top: 2px; }
+
+    .feedback {
+        text-align: center;
+        font-size: 1.02rem;
+        font-weight: 700;
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        display: none;
+    }
+    .feedback.show { display: block; animation: popIn 0.3s ease; }
+    .feedback.correct { background: #e8f5e9; color: #2e7d32; }
+    .feedback.wrong { background: #ffebee; color: #c62828; }
+    .feedback.info { background: #e3f2fd; color: #1565c0; }
+
+    .next-btn {
+        display: none;
+        margin: 0 auto;
+        padding: 12px 36px;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #388e3c;
+        transition: all 0.2s;
+    }
+    .next-btn.show { display: block; animation: popIn 0.4s ease; }
+    .next-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #388e3c; }
+
+    /* say-it phase */
+    .sayit-area { display: none; text-align: center; }
+    .sayit-area.show { display: block; animation: popIn 0.4s ease; }
+    .sayit-sentence {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #4a148c;
+        background: #f3f0ff;
+        border-radius: 14px;
+        padding: 14px;
+        margin-bottom: 12px;
+        line-height: 1.5;
+    }
+    .sayit-sentence .freq { color: #e65100; }
+    .sayit-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .sayit-btn {
+        padding: 12px 22px;
+        border-radius: 25px;
+        border: none;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.15s;
+    }
+    .sayit-btn:hover { transform: translateY(-2px) scale(1.03); }
+    .btn-said { background: #66bb6a; color: white; box-shadow: 0 4px 0 #388e3c; }
+
+    /* scoreboard */
+    .score-board { display: none; text-align: center; padding: 20px 10px; }
+    .score-board.show { display: block; animation: popIn 0.5s ease; }
+    .score-board h2 { font-size: 1.7rem; color: #333; margin-bottom: 8px; }
+    .score-board .big-emoji { font-size: 4rem; margin-bottom: 10px; }
+    .score-board .score-text { font-size: 1.15rem; color: #555; margin-bottom: 6px; }
+    .score-board .rank { font-size: 1.3rem; font-weight: 800; color: #7c4dff; margin-bottom: 14px; }
+    .collected-habits {
+        margin-top: 12px;
+        padding: 14px;
+        background: #f5f5f5;
+        border-radius: 12px;
+        text-align: left;
+    }
+    .collected-habits h3 { font-size: 0.9rem; color: #666; margin-bottom: 8px; text-align: center; }
+    .habit-list { display: flex; flex-direction: column; gap: 5px; }
+    .habit-item { font-size: 0.88rem; padding: 6px 10px; border-radius: 8px; }
+    .habit-item.good { background: #e8f5e9; color: #2e7d32; }
+    .habit-item.okay { background: #fff8e1; color: #f57f17; }
+    .habit-item.bad { background: #ffebee; color: #c62828; }
+    .restart-btn {
+        margin-top: 14px;
+        padding: 12px 36px;
+        background: #7c4dff;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #5e35b1;
+    }
+    .restart-btn:hover { transform: translateY(-2px); }
+
+    .help-note {
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.75);
+        margin-top: 10px;
+        text-align: center;
+        max-width: 680px;
+    }
+    .confetti-particle {
+        position: fixed;
+        width: 10px; height: 10px;
+        pointer-events: none;
+        z-index: 999;
+        border-radius: 2px;
+    }
+
+    /* ---------- FULL MONSTER FINALE ---------- */
+    .finale {
+        position: fixed; inset: 0; z-index: 1000;
+        background: radial-gradient(circle at 50% 40%, #4a148c, #16022e 78%);
+        display: none; align-items: center; justify-content: center; flex-direction: column;
+        overflow: hidden; text-align: center; padding: 20px;
+    }
+    .finale.show { display: flex; }
+    .finale-monster {
+        font-size: 6rem; line-height: 1;
+        filter: drop-shadow(0 10px 30px rgba(0,0,0,0.6));
+        animation: devour 3s ease-in forwards, idleWiggle 2.4s ease-in-out 3s infinite;
+    }
+    @keyframes devour {
+        0% { transform: scale(1); }
+        35% { transform: scale(2.4); }
+        70% { transform: scale(5); }
+        100% { transform: scale(13); }
+    }
+    .finale-text {
+        color: #fff; font-size: clamp(1.25rem, 4.5vw, 2.1rem); font-weight: 800;
+        max-width: 660px; margin-top: 26px; opacity: 0;
+        animation: finaleFade 0.7s ease 2.2s forwards;
+        text-shadow: 2px 2px 12px rgba(0,0,0,0.55);
+    }
+    .finale-text b { color: #ff5252; }
+    .finale-btn { opacity: 0; animation: finaleFade 0.7s ease 3.4s forwards; margin-top: 28px; }
+    @keyframes finaleFade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 480px) {
+        .game-container { padding: 14px; }
+        .word { padding: 6px 12px; font-size: 0.9rem; }
+        .emoji-person, .emoji-action { font-size: 2rem; }
+        .monster { font-size: 3.4rem; }
+        .battery { width: 80px; height: 24px; }
+        h1 { font-size: 1.3rem; }
+    }
+</style>
+</head>
+<body>
+    <h1>🍔 Feed the Habit Monster! 🍔</h1>
+    <div class="topbar">
+        <div class="progress" id="progress">Round 1 / 12</div>
+        <div class="top-icons">
+            <div class="streak" id="streak">🔥 x1</div>
+        </div>
+    </div>
+
+    <div class="stage">
+        <div class="monster-wrap"><div class="monster" id="monster">👾</div></div>
+        <div class="speech-bubble" id="bubble">FEED ME! Build the sentence first! <em>*grumble grumble*</em></div>
+    </div>
+
+    <div class="fullness">
+        <span class="fullness-label">MONSTER FULLNESS</span>
+        <div class="fullness-track"><div class="fullness-fill" id="fullnessFill"></div></div>
+        <span class="fullness-label" id="fullnessPct">0%</span>
+    </div>
+
+    <div class="game-container" id="gameContainer">
+        <div class="phase-label" id="buildLabel">👇 Tap or drag the words to build the sentence</div>
+        <div class="emoji-clue" id="emojiClue"></div>
+
+        <div class="sentence-area" id="sentenceArea"></div>
+
+        <div id="wordBankContainer">
+            <div class="word-bank-section" id="subjectBank"></div>
+            <div class="word-bank-section" id="freqBank"></div>
+            <div class="word-bank-section" id="verbBank"></div>
+        </div>
+
+        <button class="big-btn" id="checkBtn" onclick="checkSentence()" disabled>Check ✓</button>
+
+        <div class="categories" id="categories">
+            <div class="category-box cat-good" data-cat="good">
+                <span class="cat-emoji">😋</span>
+                YUMMY!
+                <span class="cat-sub">good habit</span>
+            </div>
+            <div class="category-box cat-okay" data-cat="okay">
+                <span class="cat-emoji">😐</span>
+                MEH...
+                <span class="cat-sub">okay habit</span>
+            </div>
+            <div class="category-box cat-bad" data-cat="bad">
+                <span class="cat-emoji">🤢</span>
+                BLECH!
+                <span class="cat-sub">bad habit</span>
+            </div>
+        </div>
+
+        <div class="sayit-area" id="sayitArea">
+            <div class="phase-label">🗣️ SAY IT! Make the monster hear you!</div>
+            <div class="sayit-sentence" id="sayitSentence"></div>
+            <div class="sayit-buttons">
+                <button class="sayit-btn btn-said" onclick="saidIt()">⭐ We said it!</button>
+            </div>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+        <button class="next-btn" id="nextBtn" onclick="nextRound()">Next →</button>
+
+        <div class="score-board" id="scoreBoard">
+            <div class="big-emoji" id="finalEmoji">🎉</div>
+            <h2 id="finalTitle">Great Job!</h2>
+            <div class="score-text" id="finalScore"></div>
+            <div class="rank" id="finalRank"></div>
+            <div class="collected-habits" id="collectedHabits">
+                <h3>All the habits you fed the monster:</h3>
+                <div class="habit-list" id="habitList"></div>
+            </div>
+            <button class="restart-btn" onclick="restartGame()">Play Again 🔄</button>
+        </div>
+    </div>
+
+    <div class="help-note">💡 Class idea: pairs — Student A builds the sentence, Student B sorts it, then BOTH say it out loud. Swap roles every round!</div>
+
+    <div class="finale" id="finale">
+        <div class="finale-monster" id="finaleMonster">👾</div>
+        <div class="finale-text" id="finaleText">I'M FULL! ...Now I have enough energy to <b>EAT YOU</b>! HAHAHAHA! 😈</div>
+        <button class="restart-btn finale-btn" id="finaleBtn" onclick="restartGame()">Play Again 🔄</button>
+    </div>
+
+<script>
+/* ================= DATA ================= */
+const rounds = [
+    { person:'👧', subject:'She', freqPercent:100, freqWord:'always', actionEmoji:'🏫🎒', verb:'goes to school', distractorVerbs:['does yoga','cries'], correctCategory:'good' },
+    { person:'👦', subject:'He', freqPercent:0, freqWord:'never', actionEmoji:'💪🏋️', verb:'exercises', distractorVerbs:['practices kung fu','jogs in the park'], correctCategory:'bad' },
+    { person:'👴', subject:'Grandpa', freqPercent:90, freqWord:'usually', actionEmoji:'🕺🍳', verb:'dances in the kitchen', distractorVerbs:['sleeps in class','reads a book'], correctCategory:'okay' },
+    { person:'👩‍🏫', subject:'The teacher', freqPercent:0, freqWord:'never', actionEmoji:'😴📚', verb:'sleeps in class', distractorVerbs:['dances on tables','eats chalk'], correctCategory:'good' },
+    { person:'🧑', subject:'He', freqPercent:50, freqWord:'often', actionEmoji:'🐈💬', verb:'talks to his cat', distractorVerbs:['does his homework','cleans his room'], correctCategory:'okay' },
+    { person:'👧', subject:'She', freqPercent:90, freqWord:'usually', actionEmoji:'📖🌙', verb:'reads a book before bed', distractorVerbs:['plays computer games all night','watches TV'], correctCategory:'good' },
+    { person:'👦', subject:'He', freqPercent:100, freqWord:'always', actionEmoji:'🎤🚿', verb:'sings in the shower', distractorVerbs:['brushes his teeth','does his homework'], correctCategory:'okay' },
+    { person:'👵', subject:'Grandma', freqPercent:0, freqWord:'never', actionEmoji:'🥟🙅', verb:'shares her dumplings', distractorVerbs:['cooks noodles','drinks tea'], correctCategory:'bad' },
+    { person:'👫', subject:'They', freqPercent:50, freqWord:'often', actionEmoji:'🥋👊', verb:'practice kung fu', distractorVerbs:['copy Chinese characters','cry'], correctCategory:'good' },
+    { person:'🧑', subject:'He', freqPercent:10, freqWord:'rarely', actionEmoji:'🥦😖', verb:'eats vegetables', distractorVerbs:['eats fruit','drinks water'], correctCategory:'bad' },
+    { person:'🐕', subject:'The dog', freqPercent:90, freqWord:'usually', actionEmoji:'🧘‍♂️🐾', verb:'does yoga', distractorVerbs:['barks at the mailman','chases its tail'], correctCategory:'okay' },
+    { person:'👦', subject:'He', freqPercent:100, freqWord:'always', actionEmoji:'😭🦷', verb:'cries at the dentist', distractorVerbs:['brushes his teeth','smiles'], correctCategory:'bad' }
+];
+
+const goodFeedLines = ['YUM YUM YUM! 😋','MORE! MORE!','That habit is DELICIOUS!','*happy monster noises*','My tummy says THANK YOU!'];
+const badFeedLines = ['BLECH!! 🤮','Are you trying to poison me?!','I demand GOOD habits!','*barf* ... I mean, no thanks.','My stomach says NO NO NO!'];
+const okayFeedLines = ['Meh. I\'ve had better. 😑','It\'s... edible. I guess.','Not yum, not yuck. Weird.','I\'ll eat it, but I\'m not happy.'];
+const idleLines = ['FEED ME! *grumble grumble*','I\'m HUNGRY! Build the sentence!','My tummy is growling... 🍽️','Hurry! I want a yummy habit!'];
+
+/* ================= STATE ================= */
+let currentRound = 0;
+let score = 0;
+let phase = 'build';       // build -> sort -> sayit -> done
+let sentenceWords = [];
+let sortedHabits = [];
+let draggedWord = null;
+let streak = 0;
+let bestStreak = 0;
+
+/* ================= HELPERS ================= */
+/* === SOUND KIT (added Oct 2026) === */
+let _AC=null;
+function _ac(){if(!_AC)_AC=new(window.AudioContext||window.webkitAudioContext)();if(_AC.state==='suspended')_AC.resume();return _AC}
+function _t(f,type,dur,vol,del){const c=_ac(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(vol,c.currentTime+del);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+del+dur);o.connect(g);g.connect(c.destination);o.start(c.currentTime+del);o.stop(c.currentTime+del+dur)}
+function tone(f,type,dur,vol=.2,del=0){try{_t(f,type,dur,vol,del)}catch(e){}}
+function sndOK(){tone(523,'sine',.18,.22);tone(659,'sine',.18,.22,.09);tone(784,'sine',.25,.28,.18);tone(1047,'sine',.35,.18,.3)}
+function sndNo(){tone(160,'square',.35,.18);tone(120,'sawtooth',.25,.12,.12)}
+function sndPop(){try{const c=_ac(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(600,c.currentTime);o.frequency.exponentialRampToValueAtTime(1300,c.currentTime+.07);g.gain.setValueAtTime(.13,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.12);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.12)}catch(e){}}
+function sndNext(){try{const c=_ac(),o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.setValueAtTime(350,c.currentTime);o.frequency.exponentialRampToValueAtTime(900,c.currentTime+.12);g.gain.setValueAtTime(.1,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.18);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.18)}catch(e){}}
+
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function getPercentClass(pct) {
+    if (pct === 0) return 'fill-0';
+    if (pct === 10) return 'fill-10';
+    if (pct === 50) return 'fill-50';
+    if (pct === 90) return 'fill-90';
+    return 'fill-100';
+}
+function showFeedback(cls, text) {
+    const f = document.getElementById('feedback');
+    f.className = 'feedback show ' + cls;
+    f.textContent = text;
+}
+function monsterSay(html) { document.getElementById('bubble').innerHTML = html; }
+function monsterAnim(cls) {
+    const m = document.getElementById('monster');
+    m.classList.remove('happy','eat','yuck');
+    void m.offsetWidth;
+    m.classList.add(cls);
+    setTimeout(()=>m.classList.remove(cls), 900);
+}
+function updateFullness() {
+    /* 10 correct answers fill the monster; mistakes just don't move it */
+    const pct = Math.min(Math.round(score / 10 * 100), 100);
+    document.getElementById('fullnessFill').style.width = pct + '%';
+    document.getElementById('fullnessPct').textContent = pct + '%';
+}
+function confetti(n) {
+    const colors = ['#f44336','#ff9800','#ffeb3b','#4caf50','#29b6f6','#ab47bc','#ec407a'];
+    for (let i = 0; i < n; i++) {
+        const p = document.createElement('div');
+        p.className = 'confetti-particle';
+        p.style.background = pick(colors);
+        p.style.left = (45 + Math.random()*10) + '%';
+        p.style.top = '20%';
+        document.body.appendChild(p);
+        const vx = (Math.random() - 0.5) * 14;
+        let vy = -(4 + Math.random() * 9);
+        let x = 0, y = 0, g = 0.45, life = 0;
+        const spin = (Math.random() - 0.5) * 30;
+        function tick() {
+            life++;
+            x += vx; vy += g; y += vy;
+            p.style.transform = `translate(${x}px, ${y}px) rotate(${life*spin/3}deg)`;
+            p.style.opacity = Math.max(0, 1 - life/70);
+            if (life < 70) requestAnimationFrame(tick);
+            else p.remove();
+        }
+        requestAnimationFrame(tick);
+    }
+}
+
+/* ================= ROUND FLOW ================= */
+function initRound() {
+    const r = rounds[currentRound];
+    phase = 'build';
+    sentenceWords = [];
+
+    document.getElementById('progress').textContent = `Round ${currentRound + 1} / ${rounds.length}`;
+    document.getElementById('categories').classList.remove('show');
+    document.getElementById('sayitArea').classList.remove('show');
+    document.getElementById('feedback').classList.remove('show');
+    document.getElementById('nextBtn').classList.remove('show');
+    document.getElementById('checkBtn').style.display = 'block';
+    document.getElementById('checkBtn').disabled = true;
+    document.getElementById('buildLabel').style.display = 'block';
+    document.getElementById('wordBankContainer').style.display = 'block';
+    document.getElementById('scoreBoard').classList.remove('show');
+    updateFullness();
+
+    monsterSay(pick(idleLines));
+    const m = document.getElementById('monster');
+    m.classList.remove('starve'); void m.offsetWidth; m.classList.add('starve');
+
+    // emoji clue with battery
+    const emojiClue = document.getElementById('emojiClue');
+    emojiClue.innerHTML = `
+        <span class="emoji-person">${r.person}</span>
+        <div class="battery-container">
+            <span class="battery-emoji">😴</span>
+            <div class="battery"><div class="battery-fill ${getPercentClass(r.freqPercent)}"></div></div>
+            <span class="battery-emoji">⚡</span>
+            <span class="battery-percent">${r.freqPercent}%</span>
+        </div>
+        <span class="emoji-action">${r.actionEmoji}</span>
+    `;
+
+    const sentenceArea = document.getElementById('sentenceArea');
+    sentenceArea.innerHTML = '';
+    sentenceArea.className = 'sentence-area';
+
+    // subject bank
+    const subjects = r.subject === 'They' ? shuffle(['He','She','They']) : (r.subject === 'He' || r.subject === 'She') ? shuffle(['He','She']) : shuffle([r.subject, pick(['The teacher','Grandpa','Grandma','The dog'].filter(x => x !== r.subject))]);
+    const subjectBank = document.getElementById('subjectBank');
+    subjectBank.innerHTML = '';
+    subjects.forEach(s => subjectBank.appendChild(createWordEl(s, 'subject')));
+
+    // frequency bank — always in scale order (it IS the scale!)
+    const freqBank = document.getElementById('freqBank');
+    freqBank.innerHTML = '';
+    ['never','rarely','often','usually','always'].forEach(f => freqBank.appendChild(createWordEl(f, 'frequency')));
+
+    // verb bank
+    const verbBank = document.getElementById('verbBank');
+    verbBank.innerHTML = '';
+    shuffle([r.verb, ...r.distractorVerbs]).forEach(v => verbBank.appendChild(createWordEl(v, 'verb')));
+}
+
+function createWordEl(text, type) {
+    const el = document.createElement('div');
+    el.className = `word ${type}`;
+    el.textContent = text;
+    el.draggable = true;
+    el.dataset.text = text;
+    el.dataset.type = type;
+
+    el.addEventListener('dragstart', (e) => {
+        if (el.classList.contains('placed')) return e.preventDefault();
+        draggedWord = el;
+        e.dataTransfer.setData('text/plain', text);
+        setTimeout(() => el.style.opacity = '0.5', 0);
+    });
+    el.addEventListener('dragend', () => { el.style.opacity = ''; draggedWord = null; });
+    el.addEventListener('touchstart', handleTouchStart, {passive:false});
+    el.addEventListener('touchmove', handleTouchMove, {passive:false});
+    el.addEventListener('touchend', handleTouchEnd, {passive:false});
+    el.addEventListener('click', () => {
+        if (el.classList.contains('placed') && !el.classList.contains('in-sentence')) return;
+        if (el.classList.contains('in-sentence')) removeFromSentence(el);
+        else if (!el.classList.contains('placed')) addToSentence(el);
+    });
+    return el;
+}
+
+let touchSource = null;
+function handleTouchStart(e) {
+    const el = e.currentTarget;
+    if (el.classList.contains('placed') && !el.classList.contains('in-sentence')) return;
+    if (el.classList.contains('in-sentence')) { removeFromSentence(el); return; }
+    touchSource = el; e.preventDefault();
+}
+function handleTouchMove(e) { e.preventDefault(); }
+function handleTouchEnd(e) {
+    if (touchSource && !touchSource.classList.contains('placed')) addToSentence(touchSource);
+    touchSource = null;
+}
+
+function addToSentence(el) {
+    sndPop();
+    if (phase !== 'build') return;
+    const type = el.dataset.type;
+    const existing = sentenceWords.find(w => w.type === type);
+    if (existing) removeFromSentence(existing.el);
+    el.classList.add('placed');
+    const clone = document.createElement('div');
+    clone.className = `word ${type} in-sentence`;
+    clone.textContent = el.dataset.text;
+    clone.dataset.text = el.dataset.text;
+    clone.dataset.type = type;
+    clone.addEventListener('click', () => removeFromSentence(clone));
+    sentenceWords.push({text: el.dataset.text, type, el: clone, source: el});
+    sentenceWords.sort((a,b) => ({subject:0,frequency:1,verb:2}[a.type] - {subject:0,frequency:1,verb:2}[b.type]));
+    renderSentenceArea();
+    updateCheckBtn();
+}
+
+function removeFromSentence(cloneEl) {
+    if (phase !== 'build') return;
+    const idx = sentenceWords.findIndex(w => w.el === cloneEl);
+    if (idx > -1) {
+        sentenceWords[idx].source.classList.remove('placed');
+        sentenceWords.splice(idx, 1);
+    }
+    renderSentenceArea();
+    updateCheckBtn();
+}
+
+function renderSentenceArea() {
+    const sa = document.getElementById('sentenceArea');
+    sa.innerHTML = '';
+    sentenceWords.forEach(w => sa.appendChild(w.el));
+}
+function updateCheckBtn() {
+    document.getElementById('checkBtn').disabled = sentenceWords.length !== 3;
+}
+
+const sentenceArea = document.getElementById('sentenceArea');
+sentenceArea.addEventListener('dragover', e => { e.preventDefault(); sentenceArea.classList.add('drag-over'); });
+sentenceArea.addEventListener('dragleave', () => sentenceArea.classList.remove('drag-over'));
+sentenceArea.addEventListener('drop', e => {
+    e.preventDefault();
+    sentenceArea.classList.remove('drag-over');
+    if (draggedWord) addToSentence(draggedWord);
+});
+
+function checkSentence() {
+    const r = rounds[currentRound];
+    const built = sentenceWords.map(w => w.text).join(' ');
+    const correct = `${r.subject} ${r.freqWord} ${r.verb}`;
+    const sa = document.getElementById('sentenceArea');
+    if (built === correct) {
+        sa.classList.add('correct');
+        monsterAnim('happy');
+        monsterSay('Ooh! A sentence! Now — <em>feed me the habit!</em> 🍽️');
+        confetti(18); sndOK();
+        phase = 'sort';
+        document.getElementById('checkBtn').style.display = 'none';
+        document.getElementById('buildLabel').style.display = 'none';
+        document.getElementById('wordBankContainer').style.display = 'none';
+        document.getElementById('categories').classList.add('show');
+        setupCategoryDrop();
+    } else {
+        sa.classList.add('wrong');
+        monsterAnim('yuck'); sndNo();
+        monsterSay('That sentence tastes WRONG! Try again! 🤢');
+        setTimeout(() => sa.classList.remove('wrong'), 600);
+    }
+}
+
+function setupCategoryDrop() {
+    document.querySelectorAll('.category-box').forEach(cat => {
+        cat.onclick = () => categorize(cat.dataset.cat);
+        cat.addEventListener('dragover', e => { e.preventDefault(); cat.classList.add('drag-over'); });
+        cat.addEventListener('dragleave', () => cat.classList.remove('drag-over'));
+        cat.addEventListener('drop', e => { e.preventDefault(); cat.classList.remove('drag-over'); categorize(cat.dataset.cat); });
+    });
+}
+
+function categorize(chosenCat) {
+    const r = rounds[currentRound];
+    const f = document.getElementById('feedback');
+    f.classList.add('show');
+
+    if (chosenCat === r.correctCategory) {
+        score++;
+        streak++;
+        bestStreak = Math.max(bestStreak, streak);
+        updateStreak();
+        updateFullness();
+        f.className = 'feedback show correct';
+        f.textContent = '✅ Correct! ' + (r.correctCategory === 'good' ? 'That IS yummy!' : r.correctCategory === 'bad' ? 'Right — even monsters refuse that!' : 'Yep, just... meh.');
+        monsterAnim('eat'); sndOK();
+        if (r.correctCategory === 'good') { monsterSay(pick(goodFeedLines)); }
+        else if (r.correctCategory === 'bad') { monsterSay(pick(badFeedLines)); }
+        else { monsterSay(pick(okayFeedLines)); }
+    } else {
+        streak = 0; updateStreak();
+        f.className = 'feedback show wrong';
+        f.textContent = '❌ Hmm! The monster thinks it\'s ' + (r.correctCategory === 'good' ? 'YUMMY' : r.correctCategory === 'bad' ? 'BLECH' : 'MEH') + '!';
+        monsterAnim('yuck'); sndNo();
+        monsterSay('Wrong flavour! But I still ate it... 😒');
+    }
+
+    sortedHabits.push({ sentence: `${r.subject} ${r.freqWord} ${r.verb}.`, category: r.correctCategory });
+
+    document.getElementById('categories').classList.remove('show');
+    document.querySelectorAll('.category-box').forEach(c => c.onclick = null);
+
+    if (score >= 10) {
+        phase = 'done';
+        setTimeout(monsterFullFinale, 1500);
+        return;
+    }
+
+    phase = 'sayit';
+    const sayEl = document.getElementById('sayitSentence');
+    sayEl.innerHTML = `${r.subject} <span class="freq">${r.freqWord}</span> ${r.verb}.`;
+    document.getElementById('sayitArea').classList.add('show');
+    monsterSay('Now <em>SAY IT</em>! The louder, the better! 🗣️');
+}
+
+function updateStreak() {
+    const s = document.getElementById('streak');
+    if (streak >= 2) { s.textContent = '🔥 x' + streak; s.classList.add('show'); }
+    else s.classList.remove('show');
+}
+
+function saidIt() {
+    sndPop();
+    if (phase !== 'sayit') return;
+    monsterSay('⭐ Star earned! Next habit, please!');
+    document.getElementById('nextBtn').classList.add('show');
+    document.getElementById('sayitArea').classList.remove('show');
+    document.getElementById('feedback').classList.remove('show');
+    phase = 'done';
+}
+
+function nextRound() {
+    sndNext();
+    currentRound++;
+    if (currentRound >= rounds.length) showFinalScore();
+    else initRound();
+}
+
+function showFinalScore() {
+    document.getElementById('progress').style.display = 'none';
+    document.getElementById('emojiClue').style.display = 'none';
+    document.getElementById('buildLabel').style.display = 'none';
+    document.getElementById('sentenceArea').style.display = 'none';
+    document.getElementById('wordBankContainer').style.display = 'none';
+    document.getElementById('checkBtn').style.display = 'none';
+    document.getElementById('categories').classList.remove('show');
+    document.getElementById('sayitArea').classList.remove('show');
+    document.getElementById('feedback').classList.remove('show');
+    document.getElementById('nextBtn').classList.remove('show');
+    document.getElementById('fullnessFill').style.width = '100%';
+    document.getElementById('fullnessPct').textContent = '100%';
+
+    const board = document.getElementById('scoreBoard');
+    board.classList.add('show');
+    confetti(80);
+
+    const pct = score / rounds.length;
+    document.getElementById('monster').classList.remove('starve');
+    document.getElementById('monster').textContent = '🥳';
+    monsterSay('Tasty... but I\'m still HUNGRY! Feed me again! 👾');
+
+    let emoji, title, rank;
+    if (pct >= 0.9) { emoji='🏆🌟'; title='MONSTER MASTER!'; rank='Official Habit Chef of the Year'; }
+    else if (pct >= 0.75) { emoji='🎉'; title='Fantastic Feeding!'; rank='Senior Habit Chef'; }
+    else if (pct >= 0.5) { emoji='👏'; title='Good Job!'; rank='Habit Chef in Training'; }
+    else { emoji='💪'; title='The monster is still hungry...'; rank='Junior Snack Apprentice — play again!'; }
+    document.getElementById('finalEmoji').textContent = emoji;
+    document.getElementById('finalTitle').textContent = title;
+    document.getElementById('finalScore').textContent = `You sorted ${score} out of ${rounds.length} habits correctly!`;
+    document.getElementById('finalRank').textContent = `Rank: ${rank}` + (bestStreak >= 3 ? ` • Best streak: 🔥x${bestStreak}` : '');
+
+    const habitList = document.getElementById('habitList');
+    habitList.innerHTML = '';
+    sortedHabits.forEach(h => {
+        const div = document.createElement('div');
+        div.className = `habit-item ${h.category}`;
+        const e = h.category === 'good' ? '😋' : h.category === 'bad' ? '🤢' : '😐';
+        div.textContent = `${e} ${h.sentence}`;
+        habitList.appendChild(div);
+    });
+}
+
+/* ================= FULL MONSTER FINALE ================= */
+function monsterFullFinale() {
+    phase = 'done';
+    document.getElementById('categories').classList.remove('show');
+    document.getElementById('sayitArea').classList.remove('show');
+    document.getElementById('feedback').classList.remove('show');
+    document.getElementById('nextBtn').classList.remove('show');
+    document.getElementById('fullnessFill').style.width = '100%';
+    document.getElementById('fullnessPct').textContent = '100%';
+    document.getElementById('monster').classList.remove('starve');
+    monsterSay('I\'M FULL! ...Now I have enough energy to <em>EAT YOU</em>! HAHAHAHA! 😈');
+    confetti(80);
+    const f = document.getElementById('finale');
+    const fm = document.getElementById('finaleMonster');
+    const ft = document.getElementById('finaleText');
+    const fb = document.getElementById('finaleBtn');
+    [fm, ft, fb].forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
+    f.classList.add('show');
+}
+
+function restartGame() {
+    document.getElementById('finale').classList.remove('show');
+    currentRound = 0; score = 0; streak = 0; bestStreak = 0; sortedHabits = [];
+    updateStreak();
+    document.getElementById('monster').textContent = '👾';
+    document.getElementById('progress').style.display = '';
+    document.getElementById('emojiClue').style.display = '';
+    document.getElementById('sentenceArea').style.display = '';
+    document.getElementById('wordBankContainer').style.display = '';
+    initRound();
+}
+
+initRound();
+</script>
+
+<!-- Bilingo game controls: zoom + fullscreen toggle (auto-collapsing) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .85; }
+  .bilingo-ui .b-handle { display: none; }
+  .bilingo-ui.mini > *:not(.b-handle) { display: none; }
+  .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-handle" title="Show controls" aria-label="Show controls">⚙️</button>
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom';
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() {
+    z = Math.max(MIN, Math.round((z - STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function grow() {
+    z = Math.min(MAX, Math.round((z + STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+  }
+
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.remove('mini');
+    poke();
+  });
+
+  // Collapse to just the handle after 5s without interaction, so the bar
+  // never sits on top of the game's own buttons.
+  var idleTimer = null;
+  function poke() {
+    bar.classList.remove('mini');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.add('mini'); }, 5000);
+  }
+  bar.addEventListener('pointerdown', poke);
+  poke();
+  apply();
+})();
+</script>
+
+</body>
+</html>

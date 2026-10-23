@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fruit Mystery — What fruit do you like?</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  color:#fff;padding:10px 12px 30px;overflow-x:hidden;
+  background:linear-gradient(135deg,#006266,#0a3d62 60%,#1e3799);
+}
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+.topbar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:860px;margin-bottom:6px;gap:8px}
+h1{font-size:clamp(1.1em,3.4vw,1.8em);text-shadow:2px 2px 8px rgba(0,0,0,.3)}
+.top-right{display:flex;gap:8px;align-items:center}
+.rc{background:rgba(255,255,255,.22);padding:4px 16px;border-radius:20px;font-size:.85em;font-weight:700;white-space:nowrap}
+.sndbtn{background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.4);border-radius:20px;padding:4px 14px;font-size:1em;cursor:pointer;user-select:none}
+.sndbtn.off{opacity:.45;filter:grayscale(1)}
+
+.stage{
+  width:100%;max-width:860px;position:relative;
+  background:linear-gradient(180deg,#006266,#004445);
+  border:3px solid #f9ca24;border-radius:24px;
+  padding:32px 14px 16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+}
+.stall{position:absolute;top:0;left:0;right:0;height:26px;overflow:hidden;border-radius:21px 21px 0 0;
+  background:repeating-linear-gradient(90deg,#ee5253 0 34px,#f7f1e3 34px 68px);opacity:.9}
+
+.banner{
+  width:100%;max-width:660px;margin:0 auto 8px;min-height:62px;
+  background:rgba(255,255,255,.1);border:2px dashed rgba(255,255,255,.35);
+  border-radius:18px;padding:10px 16px;text-align:center;
+  display:flex;flex-direction:column;justify-content:center;gap:4px;
+  font-size:clamp(.95em,2.4vw,1.45em);font-weight:900;line-height:1.35;transition:.35s;
+}
+.banner.solid{border-style:solid;border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.16)}
+.banner .row{animation:fadeUp .35s ease-out;line-height:1.5}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.banner.bigquestion{font-size:clamp(1.3em,4vw,2.2em);border-color:#f9ca24;background:rgba(249,202,36,.14)}
+
+.prompt{
+  text-align:center;font-size:clamp(.85em,2.2vw,1.05em);font-weight:700;
+  color:rgba(255,255,255,.92);margin:0 0 8px;min-height:1.6em;
+  text-shadow:1px 1px 4px rgba(0,0,0,.2);
+}
+
+.mainbtn{
+  display:block;margin:2px auto 10px;
+  padding:13px 40px;font-size:clamp(1em,2.6vw,1.2em);font-weight:900;
+  background:linear-gradient(135deg,#f9ca24,#f0932b);color:#004445;
+  border:none;border-radius:50px;cursor:pointer;font-family:'Nunito',sans-serif;
+  box-shadow:0 8px 26px rgba(249,202,36,.4);transition:all .25s;
+  animation:glow 2s ease-in-out infinite;
+}
+.mainbtn:hover{transform:scale(1.06)}
+.mainbtn:active{transform:scale(.97)}
+.mainbtn.hide{display:none}
+.mainbtn.green{background:linear-gradient(135deg,#34d399,#10b981);color:#022c22;box-shadow:0 8px 26px rgba(16,185,129,.4)}
+@keyframes glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
+
+/* ---------- the three boxes ---------- */
+.boxes{display:flex;justify-content:center;align-items:stretch;gap:10px;width:100%;max-width:700px;margin:0 auto}
+.box{
+  flex:1;border-radius:20px;padding:8px 6px 12px;text-align:center;
+  border:4px solid;user-select:none;cursor:pointer;position:relative;
+  display:flex;flex-direction:column;gap:5px;min-height:230px;
+  transition:transform .15s,box-shadow .2s;
+}
+.box:hover{transform:scale(1.02)}
+.box.like{background:rgba(163,230,53,.16);border-color:#84cc16;color:#f7fee7}
+.box.dont{background:rgba(248,113,113,.16);border-color:#ef4444;color:#fef2f2}
+.box.mystery{flex:.62;background:rgba(255,255,255,.08);border-color:#f9ca24;color:#fef9c3;cursor:default}
+.box.mystery:hover{transform:none}
+.box .bh{font-weight:900;line-height:1.15}
+.box .bh .zi{display:block;font-size:clamp(1.5em,4.5vw,2em)}
+.box .bh .l1{font-size:clamp(.8em,2.4vw,1em)}
+.box .bh .fruitword{font-size:clamp(.72em,2.2vw,.92em);color:#fde68a;display:block;min-height:1.2em}
+.box.mystery .mimg{flex:1;display:flex;align-items:center;justify-content:center;min-height:120px}
+.box.mystery .mimg img{width:clamp(80px,16vw,130px);filter:drop-shadow(0 10px 18px rgba(0,0,0,.45));animation:a-sway 2.6s ease-in-out infinite;cursor:grab}
+.box.mystery .mimg img:active{cursor:grabbing}
+@keyframes a-sway{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-8px)}}
+.box.mystery .mname{font-weight:900;font-size:clamp(1em,3vw,1.35em);min-height:1.4em}
+.box.mystery .mname.hidden{color:transparent;background:rgba(255,255,255,.14);border-radius:12px;padding:2px 22px;border-bottom:3px dashed #f9ca24}
+.box.ready{box-shadow:0 0 0 4px rgba(255,255,255,.22),0 0 30px rgba(249,202,36,.35)}
+.box.like.ready{box-shadow:0 0 0 4px rgba(132,204,22,.35),0 0 34px rgba(132,204,22,.45)}
+.box.dont.ready{box-shadow:0 0 0 4px rgba(239,68,68,.35),0 0 34px rgba(239,68,68,.45)}
+
+/* the physical play area inside the side boxes */
+.pile{position:relative;flex:1;min-height:96px;border-radius:14px;background:rgba(0,0,0,.18)}
+.pile img{position:absolute;left:0;top:0;width:38px;will-change:transform;user-select:none;pointer-events:none;filter:drop-shadow(0 3px 5px rgba(0,0,0,.4))}
+@keyframes boxShake{0%,100%{transform:translateX(0) rotate(0)}15%,45%,75%{transform:translateX(-9px) rotate(-2deg)}30%,60%,90%{transform:translateX(9px) rotate(2deg)}}
+.box.shake{animation:boxShake .5s ease}
+@keyframes wrongShake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-12px)}20%,40%,60%,80%{transform:translateX(12px)}}
+.box.wrong{animation:wrongShake .5s ease}
+@keyframes popInS{0%{transform:scale(0)}70%{transform:scale(1.35)}100%{transform:scale(1)}}
+
+/* flying fruit clone */
+.flyer{position:fixed;z-index:998;pointer-events:none;width:clamp(80px,16vw,130px);transition:all .45s ease-in;transform:translate(-50%,-50%)}
+
+.popup{position:fixed;top:34%;left:50%;transform:translate(-50%,-50%) scale(0);font-size:clamp(2em,8vw,4em);font-weight:900;z-index:1000;pointer-events:none;text-shadow:3px 3px 12px rgba(0,0,0,.4);opacity:0}
+.popup.show{animation:popInBig 1.2s ease forwards}
+@keyframes popInBig{0%{transform:translate(-50%,-50%) scale(0);opacity:0}20%{transform:translate(-50%,-50%) scale(1.3);opacity:1}40%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+
+@media(max-width:560px){
+  .boxes{gap:6px}
+  .box{min-height:200px;border-width:3px;padding:6px 4px 10px}
+  .pile{min-height:84px}
+  .pile img{width:32px}
+}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="topbar">
+  <h1>🍉 Fruit Mystery Market 🍍</h1>
+  <div class="top-right">
+    <div class="rc" id="rc">Fruit 1 / 10</div>
+    <div class="sndbtn" id="sndBtn" title="Sound on/off">🔊</div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="stall"></div>
+
+  <div class="banner" id="banner"></div>
+  <div class="prompt" id="prompt">…</div>
+  <button class="mainbtn" id="mainBtn">…</button>
+
+  <div class="boxes">
+    <div class="box like" id="boxLike">
+      <div class="bh"><span class="zi">😋</span><span class="l1">I LIKE</span><span class="fruitword" id="likeWord"></span></div>
+      <div class="pile" id="pileLike"></div>
+    </div>
+    <div class="box mystery" id="boxMystery">
+      <div class="bh"><span class="zi">🔍</span><span class="l1">MYSTERY</span></div>
+      <div class="mimg"><img id="silImg" src="assets/sil-pineapple.png" alt="?"></div>
+      <div class="mname hidden" id="mname">?</div>
+    </div>
+    <div class="box dont" id="boxDont">
+      <div class="bh"><span class="zi">😝</span><span class="l1">I DON'T LIKE</span><span class="fruitword" id="dontWord"></span></div>
+      <div class="pile" id="pileDont"></div>
+    </div>
+  </div>
+</div>
+
+<div class="popup" id="popup"></div>
+
+<script>
+/* ============ AUDIO (synth effects only — no voice) ============ */
+let AC,soundOn=true;
+function initAudio(){if(!soundOn)return;if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}
+function tone(f,type,dur,vol=.25,del=0){
+  if(!AC||!soundOn)return;const o=AC.createOscillator(),g=AC.createGain();
+  o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(vol,AC.currentTime+del);
+  g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+del+dur);
+  o.connect(g);g.connect(AC.destination);
+  o.start(AC.currentTime+del);o.stop(AC.currentTime+del+dur);
+}
+function sndCheer(){
+  initAudio();if(!AC)return;
+  const dur=.9,sr=AC.sampleRate,buf=AC.createBuffer(1,sr*dur,sr),d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.6);
+  const src=AC.createBufferSource();src.buffer=buf;
+  const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=900;bp.Q.value=.8;
+  const g=AC.createGain();g.gain.setValueAtTime(.5,AC.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+dur);
+  src.connect(bp);bp.connect(g);g.connect(AC.destination);src.start();
+  for(let i=0;i<5;i++)tone(500+Math.random()*500,'sine',.18,.1,Math.random()*.5);
+}
+function sndCorrect(){initAudio();tone(523,'sine',.18,.22,0);tone(659,'sine',.18,.22,.09);tone(784,'sine',.25,.28,.18);tone(1047,'sine',.35,.18,.3)}
+function sndWrong(){initAudio();tone(160,'square',.35,.18);tone(120,'sawtooth',.25,.12,.12)}
+function sndReveal(){initAudio();tone(660,'triangle',.12,.15,0);tone(880,'triangle',.14,.15,.08);tone(1100,'triangle',.2,.18,.16)}
+function sndPop(){initAudio();tone(700,'sine',.07,.16);tone(1050,'sine',.08,.14,.05)}
+function sndNext(){initAudio();
+  const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';
+  o.frequency.setValueAtTime(350,AC.currentTime);o.frequency.exponentialRampToValueAtTime(900,AC.currentTime+.12);
+  g.gain.setValueAtTime(.1,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.18);
+  o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.18);
+}
+function sndFanfare(){initAudio();[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,'triangle',.18,.2,i*.12))}
+document.getElementById('sndBtn').onclick=function(){
+  soundOn=!soundOn;this.textContent=soundOn?'🔊':'🔇';this.classList.toggle('off',!soundOn);
+};
+
+/* ============ CONFETTI ============ */
+const cvs=document.getElementById('confetti'),cx=cvs.getContext('2d');
+let pts=[],afr=null;
+function rCvs(){cvs.width=innerWidth;cvs.height=innerHeight}
+addEventListener('resize',rCvs);rCvs();
+function boom(x,y,n=120){
+  for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=Math.random()*14+4;
+    pts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-5,
+      col:['#ffe66d','#ff6b6b','#4ecdc4','#45b7d1','#f9ca24','#ff9ff3','#2ed573','#00d2d3','#ff6348','#7bed9f'][~~(Math.random()*10)],
+      sz:Math.random()*7+3,life:1,rot:Math.random()*360,rs:(Math.random()-.5)*15,
+      sh:Math.random()>.4?'r':'c'});}
+  if(!afr)aLoop();
+}
+function fireworks(){
+  boom(innerWidth*.25,innerHeight*.3,90);setTimeout(()=>boom(innerWidth*.75,innerHeight*.25,90),180);
+  setTimeout(()=>boom(innerWidth*.5,innerHeight*.2,110),360);
+}
+function aLoop(){cx.clearRect(0,0,cvs.width,cvs.height);
+  for(let i=pts.length-1;i>=0;i--){const p=pts[i];p.x+=p.vx;p.vy+=.22;p.y+=p.vy;p.vx*=.99;p.life-=.01;p.rot+=p.rs;
+    if(p.life<=0||p.y>cvs.height+30){pts.splice(i,1);continue}
+    cx.save();cx.translate(p.x,p.y);cx.rotate(p.rot*Math.PI/180);cx.globalAlpha=Math.min(1,p.life*2.5);cx.fillStyle=p.col;
+    if(p.sh==='r')cx.fillRect(-p.sz/2,-p.sz/2,p.sz,p.sz*.6);
+    else{cx.beginPath();cx.arc(0,0,p.sz/2,0,Math.PI*2);cx.fill()}
+    cx.restore();}
+  if(pts.length>0)afr=requestAnimationFrame(aLoop);else{afr=null;cx.clearRect(0,0,cvs.width,cvs.height);}
+}
+
+/* ============ PILE PHYSICS (same reusable block) ============ */
+const piles={like:[],dont:[]};
+let physOn=false;
+function pileSize(cat){const p=$('pile'+cap(cat));return{w:p.clientWidth||150,h:p.clientHeight||96}}
+function cap(c){return c[0].toUpperCase()+c.slice(1)}
+function styleIt(it){it.el.style.transform=`translate(${it.x-it.r}px,${it.y-it.r}px) rotate(${it.rot}deg)`}
+function wakePile(cat){piles[cat].forEach(it=>it.rest=false);if(!physOn){physOn=true;requestAnimationFrame(physTick)}}
+function settle(it){
+  const dir=Math.random()<.5?-1:1;
+  it.rot=dir*(70+Math.random()*40);it.vx=it.vy=it.vrot=0;it.rest=true;
+  styleIt(it);
+}
+function physTick(){
+  let busy=false;
+  for(const cat of ['like','dont']){
+    const items=piles[cat];
+    if(!items.length)continue;
+    const {w,h}=pileSize(cat);
+    for(let i=0;i<items.length;i++)for(let j=i+1;j<items.length;j++){
+      const a=items[i],b=items[j];
+      let dx=b.x-a.x,dy=b.y-a.y;
+      const min=a.r+b.r,d2=dx*dx+dy*dy;
+      if(d2>0&&d2<min*min){
+        const d=Math.sqrt(d2),ov=(min-d)/2;dx/=d;dy/=d;
+        /* positional de-penetration: always, each takes half the overlap */
+        a.x-=dx*ov;a.y-=dy*ov;b.x+=dx*ov;b.y+=dy*ov;
+        /* momentum exchange ONLY when actually approaching, else resting
+           piles get sucked back together (sticky-pile bug) */
+        const av=a.vx*dx+a.vy*dy,bv=b.vx*dx+b.vy*dy;
+        if(av-bv>0){
+          const imp=(av-bv)*.5;
+          a.vx-=imp*dx;a.vy-=imp*dy;b.vx+=imp*dx;b.vy+=imp*dy;
+          a.vrot+=(Math.random()-.5)*3;b.vrot+=(Math.random()-.5)*3;
+        }
+        a.rest=b.rest=false;
+      }
+    }
+    for(const it of items){
+      if(it.rest)continue;
+      busy=true;
+      it.vy+=.55;it.vx*=.995;it.vrot*=.985;
+      it.x+=it.vx;it.y+=it.vy;it.rot+=it.vrot;
+      if(it.x<it.r){it.x=it.r;it.vx=Math.abs(it.vx)*.55}
+      if(it.x>w-it.r){it.x=w-it.r;it.vx=-Math.abs(it.vx)*.55}
+      if(it.y<it.r){it.y=it.r;it.vy=Math.abs(it.vy)*.5}
+      if(it.y>h-it.r){
+        it.y=h-it.r;it.vy=-Math.abs(it.vy)*.45;it.vx*=.88;it.vrot*=.8;
+        if(Math.abs(it.vy)<.9)it.vy=0;
+      }
+      if(!it.vy&&Math.abs(it.vx)+Math.abs(it.vrot)<.4&&it.y>=h-it.r-2)settle(it);
+      styleIt(it);
+    }
+  }
+  if(busy)requestAnimationFrame(physTick);else physOn=false;
+}
+function spawnInPile(cat,src){
+  const pile=$('pile'+cap(cat));
+  const img=document.createElement('img');
+  img.src=src;
+  pile.appendChild(img);
+  const {w,h}=pileSize(cat);
+  const it={el:img,cat,r:19,
+    x:20+Math.random()*Math.max(10,w-40),y:8,
+    vx:(Math.random()-.5)*5,vy:1,
+    rot:(Math.random()-.5)*40,vrot:(Math.random()-.5)*14,rest:false};
+  piles[cat].push(it);
+  styleIt(it);wakePile(cat);
+  sndPop();
+}
+function shakeBox(box,power=1){
+  const cat=box.id==='boxLike'?'like':'dont';
+  box.classList.remove('shake');void box.offsetWidth;box.classList.add('shake');
+  for(const it of piles[cat]){
+    if(it.rest){
+      it.vx+=(Math.random()-.5)*13*power;
+      it.vy=-(5+Math.random()*7)*power;
+      it.vrot+=(Math.random()-.5)*22*power;
+      it.rest=false;
+    }else{
+      it.vx+=(Math.random()-.5)*7*power;
+      it.vy-= (3+Math.random()*4)*power;
+    }
+  }
+  wakePile(cat);
+}
+
+/* ============ DATA ============
+   All 10 fruits — lesson fruit + review fruit from two levels back.
+   p = plural (kids practice plurals: "I like oranges") */
+const FRUITS=[
+  {w:'apple',     e:'🍎',p:'apples'},
+  {w:'banana',    e:'🍌',p:'bananas'},
+  {w:'lemon',     e:'🍋',p:'lemons'},
+  {w:'mango',     e:'🥭',p:'mangoes'},
+  {w:'orange',    e:'🍊',p:'oranges'},
+  {w:'peach',     e:'🍑',p:'peaches'},
+  {w:'pear',      e:'🍐',p:'pears'},
+  {w:'pineapple', e:'🍍',p:'pineapples'},
+  {w:'plum',      e:'🍇',p:'plums'},
+  {w:'watermelon',e:'🍉',p:'watermelons'}
+];
+const imgOf=f=>'assets/col-'+f.w+'.png';
+const silOf=f=>'assets/sil-'+f.w+'.png';
+
+/* ============ STATE ============ */
+let round=0,phase='',cur=null,used=[],locked=false,pendingChoice='like';
+
+const $=id=>document.getElementById(id);
+const banner=$('banner'),prompt=$('prompt'),mainBtn=$('mainBtn');
+
+function pickFruit(){
+  if(used.length>=FRUITS.length)used=[];
+  const pool=FRUITS.filter(f=>!used.includes(f));
+  const f=pool[~~(Math.random()*pool.length)];
+  used.push(f);return f;
+}
+function popup(txt){
+  const p=$('popup');p.textContent=txt;p.className='popup show';
+  setTimeout(()=>p.className='popup',1300);
+}
+function solidBanner(html){banner.className='banner solid';banner.innerHTML=`<div class="row">${html}</div>`}
+function setPrompt(t){prompt.textContent=t}
+function setBtn(label,fn,cls){
+  mainBtn.className='mainbtn'+(cls?' '+cls:'');
+  mainBtn.textContent=label;
+  mainBtn.onclick=fn;
+}
+function hideBtn(){mainBtn.classList.add('hide')}
+function showBtn(){mainBtn.classList.remove('hide')}
+function setReady(on){
+  $('boxLike').classList.toggle('ready',on);
+  $('boxDont').classList.toggle('ready',on);
+}
+
+/* ============ FLOW ============ */
+function newRound(){
+  round++;locked=false;
+  cur=pickFruit();
+  $('rc').textContent='Fruit '+round+' / '+FRUITS.length;
+  $('silImg').src=silOf(cur);
+  const mn=$('mname');mn.textContent='? ? ?';mn.classList.add('hidden');
+  $('likeWord').textContent='';
+  $('dontWord').textContent='';
+  setReady(false);
+  phaseMystery();
+}
+
+function phaseMystery(){
+  phase='mystery';showBtn();
+  banner.className='banner';
+  banner.innerHTML='<div class="row">🙈 <b>What fruit is it?</b> Say the word!</div>';
+  setPrompt('❓ Everyone say the fruit name! Then reveal the word!');
+  setBtn('Reveal the Word 👀',phaseWord);
+}
+
+function phaseWord(){
+  phase='word';sndReveal();
+  /* show the proper picture, not just the silhouette */
+  $('silImg').src=imgOf(cur);
+  const mn=$('mname');mn.textContent=cur.w;mn.classList.remove('hidden');
+  /* the question appears WITHOUT a button — kids just answer it */
+  solidBanner('Do you like <b>'+cur.p+'</b>? 🤔');
+  setPrompt('🗣️ Answer! "Yes, I do!" / "No, I don\'t!" Then DRAG the fruit into a box! 👇');
+  setReady(true);
+  hideBtn();
+  popup('🗣️');
+}
+
+function phaseFly(choice){
+  if(locked||phase!=='word')return;
+  locked=true;pendingChoice=choice;initAudio();
+  const cat=choice==='like'?'like':'dont';
+  const box=$('box'+cap(cat));
+  sndFanfare();sndCheer();
+  flyToBox(box);
+  setTimeout(()=>{spawnInPile(cat,imgOf(cur));shakeBox(box);setReady(false)},430);
+  const r=box.getBoundingClientRect();
+  boom(r.left+r.width/2,r.top+r.height/2,130);
+  popup(choice==='like'?['😋 YUMMY!','💚 Me too!','👍 YUMMY!'][~~(Math.random()*3)]:['😝 YUCK!','🙅 No way!','👎 BLECH!'][~~(Math.random()*3)]);
+  setTimeout(()=>{
+    showBtn();
+    setBtn('Reveal Sentence 👀',phaseRevealSentence);
+  },700);
+}
+
+function phaseRevealSentence(){
+  phase='sentence';sndReveal();sndCorrect();hideBtn();
+  /* only the sentence the kid chose — not both */
+  const like=pendingChoice==='like';
+  solidBanner(like
+    ?'I like <b>'+cur.p+'</b>! 😋'
+    :'I don\'t like <b>'+cur.p+'</b>! 😝');
+  setPrompt('🔁 Everyone say it — with feeling!');
+  fireworks();
+  setTimeout(()=>{
+    if(round>=FRUITS.length)phaseFinale();
+    else{sndNext();newRound()}
+  },1700);
+}
+
+function flyToBox(box){
+  const fr=$('silImg').getBoundingClientRect(),br=box.getBoundingClientRect();
+  const fl=document.createElement('img');
+  fl.src=silOf(cur);fl.className='flyer';
+  fl.style.left=(fr.left+fr.width/2)+'px';
+  fl.style.top=(fr.top+fr.height/2)+'px';
+  document.body.appendChild(fl);
+  requestAnimationFrame(()=>{
+    fl.style.left=(br.left+br.width/2)+'px';
+    fl.style.top=(br.top+br.height/2)+'px';
+    fl.style.width='38px';
+    fl.style.opacity='.4';
+  });
+  setTimeout(()=>fl.remove(),500);
+}
+
+/* ============ FINALE ============ */
+function phaseFinale(){
+  phase='finale';setReady(false);
+  banner.className='banner solid bigquestion';
+  banner.innerHTML='<div class="row">❓ What fruit do <b>YOU</b> like? ❓</div>';
+  setPrompt('🗣️ Ask your friends! "What fruit do you like?" — "I like ...!"');
+  showBtn();
+  setBtn('Start Over 🔄',resetGame,'green');
+  shakeBox($('boxLike'),1.6);
+  shakeBox($('boxDont'),1.6);
+  fireworks();
+  setTimeout(fireworks,1400);
+  setTimeout(fireworks,2800);
+}
+
+function resetGame(){
+  for(const cat of ['like','dont']){
+    piles[cat]=[];
+    $('pile'+cap(cat)).innerHTML='';
+  }
+  used=[];round=0;
+  sndNext();
+  newRound();
+}
+
+/* ============ TAP & DRAG WIRING ============ */
+for(const id of ['boxLike','boxDont']){
+  const box=$(id);
+  const choice=id==='boxLike'?'like':'dont';
+  box.addEventListener('click',()=>{
+    initAudio();
+    if(phase==='word')phaseFly(choice);
+    else shakeBox(box);
+  });
+  box.addEventListener('dragover',e=>{e.preventDefault();box.classList.add('drag-over')});
+  box.addEventListener('dragleave',()=>box.classList.remove('drag-over'));
+  box.addEventListener('drop',e=>{
+    e.preventDefault();box.classList.remove('drag-over');
+    initAudio();
+    phaseFly(choice);
+  });
+}
+$('silImg').draggable=true;
+$('silImg').addEventListener('dragstart',e=>{
+  e.dataTransfer.setData('text/plain',cur.w);
+  e.dataTransfer.effectAllowed='move';
+});
+$('boxMystery').addEventListener('click',()=>{
+  initAudio();sndPop();
+  const mn=$('mname');
+  if(phase==='mystery'){mn.classList.add('hidden');}
+  mn.style.animation='none';void mn.offsetWidth;mn.style.animation='';
+});
+
+newRound();
+</script>
+
+<!-- Bilingo game controls: zoom + fullscreen toggle (auto-collapsing) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .85; }
+  .bilingo-ui .b-handle { display: none; }
+  .bilingo-ui.mini > *:not(.b-handle) { display: none; }
+  .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-handle" title="Show controls" aria-label="Show controls">⚙️</button>
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom';
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() {
+    z = Math.max(MIN, Math.round((z - STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function grow() {
+    z = Math.min(MAX, Math.round((z + STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+  }
+
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.remove('mini');
+    poke();
+  });
+
+  // Collapse to just the handle after 5s without interaction, so the bar
+  // never sits on top of the game's own buttons.
+  var idleTimer = null;
+  function poke() {
+    bar.classList.remove('mini');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.add('mini'); }, 5000);
+  }
+  bar.addEventListener('pointerdown', poke);
+  poke();
+  apply();
+})();
+</script>
+
+</body>
+</html>
