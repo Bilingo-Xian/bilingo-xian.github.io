@@ -441,9 +441,10 @@ img { max-width: 100%; }
 }
 .unit-tile.soon:hover { transform: none; }
 
-/* GE4 book tile on the index page */
-.book-tile.ge4 {
-  background: linear-gradient(140deg, #fbbf24, #f97316);
-  color: #fff;
+/* partially-live book tiles on the index page (GE4/GE7/GE8) — softer orange */
+.book-tile.ge4, .book-tile.ge7, .book-tile.ge8 {
+  background: linear-gradient(140deg, #fde3c2, #f7c287);
+  color: #9a3412;
 }
-.book-tile.ge4 .stats { color: rgb(255 255 255 / .92); }
+.book-tile.ge4 .stats, .book-tile.ge7 .stats, .book-tile.ge8 .stats { color: rgb(154 52 18 / .85); }
+.book-tile .chip.partial { background: rgb(154 52 18 / .12); color: inherit; border: 1.5px solid rgb(154 52 18 / .35); }
