@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Can You Hear? — Sound Mystery</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  color:#fff;padding:10px 12px 30px;overflow-x:hidden;
+  background:linear-gradient(135deg,#48dbfb,#0abde3 45%,#3867d6);
+}
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+.topbar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:860px;margin-bottom:6px;gap:8px;flex-wrap:wrap}
+h1{font-size:clamp(1.05em,3.2vw,1.7em);text-shadow:2px 2px 8px rgba(0,0,0,.25)}
+.togs{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.rc{background:rgba(255,255,255,.22);padding:4px 14px;border-radius:20px;font-size:.85em;font-weight:700;white-space:nowrap}
+.tg{
+  background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.35);
+  border-radius:20px;padding:4px 12px;font-size:.92em;font-weight:900;cursor:pointer;
+  user-select:none;color:rgba(255,255,255,.55);transition:all .2s;white-space:nowrap;
+}
+.tg.on{color:#fff;border-color:#2ed573;background:rgba(46,213,115,.25);box-shadow:0 0 14px rgba(46,213,115,.45)}
+.tg:hover{transform:scale(1.05)}
+
+.stage{
+  width:100%;max-width:860px;position:relative;
+  background:linear-gradient(180deg,#2c3e50,#1e2a38);
+  border:3px solid #48dbfb;border-radius:24px;
+  padding:14px 14px 18px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+.skyline{position:absolute;top:0;left:0;right:0;height:26px;overflow:hidden;border-radius:21px 21px 0 0;opacity:.3;
+  background:linear-gradient(90deg,transparent 0 6%,#000 6% 12%,transparent 12% 18%,#000 18% 27%,transparent 27% 33%,#000 33% 38%,transparent 38% 47%,#000 47% 56%,transparent 56% 63%,#000 63% 70%,transparent 70% 78%,#000 78% 85%,transparent 85% 92%,#000 92% 100%);}
+
+.picwrap{display:flex;flex-direction:column;align-items:center;gap:2px;margin:20px auto 6px;min-height:150px;justify-content:center}
+.picwrap .big{font-size:clamp(4em,14vw,6.6em);line-height:1.1;filter:drop-shadow(0 8px 16px rgba(0,0,0,.35))}
+.picwrap .big.img{width:clamp(110px,24vw,160px);height:auto}
+.picwrap .big.mystery{animation:a-wob 1.6s ease-in-out infinite}
+@keyframes a-wob{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
+.picwrap .fname{font-size:clamp(1.2em,3.2vw,1.8em);font-weight:900;text-shadow:1px 1px 4px rgba(0,0,0,.3);min-height:1.4em}
+
+.listenbtn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin:2px auto 6px;width:fit-content;cursor:pointer;user-select:none;
+  background:linear-gradient(135deg,#48dbfb,#3867d6);color:#fff;
+  border:3px solid rgba(255,255,255,.5);border-radius:50px;
+  padding:10px 30px;font-size:clamp(.95em,2.4vw,1.2em);font-weight:900;
+  font-family:'Nunito',sans-serif;box-shadow:0 8px 24px rgba(72,219,251,.35);
+  transition:all .2s;animation:glow 2s ease-in-out infinite;
+}
+.listenbtn:hover{transform:scale(1.05)}
+.listenbtn:active{transform:scale(.97)}
+.listenbtn.stop{background:linear-gradient(135deg,#ff6b6b,#ee5253);box-shadow:0 8px 24px rgba(238,82,83,.35)}
+.sndrow{display:flex;gap:10px;justify-content:center;width:100%}
+@keyframes glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
+
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:620px;margin:8px auto}
+.opt{
+  border-radius:18px;padding:16px 8px;text-align:center;cursor:pointer;user-select:none;
+  font-weight:900;font-size:clamp(1em,2.8vw,1.45em);line-height:1.25;
+  border:3px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);
+  transition:all .2s;color:#fff;font-family:'Nunito',sans-serif;
+}
+.opt:hover{transform:scale(1.04);border-color:#48dbfb;background:rgba(72,219,251,.18)}
+@keyframes wrongShake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-12px)}20%,40%,60%,80%{transform:translateX(12px)}}
+.opt.wrong{animation:wrongShake .5s ease;border-color:#ff3333!important;box-shadow:0 0 35px rgba(255,0,0,.5)!important}
+@keyframes correctGlow{0%{box-shadow:0 0 0 rgba(46,213,115,0)}50%{box-shadow:0 0 50px rgba(46,213,115,.9)}100%{box-shadow:0 0 15px rgba(46,213,115,.4)}}
+.opt.correct{border-color:#2ed573!important;animation:correctGlow .8s ease;background:rgba(46,213,115,.25)}
+.opt.dim{opacity:.4;filter:grayscale(.6);pointer-events:none}
+
+.banner{
+  width:100%;max-width:640px;margin:8px auto 10px;min-height:70px;
+  background:rgba(255,255,255,.1);border:2px dashed rgba(255,255,255,.35);
+  border-radius:18px;padding:12px 16px;text-align:center;
+  display:flex;flex-direction:column;justify-content:center;gap:4px;
+  font-size:clamp(.95em,2.4vw,1.45em);font-weight:900;line-height:1.4;
+  transition:.35s;
+}
+.banner.solid{border-style:solid;border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.16)}
+.banner .row{animation:fadeUp .35s ease-out;line-height:1.5}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.prompt{
+  text-align:center;font-size:clamp(.85em,2.2vw,1.05em);font-weight:700;
+  color:rgba(255,255,255,.9);margin:2px 0 10px;min-height:1.6em;
+  text-shadow:1px 1px 4px rgba(0,0,0,.2);
+}
+
+.mainbtn{
+  display:block;margin:6px auto 0;
+  padding:14px 44px;font-size:clamp(1em,2.6vw,1.25em);font-weight:900;
+  background:linear-gradient(135deg,#f9ca24,#f0932b);color:#1e2a38;
+  border:none;border-radius:50px;cursor:pointer;font-family:'Nunito',sans-serif;
+  box-shadow:0 8px 26px rgba(249,202,36,.4);transition:all .25s;
+  animation:glow 2s ease-in-out infinite;
+}
+.mainbtn:hover{transform:scale(1.06)}
+.mainbtn:active{transform:scale(.97)}
+.mainbtn.hide{display:none}
+.mainbtn.green{background:linear-gradient(135deg,#34d399,#10b981);color:#022c22;box-shadow:0 8px 26px rgba(16,185,129,.4)}
+
+.count{
+  position:fixed;top:40%;left:50%;transform:translate(-50%,-50%);
+  font-size:clamp(5em,20vw,11em);font-weight:900;z-index:1000;pointer-events:none;
+  text-shadow:5px 5px 24px rgba(0,0,0,.4);opacity:0;
+}
+.count.show{animation:cPop .9s ease forwards}
+@keyframes cPop{0%{transform:translate(-50%,-50%) scale(2.4);opacity:0}25%{transform:translate(-50%,-50%) scale(1);opacity:1}80%{opacity:1}100%{transform:translate(-50%,-50%) scale(.7);opacity:0}}
+
+.popup{position:fixed;top:38%;left:50%;transform:translate(-50%,-50%) scale(0);font-size:clamp(2em,8vw,4em);font-weight:900;z-index:1000;pointer-events:none;text-shadow:3px 3px 12px rgba(0,0,0,.35);opacity:0}
+.popup.show{animation:popIn 1.2s ease forwards}
+@keyframes popIn{0%{transform:translate(-50%,-50%) scale(0);opacity:0}20%{transform:translate(-50%,-50%) scale(1.3);opacity:1}40%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(0);opacity:0}}
+
+.startov{
+  position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;gap:14px;
+  align-items:center;justify-content:center;cursor:pointer;
+  background:linear-gradient(135deg,#48dbfb,#3867d6);color:#fff;
+  font-weight:900;text-align:center;padding:20px;
+}
+.startov .t{font-size:clamp(1.6em,6vw,3em);text-shadow:2px 2px 10px rgba(0,0,0,.3)}
+.startov .s{font-size:clamp(1em,3vw,1.4em);opacity:.9}
+
+@media(max-width:560px){.opts{gap:8px}}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<div class="startov" id="startOv">
+  <div class="t">👂 What Can You Hear? 🔊</div>
+  <div class="s">👆 Tap anywhere to start!</div>
+</div>
+
+<div class="topbar">
+  <h1>👂 What Can You Hear?</h1>
+  <div class="togs">
+    <div class="rc" id="rc">Sound 1</div>
+    <div class="tg on" id="tgQ" title="Show 'What can you hear?' in the dialogue">❓Q</div>
+    <div class="tg" id="tgH" title="Long dialogue: a wrong guess first (Is it a bus? — No, it's not!)">📖 long</div>
+    <div class="tg" id="tgA" title="Include animals">🐻</div>
+    <div class="tg" id="tgO" title="Include other sounds">📦</div>
+    <div class="tg on" id="tgS" title="Sound on/off">🔊</div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="skyline"></div>
+  <div class="picwrap">
+    <div class="big mystery" id="pic">👂</div>
+    <div class="fname" id="pname"></div>
+  </div>
+  <div class="sndrow">
+    <button class="listenbtn" id="listenBtn" style="display:none">🔊 <span>Listen again</span></button>
+    <button class="listenbtn stop" id="stopBtn" style="display:none">⏹ <span>Stop</span></button>
+  </div>
+
+  <div class="opts" id="opts"></div>
+
+  <div class="banner" id="banner" style="display:none"></div>
+  <div class="prompt" id="prompt"></div>
+  <button class="mainbtn hide" id="mainBtn"></button>
+</div>
+
+<div class="count" id="count"></div>
+<div class="popup" id="popup"></div>
+
+<script>
+/* ================================================================
+   SOUND MIX — to add more sounds: drop the file into sounds/,
+   then add one line here (copy an existing one and change it).
+   cat: 'v' = vehicle, 'a' = animal, 'o' = other
+   e: emoji shown after the correct answer; OR img: 'file.png'
+   dn: the noun phrase used in the dialogue line ("a bus")
+   ================================================================ */
+const SOUNDS=[
+  {id:'car',       cat:'v', e:'🚗', dn:'a car'},
+  {id:'bus',       cat:'v', e:'🚌', dn:'a bus'},
+  {id:'boat',      cat:'v', e:'🚤', dn:'a boat'},
+  {id:'plane',     cat:'v', e:'✈️', dn:'a plane'},
+  {id:'bear',      cat:'a', e:'🐻', dn:'a bear'},
+  {id:'birds',     cat:'a', e:'🐦', dn:'a bird'},
+  {id:'elephant',  cat:'a', e:'🐘', dn:'an elephant'},
+  {id:'fly',       cat:'a', e:'🪰', dn:'a fly'},
+  {id:'frog',      cat:'a', e:'🐸', dn:'a frog'},
+  {id:'TV',        cat:'o', e:'📺', dn:'a TV'},
+  {id:'computer',  cat:'o', e:'💻', dn:'a computer'},
+  {id:'game',      cat:'o', e:'🎮', dn:'a game'},
+  {id:'school',    cat:'o', e:'🏫', dn:'a school'},
+  {id:'whiteboard',cat:'o', img:'whiteboard.png', dn:'a whiteboard'}
+];
+const qp=new URLSearchParams(location.search);
+const DBG_SND=qp.get('s');       // debug: force this sound id
+const DBG_PHASE=qp.get('phase'); // debug: jump to phase
+
+/* ============ AUDIO (effects synthesized; sounds played from files) ============ */
+let AC,soundOn=true;
+function initAudio(){if(!soundOn)return;if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}
+function tone(f,type,dur,vol=.25,del=0){
+  if(!AC||!soundOn)return;const o=AC.createOscillator(),g=AC.createGain();
+  o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(vol,AC.currentTime+del);
+  g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+del+dur);
+  o.connect(g);g.connect(AC.destination);
+  o.start(AC.currentTime+del);o.stop(AC.currentTime+del+dur);
+}
+let curSnd=null;
+function playCur(){
+  if(!soundOn)return;
+  try{
+    if(curSnd){curSnd.pause();curSnd.currentTime=0}
+    curSnd=new Audio('sounds/'+cur.id+'.wav');
+    curSnd.play().catch(()=>{});
+  }catch(e){}
+}
+function stopSnd(){if(curSnd){curSnd.pause();curSnd.currentTime=0}}
+function sndCorrect(){initAudio();tone(523,'sine',.18,.22,0);tone(659,'sine',.18,.22,.09);tone(784,'sine',.25,.28,.18);tone(1047,'sine',.35,.18,.3)}
+function sndWrong(){initAudio();tone(160,'square',.3,.16);tone(120,'sawtooth',.22,.1,.1)}
+function sndCheer(){
+  initAudio();if(!AC)return;
+  const dur=.9,sr=AC.sampleRate,buf=AC.createBuffer(1,sr*dur,sr),d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.6);
+  const src=AC.createBufferSource();src.buffer=buf;
+  const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=900;bp.Q.value=.8;
+  const g=AC.createGain();g.gain.setValueAtTime(.5,AC.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+dur);
+  src.connect(bp);bp.connect(g);g.connect(AC.destination);src.start();
+  for(let i=0;i<5;i++)tone(500+Math.random()*500,'sine',.18,.1,Math.random()*.5);
+}
+function sndCount(){initAudio();tone(700,'triangle',.12,.2);tone(700,'triangle',.12,.2,.14)}
+function sndReveal(){initAudio();tone(660,'triangle',.12,.15,0);tone(880,'triangle',.14,.15,.08);tone(1100,'triangle',.2,.18,.16)}
+function sndNext(){initAudio();
+  const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';
+  o.frequency.setValueAtTime(350,AC.currentTime);o.frequency.exponentialRampToValueAtTime(900,AC.currentTime+.12);
+  g.gain.setValueAtTime(.1,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.18);
+  o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.18);
+}
+document.getElementById('tgS').onclick=function(){
+  soundOn=!soundOn;this.classList.toggle('on',soundOn);this.textContent=soundOn?'🔊':'🔇';
+};
+
+/* ============ CONFETTI ============ */
+const cvs=document.getElementById('confetti'),cx=cvs.getContext('2d');
+let pts=[],afr=null;
+function rCvs(){cvs.width=innerWidth;cvs.height=innerHeight}
+addEventListener('resize',rCvs);rCvs();
+function boom(x,y,n=120){
+  for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=Math.random()*14+4;
+    pts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-5,
+      col:['#ffe66d','#ff6b6b','#4ecdc4','#45b7d1','#f9ca24','#ff9ff3','#48dbfb','#00d2d3','#ff6348','#7bed9f'][~~(Math.random()*10)],
+      sz:Math.random()*7+3,life:1,rot:Math.random()*360,rs:(Math.random()-.5)*15,
+      sh:Math.random()>.4?'r':'c'});}
+  if(!afr)aLoop();
+}
+function fireworks(){
+  boom(innerWidth*.25,innerHeight*.3,90);setTimeout(()=>boom(innerWidth*.75,innerHeight*.25,90),180);
+  setTimeout(()=>boom(innerWidth*.5,innerHeight*.2,110),360);
+}
+function aLoop(){cx.clearRect(0,0,cvs.width,cvs.height);
+  for(let i=pts.length-1;i>=0;i--){const p=pts[i];p.x+=p.vx;p.vy+=.22;p.y+=p.vy;p.vx*=.99;p.life-=.01;p.rot+=p.rs;
+    if(p.life<=0||p.y>cvs.height+30){pts.splice(i,1);continue}
+    cx.save();cx.translate(p.x,p.y);cx.rotate(p.rot*Math.PI/180);cx.globalAlpha=Math.min(1,p.life*2.5);cx.fillStyle=p.col;
+    if(p.sh==='r')cx.fillRect(-p.sz/2,-p.sz/2,p.sz,p.sz*.6);
+    else{cx.beginPath();cx.arc(0,0,p.sz/2,0,Math.PI*2);cx.fill()}
+    cx.restore();}
+  if(pts.length>0)afr=requestAnimationFrame(aLoop);else{afr=null;cx.clearRect(0,0,cvs.width,cvs.height);}
+}
+
+/* ============ STATE / SETTINGS ============ */
+let round=0,phase='',cur=null,lastId=null,locked=false;
+const showQ={v:true},hardDlg={v:false},incA={v:false},incO={v:false};
+
+const $=id=>document.getElementById(id);
+const pic=$('pic'),pname=$('pname'),opts=$('opts'),banner=$('banner'),prompt=$('prompt'),
+      mainBtn=$('mainBtn'),listenBtn=$('listenBtn'),stopBtn=$('stopBtn'),count=$('count'),rc=$('rc');
+let distractors=[];
+
+function activePool(){
+  return SOUNDS.filter(s=>s.cat==='v'||(s.cat==='a'&&incA.v)||(s.cat==='o'&&incO.v));
+}
+function pickSound(){
+  const pool=activePool().filter(s=>s.id!==lastId);
+  const src=pool.length?pool:activePool();
+  const s=src[~~(Math.random()*src.length)];
+  lastId=s.id;return s;
+}
+function popup(txt){
+  const p=$('popup');p.textContent=txt;p.className='popup show';
+  setTimeout(()=>p.className='popup',1300);
+}
+
+/* ============ RENDER HELPERS ============ */
+function setPrompt(t){prompt.textContent=t}
+function setBtn(label,fn,cls){
+  mainBtn.className='mainbtn'+(cls?' '+cls:'');
+  mainBtn.textContent=label;mainBtn.onclick=fn;
+  mainBtn.classList.remove('hide');
+}
+function hideBtn(){mainBtn.classList.add('hide')}
+function hideBanner(){banner.style.display='none';banner.className='banner'}
+
+/* ============ FLOW ============
+   guess -> correct (fanfare, replay sound, countdown) -> dialogue -> next */
+function newRound(){
+  round++;
+  cur=DBG_SND&&round===1?SOUNDS.find(s=>s.id===DBG_SND)||pickSound():pickSound();
+  rc.textContent='Sound '+round;
+  // mystery picture
+  pic.textContent='👂';pic.className='big mystery';pname.textContent='';
+  opts.innerHTML='';hideBanner();hideBtn();
+  listenBtn.style.display='flex';
+  stopBtn.style.display='flex';
+  phase='guess';locked=false;
+  setPrompt('🔊 Listen! What can you hear? Ask: "Is it a …?"');
+  buildChoices();
+  playCur();
+}
+function buildChoices(){
+  const pool=activePool();
+  distractors=pool.filter(s=>s.id!==cur.id).sort(()=>Math.random()-.5).slice(0,3);
+  const four=[cur,...distractors].sort(()=>Math.random()-.5);
+  opts.innerHTML=four.map(s=>`<button class="opt" data-id="${s.id}">${s.id}</button>`).join('');
+  opts.querySelectorAll('.opt').forEach(el=>el.onclick=()=>tap(el));
+}
+function tap(el){
+  if(locked||phase!=='guess')return;
+  if(el.dataset.id===cur.id)onCorrect(el);else{
+    sndWrong();el.classList.add('wrong');
+    setTimeout(()=>el.classList.remove('wrong'),600);
+  }
+}
+function onCorrect(el){
+  locked=true;phase='correct';
+  sndCorrect();sndCheer();
+  el.classList.add('correct');
+  opts.querySelectorAll('.opt').forEach(o=>{if(o!==el)o.classList.add('dim');o.onclick=null});
+  const r=el.getBoundingClientRect();
+  boom(r.left+r.width/2,r.top+r.height/2,140);
+  popup(['🎉 YES!','⭐ Wonderful!','👂 Great ears!','🏆 Amazing!'][~~(Math.random()*4)]);
+  // reveal picture + word
+  if(cur.img){pic.innerHTML=`<img class="big" src="${cur.img}" alt="${cur.id}">`}
+  else{pic.textContent=cur.e;pic.className='big'}
+  pic.classList.remove('mystery');
+  pname.textContent=cur.id;
+  listenBtn.style.display='none';
+  stopBtn.style.display='none';
+  setPrompt('🔁 Say it: "It\'s '+cur.dn+'!"');
+  setTimeout(()=>{                    // sound plays once more after the fanfare
+    playCur();
+    setTimeout(startCountdown,900);
+  },1300);
+}
+function startCountdown(){
+  phase='countdown';
+  let n=3;
+  (function tick(){
+    count.textContent=n;count.className='count';void count.offsetWidth;
+    count.className='count show';sndCount();
+    if(n>1){n--;setTimeout(tick,900)}
+    else setTimeout(()=>{
+      count.className='count';
+      setBtn('Reveal the Dialogue 👀',phaseDialogue);
+      setPrompt('🗣️ Get ready to say the dialogue!');
+    },950);
+  })();
+}
+function phaseDialogue(){
+  phase='dialogue';sndReveal();
+  const lines=[];
+  if(showQ.v)lines.push('— What can you hear?');
+  if(hardDlg.v){
+    const wrong=distractors.length?distractors[~~(Math.random()*distractors.length)]:null;
+    if(wrong)lines.push('— Is it '+wrong.dn+'?','— No, it\'s not!');
+  }
+  lines.push('— Is it '+cur.dn+'?','— Yes, it is.');
+  banner.className='banner solid';banner.style.display='flex';
+  banner.innerHTML=lines.map((l,i)=>`<div class="row" style="animation-delay:${i*.22}s">${l}</div>`).join('');
+  setPrompt('🔁 Everyone say it! Then ask a friend: "What can you hear?"');
+  setBtn('Next ▶ 🔊',()=>{sndNext();newRound()},'green');
+}
+
+/* ============ TOGGLES ============ */
+function bindToggle(id,obj,after){
+  const el=$(id);
+  el.classList.toggle('on',obj.v);
+  el.onclick=()=>{obj.v=!obj.v;el.classList.toggle('on',obj.v);if(after)after()};
+}
+bindToggle('tgQ',showQ);
+bindToggle('tgH',hardDlg);
+bindToggle('tgA',incA);
+bindToggle('tgO',incO);
+listenBtn.onclick=()=>{initAudio();playCur()};
+stopBtn.onclick=()=>stopSnd();
+
+/* ============ START ============ */
+function startGame(){
+  const ov=$('startOv');if(ov)ov.remove();
+  initAudio();
+  newRound();
+  if(DBG_PHASE==='dialogue'){phaseDialogue()}
+  if(DBG_PHASE==='hard'){hardDlg.v=true;phaseDialogue()}
+}
+$('startOv').addEventListener('click',startGame,{once:true});
+if(DBG_SND||DBG_PHASE)startGame();   // debug/screenshot mode: skip the tap-to-start overlay
+</script>
+<!-- Bilingo game controls: zoom + fullscreen toggle (auto-collapsing) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .85; }
+  .bilingo-ui .b-handle { display: none; }
+  .bilingo-ui.mini > *:not(.b-handle) { display: none; }
+  .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-handle" title="Show controls" aria-label="Show controls">&#9881;&#65039;</button>
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">&minus;</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">&#9966;</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom';
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() {
+    z = Math.max(MIN, Math.round((z - STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function grow() {
+    z = Math.min(MAX, Math.round((z + STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+  }
+
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.remove('mini');
+    poke();
+  });
+
+  // Collapse to just the handle after 5s without interaction, so the bar
+  // never sits on top of the game's own buttons.
+  var idleTimer = null;
+  function poke() {
+    bar.classList.remove('mini');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.add('mini'); }, 5000);
+  }
+  bar.addEventListener('pointerdown', poke);
+  poke();
+  apply();
+})();
+</script>
+
+</body>
+</html>

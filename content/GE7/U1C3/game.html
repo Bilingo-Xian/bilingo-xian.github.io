@@ -1,0 +1,616 @@
+<!DOCTYPE html><html><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Rules Sorting — Places Edition</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        body.shaking { animation: screenShake .45s ease; }
+        @keyframes screenShake {
+            0%,100% { transform: translate(0,0); }
+            15% { transform: translate(-10px,4px); }
+            30% { transform: translate(9px,-5px); }
+            45% { transform: translate(-7px,3px); }
+            60% { transform: translate(6px,-3px); }
+            75% { transform: translate(-4px,2px); }
+            90% { transform: translate(2px,-1px); }
+        }
+        #confetti { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 998; }
+        h1 {
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .toprow { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .sndbtn {
+            background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 20px; font-size: 1rem; padding: 4px 14px; cursor: pointer;
+        }
+        .sndbtn.off { opacity: .45; }
+        .location-chip {
+            position: fixed; top: 16px; right: 16px; z-index: 500;
+            background: rgba(255,255,255,0.92); color: #4a3b8f;
+            padding: 10px 22px; border-radius: 30px;
+            font-size: 1.25rem; font-weight: bold;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .location-chip.pop { animation: chipPop .5s cubic-bezier(.34,1.56,.64,1); }
+        @keyframes chipPop { 0% { transform: scale(.4) rotate(-6deg); } 100% { transform: scale(1) rotate(0); } }
+        .student-indicator {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+        .progress { color: white; font-size: 0.9rem; margin-bottom: 20px; opacity: 0.8; }
+        .sentence-card {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #333;
+            cursor: grab;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            user-select: none;
+            max-width: 90%;
+        }
+        .sentence-card:active { cursor: grabbing; transform: scale(1.05); box-shadow: 0 12px 35px rgba(0,0,0,0.3); }
+        .sentence-card.dragging { opacity: 0.6; transform: scale(1.05); }
+        .sentence-card.hidden { display: none; }
+        .drop-zones { display: flex; gap: 20px; width: 100%; max-width: 700px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        .drop-zone {
+            flex: 1; min-width: 250px; min-height: 150px; border-radius: 15px;
+            display: flex; flex-direction: column; align-items: center; padding: 20px;
+            transition: transform 0.2s, background 0.2s;
+            border: 4px dashed rgba(255,255,255,0.5);
+        }
+        .drop-zone.should { background: rgba(72, 199, 142, 0.3); }
+        .drop-zone.shouldnt { background: rgba(255, 99, 99, 0.3); }
+        .drop-zone.drag-over { transform: scale(1.05); border-color: white; }
+        .drop-zone.should.drag-over { background: rgba(72, 199, 142, 0.6); }
+        .drop-zone.shouldnt.drag-over { background: rgba(255, 99, 99, 0.6); }
+        .drop-zone h2 { color: white; font-size: 1.5rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); margin-bottom: 10px; }
+        .drop-zone p { color: rgba(255,255,255,0.7); font-size: 0.85rem; }
+        .sorted-item {
+            background: rgba(255,255,255,0.2); color: white; padding: 8px 14px; border-radius: 8px;
+            font-size: 0.85rem; margin-top: 6px; text-align: center; width: 100%;
+        }
+        .reveal-btn {
+            padding: 15px 35px;
+            background: linear-gradient(135deg, #f6d365, #fda085);
+            color: #333; border: none; border-radius: 30px; font-size: 1.2rem; font-weight: bold;
+            cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            transition: transform 0.2s; margin-top: 10px; display: none;
+        }
+        .reveal-btn:hover { transform: scale(1.05); }
+        .overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 999; flex-direction: column;
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .overlay.visible { display: flex; }
+        .overlay-loc { font-size: 1.4rem; margin-bottom: 12px; }
+        .overlay-sentence {
+            color: white; font-size: 2.3rem; font-weight: bold; text-align: center;
+            margin-bottom: 30px; line-height: 1.3; text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+            animation: popIn 0.4s ease; max-width: 90%;
+        }
+        .overlay-sentence.correct-sentence { color: #48c78e; }
+        .overlay-sentence.wrong-sentence { color: #ff6b6b; }
+        .overlay-label { font-size: 1.2rem; color: rgba(255,255,255,0.6); margin-bottom: 10px; }
+        .overlay-loc { font-size: 1.3rem; font-weight: bold; color: #ffe066; margin-bottom: 12px; background: rgba(255,255,255,0.12); padding: 6px 18px; border-radius: 20px; }
+        .next-btn {
+            padding: 15px 35px; background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; border: none; border-radius: 30px; font-size: 1.2rem; font-weight: bold;
+            cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.3); transition: transform 0.2s; margin-top: 10px;
+        }
+        .next-btn:hover { transform: scale(1.05); }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.7); } to { opacity: 1; transform: scale(1); } }
+        .finished {
+            background: white; padding: 30px; border-radius: 15px; text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2); margin-top: 20px;
+        }
+        .finished h2 { color: #333; font-size: 1.6rem; margin-bottom: 10px; }
+        .finished p { color: #666; font-size: 1.1rem; margin-bottom: 8px; }
+        .locsum { font-size: .95rem; color: #777; margin: 2px 0; }
+        .score { font-size: 2rem; font-weight: bold; color: #667eea; margin: 8px 0; }
+        .restart-btn {
+            margin-top: 15px; padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; border: none; border-radius: 25px; font-size: 1.1rem;
+            cursor: pointer; transition: transform 0.2s;
+        }
+        .restart-btn:hover { transform: scale(1.05); }
+        @media (max-width: 500px) {
+            .drop-zones { flex-direction: column; gap: 15px; }
+            .drop-zone { min-height: 100px; }
+            .sentence-card { font-size: 1.1rem; padding: 15px 20px; }
+            h1 { font-size: 1.4rem; }
+            .overlay-sentence { font-size: 1.6rem; }
+            .location-chip { font-size: 1rem; padding: 8px 16px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="confetti"></canvas>
+    <div class="location-chip" id="locationChip">🏫 school</div>
+    <h1>📚 Rules Sorting — Places Edition</h1>
+    <div class="toprow">
+        <button class="sndbtn" id="sndBtn" title="sound on/off">🔊</button>
+    </div>
+    <div class="student-indicator" id="studentIndicator">🎓 Student 1's turn</div>
+    <div class="progress" id="progress">Question 1 of 10</div>
+
+    <div class="sentence-card" id="sentenceCard" draggable="true"></div>
+
+    <button class="reveal-btn" id="revealBtn">🔍 Reveal the sentence</button>
+
+    <div class="drop-zones">
+        <div class="drop-zone should" id="shouldZone">
+            <h2>✅ You should</h2>
+            <p>Drop here</p>
+            <div id="shouldList"></div>
+        </div>
+        <div class="drop-zone shouldnt" id="shouldntZone">
+            <h2>❌ You shouldn't</h2>
+            <p>Drop here</p>
+            <div id="shouldntList"></div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="overlay-label" id="overlayLabel"></div>
+        <div class="overlay-loc" id="overlayLoc"></div>
+        <div class="overlay-sentence" id="overlaySentence"></div>
+        <button class="next-btn" id="nextBtn">➡️ Next Student</button>
+    </div>
+
+    <script>
+        /* ============ AUDIO (synth effects only — no voice) ============ */
+        let AC;
+        let muted = false;
+        try { muted = localStorage.getItem('bilingo-muted') === '1'; } catch(e) {}
+        function initAudio(){ if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); if(AC.state === 'suspended') AC.resume(); }
+        function tone(f, type, dur, vol=.25, del=0){
+            if(!AC || muted) return;
+            const o = AC.createOscillator(), g = AC.createGain();
+            o.type = type; o.frequency.value = f;
+            g.gain.setValueAtTime(vol, AC.currentTime + del);
+            g.gain.exponentialRampToValueAtTime(.001, AC.currentTime + del + dur);
+            o.connect(g); g.connect(AC.destination);
+            o.start(AC.currentTime + del); o.stop(AC.currentTime + del + dur);
+        }
+        function sndCorrect(){ initAudio(); tone(523,'sine',.16,.22,0); tone(659,'sine',.16,.22,.09); tone(784,'sine',.22,.28,.18); tone(1047,'sine',.3,.18,.28); }
+        function sndWrong(){ initAudio(); tone(160,'square',.35,.2); tone(120,'sawtooth',.3,.14,.12); }
+        function sndReveal(){ initAudio(); tone(660,'triangle',.12,.15,0); tone(880,'triangle',.14,.15,.08); tone(1100,'triangle',.2,.18,.16); }
+        function sndFanfare(){ initAudio(); [523,659,784,1047].forEach((f,i)=>tone(f,'triangle',.28,.22,i*.14)); tone(1319,'sine',.5,.2,.6); }
+        const sndBtn = document.getElementById('sndBtn');
+        function drawSnd(){ sndBtn.textContent = muted ? '🔇' : '🔊'; sndBtn.classList.toggle('off', muted); }
+        drawSnd();
+        sndBtn.onclick = () => { muted = !muted; try{ localStorage.setItem('bilingo-muted', muted?'1':'0'); }catch(e){} drawSnd(); if(!muted){ initAudio(); sndReveal(); } };
+
+        /* ============ CONFETTI ============ */
+        const cvs = document.getElementById('confetti'), cx = cvs.getContext('2d');
+        let pts = [], afr = null;
+        function rCvs(){ cvs.width = innerWidth; cvs.height = innerHeight; }
+        addEventListener('resize', rCvs); rCvs();
+        function boom(x, y, n=110){
+            for(let i=0;i<n;i++){ const a = Math.random()*Math.PI*2, s = Math.random()*13+4;
+                pts.push({ x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s-5,
+                    col: ['#ffe66d','#ff6b6b','#4ecdc4','#45b7d1','#f9ca24','#ff9ff3','#feca57','#00d2d3','#ff6348','#7bed9f'][~~(Math.random()*10)],
+                    sz: Math.random()*7+3, life: 1, rot: Math.random()*360, rs: (Math.random()-.5)*15,
+                    sh: Math.random()>.4 ? 'r' : 'c' }); }
+            if(!afr) aLoop();
+        }
+        function fireworks(){
+            boom(innerWidth*.25, innerHeight*.3, 90);
+            setTimeout(()=>boom(innerWidth*.75, innerHeight*.25, 90), 180);
+            setTimeout(()=>boom(innerWidth*.5, innerHeight*.2, 110), 360);
+        }
+        function aLoop(){
+            cx.clearRect(0,0,cvs.width,cvs.height);
+            for(let i=pts.length-1;i>=0;i--){ const p = pts[i];
+                p.x += p.vx; p.vy += .22; p.y += p.vy; p.vx *= .99; p.life -= .01; p.rot += p.rs;
+                if(p.life <= 0 || p.y > cvs.height+30){ pts.splice(i,1); continue; }
+                cx.save(); cx.translate(p.x,p.y); cx.rotate(p.rot*Math.PI/180);
+                cx.globalAlpha = Math.min(1, p.life*2.5); cx.fillStyle = p.col;
+                if(p.sh==='r') cx.fillRect(-p.sz/2, -p.sz/2, p.sz, p.sz*.6);
+                else { cx.beginPath(); cx.arc(0,0,p.sz/2,0,Math.PI*2); cx.fill(); }
+                cx.restore(); }
+            if(pts.length > 0) afr = requestAnimationFrame(aLoop);
+            else { afr = null; cx.clearRect(0,0,cvs.width,cvs.height); }
+        }
+
+        /* ============ SCREEN SHAKE ============ */
+        function screenShake(){
+            document.body.classList.remove('shaking');
+            void document.body.offsetWidth; /* restart animation */
+            document.body.classList.add('shaking');
+            setTimeout(()=>document.body.classList.remove('shaking'), 500);
+        }
+
+        /* ============ DATA — words known by GE7 U1C3 ============ */
+        const LOCATIONS = [
+            { emoji: '🏫', word: 'school', end: 'at school', situations: [
+                { text: "pay attention to the teacher", answer: "should" },
+                { text: "make noise in class", answer: "shouldnt" },
+                { text: "ask for help", answer: "should" },
+                { text: "talk loudly with friends", answer: "shouldnt" },
+                { text: "read aloud when the teacher asks", answer: "should" },
+                { text: "help your friends", answer: "should" },
+                { text: "make a mess in the classroom", answer: "shouldnt" },
+                { text: "listen to the teacher quietly", answer: "should" },
+                { text: "run in the classroom", answer: "shouldnt" },
+                { text: "understand the class rules", answer: "should" }
+            ]},
+            { emoji: '📚', word: 'library', end: 'in the library', situations: [
+                { text: "talk quietly", answer: "should" },
+                { text: "read books", answer: "should" },
+                { text: "make noise", answer: "shouldnt" },
+                { text: "put the books back", answer: "should" },
+                { text: "eat in the library", answer: "shouldnt" }
+            ]},
+            { emoji: '🌳', word: 'park', end: 'in the park', situations: [
+                { text: "pick up the trash", answer: "should" },
+                { text: "water the flowers", answer: "should" },
+                { text: "pick the flowers", answer: "shouldnt" },
+                { text: "wait for your friends", answer: "should" },
+                { text: "push other kids", answer: "shouldnt" }
+            ]},
+            { emoji: '🚇', word: 'subway', end: 'on the subway', situations: [
+                { text: "wait in line", answer: "should" },
+                { text: "push people", answer: "shouldnt" },
+                { text: "help old people", answer: "should" },
+                { text: "talk loudly", answer: "shouldnt" },
+                { text: "eat on the subway", answer: "shouldnt" }
+            ]}
+        ];
+
+        /* randomized run: locations shuffled, questions shuffled inside each.
+           Every question appears exactly once per run; restart reshuffles. */
+        function shuffle(a){ const r=[...a]; for(let i=r.length-1;i>0;i--){ const j=~~(Math.random()*(i+1)); [r[i],r[j]]=[r[j],r[i]]; } return r; }
+        function buildRun(){
+            return shuffle(LOCATIONS).map(l=>({ loc:l, situations: shuffle(l.situations) }));
+        }
+        let run = buildRun();
+        let li = 0;              // location pointer into run
+        let si = 0;              // question pointer inside run[li]
+        let correctCount = 0;
+        let currentChoice = null;
+        let waitingForReveal = false;
+        let totalQuestions = LOCATIONS.reduce((s,l)=>s+l.situations.length,0);
+
+        const card = document.getElementById('sentenceCard');
+        const shouldZone = document.getElementById('shouldZone');
+        const shouldntZone = document.getElementById('shouldntZone');
+        const shouldList = document.getElementById('shouldList');
+        const shouldntList = document.getElementById('shouldntList');
+        const progress = document.getElementById('progress');
+        const studentIndicator = document.getElementById('studentIndicator');
+        const revealBtn = document.getElementById('revealBtn');
+        const overlay = document.getElementById('overlay');
+        const overlaySentence = document.getElementById('overlaySentence');
+        const overlayLabel = document.getElementById('overlayLabel');
+        const overlayLoc = document.getElementById('overlayLoc');
+        const nextBtn = document.getElementById('nextBtn');
+        const locationChip = document.getElementById('locationChip');
+
+        function currentLoc(){ return run[li] && run[li].loc; }
+
+        function loadSituation() {
+            if (li >= run.length) { showFinished(); return; }
+            const loc = currentLoc();
+            if (si >= loc.situations.length) {
+                li++;
+                si = 0;
+                loadSituation();
+                return;
+            }
+            locationChip.textContent = loc.emoji + ' ' + loc.word;
+            locationChip.classList.remove('pop');
+            void locationChip.offsetWidth;
+            locationChip.classList.add('pop');
+            card.textContent = loc.situations[si].text;
+            card.classList.remove('hidden');
+            revealBtn.style.display = 'none';
+            waitingForReveal = false;
+            progress.textContent = `${loc.emoji} ${loc.word} — question ${si + 1} of ${loc.situations.length}`;
+            studentIndicator.textContent = `🎓 Student ${si + 1}'s turn`;
+        }
+
+        function handleDrop(chosenAnswer) {
+            if (waitingForReveal) return;
+            waitingForReveal = true;
+
+            const loc = currentLoc();
+            const situation = loc.situations[si];
+            const isCorrect = chosenAnswer === situation.answer;
+            if (isCorrect) {
+                correctCount++;
+                sndCorrect();
+                const r = (chosenAnswer === 'should' ? shouldZone : shouldntZone).getBoundingClientRect();
+                boom(r.left + r.width/2, r.top + r.height/2, 90);
+            } else {
+                sndWrong();
+                screenShake();
+            }
+
+            currentChoice = { chosenAnswer, isCorrect, situation, loc };
+
+            const sortedItem = document.createElement('div');
+            sortedItem.className = 'sorted-item';
+            sortedItem.textContent = loc.emoji + ' ' + situation.text;
+            if (chosenAnswer === 'should') {
+                shouldList.appendChild(sortedItem);
+            } else {
+                shouldntList.appendChild(sortedItem);
+            }
+
+            card.classList.add('hidden');
+            revealBtn.style.display = 'block';
+        }
+
+        function sentenceFor(loc, situation, answer){
+            return `You ${answer === 'should' ? 'should' : "shouldn't"} ${situation.text} ${loc.end}.`;
+        }
+
+        revealBtn.addEventListener('click', () => {
+            if (!currentChoice) return;
+            const { chosenAnswer, isCorrect, situation, loc } = currentChoice;
+            sndReveal();
+
+            overlayLoc.textContent = loc.emoji + ' ' + loc.word;
+            overlayLabel.textContent = isCorrect ? "✅ Correct!" : `❌ Wrong! The correct answer is:`;
+            overlaySentence.textContent = isCorrect
+                ? sentenceFor(loc, situation, chosenAnswer)
+                : sentenceFor(loc, situation, situation.answer);
+            overlaySentence.className = `overlay-sentence ${isCorrect ? 'correct-sentence' : 'wrong-sentence'}`;
+
+            const isLast = li === run.length - 1 && si === run[li].situations.length - 1;
+            nextBtn.textContent = isLast ? '🎉 See Results' : '➡️ Next Student';
+
+            overlay.classList.add('visible');
+            revealBtn.style.display = 'none';
+        });
+
+        nextBtn.addEventListener('click', () => {
+            overlay.classList.remove('visible');
+            currentChoice = null;
+            si++;
+            loadSituation();
+        });
+
+        function showFinished() {
+            sndFanfare();
+            fireworks();
+            card.classList.add('hidden');
+            revealBtn.style.display = 'none';
+            progress.style.display = 'none';
+            studentIndicator.style.display = 'none';
+
+            const locSum = LOCATIONS.map(l => `<div class="locsum">${l.emoji} ${l.word}</div>`).join('');
+            const finDiv = document.createElement('div');
+            finDiv.className = 'finished';
+            finDiv.id = 'finishedBox';
+            finDiv.innerHTML = `
+                <h2>🎉 Great job, class!</h2>
+                <p>You sorted the rules for every place!</p>
+                ${locSum}
+                <div class="score">${correctCount}/${totalQuestions} correct</div>
+                <button class="restart-btn" onclick="restartGame()">Play Again</button>
+            `;
+            document.body.insertBefore(finDiv, document.querySelector('.drop-zones'));
+        }
+
+        function restartGame() {
+            run = buildRun();
+            li = 0;
+            si = 0;
+            correctCount = 0;
+            currentChoice = null;
+            waitingForReveal = false;
+            shouldList.innerHTML = '';
+            shouldntList.innerHTML = '';
+            document.getElementById('finishedBox')?.remove();
+            card.classList.remove('hidden');
+            progress.style.display = 'block';
+            studentIndicator.style.display = 'block';
+            loadSituation();
+        }
+
+        /* Drag events */
+        card.addEventListener('dragstart', (e) => {
+            if (waitingForReveal) return;
+            card.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', '');
+        });
+        card.addEventListener('dragend', () => { card.classList.remove('dragging'); });
+
+        [shouldZone, shouldntZone].forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                if (waitingForReveal) return;
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+            zone.addEventListener('dragleave', () => { zone.classList.remove('drag-over'); });
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                if (waitingForReveal) return;
+                handleDrop(zone === shouldZone ? 'should' : 'shouldnt');
+            });
+        });
+
+        /* Touch support */
+        let touchClone = null;
+        let offsetX = 0, offsetY = 0;
+
+        card.addEventListener('touchstart', (e) => {
+            if (waitingForReveal) return;
+            const touch = e.touches[0];
+            const rect = card.getBoundingClientRect();
+            offsetX = touch.clientX - rect.left;
+            offsetY = touch.clientY - rect.top;
+
+            touchClone = card.cloneNode(true);
+            touchClone.style.position = 'fixed';
+            touchClone.style.left = (touch.clientX - offsetX) + 'px';
+            touchClone.style.top = (touch.clientY - offsetY) + 'px';
+            touchClone.style.zIndex = '1000';
+            touchClone.style.opacity = '0.8';
+            touchClone.style.pointerEvents = 'none';
+            document.body.appendChild(touchClone);
+            card.style.opacity = '0.3';
+        });
+
+        card.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!touchClone) return;
+            const touch = e.touches[0];
+            touchClone.style.left = (touch.clientX - offsetX) + 'px';
+            touchClone.style.top = (touch.clientY - offsetY) + 'px';
+
+            const shouldRect = shouldZone.getBoundingClientRect();
+            const shouldntRect = shouldntZone.getBoundingClientRect();
+
+            shouldZone.classList.toggle('drag-over',
+                touch.clientX >= shouldRect.left && touch.clientX <= shouldRect.right &&
+                touch.clientY >= shouldRect.top && touch.clientY <= shouldRect.bottom);
+            shouldntZone.classList.toggle('drag-over',
+                touch.clientX >= shouldntRect.left && touch.clientX <= shouldntRect.right &&
+                touch.clientY >= shouldntRect.top && touch.clientY <= shouldntRect.bottom);
+        });
+
+        card.addEventListener('touchend', (e) => {
+            if (!touchClone) return;
+            const touch = e.changedTouches[0];
+            touchClone.remove();
+            touchClone = null;
+            card.style.opacity = '1';
+
+            const shouldRect = shouldZone.getBoundingClientRect();
+            const shouldntRect = shouldntZone.getBoundingClientRect();
+
+            shouldZone.classList.remove('drag-over');
+            shouldntZone.classList.remove('drag-over');
+
+            if (touch.clientX >= shouldRect.left && touch.clientX <= shouldRect.right &&
+                touch.clientY >= shouldRect.top && touch.clientY <= shouldRect.bottom) {
+                handleDrop('should');
+            } else if (touch.clientX >= shouldntRect.left && touch.clientX <= shouldntRect.right &&
+                touch.clientY >= shouldntRect.top && touch.clientY <= shouldntRect.bottom) {
+                handleDrop('shouldnt');
+            }
+        });
+
+        /* Click fallback */
+        shouldZone.addEventListener('click', () => {
+            if (!waitingForReveal && li < run.length && si < currentLoc().situations.length) handleDrop('should');
+        });
+        shouldntZone.addEventListener('click', () => {
+            if (!waitingForReveal && li < run.length && si < currentLoc().situations.length) handleDrop('shouldnt');
+        });
+
+        loadSituation();
+    </script>
+<!-- Bilingo game controls: zoom + fullscreen toggle (auto-collapsing) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .85; }
+  .bilingo-ui .b-handle { display: none; }
+  .bilingo-ui.mini > *:not(.b-handle) { display: none; }
+  .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-handle" title="Show controls" aria-label="Show controls">&#9881;&#65039;</button>
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">&minus;</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">&#9966;</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom';
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() {
+    z = Math.max(MIN, Math.round((z - STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function grow() {
+    z = Math.min(MAX, Math.round((z + STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+  }
+
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.remove('mini');
+    poke();
+  });
+
+  // Collapse to just the handle after 5s without interaction, so the bar
+  // never sits on top of the game's own buttons.
+  var idleTimer = null;
+  function poke() {
+    bar.classList.remove('mini');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.add('mini'); }, 5000);
+  }
+  bar.addEventListener('pointerdown', poke);
+  poke();
+  apply();
+})();
+</script>
+
+</body></html>

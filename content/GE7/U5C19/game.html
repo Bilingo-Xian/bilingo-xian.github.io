@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Big Night — Who is the MOST...?</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  color:#fff;padding:10px 12px 30px;overflow-x:hidden;
+  background:linear-gradient(135deg,#0b7285,#1864ab);
+}
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+.topbar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:900px;margin-bottom:6px;gap:8px}
+h1{font-size:clamp(1.1em,3.4vw,1.8em);text-shadow:2px 2px 8px rgba(0,0,0,.25)}
+.rc{background:rgba(255,255,255,.22);padding:4px 16px;border-radius:20px;font-size:.85em;font-weight:700}
+.sndbtn{background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.4);color:#fff;border-radius:20px;font-size:1rem;padding:3px 12px;cursor:pointer;font-family:inherit;font-weight:700}
+.sndbtn.off{opacity:.45}
+
+.stage{
+  width:100%;max-width:900px;position:relative;
+  background:linear-gradient(180deg,#123a5c,#0f2f4d);
+  border:3px solid #7bd5f5;border-radius:24px;
+  padding:14px 14px 18px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+.curtain{position:absolute;top:0;left:0;right:0;height:7px;background:linear-gradient(90deg,#22b8cf,#7bd5f5,#22b8cf,#7bd5f5,#22b8cf);border-radius:24px 24px 0 0}
+.lights{display:flex;justify-content:center;gap:22px;margin:6px 0 2px;font-size:1.1rem}
+.lt{animation:twinkle 2s ease-in-out infinite}
+.lt:nth-child(2){animation-delay:.6s}.lt:nth-child(3){animation-delay:1.2s}
+@keyframes twinkle{0%,100%{opacity:.3}50%{opacity:1}}
+
+.badge{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin:8px auto 10px;width:fit-content;
+  background:rgba(255,255,255,.14);backdrop-filter:blur(8px);
+  padding:8px 30px;border-radius:50px;
+  font-size:clamp(1.4em,4vw,2.2em);font-weight:900;
+  border:2px solid rgba(255,255,255,.3);
+  animation:pulse 2.5s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+
+.banner{
+  width:100%;max-width:680px;margin:0 auto 10px;min-height:64px;
+  background:rgba(255,255,255,.1);border:2px dashed rgba(255,255,255,.35);
+  border-radius:18px;padding:12px 16px;text-align:center;
+  display:flex;flex-direction:column;justify-content:center;gap:4px;
+  font-size:clamp(.95em,2.3vw,1.45em);font-weight:900;line-height:1.35;
+  transition:.35s;
+}
+.banner.solid{border-style:solid;border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.16)}
+.banner .say{font-size:.58em;opacity:.75;letter-spacing:2px;text-transform:uppercase;font-weight:700}
+.banner .row{animation:fadeUp .35s ease-out;line-height:1.5}
+.banner .row.oneline{white-space:nowrap}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* word chips — the ONLY scaffold kids get before revealing */
+.chips{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap}
+.chip{
+  display:inline-block;background:#7bd5f5;color:#123;
+  padding:6px 18px;border-radius:14px;font-weight:900;
+  box-shadow:0 3px 10px rgba(0,0,0,.25);font-size:1.05em;
+}
+.chip.act{background:#fff;color:#333}
+.chip .plus{opacity:.6;font-weight:700}
+
+.prompt{
+  text-align:center;font-size:clamp(.85em,2.2vw,1.05em);font-weight:700;
+  color:rgba(255,255,255,.9);margin:2px 0 10px;min-height:1.6em;
+  text-shadow:1px 1px 4px rgba(0,0,0,.2);
+}
+
+.chars{display:flex;justify-content:center;align-items:stretch;gap:10px;width:100%;max-width:780px;margin:0 auto 10px}
+.card{
+  flex:1;max-width:240px;
+  background:rgba(255,255,255,.1);backdrop-filter:blur(8px);border-radius:22px;
+  padding:14px 10px 12px;display:flex;flex-direction:column;align-items:center;
+  border:3px solid rgba(255,255,255,.15);position:relative;
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+}
+.card.clickable{cursor:pointer}
+.card.clickable:hover{border-color:rgba(123,213,245,.8);transform:scale(1.04);background:rgba(255,255,255,.18)}
+.vol{font-size:clamp(1.2em,3vw,1.7em);margin-bottom:2px;min-height:1.4em}
+.avatar{width:clamp(64px,14vw,110px);height:clamp(64px,14vw,110px);object-fit:contain;margin-bottom:4px}
+.cname{font-size:clamp(1em,2.6vw,1.4em);font-weight:900;margin-bottom:6px;text-shadow:1px 1px 4px rgba(0,0,0,.25)}
+.bub{
+  background:#fff;color:#333;padding:7px 12px;border-radius:13px;
+  font-size:clamp(.68em,1.6vw,.9em);font-weight:700;text-align:center;
+  box-shadow:0 3px 12px rgba(0,0,0,.15);max-width:96%;position:relative;min-height:1.5em;
+}
+.bub::before{content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%);border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:7px solid #fff}
+
+@keyframes wrongShake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-12px)}20%,40%,60%,80%{transform:translateX(12px)}}
+.card.wrong{animation:wrongShake .5s ease;border-color:#ff3333!important;box-shadow:0 0 35px rgba(255,0,0,.5)!important}
+@keyframes correctGlow{0%{box-shadow:0 0 0 rgba(123,213,245,0)}50%{box-shadow:0 0 50px rgba(123,213,245,.7)}100%{box-shadow:0 0 15px rgba(123,213,245,.35)}}
+.card.correct{border-color:#7bd5f5!important;animation:correctGlow .8s ease}
+.card.dim{opacity:.45;filter:grayscale(.6)}
+
+/* judges holding score signs over their heads */
+.judges{display:flex;justify-content:center;gap:30px;margin:2px 0 6px;min-height:110px;opacity:0;transform:translateY(12px);transition:.4s;pointer-events:none;align-items:flex-end}
+.judges.show{opacity:1;transform:translateY(0)}
+.judge{display:flex;flex-direction:column;align-items:center;animation:jpop .45s cubic-bezier(.34,1.56,.64,1) backwards}
+.judge:nth-child(2){animation-delay:.12s}
+.judge:nth-child(3){animation-delay:.24s}
+@keyframes jpop{from{transform:scale(0)}to{transform:scale(1)}}
+.judge .sign{
+  background:#fff;border:3px solid #0b7285;color:#0b4d63;border-radius:12px;
+  padding:2px 16px;font-size:clamp(1.1em,3vw,1.5em);font-weight:900;
+  box-shadow:0 4px 12px rgba(0,0,0,.3);position:relative;margin-bottom:9px;
+  animation:signWav 1.6s ease-in-out infinite;
+}
+.judge:nth-child(2) .sign{animation-delay:.3s}
+.judge:nth-child(3) .sign{animation-delay:.6s}
+@keyframes signWav{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.judge .sign::after{
+  content:'';position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);
+  border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid #0b7285;
+}
+.judge .face{font-size:clamp(2.2em,6vw,3em);line-height:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
+
+.mainbtn{
+  display:block;margin:6px auto 0;
+  padding:14px 44px;font-size:clamp(1em,2.6vw,1.25em);font-weight:900;
+  background:linear-gradient(135deg,#7bd5f5,#22b8cf);color:#083344;
+  border:none;border-radius:50px;cursor:pointer;font-family:'Nunito',sans-serif;
+  box-shadow:0 8px 26px rgba(34,184,207,.4);transition:all .25s;
+  animation:glow 2s ease-in-out infinite;
+}
+.mainbtn:hover{transform:scale(1.06)}
+.mainbtn:active{transform:scale(.97)}
+.mainbtn.hide{display:none}
+.mainbtn.green{background:linear-gradient(135deg,#34d399,#10b981);color:#022c22;box-shadow:0 8px 26px rgba(16,185,129,.4)}
+@keyframes glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
+
+.popup{position:fixed;top:42%;left:50%;transform:translate(-50%,-50%) scale(0);font-size:clamp(2em,8vw,4em);font-weight:900;z-index:1000;pointer-events:none;text-shadow:3px 3px 12px rgba(0,0,0,.35);opacity:0}
+.popup.show{animation:popIn 1.2s ease forwards}
+@keyframes popIn{0%{transform:translate(-50%,-50%) scale(0);opacity:0}20%{transform:translate(-50%,-50%) scale(1.3);opacity:1}40%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(0);opacity:0}}
+
+/* character animations */
+.a-shake{animation:shake .5s ease-in-out infinite}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.a-bounce{animation:abounce .55s ease-in-out infinite}
+@keyframes abounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+.a-wobble{animation:wobble .7s ease-in-out infinite}
+@keyframes wobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-12deg)}75%{transform:rotate(12deg)}}
+.a-float{animation:afloat 2.5s ease-in-out infinite}
+@keyframes afloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.a-tremble{animation:tremble .08s linear infinite}
+@keyframes tremble{0%{transform:translate(0)}25%{transform:translate(-2px,1px)}50%{transform:translate(2px,-1px)}75%{transform:translate(-1px,-2px)}100%{transform:translate(1px,2px)}}
+.a-sway{animation:sway 1.4s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-6px) rotate(-3deg)}75%{transform:translateX(6px) rotate(3deg)}}
+.a-idle{animation:idle 3s ease-in-out infinite}
+@keyframes idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.a-jitter{animation:jitter .15s linear infinite}
+@keyframes jitter{0%{transform:translate(0)}25%{transform:translate(3px,-3px)}50%{transform:translate(-3px,3px)}75%{transform:translate(3px,2px)}100%{transform:translate(-2px,-2px)}}
+.a-dance{animation:dance .6s ease-in-out infinite}
+@keyframes dance{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-10px) rotate(-8deg)}75%{transform:translateY(-10px) rotate(8deg)}}
+.a-sleep{animation:asleep 2.5s ease-in-out infinite}
+@keyframes asleep{0%,100%{transform:rotate(0) translateY(0)}40%{transform:rotate(-10deg) translateY(6px)}70%{transform:rotate(-6deg) translateY(3px)}}
+@keyframes zoom{0%,100%{transform:scale(1)}50%{transform:scale(1.22)}}
+.a-zoom{animation:zoom .5s ease-in-out infinite}
+@keyframes flex{0%,100%{transform:scale(1)}50%{transform:scale(1.12,.94)}}
+.a-flex{animation:flex .6s ease-in-out infinite}
+@keyframes shine{0%,100%{filter:brightness(1)}50%{filter:brightness(1.45) drop-shadow(0 0 14px #7bd5f5)}}
+.a-shine{animation:shine 1s ease-in-out infinite}
+@keyframes sparkle{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.14) rotate(6deg)}}
+.a-sparkle{animation:sparkle .7s ease-in-out infinite}
+
+/* class record panel */
+.record{width:100%;max-width:900px;margin:14px auto 0;background:rgba(255,255,255,.08);border:3px dashed rgba(255,255,255,.3);border-radius:22px;padding:12px 14px}
+.record-head{text-align:center;font-weight:900;font-size:clamp(1em,2.6vw,1.3em);margin-bottom:10px}
+.record-head .small{display:block;font-size:.6em;opacity:.7;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.record-grid{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.rec-card{flex:1;min-width:130px;max-width:168px;background:rgba(255,255,255,.1);border-radius:16px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;border:2px solid rgba(255,255,255,.12)}
+.rec-card img{width:52px;height:52px;object-fit:contain}
+.rec-name{font-weight:900;font-size:.95em}
+.rec-titles{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;min-height:22px}
+.rec-chip{background:#7bd5f5;color:#123;font-size:.66em;font-weight:900;padding:2px 8px;border-radius:9px;animation:pop .35s;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.rec-btn{margin-top:3px;background:#ffd93d;border:none;color:#333;font-weight:900;padding:5px 12px;border-radius:10px;cursor:pointer;font-size:.78em;font-family:'Nunito',sans-serif;animation:pop .35s}
+.rec-btn:hover{transform:scale(1.06)}
+.rec-sentence{font-size:.74em;font-weight:700;text-align:center;line-height:1.45;background:rgba(255,255,255,.16);border-radius:10px;padding:6px 7px;animation:fadeUp .4s}
+.rec-none{font-size:.7em;opacity:.55;font-style:italic;margin-top:4px}
+button.rc{cursor:pointer;border:0;font-family:inherit}
+button.rc:disabled{opacity:.5;cursor:default}
+
+@media(max-width:560px){
+  .chars{gap:6px}
+  .banner .row.oneline{white-space:normal}
+}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="topbar">
+  <h1>🌟 The Big Night — Who is the MOST…? 🎤</h1>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button class="sndbtn" id="sndBtn" title="sound on/off">🔊</button>
+    <div class="rc" id="rc">Round 1</div>
+    <button class="rc" id="finishBtn">🏁 Finish</button>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="curtain"></div>
+  <div class="lights"><span class="lt">💡</span><span class="lt">🔦</span><span class="lt">💡</span></div>
+
+  <div class="badge" id="badge">🌟 most confident</div>
+  <div class="banner" id="banner"></div>
+  <div class="prompt" id="prompt">…</div>
+
+  <div class="chars">
+    <div class="card" id="cA">
+      <img class="avatar" id="avA" src="Laki.png" alt="">
+      <div class="cname" id="nmA">Laki</div>
+      <div class="bub" id="buA">…</div>
+    </div>
+    <div class="card" id="cB">
+      <img class="avatar" id="avB" src="Lele.png" alt="">
+      <div class="cname" id="nmB">Lele</div>
+      <div class="bub" id="buB">…</div>
+    </div>
+    <div class="card" id="cC">
+      <img class="avatar" id="avC" src="Pili.png" alt="">
+      <div class="cname" id="nmC">Pili</div>
+      <div class="bub" id="buC">…</div>
+    </div>
+  </div>
+
+  <div class="judges" id="judges"></div>
+  <button class="mainbtn" id="mainBtn">…</button>
+</div>
+
+<section class="record" id="record">
+  <div class="record-head">📋 Our Class Record
+    <span class="small">who won what today — press 🏁 Finish at the end!</span>
+  </div>
+  <div class="record-grid" id="recordGrid"></div>
+</section>
+
+<div class="popup" id="popup"></div>
+
+<script>
+/* ============ AUDIO (synth effects only — no voice) ============ */
+let AC;
+let muted=false;
+try{muted=localStorage.getItem('bilingo-muted')==='1'}catch(e){}
+function initAudio(){if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}
+function tone(f,type,dur,vol=.25,del=0){
+  if(!AC||muted)return;const o=AC.createOscillator(),g=AC.createGain();
+  o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(vol,AC.currentTime+del);
+  g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+del+dur);
+  o.connect(g);g.connect(AC.destination);
+  o.start(AC.currentTime+del);o.stop(AC.currentTime+del+dur);
+}
+/* crowd cheer = filtered noise burst + rising "whoo" tones */
+function sndCheer(){
+  if(muted)return;initAudio();
+  const dur=.9,sr=AC.sampleRate,buf=AC.createBuffer(1,sr*dur,sr),d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.6);
+  const src=AC.createBufferSource();src.buffer=buf;
+  const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=900;bp.Q.value=.8;
+  const g=AC.createGain();g.gain.setValueAtTime(.5,AC.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+dur);
+  src.connect(bp);bp.connect(g);g.connect(AC.destination);src.start();
+  for(let i=0;i<5;i++)tone(500+Math.random()*500,'sine',.18,.1,Math.random()*.5);
+}
+function sndCorrect(){initAudio();tone(523,'sine',.18,.22,0);tone(659,'sine',.18,.22,.09);tone(784,'sine',.25,.28,.18);tone(1047,'sine',.35,.18,.3)}
+function sndWrong(){initAudio();tone(160,'square',.35,.18);tone(120,'sawtooth',.25,.12,.12)}
+function sndNext(){initAudio();
+  const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';
+  o.frequency.setValueAtTime(350,AC.currentTime);o.frequency.exponentialRampToValueAtTime(900,AC.currentTime+.12);
+  g.gain.setValueAtTime(.1,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.18);
+  o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.18);
+}
+function sndReveal(){initAudio();tone(660,'triangle',.12,.15,0);tone(880,'triangle',.14,.15,.08);tone(1100,'triangle',.2,.18,.16)}
+
+const sndBtn=document.getElementById('sndBtn');
+function drawSnd(){sndBtn.textContent=muted?'🔇':'🔊';sndBtn.classList.toggle('off',muted)}
+drawSnd();
+sndBtn.onclick=()=>{muted=!muted;try{localStorage.setItem('bilingo-muted',muted?'1':'0')}catch(e){}drawSnd();if(!muted){initAudio();sndReveal()}};
+
+/* ============ CONFETTI ============ */
+const cvs=document.getElementById('confetti'),cx=cvs.getContext('2d');
+let pts=[],afr=null;
+function rCvs(){cvs.width=innerWidth;cvs.height=innerHeight}
+addEventListener('resize',rCvs);rCvs();
+function boom(x,y,n=120){
+  for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=Math.random()*14+4;
+    pts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-5,
+      col:['#ffe66d','#ff6b6b','#4ecdc4','#45b7d1','#f9ca24','#ff9ff3','#feca57','#00d2d3','#ff6348','#7bed9f'][~~(Math.random()*10)],
+      sz:Math.random()*7+3,life:1,rot:Math.random()*360,rs:(Math.random()-.5)*15,
+      sh:Math.random()>.4?'r':'c'});}
+  if(!afr)aLoop();
+}
+function fireworks(){
+  boom(innerWidth*.25,innerHeight*.3,90);setTimeout(()=>boom(innerWidth*.75,innerHeight*.25,90),180);
+  setTimeout(()=>boom(innerWidth*.5,innerHeight*.2,110),360);
+}
+function aLoop(){cx.clearRect(0,0,cvs.width,cvs.height);
+  for(let i=pts.length-1;i>=0;i--){const p=pts[i];p.x+=p.vx;p.vy+=.22;p.y+=p.vy;p.vx*=.99;p.life-=.01;p.rot+=p.rs;
+    if(p.life<=0||p.y>cvs.height+30){pts.splice(i,1);continue}
+    cx.save();cx.translate(p.x,p.y);cx.rotate(p.rot*Math.PI/180);cx.globalAlpha=Math.min(1,p.life*2.5);cx.fillStyle=p.col;
+    if(p.sh==='r')cx.fillRect(-p.sz/2,-p.sz/2,p.sz,p.sz*.6);
+    else{cx.beginPath();cx.arc(0,0,p.sz/2,0,Math.PI*2);cx.fill()}
+    cx.restore();}
+  if(pts.length>0)afr=requestAnimationFrame(aLoop);else{afr=null;cx.clearRect(0,0,cvs.width,cvs.height);}
+}
+
+/* ============ DATA ============ */
+const CH=[
+  {n:'Laki',img:'Laki.png',c:'#6BCB77'},
+  {n:'Lele',img:'Lele.png',c:'#FF6B9D'},
+  {n:'Nani',img:'Nani.png',c:'#FF8C42'},
+  {n:'Ola', img:'Ola.png', c:'#4ECDC4'},
+  {n:'Pili',img:'Pili.png',c:'#A29BFE'}
+];
+/* LONG adjectives — they take "the most ...", never "-est".
+   From GE7 vocab (U4C13–U5C19).
+   axis/pole = contradiction guard: one character can NEVER hold opposite poles
+   of the same axis (the most confident vs the most nervous, ...).
+   Same-pole adjectives MAY stack (the most artistic + the most talented). */
+const ADJ=[
+ {id:'confident', e:'🌟', axis:'nerve',  pole:1,
+  win:{t:'Watch me! I am AMAZING! 🌟',a:'dance'}, mid:{t:'I can do it! 😄',a:'bounce'}, low:{t:'Um… do I have to? 😳',a:'tremble'}},
+ {id:'nervous',   e:'😰', axis:'nerve',  pole:-1,
+  win:{t:'Is it my turn?! IS IT?! 😰',a:'jitter'}, mid:{t:'A little nervous… 😟',a:'tremble'}, low:{t:'So relaxed~ 🧘',a:'sleep'}},
+ {id:'talkative', e:'💬', axis:'mouth',  pole:1,
+  win:{t:'BLAH BLAH BLAH — hey, listen! 💬💬',a:'shake'}, mid:{t:'So anyway… 🙂',a:'sway'}, low:{t:'… 🤐',a:'sleep'}},
+ {id:'artistic',  e:'🎨', axis:'art',    pole:1,
+  win:{t:'BEHOLD! My masterpiece! 🖼️✨',a:'sparkle'}, mid:{t:'I drew a nice cat! 😺',a:'bounce'}, low:{t:'It is a… circle. Maybe. ⭕',a:'tremble'}},
+ {id:'musical',   e:'🎵', axis:'art',    pole:1,
+  win:{t:'♪ LA-LA-LAAA — perfect pitch! 🎶',a:'dance'}, mid:{t:'I know this song! 🎵',a:'sway'}, low:{t:'*plays the wrong note* 🎺💥',a:'wobble'}},
+ {id:'energetic', e:'⚡', axis:'energy', pole:1,
+  win:{t:'I CAN DO THIS ALL DAY! ⚡⚡',a:'zoom'}, mid:{t:'I have lots of energy! 😄',a:'bounce'}, low:{t:'*yawn* …five more minutes 😴',a:'sleep'}},
+ {id:'popular',   e:'💖', axis:'social', pole:1,
+  win:{t:'EVERYONE loves me! 💖💖',a:'dance'}, mid:{t:'I have many friends! 🙂',a:'sway'}, low:{t:'*waves at nobody* …hello? 😅',a:'tremble'}},
+ {id:'easygoing', e:'😌', axis:'chill',  pole:1,
+  win:{t:'No problem~ Everything is fine~ 😌',a:'float'}, mid:{t:'It is all good 🙂',a:'idle'}, low:{t:'NO! WRONG! EVERYTHING IS WRONG! 😫',a:'jitter'}},
+ {id:'patient',   e:'🧘', axis:'hurry',  pole:1,
+  win:{t:'I can wait forever~ 🧘',a:'sleep'}, mid:{t:'I can wait a little 🙂',a:'idle'}, low:{t:'HURRY UUUP! 😤',a:'shake'}},
+ {id:'wonderful', e:'🌈', axis:'great',  pole:1,
+  win:{t:'I am WONDERFUL! The MOST wonderful! 🌈',a:'shine'}, mid:{t:'I am quite nice 🙂',a:'sway'}, low:{t:'Eh… I am okay I guess 😬',a:'tremble'}},
+ {id:'talented',  e:'🏆', axis:'skill',  pole:1,
+  win:{t:'I can do EVERYTHING! 🏆✨',a:'flex'}, mid:{t:'I am good at some things 🙂',a:'bounce'}, low:{t:'I can… uh… blink! 😅',a:'tremble'}},
+ {id:'clumsy',    e:'🫠', axis:'grace',  pole:1,
+  win:{t:'OOPS! CRASH! BANG! 🫠',a:'jitter'}, mid:{t:'Oops! hehe 🙂',a:'wobble'}, low:{t:'*perfect balance* 🧘',a:'idle'}},
+ {id:'relieved',  e:'😮‍💨', axis:'worry', pole:-1,
+  win:{t:'PHEW!! That was SO close! 😮‍💨',a:'float'}, mid:{t:'Phew~ 🙂',a:'idle'}, low:{t:'Oh no… still worried! 😟',a:'jitter'}},
+ {id:'worried',   e:'😟', axis:'worry', pole:1,
+  win:{t:'*worries about EVERYTHING* 😟😟',a:'tremble'}, mid:{t:'Hmm, I hope it is fine… 😕',a:'jitter'}, low:{t:'No worries at all! 😎',a:'dance'}}
+];
+const SIDES=['A','B','C'];
+
+/* ============ STATE ============ */
+let roundN=0,phase='',locked=false;
+let curAdj,curCh=[],winSide;
+let usedAdj=[];
+let titles={};          // character name -> [adjective objects they won]
+let revealedCount=0;
+
+const $=id=>document.getElementById(id);
+const banner=$('banner'),prompt=$('prompt'),mainBtn=$('mainBtn');
+
+function drawAdj(){
+  if(usedAdj.length>=ADJ.length)usedAdj=[];
+  const pool=ADJ.filter(a=>!usedAdj.includes(a));
+  return pool[~~(Math.random()*pool.length)];
+}
+function hasConflict(name,adj){
+  return (titles[name]||[]).some(t=>t.axis===adj.axis&&t.pole!==adj.pole);
+}
+function pickTrio(){const s=[...CH].sort(()=>Math.random()-.5);return s.slice(0,3)}
+function winChar(){return curCh[SIDES.indexOf(winSide)]}
+function supOf(a){return 'the most '+a.id}
+
+function popup(txt){
+  const p=$('popup');p.textContent=txt;p.className='popup show';
+  setTimeout(()=>p.className='popup',1300);
+}
+
+/* ============ CARD RENDERING ============ */
+function setCard(side,anim,bubble,clickable){
+  const card=$('c'+side);
+  card.className='card'+(clickable?' clickable':'');
+  card.onclick=clickable?()=>tap(side):null;
+  $('av'+side).className='avatar '+(anim?'a-'+anim:'a-idle');
+  $('bu'+side).textContent=bubble||'…';
+}
+function nameCards(){
+  SIDES.forEach((s,i)=>{
+    $('av'+s).src=curCh[i].img;
+    $('nm'+s).textContent=curCh[i].n;
+    $('nm'+s).style.color=curCh[i].c;
+  });
+}
+function performingCards(clickable){
+  /* winner shows the adjective most; the other two show it less */
+  const others=SIDES.filter(s=>s!==winSide);
+  setCard(winSide,curAdj.win.a,curAdj.win.t,clickable);
+  setCard(others[0],curAdj.mid.a,curAdj.mid.t,clickable);
+  setCard(others[1],curAdj.low.a,curAdj.low.t,clickable);
+}
+
+/* ============ BANNER / PROMPT / BUTTON ============ */
+/* scaffold phase: show ONLY the key words — kids build the sentence */
+function chipBanner(){
+  banner.className='banner';
+  banner.innerHTML=
+    `<div class="say">🎤 Make a question!</div>`+
+    `<div class="row"><div class="chips">`+
+    `<span class="chip">most</span>`+
+    `<span class="plus">+</span>`+
+    `<span class="chip act">${curAdj.e} ${curAdj.id}</span>`+
+    `</div></div>`;
+}
+function solidBanner(html){
+  banner.className='banner solid';
+  banner.innerHTML=`<div class="row oneline">${html}</div>`;
+}
+function setPrompt(t){prompt.textContent=t}
+function setBtn(label,fn,cls){
+  mainBtn.className='mainbtn'+(cls?' '+cls:'');
+  mainBtn.textContent=label;
+  mainBtn.onclick=fn;
+}
+function hideBtn(){mainBtn.classList.add('hide')}
+function showBtn(){mainBtn.classList.remove('hide')}
+
+function nmSpan(ch){return `<span style="color:${ch.c}">${ch.n}</span>`}
+function allNames(){
+  return curCh.map(nmSpan).join(', ').replace(/, ([^,]*)$/, ' or $1');
+}
+
+/* ============ FLOW ============ */
+function newRound(){
+  roundN++;locked=false;
+  curCh=pickTrio();
+  /* pick an adjective at least one contestant can hold without contradiction */
+  curAdj=null;
+  for(let i=0;i<30;i++){
+    const a=drawAdj();
+    if(curCh.some(c=>!hasConflict(c.n,a))){curAdj=a;break}
+  }
+  if(!curAdj)curAdj=drawAdj();
+  usedAdj.push(curAdj);
+  /* winner = a random contestant with no conflicting title */
+  const ok=curCh.filter(c=>!hasConflict(c.n,curAdj));
+  const winner=ok[~~(Math.random()*ok.length)];
+  winSide=SIDES[curCh.indexOf(winner)];
+  $('rc').textContent='Round '+roundN;
+  $('badge').textContent=curAdj.e+' the most '+curAdj.id;
+  $('judges').className='judges';$('judges').innerHTML='';
+  nameCards();
+  SIDES.forEach(s=>setCard(s,'idle','Who, me? 🙂',false));
+  phaseAsk();
+}
+
+function phaseAsk(){
+  phase='ask';showBtn();
+  chipBanner();
+  setPrompt('🗣️ Everyone make the question!');
+  setBtn('Reveal Question 👀',phaseAskReveal);
+}
+function phaseAskReveal(){
+  phase='askReveal';sndReveal();
+  solidBanner(`Who is <span style="color:#7bd5f5">${supOf(curAdj)}</span> — ${allNames()}?`);
+  setPrompt('👀 Watch them — TAP '+supOf(curAdj)+'!');
+  performingCards(true);
+  hideBtn();
+}
+function phaseAnsSay(){
+  phase='ansSay';showBtn();
+  chipBanner();
+  setPrompt('🗣️ Everyone make the answer!');
+  setBtn('Reveal Answer 👀',phaseAnsReveal);
+}
+function phaseAnsReveal(){
+  phase='ansReveal';sndReveal();
+  solidBanner(`${nmSpan(winChar())} is <span style="color:#7bd5f5">${supOf(curAdj)}</span>!`);
+  setPrompt('🎉 Everyone say it again!');
+  awardTitle(winChar(),curAdj);
+  setBtn('Next Round ▶ '+curAdj.e,newRound,'green');
+}
+
+/* ============ TAPPING ============ */
+function tap(side){
+  if(locked)return;initAudio();
+  const card=$('c'+side);
+  let correct;
+  if(phase==='askReveal')correct=(side===winSide);
+  else return;
+
+  if(correct){
+    locked=true;sndCorrect();sndCheer();
+    card.classList.add('correct');
+    const r=card.getBoundingClientRect();
+    boom(r.left+r.width/2,r.top+r.height/2,140);
+    setTimeout(()=>boom(r.left+r.width*.3,r.top+r.height*.3,60),200);
+    setTimeout(()=>boom(r.left+r.width*.7,r.top+r.height*.7,60),350);
+    popup(['🎉 YES!','⭐ Wonderful!','🏆 Amazing!','💪 Super!','🔥 Bravo!'][~~(Math.random()*5)]);
+    SIDES.forEach(s=>{$('c'+s).classList.remove('clickable');$('c'+s).onclick=null});
+    SIDES.filter(s=>s!==side).forEach(s=>$('c'+s).classList.add('dim'));
+    showJudges();
+    setTimeout(()=>{locked=false;phaseAnsSay()},1500);
+  }else{
+    sndWrong();card.classList.add('wrong');
+    setTimeout(()=>card.classList.remove('wrong'),600);
+  }
+}
+
+function showJudges(){
+  const j=$('judges');
+  const scores=[7,8,9,10].sort(()=>Math.random()-.5).slice(0,3);
+  j.innerHTML=scores.map((s,i)=>`<div class="judge"><div class="sign">${s}</div><div class="face">${['👨‍⚖️','👩‍⚖️','🧑‍⚖️'][i]}</div></div>`).join('');
+  j.className='judges show';
+}
+
+/* ============ CLASS RECORD PANEL ============ */
+function sndPop(){initAudio();tone(600,'sine',.12,.13);tone(900,'sine',.1,.1,.06)}
+function buildRecord(){
+  const g=$('recordGrid');g.innerHTML='';
+  CH.forEach(c=>{
+    const d=document.createElement('div');
+    d.className='rec-card';d.id='rec-'+c.n;
+    d.innerHTML=`<img src="${c.img}" alt="${c.n}">
+      <div class="rec-name" style="color:${c.c}">${c.n}</div>
+      <div class="rec-titles" id="rect-${c.n}"></div>
+      <div class="rec-extra" id="recx-${c.n}"></div>`;
+    g.appendChild(d);
+  });
+}
+function awardTitle(ch,adj){
+  if(!titles[ch.n])titles[ch.n]=[];
+  titles[ch.n].push(adj);
+  const chip=document.createElement('span');
+  chip.className='rec-chip';chip.textContent=supOf(adj);
+  $('rect-'+ch.n).appendChild(chip);
+  sndPop();
+  const r=$('rec-'+ch.n).getBoundingClientRect();
+  boom(r.left+r.width/2,r.top+r.height/2,40);
+}
+function finishGame(){
+  revealedCount=0;
+  $('finishBtn').disabled=true;
+  let any=false;
+  CH.forEach(c=>{
+    const extra=$('recx-'+c.n);extra.innerHTML='';
+    if((titles[c.n]||[]).length){
+      any=true;
+      const b=document.createElement('button');
+      b.className='rec-btn';b.textContent='👀 Reveal';
+      b.onclick=()=>revealSentence(c.n,b);
+      extra.appendChild(b);
+    }else{
+      extra.innerHTML='<div class="rec-none">no titles yet…</div>';
+    }
+  });
+  sndNext();
+  setPrompt(any?'👆 Press REVEAL under each character!':'Play a few rounds first!');
+}
+function revealSentence(name,btn){
+  const list=titles[name]||[];
+  const sups=list.map(supOf);
+  let joined;
+  if(sups.length===1)joined=sups[0];
+  else if(sups.length===2)joined=sups[0]+' and '+sups[1];
+  else joined=sups.slice(0,-1).join(', ')+' and '+sups[sups.length-1];
+  const s=document.createElement('div');
+  s.className='rec-sentence';
+  s.innerHTML=`<b>${name}</b> is ${joined} in the class!`;
+  btn.parentNode.replaceChild(s,btn);
+  sndReveal();
+  const r=s.getBoundingClientRect();
+  boom(r.left+r.width/2,r.top,60);
+  revealedCount++;
+  const total=CH.filter(c=>(titles[c.n]||[]).length).length;
+  if(revealedCount>=total){
+    fireworks();sndCheer();
+    showPlayAgain();
+  }
+}
+function showPlayAgain(){
+  if($('againBtn'))return;
+  const b=document.createElement('button');
+  b.className='rec-btn';b.id='againBtn';b.style.marginTop='8px';
+  b.textContent='▶ New Game';
+  b.onclick=resetGame;
+  document.querySelector('.record-head').appendChild(b);
+}
+function resetGame(){
+  roundN=0;titles={};usedAdj=[];revealedCount=0;
+  $('finishBtn').disabled=false;
+  const ab=$('againBtn');if(ab)ab.remove();
+  buildRecord();
+  newRound();
+}
+$('finishBtn').onclick=finishGame;
+
+buildRecord();
+newRound();
+</script>
+<!-- Bilingo game controls: zoom + fullscreen toggle (auto-collapsing) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .85; }
+  .bilingo-ui .b-handle { display: none; }
+  .bilingo-ui.mini > *:not(.b-handle) { display: none; }
+  .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-handle" title="Show controls" aria-label="Show controls">&#9881;&#65039;</button>
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">&minus;</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">&#9966;</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom';
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() {
+    z = Math.max(MIN, Math.round((z - STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function grow() {
+    z = Math.min(MAX, Math.round((z + STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+  }
+
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.remove('mini');
+    poke();
+  });
+
+  // Collapse to just the handle after 5s without interaction, so the bar
+  // never sits on top of the game's own buttons.
+  var idleTimer = null;
+  function poke() {
+    bar.classList.remove('mini');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.add('mini'); }, 5000);
+  }
+  bar.addEventListener('pointerdown', poke);
+  poke();
+  apply();
+})();
+</script>
+
+</body>
+</html>

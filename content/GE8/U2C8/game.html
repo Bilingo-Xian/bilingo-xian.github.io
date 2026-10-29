@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Do You Want to Make?</title>
+<style>
+:root{
+  --ink:#24324a;--muted:#5c6a7d;--paper:#fffdf7;--sky:#dff6ff;
+  --yellow:#ffd95a;--pink:#ff7fa8;--red:#ed4c67;--mint:#6eddb5;
+  --blue:#55bfea;--purple:#8c72db;--line:#d8e2e8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;overflow-x:hidden}
+body{
+  font-family:ui-rounded,"Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  color:var(--ink);background:var(--sky);min-height:100dvh;user-select:none;
+  -webkit-user-select:none;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+}
+body::before,body::after{content:"";position:fixed;z-index:-1;border-radius:50%;opacity:.55;pointer-events:none}
+body::before{width:42vw;height:42vw;min-width:280px;min-height:280px;background:#fff3ac;left:-12vw;top:-15vw}
+body::after{width:36vw;height:36vw;min-width:250px;min-height:250px;background:#ffd7e5;right:-10vw;bottom:-13vw}
+button{font:inherit;color:inherit;cursor:pointer;border:0;touch-action:manipulation}
+button:focus-visible{outline:4px solid #176e9d;outline-offset:4px}
+button:disabled{cursor:default}
+.screen{display:none;width:100%;max-width:1180px;margin:0 auto;min-height:calc(100dvh - 24px)}
+.screen.on{display:flex;flex-direction:column}
+.top-tools{position:fixed;right:14px;top:12px;z-index:30;display:flex;gap:8px}
+.icon-btn{width:48px;height:48px;border-radius:50%;background:var(--paper);box-shadow:0 4px 0 #b8d4dc;font-size:1.35rem;display:grid;place-items:center;transition:transform .15s ease,box-shadow .15s ease}
+.icon-btn:hover{transform:translateY(-2px)}.icon-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #b8d4dc}
+
+/* Start */
+#startScreen{align-items:center;justify-content:center;text-align:center;padding:52px 0 24px}
+.kicker{font-size:clamp(.8rem,2vw,1rem);font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#396176;margin-bottom:8px}
+h1{font-size:clamp(2.15rem,6.3vw,4.8rem);line-height:1.03;letter-spacing:-.045em;max-width:950px;text-wrap:balance}
+.start-sub{font-size:clamp(1rem,2.2vw,1.3rem);line-height:1.5;color:var(--muted);margin:14px 0 22px;font-weight:700}
+.recipe-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;width:min(100%,900px)}
+.recipe-btn{position:relative;background:var(--paper);border:3px solid #fff;border-radius:30px;padding:22px 12px 18px;min-height:210px;box-shadow:0 8px 0 #b8d4dc,0 15px 28px #558da326;transition:transform .18s ease,box-shadow .18s ease;overflow:hidden}
+.recipe-btn:hover{transform:translateY(-7px) rotate(-1deg);box-shadow:0 14px 0 #b8d4dc,0 20px 30px #558da333}
+.recipe-btn:nth-child(2):hover{transform:translateY(-7px) rotate(1deg)}
+.recipe-btn:active{transform:translateY(5px);box-shadow:0 3px 0 #b8d4dc}
+.recipe-emoji{display:block;font-size:clamp(4rem,9vw,6.4rem);line-height:1;filter:drop-shadow(0 6px 0 #dbe6e8);transition:transform .2s ease}
+.recipe-btn:hover .recipe-emoji{transform:scale(1.12) rotate(5deg)}
+.recipe-name{display:block;font-size:clamp(1.35rem,3vw,2rem);font-weight:1000;margin-top:12px}
+.recipe-joke{display:block;font-size:.92rem;color:var(--muted);margin-top:5px;font-weight:700}
+.class-size{margin-top:28px;background:#ffffffa8;border:2px dashed #9bc4d0;border-radius:22px;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+.class-size-label{font-weight:900;font-size:1rem}.round-stepper{display:flex;align-items:center;gap:10px}
+.step-btn{width:46px;height:46px;border-radius:14px;background:var(--yellow);box-shadow:0 4px 0 #d5a92d;font-size:1.6rem;font-weight:1000;line-height:1}
+.step-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #d5a92d}
+#roundTotal{font-size:1.35rem;font-weight:1000;min-width:32px}
+.start-tip{font-size:.88rem;color:#456678;margin-top:12px;font-weight:700}
+
+/* Game */
+#gameScreen{padding:12px 0 20px}
+.game-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:4px 54px 12px 4px}
+.game-title{font-size:clamp(1.25rem,3.4vw,2.15rem);font-weight:1000;letter-spacing:-.03em}
+.round-pill{justify-self:end;background:var(--paper);border-radius:999px;padding:8px 15px;font-weight:900;box-shadow:0 3px 0 #b8d4dc;white-space:nowrap}
+.progress{height:13px;background:#c3e0e8;border-radius:99px;overflow:hidden;grid-column:1/-1}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--yellow),var(--mint));border-radius:inherit;transition:width .35s ease}
+.kitchen{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(320px,.88fr);gap:24px;align-items:center;flex:1}
+.dish-zone{position:relative;display:flex;align-items:center;justify-content:center;min-height:520px}
+.dish-caption{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);background:var(--ink);color:var(--paper);border-radius:999px;padding:8px 18px;font-size:.9rem;font-weight:900;white-space:nowrap;z-index:5}
+.dish{position:relative;width:min(100%,500px);aspect-ratio:1/1;filter:drop-shadow(0 18px 12px #426a7930);transform-origin:50% 80%}
+.dish.impact{animation:dishImpact .32s ease}
+@keyframes dishImpact{0%,100%{transform:translateX(0) rotate(0)}30%{transform:translateX(-8px) rotate(-2deg)}65%{transform:translateX(7px) rotate(2deg)}}
+.ingredient-layer{position:absolute;inset:0;z-index:4;pointer-events:none}
+.food-piece{position:absolute;line-height:1;display:block;transform:translate(-50%,-50%) rotate(var(--rot));filter:drop-shadow(0 3px 1px #29374735);animation:foodDrop .48s cubic-bezier(.2,.8,.3,1.25) backwards}
+@keyframes foodDrop{0%{opacity:0;transform:translate(-50%,-240%) rotate(var(--rot)) scale(1.5)}70%{opacity:1;transform:translate(-50%,-42%) rotate(var(--rot)) scale(.9)}100%{opacity:1;transform:translate(-50%,-50%) rotate(var(--rot)) scale(1)}}
+/* pizza */
+.pizza-plate{position:absolute;left:5%;top:13%;width:90%;height:78%;border-radius:50%;background:#f7fbfc;box-shadow:inset 0 0 0 8px #d7e6eb,0 8px 0 #a9c4cd}
+.pizza-base{position:absolute;left:11%;top:9%;width:78%;height:78%;border-radius:50%;background:radial-gradient(circle at 35% 25%,#fff4a9 0 4%,transparent 5%),radial-gradient(circle at 70% 60%,#f4b73e 0 3%,transparent 4%),#ffd86b;border:23px solid #d99245;box-shadow:inset 0 0 0 7px #f6b94f,0 8px 0 #aa642d;z-index:2}
+.pizza-base::after{content:"";position:absolute;inset:8%;border-radius:50%;background:radial-gradient(circle at 25% 35%,#ed7760 0 4%,transparent 4.5%),radial-gradient(circle at 66% 26%,#ed7760 0 4%,transparent 4.5%),radial-gradient(circle at 60% 72%,#ed7760 0 4%,transparent 4.5%),radial-gradient(circle at 35% 75%,#ed7760 0 4%,transparent 4.5%);opacity:.75}
+/* sundae */
+.sundae-scoops{position:absolute;left:21%;top:15%;width:58%;height:37%;z-index:2}
+.scoop{position:absolute;width:47%;aspect-ratio:1;border-radius:50%;box-shadow:inset -8px -9px 0 #00000010,0 5px 0 #b6857940}
+.scoop:nth-child(1){background:#ff9ebb;left:0;top:25%}.scoop:nth-child(2){background:#fff0c9;right:0;top:25%}.scoop:nth-child(3){background:#a96f4f;left:27%;top:0}
+.sundae-bowl{position:absolute;left:18%;top:45%;width:64%;height:30%;background:linear-gradient(100deg,#e9fbffda,#8ed9e9aa);clip-path:polygon(0 0,100 0,75% 100%,25% 100%);z-index:3;box-shadow:inset 0 0 0 7px #fff}
+.sundae-rim{position:absolute;left:16%;top:43%;width:68%;height:8%;border-radius:50%;background:#dff8fc;border:7px solid #fff;z-index:3}
+.sundae-stem{position:absolute;left:46%;top:73%;width:8%;height:13%;background:#a9dbe4;border-radius:0 0 8px 8px;z-index:2}
+.sundae-foot{position:absolute;left:30%;top:84%;width:40%;height:6%;border-radius:50%;background:#c5edf3;border:5px solid #fff;z-index:2}
+.sundae-spoon{position:absolute;right:13%;top:7%;font-size:5rem;transform:rotate(-20deg);z-index:1}
+/* hot pot */
+.pot-flames{position:absolute;left:29%;top:72%;width:42%;height:20%;font-size:4rem;text-align:center;z-index:1;animation:flameWiggle .6s ease-in-out infinite alternate}
+@keyframes flameWiggle{to{transform:scale(1.06) rotate(2deg)}}
+.pot-body{position:absolute;left:11%;top:37%;width:78%;height:43%;border-radius:12% 12% 42% 42%;background:linear-gradient(90deg,#df4b50,#ff7d68 48%,#d84149);border-bottom:12px solid #a9323e;z-index:2}
+.pot-body::before,.pot-body::after{content:"";position:absolute;top:12%;width:20%;height:25%;background:#37475a;z-index:-1}
+.pot-body::before{left:-15%;border-radius:15px 0 0 15px}.pot-body::after{right:-15%;border-radius:0 15px 15px 0}
+.pot-broth{position:absolute;left:12%;top:27%;width:76%;height:26%;border-radius:50%;background:radial-gradient(circle at 30% 30%,#ffd063 0 3%,transparent 4%),#e98a3c;border:10px solid #47586a;box-shadow:inset 0 0 0 5px #ffba59;z-index:3}
+.steam{position:absolute;z-index:1;top:4%;font-size:3rem;opacity:.5;animation:steamUp 2s ease-in-out infinite}.steam.s1{left:32%}.steam.s2{left:56%;animation-delay:.7s}
+@keyframes steamUp{0%{transform:translateY(30px) scale(.8);opacity:0}50%{opacity:.5}100%{transform:translateY(-18px) scale(1.15);opacity:0}}
+
+.choice-panel{background:#fffdf7df;border:3px solid #fff;border-radius:30px;padding:22px;box-shadow:0 8px 0 #b8d4dc,0 18px 35px #558da326;position:relative}
+.say-badge{display:inline-block;background:var(--yellow);border-radius:999px;padding:6px 12px;font-size:.8rem;font-weight:1000;letter-spacing:.06em;text-transform:uppercase;transform:rotate(-2deg)}
+.question{font-size:clamp(1.35rem,3vw,2rem);line-height:1.2;font-weight:1000;margin:12px 0 8px;text-wrap:balance}
+.structure-chip{display:inline-block;color:#604617;background:#fff2b9;border:2px dashed #dcae37;border-radius:12px;padding:6px 12px;font-size:1.05rem;font-weight:900;margin-bottom:16px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.choice-btn{background:#eef9fc;border:3px solid #d4eaf0;border-radius:22px;min-height:152px;padding:12px 8px;transition:transform .15s ease,background .15s ease,border-color .15s ease,opacity .15s ease;position:relative}
+.choice-btn:hover{transform:translateY(-4px) scale(1.02);background:#fff4c7;border-color:#f0c64d}
+.choice-btn:active{transform:scale(.96)}
+.choice-btn.chosen{background:#dcf8e9;border-color:#4bbf8b;transform:scale(1.03)}
+.choice-btn.not-chosen{opacity:.38;filter:grayscale(.5)}
+.choice-emoji{display:block;font-size:clamp(2.7rem,6vw,4.2rem);line-height:1.05;filter:drop-shadow(0 4px 0 #c6d7da)}
+.choice-name{display:block;font-size:clamp(1rem,2.2vw,1.3rem);font-weight:1000;margin-top:9px;line-height:1.15}
+.choice-tap{display:block;font-size:.73rem;color:var(--muted);font-weight:800;margin-top:5px}
+.sentence-reveal{display:none;margin-top:16px;background:#e5f8ef;border:2px solid #79cfa5;border-radius:16px;padding:12px;text-align:center}
+.sentence-reveal.on{display:block;animation:revealPop .25s ease}
+@keyframes revealPop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+#sentenceText{font-size:clamp(1.12rem,2.4vw,1.5rem);font-weight:1000;line-height:1.3}
+.say-together{font-size:.76rem;color:#396a54;font-weight:900;letter-spacing:.08em;margin-top:4px;text-transform:uppercase}
+.next-btn,.primary-btn{display:none;width:100%;margin-top:14px;background:var(--pink);color:#34232b;border-radius:18px;padding:14px 18px;min-height:54px;font-size:1.15rem;font-weight:1000;box-shadow:0 5px 0 #cf5479;transition:transform .15s ease,box-shadow .15s ease}
+.next-btn.on,.primary-btn.on{display:block;animation:revealPop .25s ease}
+.next-btn:hover,.primary-btn:hover{transform:translateY(-2px)}.next-btn:active,.primary-btn:active{transform:translateY(4px);box-shadow:0 1px 0 #cf5479}
+.plop-label{position:absolute;z-index:8;left:50%;top:42%;transform:translate(-50%,-50%) rotate(-8deg);font-size:clamp(2.3rem,7vw,5rem);font-weight:1000;color:var(--red);-webkit-text-stroke:2px #fff;text-shadow:4px 5px 0 #f8b4c1;pointer-events:none;animation:plopWord .7s ease forwards}
+@keyframes plopWord{0%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(-15deg)}35%{opacity:1;transform:translate(-50%,-50%) scale(1.2) rotate(-6deg)}100%{opacity:0;transform:translate(-50%,-90%) scale(1) rotate(3deg)}}
+
+/* Final */
+#finalScreen{align-items:center;justify-content:center;text-align:center;padding:44px 0 20px}
+.final-kicker{background:var(--yellow);padding:7px 15px;border-radius:999px;font-weight:1000;transform:rotate(-2deg);font-size:.9rem}
+.final-title{font-size:clamp(2.2rem,6vw,4.5rem);line-height:1.04;margin:12px 0 5px;letter-spacing:-.045em}
+.final-subtitle{color:var(--muted);font-weight:800;font-size:clamp(1rem,2.4vw,1.25rem)}
+.final-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.65fr);align-items:center;gap:18px;width:100%;max-width:960px;margin-top:6px}
+.final-dish-mount{display:flex;justify-content:center;align-items:center;min-height:480px}
+.final-dish-mount .dish{width:min(100%,480px);animation:finalWobble 2.4s ease-in-out infinite}
+@keyframes finalWobble{0%,100%{transform:rotate(-1deg)}50%{transform:rotate(1.5deg) translateY(-4px)}}
+.reaction{font-size:clamp(4rem,9vw,7rem);line-height:1;animation:reactionBounce .8s ease-in-out infinite alternate}
+@keyframes reactionBounce{to{transform:translateY(-10px) rotate(5deg)}}
+.gross-score{font-size:clamp(1.5rem,3.5vw,2.3rem);font-weight:1000;color:var(--red);margin:8px 0}
+.final-recipe{font-size:1rem;line-height:1.65;font-weight:800;color:var(--muted);max-height:130px;overflow:auto;padding:4px 8px}
+.final-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:12px;width:100%}
+.secondary-btn{background:var(--paper);border:3px solid #c5dde4;border-radius:18px;padding:13px 20px;min-height:52px;font-weight:1000;box-shadow:0 4px 0 #a9c8d1}
+.secondary-btn:hover{transform:translateY(-2px)}.secondary-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #a9c8d1}
+.final-actions .primary-btn{display:block;width:auto;margin-top:0}
+.confetti-piece{position:fixed;top:-20px;z-index:60;pointer-events:none;animation:confettiFall 3.4s linear forwards}
+@keyframes confettiFall{to{transform:translateY(110vh) rotate(760deg);opacity:.2}}
+@media(max-width:800px){
+  .kitchen{grid-template-columns:1fr;gap:14px}.dish-zone{min-height:390px}.dish{width:min(100%,390px)}
+  .choice-panel{padding:16px}.choice-btn{min-height:132px}.final-layout{grid-template-columns:1fr}.final-dish-mount{min-height:390px}.final-dish-mount .dish{width:min(100%,390px)}
+}
+@media(max-width:560px){
+  body{padding:9px}.screen{min-height:calc(100dvh - 18px)}#startScreen{padding-top:58px}.recipe-choices{grid-template-columns:1fr;gap:12px;width:min(100%,360px)}
+  .recipe-btn{min-height:100px;display:grid;grid-template-columns:90px 1fr;align-items:center;text-align:left;padding:12px 18px;border-radius:22px}.recipe-emoji{grid-row:1/3;font-size:4.3rem}.recipe-name{margin-top:0}.recipe-joke{margin-top:2px}
+  .class-size{margin-top:20px}.game-header{grid-template-columns:1fr auto;padding-right:48px}.game-title{font-size:1.15rem}.round-pill{font-size:.85rem;padding:7px 10px}
+  .dish-zone{min-height:310px}.dish{width:min(100%,310px)}.dish-caption{font-size:.76rem;bottom:-2px}.pizza-base{border-width:16px}.sundae-spoon{font-size:3rem}.pot-flames{font-size:3rem}
+  .choice-panel{border-radius:24px;padding:14px}.question{margin-top:9px}.structure-chip{margin-bottom:12px}.choice-btn{min-height:122px;padding:9px 5px}.choice-emoji{font-size:2.9rem}.choice-name{font-size:.98rem}.choice-tap{display:none}
+  .sentence-reveal{margin-top:12px;padding:10px}.final-dish-mount{min-height:310px}.final-dish-mount .dish{width:min(100%,310px)}#finalScreen{padding-top:54px}.final-recipe{max-height:90px}.top-tools{right:10px;top:8px}.icon-btn{width:44px;height:44px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="top-tools"><button id="soundBtn" class="icon-btn" aria-label="Turn sound off" title="Sound on">🔊</button></div>
+<main>
+<section id="startScreen" class="screen on" aria-labelledby="startTitle">
+  <div class="kicker">Say it • Pick it • Plop it</div>
+  <h1 id="startTitle">What do you want to make?</h1>
+  <p class="start-sub">Choose a recipe. Every chef adds a whole pile of something.<br>A masterpiece is possible. A disaster is much more likely.</p>
+  <div class="recipe-choices">
+    <button class="recipe-btn" data-recipe="pizza"><span class="recipe-emoji">🍕</span><span class="recipe-name">PIZZA</span><span class="recipe-joke">Extra cheese. Extra everything.</span></button>
+    <button class="recipe-btn" data-recipe="sundae"><span class="recipe-emoji">🍨</span><span class="recipe-name">SUNDAE</span><span class="recipe-joke">A very suspicious treat.</span></button>
+    <button class="recipe-btn" data-recipe="hotpot"><span class="recipe-emoji">🍲</span><span class="recipe-name">HOT POT</span><span class="recipe-joke">Bubble, bubble, trouble.</span></button>
+  </div>
+  <div class="class-size">
+    <span class="class-size-label">Number of chefs</span>
+    <div class="round-stepper"><button id="minusRounds" class="step-btn" aria-label="One fewer chef">−</button><span id="roundTotal">8</span><button id="plusRounds" class="step-btn" aria-label="One more chef">+</button></div>
+  </div>
+  <p class="start-tip">6–14 chefs • Each child says the sentence, then clicks an ingredient.</p>
+</section>
+<section id="gameScreen" class="screen" aria-labelledby="gameTitle">
+  <header class="game-header">
+    <div id="gameTitle" class="game-title">Disaster Pizza</div>
+    <div id="roundPill" class="round-pill">Chef 1 / 8</div>
+    <div class="progress" aria-hidden="true"><div id="progressFill" class="progress-fill"></div></div>
+  </header>
+  <div class="kitchen">
+    <div class="dish-zone">
+      <div id="dish" class="dish" aria-label="Your food creation"></div>
+      <div id="dishCaption" class="dish-caption">Your masterpiece so far…</div>
+    </div>
+    <div class="choice-panel">
+      <span class="say-badge">Say it first!</span>
+      <div id="question" class="question">Strawberries or onions?</div>
+      <div class="structure-chip">prefer … to …</div>
+      <div class="choices">
+        <button id="choice0" class="choice-btn"><span class="choice-emoji"></span><span class="choice-name"></span><span class="choice-tap">Say it, then tap!</span></button>
+        <button id="choice1" class="choice-btn"><span class="choice-emoji"></span><span class="choice-name"></span><span class="choice-tap">Say it, then tap!</span></button>
+      </div>
+      <div id="sentenceReveal" class="sentence-reveal" aria-live="polite"><div id="sentenceText"></div><div class="say-together">Say it together!</div></div>
+      <button id="nextBtn" class="next-btn">Next chef →</button>
+    </div>
+  </div>
+</section>
+<section id="finalScreen" class="screen" aria-labelledby="finalTitle">
+  <div class="final-kicker">ORDER UP!</div>
+  <h2 id="finalTitle" class="final-title">Your Disaster Pizza!</h2>
+  <p id="finalSubtitle" class="final-subtitle">Nobody asked for this. You made it anyway.</p>
+  <div class="final-layout">
+    <div id="finalDishMount" class="final-dish-mount"></div>
+    <div><div id="reaction" class="reaction">🤢</div><div class="gross-score">100% questionable!</div><div id="finalRecipe" class="final-recipe"></div></div>
+  </div>
+  <div class="final-actions"><button id="sameRecipeBtn" class="secondary-btn">Same recipe, new mess</button><button id="newRecipeBtn" class="primary-btn on">Make something else</button></div>
+</section>
+</main>
+<script>
+'use strict';
+const $=s=>document.querySelector(s);
+const screens={start:$('#startScreen'),game:$('#gameScreen'),final:$('#finalScreen')};
+const RECIPES={
+  pizza:{title:'Disaster Pizza',final:'Your Disaster Pizza!',icon:'🍕',caption:'A crispy, cheesy life choice',sub:'Nobody asked for this. You made it anyway.'},
+  sundae:{title:'Suspicious Sundae',final:'Your Suspicious Sundae!',icon:'🍨',caption:'A treat with trust issues',sub:'Cold, sweet, and deeply confusing.'},
+  hotpot:{title:'Horrible Hot Pot',final:'Your Horrible Hot Pot!',icon:'🍲',caption:'Bubble, bubble, trouble',sub:'It is bubbling. It is probably not edible.'}
+};
+const food=(name,emoji,size=34)=>({name,emoji,size});
+const PAIRS={
+  pizza:[
+    [food('strawberries','🍓',30),food('grapes','🍇',31)],
+    [food('chocolate','🍫',34),food('cheese','🧀',34)],
+    [food('onions','🧅',32),food('cookies','🍪',35)],
+    [food('donuts','🍩',38),food('hot dogs','🌭',41)],
+    [food('bananas','🍌',37),food('carrots','🥕',38)],
+    [food('popcorn','🍿',39),food('candy','🍬',31)],
+    [food('watermelon','🍉',37),food('cucumber','🥒',38)],
+    [food('honey','🍯',36),food('sauce','🥫',35)],
+    [food('ice cream','🍨',40),food('fries','🍟',39)],
+    [food('apples','🍎',35),food('lemons','🍋',33)],
+    [food('cupcakes','🧁',40),food('broccoli','🥦',38)],
+    [food('eggs','🥚',32),food('pancakes','🥞',40)],
+    [food('waffles','🧇',42),food('kebabs','🍢',43)],
+    [food('mushrooms','🍄',35),food('pudding','🍮',34)]
+  ],
+  sundae:[
+    [food('strawberries','🍓',28),food('onions','🧅',31)],
+    [food('grapes','🍇',29),food('carrots','🥕',36)],
+    [food('chocolate','🍫',33),food('cheese','🧀',33)],
+    [food('cookies','🍪',34),food('fries','🍟',37)],
+    [food('donuts','🍩',36),food('hot dogs','🌭',39)],
+    [food('bananas','🍌',35),food('broccoli','🥦',36)],
+    [food('candy','🍬',29),food('cucumber','🥒',36)],
+    [food('popcorn','🍿',37),food('lemons','🍋',31)],
+    [food('vanilla ice cream','🍨',38),food('pizza','🍕',39)],
+    [food('milkshakes','🥛',35),food('smoothies','🍹',37)],
+    [food('waffles','🧇',40),food('kebabs','🍢',41)],
+    [food('watermelon','🍉',35),food('eggs','🥚',30)],
+    [food('pancakes','🥞',38),food('mushrooms','🍄',33)],
+    [food('honey','🍯',34),food('sauce','🥫',33)]
+  ],
+  hotpot:[
+    [food('mushrooms','🍄',34),food('pudding','🍮',34)],
+    [food('noodles','🍜',42),food('donuts','🍩',38)],
+    [food('corn','🌽',39),food('candy','🍬',30)],
+    [food('shrimp','🍤',37),food('strawberries','🍓',30)],
+    [food('broccoli','🥦',37),food('chocolate','🍫',34)],
+    [food('carrots','🥕',38),food('ice cream','🍨',40)],
+    [food('eggs','🥚',31),food('cookies','🍪',35)],
+    [food('onions','🧅',32),food('cupcakes','🧁',40)],
+    [food('cucumber','🥒',38),food('popcorn','🍿',39)],
+    [food('hot dogs','🌭',41),food('grapes','🍇',31)],
+    [food('kebabs','🍢',43),food('bananas','🍌',37)],
+    [food('pancakes','🥞',40),food('lemons','🍋',33)],
+    [food('honey','🍯',35),food('cheese','🧀',34)],
+    [food('watermelon','🍉',37),food('fries','🍟',39)]
+  ]
+};
+const state={recipe:'pizza',total:8,round:0,locked:false,added:[],deck:[],current:null};
+let soundOn=true,ac=null;
+function initAudio(){if(!soundOn)return null;try{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();return ac}catch(e){return null}}
+function tone(freq,start,dur=.12,type='sine',vol=.06,endFreq=null){
+  const ctx=initAudio();if(!ctx)return;const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);
+  o.type=type;o.frequency.setValueAtTime(freq,ctx.currentTime+start);if(endFreq)o.frequency.exponentialRampToValueAtTime(endFreq,ctx.currentTime+start+dur);
+  g.gain.setValueAtTime(.001,ctx.currentTime+start);g.gain.exponentialRampToValueAtTime(vol,ctx.currentTime+start+.015);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+start+dur);
+  o.start(ctx.currentTime+start);o.stop(ctx.currentTime+start+dur+.02);
+}
+function sfx(type){
+  if(!soundOn)return;
+  if(type==='click')tone(650,0,.06,'sine',.045,820);
+  if(type==='start'){tone(392,0,.12,'triangle',.06);tone(523,.09,.13,'triangle',.06);tone(659,.18,.2,'triangle',.06)}
+  if(type==='plop'){tone(190,0,.13,'sine',.09,75);tone(150,.12,.12,'sine',.07,65);tone(240,.24,.1,'triangle',.045,100)}
+  if(type==='reveal'){tone(523,0,.12,'sine',.055);tone(659,.09,.13,'sine',.055);tone(784,.18,.24,'sine',.06)}
+  if(type==='gross'){tone(500,0,.65,'sawtooth',.035,90);tone(260,.08,.55,'square',.018,70)}
+  if(type==='win'){[523,659,784,1047].forEach((n,i)=>tone(n,i*.1,.25,'triangle',.055))}
+}
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+function showScreen(name){Object.entries(screens).forEach(([key,el])=>el.classList.toggle('on',key===name));window.scrollTo(0,0)}
+function baseMarkup(recipe){
+  const layer='<div class="ingredient-layer"></div>';
+  if(recipe==='pizza')return '<div class="pizza-plate"></div><div class="pizza-base"></div>'+layer;
+  if(recipe==='sundae')return '<div class="sundae-spoon">🥄</div><div class="sundae-scoops"><i class="scoop"></i><i class="scoop"></i><i class="scoop"></i></div><div class="sundae-rim"></div><div class="sundae-bowl"></div><div class="sundae-stem"></div><div class="sundae-foot"></div>'+layer;
+  return '<div class="steam s1">♨️</div><div class="steam s2">♨️</div><div class="pot-flames">🔥🔥</div><div class="pot-body"></div><div class="pot-broth"></div>'+layer;
+}
+function buildDish(){
+  const dish=$('#dish');$('.dish-zone').insertBefore(dish,$('#dishCaption'));dish.className='dish';dish.innerHTML=baseMarkup(state.recipe);
+}
+function startRecipe(recipe){
+  state.recipe=recipe;state.round=0;state.added=[];state.deck=shuffle([...PAIRS[recipe]]);state.locked=false;
+  buildDish();$('#gameTitle').textContent=RECIPES[recipe].icon+' '+RECIPES[recipe].title;$('#dishCaption').textContent=RECIPES[recipe].caption;
+  showScreen('game');renderRound();sfx('start');
+}
+function renderRound(){
+  state.locked=false;const pair=state.deck[state.round%state.deck.length];const options=Math.random()<.5?[pair[0],pair[1]]:[pair[1],pair[0]];state.current=options;
+  $('#roundPill').textContent=`Chef ${state.round+1} / ${state.total}`;$('#progressFill').style.width=`${state.round/state.total*100}%`;
+  $('#question').textContent=`${capitalize(options[0].name)} or ${options[1].name}?`;
+  $('#sentenceReveal').classList.remove('on');$('#nextBtn').classList.remove('on');
+  options.forEach((item,i)=>{const btn=$('#choice'+i);btn.disabled=false;btn.classList.remove('chosen','not-chosen');btn.querySelector('.choice-emoji').textContent=item.emoji;btn.querySelector('.choice-name').textContent=item.name;btn.setAttribute('aria-label',item.name)});
+}
+function randomPoint(recipe){
+  const angle=Math.random()*Math.PI*2,r=Math.sqrt(Math.random());
+  if(recipe==='pizza')return{x:50+Math.cos(angle)*r*33,y:47+Math.sin(angle)*r*32};
+  if(recipe==='sundae')return{x:50+Math.cos(angle)*r*27,y:37+Math.sin(angle)*r*20};
+  return{x:50+Math.cos(angle)*r*32,y:40+Math.sin(angle)*r*13};
+}
+function addIngredient(item){
+  const dish=$('#dish'),layer=dish.querySelector('.ingredient-layer'),count=10+Math.floor(Math.random()*5),scale=Math.max(.78,dish.clientWidth/500);
+  for(let i=0;i<count;i++){
+    const p=randomPoint(state.recipe),piece=document.createElement('span');piece.className='food-piece';piece.textContent=item.emoji;piece.title=item.name;
+    piece.style.left=p.x+'%';piece.style.top=p.y+'%';piece.style.fontSize=Math.round(item.size*scale)+'px';piece.style.setProperty('--rot',Math.round(Math.random()*70-35)+'deg');piece.style.animationDelay=(i*.035)+'s';
+    layer.appendChild(piece);
+  }
+  dish.classList.remove('impact');void dish.offsetWidth;dish.classList.add('impact');
+  const words=['PLOP!','SPLAT!','OOPS!','WHY?!','SQUISH!'];const label=document.createElement('div');label.className='plop-label';label.textContent=words[Math.floor(Math.random()*words.length)];$('.dish-zone').appendChild(label);setTimeout(()=>label.remove(),800);
+}
+function chooseIngredient(index){
+  if(state.locked)return;state.locked=true;const chosen=state.current[index],other=state.current[1-index];
+  $('#choice0').disabled=true;$('#choice1').disabled=true;$('#choice'+index).classList.add('chosen');$('#choice'+(1-index)).classList.add('not-chosen');
+  addIngredient(chosen);state.added.push(chosen);sfx('plop');
+  $('#sentenceText').textContent=`I prefer ${chosen.name} to ${other.name}.`;
+  setTimeout(()=>{$('#sentenceReveal').classList.add('on');sfx('reveal')},220);
+  const last=state.round===state.total-1;$('#nextBtn').textContent=last?`Reveal my ${state.recipe==='hotpot'?'hot pot':state.recipe}!`:'Next chef →';
+  setTimeout(()=>$('#nextBtn').classList.add('on'),420);
+}
+function nextRound(){if(!state.locked)return;sfx('click');state.round++;if(state.round>=state.total)finishRecipe();else renderRound()}
+function finishRecipe(){
+  $('#progressFill').style.width='100%';const recipe=RECIPES[state.recipe];$('#finalTitle').textContent=recipe.final;$('#finalSubtitle').textContent=recipe.sub;
+  $('#finalDishMount').appendChild($('#dish'));$('#reaction').textContent=['🤢','🤯','😱','🤡'][Math.floor(Math.random()*4)];
+  $('#finalRecipe').innerHTML=state.added.map(item=>`<span title="${item.name}">${item.emoji} ${item.name}</span>`).join(' • ');
+  showScreen('final');sfx('win');setTimeout(()=>sfx('gross'),450);confetti(90);
+}
+function confetti(n){
+  const colors=['#ff7fa8','#ffd95a','#6eddb5','#55bfea','#8c72db','#ed4c67'];
+  for(let i=0;i<n;i++){const p=document.createElement('i');p.className='confetti-piece';p.style.left=Math.random()*100+'vw';p.style.top=(-20-Math.random()*25)+'px';p.style.background=colors[Math.floor(Math.random()*colors.length)];p.style.width=(5+Math.random()*9)+'px';p.style.height=(7+Math.random()*12)+'px';p.style.borderRadius=Math.random()>.5?'50%':'2px';p.style.animationDelay=(Math.random()*.8)+'s';p.style.animationDuration=(2.4+Math.random()*1.8)+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),5000)}
+}
+document.querySelectorAll('.recipe-btn').forEach(btn=>btn.addEventListener('click',()=>startRecipe(btn.dataset.recipe)));
+$('#choice0').addEventListener('click',()=>chooseIngredient(0));$('#choice1').addEventListener('click',()=>chooseIngredient(1));$('#nextBtn').addEventListener('click',nextRound);
+$('#minusRounds').addEventListener('click',()=>{state.total=Math.max(6,state.total-1);$('#roundTotal').textContent=state.total;sfx('click')});
+$('#plusRounds').addEventListener('click',()=>{state.total=Math.min(14,state.total+1);$('#roundTotal').textContent=state.total;sfx('click')});
+$('#sameRecipeBtn').addEventListener('click',()=>startRecipe(state.recipe));$('#newRecipeBtn').addEventListener('click',()=>{sfx('click');showScreen('start')});
+$('#soundBtn').addEventListener('click',()=>{soundOn=!soundOn;$('#soundBtn').textContent=soundOn?'🔊':'🔇';$('#soundBtn').title=soundOn?'Sound on':'Sound off';$('#soundBtn').setAttribute('aria-label',soundOn?'Turn sound off':'Turn sound on');if(soundOn)sfx('click')});
+</script>
+<!-- Bilingo game controls: zoom + fullscreen toggle (auto-collapsing) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .85; }
+  .bilingo-ui .b-handle { display: none; }
+  .bilingo-ui.mini > *:not(.b-handle) { display: none; }
+  .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-handle" title="Show controls" aria-label="Show controls">&#9881;&#65039;</button>
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">&minus;</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">&#9966;</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom';
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() {
+    z = Math.max(MIN, Math.round((z - STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function grow() {
+    z = Math.min(MAX, Math.round((z + STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+  }
+
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.remove('mini');
+    poke();
+  });
+
+  // Collapse to just the handle after 5s without interaction, so the bar
+  // never sits on top of the game's own buttons.
+  var idleTimer = null;
+  function poke() {
+    bar.classList.remove('mini');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.add('mini'); }, 5000);
+  }
+  bar.addEventListener('pointerdown', poke);
+  poke();
+  apply();
+})();
+</script>
+
+</body>
+</html>

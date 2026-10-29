@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🎮 Go Left, Go Right! — Robby's Maze</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow-x:hidden}
+body{
+  font-family:'Trebuchet MS','Segoe UI','Comic Sans MS',sans-serif;
+  background:linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);
+  background-size:300% 300%;
+  animation:bgshift 14s ease infinite;
+  display:flex;justify-content:center;align-items:flex-start;
+  min-height:100vh;padding:14px;user-select:none;-webkit-user-select:none;
+}
+@keyframes bgshift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.screen{display:none;flex-direction:column;align-items:center;width:100%;max-width:960px}
+.screen.on{display:flex}
+
+/* ───── START ───── */
+.s-title{font-size:clamp(1.9rem,6vw,2.9rem);color:#fff;text-shadow:3px 4px 0 rgba(0,0,0,.25);text-align:center;font-weight:900;line-height:1.25}
+.s-tag{font-size:clamp(1rem,3.2vw,1.3rem);color:#ffeaa7;margin-top:6px;font-weight:800;text-align:center}
+.erow{font-size:clamp(2rem,6vw,2.8rem);margin:20px 0;display:flex;gap:10px;justify-content:center}
+.erow span{display:inline-block;animation:boing 1.5s ease infinite}
+.erow span:nth-child(2){animation-delay:.12s}.erow span:nth-child(3){animation-delay:.24s}
+.erow span:nth-child(4){animation-delay:.36s}.erow span:nth-child(5){animation-delay:.48s}
+@keyframes boing{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-13px) scale(1.14)}}
+.rulebox{background:rgba(255,255,255,.14);border:2px dashed rgba(255,255,255,.5);border-radius:22px;padding:16px 22px;margin:4px 0 24px;color:#fff;font-size:clamp(1rem,3vw,1.18rem);line-height:1.8;text-align:center;max-width:580px}
+.rulebox b{color:#ffeaa7}
+.bbtn{
+  font-family:inherit;font-weight:900;font-size:clamp(1.25rem,4vw,1.8rem);
+  padding:17px 52px;border:none;border-radius:60px;color:#fff;cursor:pointer;
+  box-shadow:0 8px 30px rgba(0,0,0,.35);transition:transform .14s;
+  -webkit-tap-highlight-color:transparent;
+}
+.bbtn:hover{transform:translateY(-3px) scale(1.05)}
+.bbtn:active{transform:translateY(1px) scale(.96)}
+.bbtn.pk{background:linear-gradient(135deg,#f093fb,#f5576c)}
+
+/* ───── GAME TOP ───── */
+.top{width:100%;display:flex;align-items:center;gap:12px;margin-bottom:12px;max-width:940px}
+.lvl{font-size:1rem;color:#fff;font-weight:800;background:rgba(0,0,0,.25);padding:4px 16px;border-radius:20px;white-space:nowrap}
+.sbadge{font-size:1.3rem;color:#fff;font-weight:900;white-space:nowrap;text-shadow:1px 2px 4px rgba(0,0,0,.25)}
+.sbadge.pop{animation:spop .35s ease}
+@keyframes spop{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+.tip{margin-left:auto;font-size:.9rem;color:rgba(255,255,255,.85);font-weight:700}
+
+/* ───── LAYOUT: game left · controls right ───── */
+.game-wrap{width:100%;max-width:940px;display:flex;gap:22px;align-items:flex-start}
+.left-col{flex:0 1 auto}
+.right-col{flex:0 0 244px;display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(0,0,0,.22);border-radius:22px;padding:14px}
+.ctl-title{color:#fff;font-weight:900;font-size:1.05rem;letter-spacing:.5px;text-align:center}
+.pad{width:100%;display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;
+  grid-template-areas:". up ." "left mid right" ". down ."}
+.pbtn{
+  font-family:inherit;font-weight:900;border:none;cursor:pointer;color:#fff;
+  border-radius:16px;padding:11px 4px;font-size:1rem;
+  box-shadow:0 5px 0 rgba(0,0,0,.28);transition:transform .1s;
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  -webkit-tap-highlight-color:transparent;
+}
+.pbtn .pe{font-size:1.6rem}
+.pbtn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.28)}
+.pbtn:disabled{opacity:.45;cursor:default;transform:none}
+.pbtn.up{background:linear-gradient(135deg,#00b09b,#96c93d);grid-area:up}
+.pbtn.down{background:linear-gradient(135deg,#f2994a,#f2c94c);grid-area:down}
+.pbtn.left{background:linear-gradient(135deg,#2193b0,#6dd5ed);grid-area:left}
+.pbtn.right{background:linear-gradient(135deg,#cb356b,#bd3f32);grid-area:right}
+.padmid{grid-area:mid;display:flex;align-items:center;justify-content:center;font-size:1.8rem;filter:grayscale(.3)}
+.wide{width:100%;border:none;cursor:pointer;color:#fff;font-family:inherit;font-weight:900;
+  border-radius:14px;padding:12px;font-size:1rem;box-shadow:0 5px 0 rgba(0,0,0,.28);transition:transform .1s,outline .1s;
+  display:flex;align-items:center;justify-content:center;gap:7px;-webkit-tap-highlight-color:transparent}
+.wide:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.28)}
+.wide.pick{background:linear-gradient(135deg,#8e2de2,#4a00e0)}
+.wide.add{background:linear-gradient(135deg,#b24592,#f15f79)}
+.wide.del{background:linear-gradient(135deg,#606c88,#3f4c6b)}
+.wide.new{background:rgba(255,255,255,.16);font-size:.92rem;box-shadow:none;border:2px dashed rgba(255,255,255,.4)}
+.wide.active{outline:3px solid #ffeaa7;outline-offset:2px;transform:scale(1.03)}
+.editrow{width:100%;display:flex;gap:8px}
+.editrow .wide{flex:1;font-size:.88rem;padding:11px 4px}
+.sayit{color:rgba(255,255,255,.9);font-weight:800;font-size:.88rem;text-align:center;line-height:1.5}
+
+/* ───── BOARD ───── */
+.mission{
+  background:rgba(0,0,0,.28);border-radius:16px;padding:9px 16px;
+  color:#fff;font-size:clamp(.95rem,2.6vw,1.15rem);font-weight:800;text-align:center;margin-bottom:10px;
+}
+.mission .shout{color:#ffeaa7}
+.stage{position:relative}
+.board{
+  display:grid;gap:3px;background:rgba(0,0,0,.35);padding:8px;border-radius:18px;
+  box-shadow:0 14px 40px rgba(0,0,0,.35);width:min(52vw,440px);
+}
+.board.editing{cursor:crosshair}
+.cell{aspect-ratio:1;border-radius:6px}
+.board.editing .cell:hover{outline:3px solid rgba(255,234,167,.75);outline-offset:-3px}
+.cell.floor{background:#eef2f7}
+.cell.floor.alt{background:#dde5f0}
+.cell.wall{
+  background:linear-gradient(145deg,#5b6b8c,#3d4a66);
+  box-shadow:inset 0 -4px 0 rgba(0,0,0,.3),inset 0 3px 0 rgba(255,255,255,.14);
+}
+.cell.wall::after{content:'';display:block;width:100%;height:100%;border-radius:6px;
+  background:repeating-linear-gradient(0deg,transparent 0 45%,rgba(0,0,0,.14) 45% 55%,transparent 55% 100%)}
+.hero{position:absolute;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:5;
+  font-size:clamp(1.5rem,3.4vw,2.1rem);transition:left .22s ease,top .22s ease;
+  filter:drop-shadow(0 3px 3px rgba(0,0,0,.3))}
+.hero.hop{animation:hop .26s ease}
+@keyframes hop{0%{transform:scale(1)}40%{transform:scale(1.25,.8)}70%{transform:scale(.85,1.2)}100%{transform:scale(1)}}
+.hero.nudge{animation:nudgeA .35s ease}
+@keyframes nudgeA{0%,100%{transform:translateX(0)}30%{transform:translateX(-8px) rotate(-10deg)}65%{transform:translateX(8px) rotate(10deg)}}
+.hero.grab{animation:grabA .4s ease}
+@keyframes grabA{0%{transform:scale(1)}40%{transform:scale(1.3) translateY(-8px)}100%{transform:scale(1)}}
+.coin{position:absolute;pointer-events:none;z-index:4;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(1.2rem,2.6vw,1.7rem);animation:bob 1.7s ease-in-out infinite;transition:opacity .2s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14%)}}
+.coin.under{opacity:.45;transform:scale(.85)}
+.door{position:absolute;pointer-events:none;z-index:3;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(1.3rem,2.8vw,1.8rem);animation:glowF 1.6s ease-in-out infinite}
+@keyframes glowF{0%,100%{transform:scale(1);filter:drop-shadow(0 0 2px #feca57)}50%{transform:scale(1.14);filter:drop-shadow(0 0 12px #feca57)}}
+
+/* ───── ROBBY'S SPEECH BUBBLE ───── */
+.bubble{
+  position:absolute;z-index:6;pointer-events:none;
+  background:#fff;border-radius:16px;padding:8px 15px;
+  font-size:clamp(.92rem,2.3vw,1.15rem);font-weight:900;color:#4834d4;line-height:1.3;
+  box-shadow:0 8px 20px rgba(0,0,0,.3);max-width:240px;text-align:center;
+  transform:translateX(-50%);transition:left .22s ease,top .22s ease;
+}
+.bubble::after{content:'';position:absolute;left:50%;transform:translateX(-50%);border:10px solid transparent}
+.bubble.below::after{top:-10px;border-bottom-color:#fff;border-top:0}
+.bubble:not(.below)::after{bottom:-10px;border-top-color:#fff;border-bottom:0}
+.bubble.pop{animation:cpop .32s cubic-bezier(.22,1.3,.36,1)}
+@keyframes cpop{0%{transform:translateX(-50%) scale(.65)}60%{transform:translateX(-50%) scale(1.08)}100%{transform:translateX(-50%) scale(1)}}
+
+.fb{width:100%;max-width:940px;margin-top:12px;font-size:clamp(1.05rem,3vw,1.25rem);font-weight:800;min-height:1.6em;color:#fff;text-align:center;text-shadow:1px 2px 3px rgba(0,0,0,.3)}
+.fb.ok{color:#7bed9f}.fb.re{color:#ffeaa7}.fb.no{color:#ff7675}
+
+/* ───── FX ───── */
+@keyframes shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-12px) rotate(-1deg)}30%{transform:translateX(11px) rotate(1deg)}45%{transform:translateX(-8px)}60%{transform:translateX(7px)}75%{transform:translateX(-3px)}}
+.shaking{animation:shake .45s ease}
+.red-ov{position:fixed;inset:0;background:radial-gradient(circle,rgba(255,30,30,.28),rgba(255,30,30,.1));pointer-events:none;z-index:1000;animation:fadeR .6s ease forwards}
+@keyframes fadeR{to{opacity:0}}
+.spark{position:fixed;pointer-events:none;z-index:900;font-size:1.25rem;animation:sparkF .8s ease-out forwards}
+@keyframes sparkF{0%{transform:translate(0,0) scale(.6);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.4) rotate(200deg);opacity:0}}
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+
+@media(max-width:760px){
+  .game-wrap{flex-direction:column;align-items:center}
+  .board{width:min(92vw,440px)}
+  .right-col{flex:0 0 auto;width:100%;max-width:440px}
+  .tip{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ START ═══ -->
+<div class="screen on" id="start">
+  <div class="s-title">🎮 Robby's Maze 🎮</div>
+  <div class="s-tag">— Go left! Go right! —</div>
+  <div class="erow"><span>⬅️</span><span>⬆️</span><span>🤖</span><span>⬇️</span><span>➡️</span></div>
+  <div class="rulebox">
+    🤖 Robby is lost! Guide him to the <b>🚪 exit</b>!<br>
+    <b>1.</b> Say <b>"Go left!"</b> — Robby slides until he hits a wall!<br>
+    <b>2.</b> Stop <b>ON</b> a coin 🪙 and say <b>"Pick up!"</b> — slide past it and you miss it!<br>
+    <b>3.</b> Stuck? <b>Add a block 🧱</b> or <b>break a block 💥</b> — and fix the maze!<br>
+    <span style="opacity:.8">Every maze is new — endless levels! 🌈</span>
+  </div>
+  <button class="bbtn pk" onclick="startGame()">Start the Game! ▶️</button>
+</div>
+
+<!-- ═══ GAME ═══ -->
+<div class="screen" id="game">
+  <div class="top">
+    <div class="lvl" id="lvl">Level 1</div>
+    <div class="sbadge" id="sb">⭐ 0</div>
+    <div class="tip">💡 Teacher: arrow keys work too!</div>
+  </div>
+  <div class="game-wrap">
+    <div class="left-col">
+      <div class="mission" id="mis"></div>
+      <div class="stage" id="stage">
+        <div class="board" id="board"></div>
+        <div class="hero" id="hero">🤖</div>
+        <div class="bubble" id="bubble">Help me!</div>
+      </div>
+    </div>
+    <div class="right-col">
+      <div class="ctl-title">🕹️ CONTROLS</div>
+      <div class="pad">
+        <button class="pbtn up" id="bUp" onclick="go('up')"><span class="pe">⬆️</span>Go up!</button>
+        <button class="pbtn left" id="bLeft" onclick="go('left')"><span class="pe">⬅️</span>Go left!</button>
+        <div class="padmid">🤖</div>
+        <button class="pbtn right" id="bRight" onclick="go('right')"><span class="pe">➡️</span>Go right!</button>
+        <button class="pbtn down" id="bDown" onclick="go('down')"><span class="pe">⬇️</span>Go down!</button>
+      </div>
+      <button class="wide pick" id="bPick" onclick="pickUp()">👐 Pick up!</button>
+      <div class="editrow">
+        <button class="wide add" id="bAdd" onclick="toggleEdit('add')">🧱 Add block</button>
+        <button class="wide del" id="bDel" onclick="toggleEdit('del')">💥 Break block</button>
+      </div>
+      <button class="wide new" onclick="newMaze()">🔄 New maze</button>
+      <div class="sayit">📣 The class says the sentence,<br>THEN we press the button!</div>
+    </div>
+  </div>
+  <div class="fb" id="fb"></div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+/* ═══════════ DIRECTIONS ═══════════ */
+const DIRV={up:[-1,0],down:[1,0],left:[0,-1],right:[0,1]};
+
+/* ═══════════ STATE ═══════════ */
+let level=1,G=null,curStart=[1,1],hero={r:1,c:1},goal=null,coins=[],score=0,locked=false,editMode=null;
+
+/* ═══════════ AUDIO ═══════════ */
+const AC=window.AudioContext||window.webkitAudioContext;let ax;
+function ia(){if(!ax)ax=new AC();if(ax.state==="suspended")ax.resume();}
+function tn(f,s,d,t,v){if(!ax)return;
+  const o=ax.createOscillator(),g=ax.createGain();
+  o.connect(g);g.connect(ax.destination);o.type=t||"sine";o.frequency.value=f;
+  const n=ax.currentTime;g.gain.setValueAtTime(v||.2,n+s);
+  g.gain.exponentialRampToValueAtTime(.001,n+s+d);o.start(n+s);o.stop(n+s+d);}
+function sClick(){ia();tn(880,0,.05,"sine",.07);}
+function sWhoosh(){ia();if(!ax)return;
+  const o=ax.createOscillator(),g=ax.createGain();
+  o.connect(g);g.connect(ax.destination);o.type="sine";
+  const n=ax.currentTime;o.frequency.setValueAtTime(280,n);
+  o.frequency.exponentialRampToValueAtTime(950,n+.2);
+  g.gain.setValueAtTime(.11,n);g.gain.exponentialRampToValueAtTime(.001,n+.24);
+  o.start(n);o.stop(n+.26);}
+function sThud(){ia();tn(170,0,.09,"sine",.16);tn(95,.05,.11,"sine",.13);}
+function sBonk(){ia();tn(200,0,.1,"sawtooth",.12);tn(140,.09,.16,"sawtooth",.1);}
+function sPlace(){ia();tn(140,0,.1,"sine",.2);tn(330,.05,.08,"square",.09);}
+function sBreak(){ia();tn(320,0,.08,"sawtooth",.12);tn(190,.06,.14,"sawtooth",.1);tn(120,.14,.16,"sawtooth",.08);}
+function sPickup(){ia();[523,659,784,1047].forEach((f,i)=>tn(f,i*.09,.22,"sine",.15));}
+function sFanfare(){ia();[523,659,784,880,1047,1319].forEach((f,i)=>tn(f,i*.12,.5,"sine",.16));}
+
+/* ═══════════ HELPERS ═══════════ */
+function $(id){return document.getElementById(id);}
+function shuf(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=0|Math.random()*(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
+function scr(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$(id).classList.add("on");}
+function setPad(on){["bUp","bDown","bLeft","bRight","bPick"].forEach(id=>$(id).disabled=!on);}
+function setFb(t,cls){const f=$("fb");f.textContent=t;f.className="fb "+(cls||"");}
+function boardPx(){const b=$("board");return (b.clientWidth-parseFloat(getComputedStyle(b).paddingLeft)*2-(G[0].length-1)*3)/G[0].length;}
+function cellTopLeft(r,c){const padL=parseFloat(getComputedStyle($("board")).paddingLeft)+8;
+  const size=boardPx();return[padL+c*(size+3),padL+r*(size+3),size];}
+function place(el,r,c){const[x,y,s]=cellTopLeft(r,c);el.style.left=x+"px";el.style.top=y+"px";el.style.width=s+"px";el.style.height=s+"px";}
+
+/* ═══════════ ROBBY SPEAKS! ═══════════ */
+function say(t){
+  const b=$("bubble");b.textContent=t;
+  b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop");
+  positionBubble();
+}
+function positionBubble(){
+  const b=$("bubble"),[x,y,s]=cellTopLeft(hero.r,hero.c);
+  const bh=b.offsetHeight||40;
+  if(y-bh-10<0){b.style.top=(y+s+6)+"px";b.classList.add("below");}
+  else{b.style.top=(y-bh-6)+"px";b.classList.remove("below");}
+  b.style.left=(x+s/2)+"px";
+}
+
+/* ═══════════ SLIDE PHYSICS + SOLVER (used by generator) ═══════════ */
+function slide(g,r,c,d){
+  const dr=DIRV[d][0],dc=DIRV[d][1];
+  let cr=r,cc=c;const passed=[];
+  while(g[cr+dr]!==undefined&&g[cr+dr][cc+dc]!==undefined&&g[cr+dr][cc+dc]!=='#'){
+    cr+=dr;cc+=dc;passed.push([cr,cc]);
+  }
+  return passed.length?{r:cr,c:cc,passed}:null;
+}
+function bfsSlides(g,start){
+  const C=g[0].length,key=(r,c)=>r*C+c;
+  const dist=new Map([[key(start[0],start[1]),0]]);
+  const parent=new Map();
+  const cover=new Set();
+  const q=[[start[0],start[1]]];
+  while(q.length){
+    const[r,c]=q.shift();
+    for(const d in DIRV){
+      const s=slide(g,r,c,d);
+      if(!s)continue;
+      s.passed.forEach(([pr,pc])=>cover.add(key(pr,pc)));
+      const k=key(s.r,s.c);
+      if(!dist.has(k)){dist.set(k,dist.get(key(r,c))+1);parent.set(k,{p:[r,c],d});q.push([s.r,s.c]);}
+    }
+  }
+  return{dist,cover,parent};
+}
+function solutionDirs(g,start,gl){
+  const C=g[0].length,key=(r,c)=>r*C+c;
+  const{dist,parent}=bfsSlides(g,start);
+  const kGoal=key(gl[0],gl[1]);
+  if(!dist.has(kGoal))return null;
+  const dirs=[];let k=kGoal;
+  while(parent.has(k)){dirs.unshift(parent.get(k).d);k=key(parent.get(k).p[0],parent.get(k).p[1]);}
+  return dirs;
+}
+
+/* ═══════════ RANDOM LEVEL GENERATOR (always solvable) ═══════════
+   Coins spawn only on STOP-REACHABLE tiles, so Robby can always
+   land on them — and blocks can fix anything else. */
+function genLevel(n){
+  const R=7,C=8;
+  const p=Math.min(.34,.24+n*.012);
+  const minMoves=n<3?2:3,maxMoves=7;
+  for(let attempt=0;attempt<500;attempt++){
+    const g=[];const open=[];
+    for(let r=0;r<R;r++){g.push([]);
+      for(let c=0;c<C;c++){
+        const wall=(r===0||c===0||r===R-1||c===C-1)||Math.random()<p;
+        g[r][c]=wall?'#':'.';
+        if(!wall&&r>0&&c>0&&r<R-1&&c<C-1)open.push([r,c]);
+      }}
+    if(open.length<12)continue;
+    const start=shuf(open)[0];
+    const{dist}=bfsSlides(g,start);
+    const cands=[];
+    for(const[r,c]of open){
+      if(r===start[0]&&c===start[1])continue;
+      const d=dist.get(r*C+c);
+      if(d!==undefined&&d>=minMoves&&d<=maxMoves)cands.push([r,c,d]);
+    }
+    if(!cands.length)continue;
+    cands.sort((a,b)=>b[2]-a[2]);
+    const pick=cands[0|Math.random()*Math.min(4,cands.length)];
+    /* coins only where Robby can STOP */
+    const stopCells=[...dist.keys()].map(k=>[0|k/C,k%C])
+      .filter(([r,c])=>(r!==start[0]||c!==start[1])&&(r!==pick[0]||c!==pick[1]))
+      .sort(()=>Math.random()-.5);
+    if(stopCells.length<2)continue;
+    return{g:g.map(row=>row.slice()),start,goal:[pick[0],pick[1]],coins:stopCells.slice(0,n>=4?3:2)};
+  }
+  /* emergency fallback — always solvable */
+  const g=[];for(let r=0;r<R;r++){g.push([]);for(let c=0;c<C;c++)
+    g[r][c]=(r===0||c===0||r===R-1||c===C-1)?'#':'.';}
+  return{g,start:[1,1],goal:[R-2,C-2],coins:[[1,C-3],[R-2,2]]};
+}
+
+/* ═══════════ LEVEL RENDER ═══════════ */
+function renderCells(){
+  const B=$("board");B.innerHTML="";
+  B.style.gridTemplateColumns="repeat("+G[0].length+",1fr)";
+  for(let r=0;r<G.length;r++)for(let c=0;c<G[r].length;c++){
+    const d=document.createElement("div");
+    d.className=G[r][c]==='#'?"cell wall":"cell floor"+((r+c)%2?" alt":"");
+    B.appendChild(d);
+  }
+}
+function renderLevel(){
+  locked=false;exitEdit();
+  $("lvl").textContent="Level "+level;
+  $("mis").innerHTML='<span class="shout">📣 Find the 🚪! Stop on a coin: "Pick up!" 🪙</span>';
+  renderCells();
+  document.querySelectorAll(".coin,.door").forEach(e=>e.remove());
+  coins.forEach(([r,c])=>{
+    const el=document.createElement("div");el.className="coin";el.id="coin_"+r+"_"+c;
+    el.textContent="🪙";$("stage").appendChild(el);
+  });
+  const dr=document.createElement("div");dr.className="door";dr.id="door";dr.textContent="🚪";
+  $("stage").appendChild(dr);
+  hero={r:curStart[0],c:curStart[1]};
+  requestAnimationFrame(()=>{positionHero(false);
+    coins.forEach(([r,c])=>place($("coin_"+r+"_"+c),r,c));place($("door"),goal[0],goal[1]);updateCoinUnder();});
+  say(shuf(["Help me find the 🚪!","Where's the exit? 🤔","Let's go! 🎮","A new maze! Exciting! 😃"])[0]);
+  setFb("Which wall should Robby hit first? 🤔","re");
+}
+function positionHero(hop){
+  const h=$("hero");place(h,hero.r,hero.c);
+  if(hop){h.classList.remove("hop");void h.offsetWidth;h.classList.add("hop");}
+  positionBubble();
+}
+function updateCoinUnder(){
+  document.querySelectorAll(".coin").forEach(e=>e.classList.remove("under"));
+  const el=$("coin_"+hero.r+"_"+hero.c);
+  if(el)el.classList.add("under");
+}
+function startLevel(n){
+  level=n;
+  const L=genLevel(level);
+  G=L.g;curStart=L.start;goal=L.goal;coins=L.coins.map(c=>[c[0],c[1]]);
+  $("sb").classList.remove("pop");void $("sb").offsetWidth;$("sb").classList.add("pop");
+  renderLevel();
+}
+
+/* ═══════════ EDIT MODE: add / break blocks ═══════════ */
+function toggleEdit(mode){
+  if(locked)return;
+  sClick();
+  if(editMode===mode){exitEdit();say("Back to the game! 🎮");setFb("Which wall now? 🤔","re");return;}
+  editMode=mode;
+  $("bAdd").classList.toggle("active",mode==="add");
+  $("bDel").classList.toggle("active",mode==="del");
+  $("board").classList.add("editing");
+  setPad(false);
+  if(mode==="add"){say("Add a block! Tap a tile! 🧱");setFb("🧱 Add-block mode: tap a floor tile. Tap the button again to stop.","re");}
+  else{say("Break a block! Tap it! 💥");setFb("💥 Break-block mode: tap a wall. Tap the button again to stop.","re");}
+}
+function exitEdit(){
+  editMode=null;
+  $("bAdd").classList.remove("active");
+  $("bDel").classList.remove("active");
+  $("board").classList.remove("editing");
+  if(!locked)setPad(true);
+}
+function onBoardClick(e){
+  if(!editMode||locked||!G)return;
+  const cell=e.target.closest(".cell");
+  if(!cell)return;
+  const B=$("board");
+  const i=[...B.children].indexOf(cell);
+  const r=0|i/G[0].length,c=i%G[0].length;
+  if(r===0||c===0||r===G.length-1||c===G[0].length-1){
+    say("Edge blocks stay! 😅");return;
+  }
+  if(editMode==="add"){
+    if(G[r][c]==='#')return;
+    if(hero.r===r&&hero.c===c){say("Not here! I'm here! 😅");return;}
+    if(goal[0]===r&&goal[1]===c){say("Not on the exit! 🚪");return;}
+    if(coins.some(k=>k[0]===r&&k[1]===c)){say("There's a coin there! 🪙");return;}
+    G[r][c]='#';sPlace();
+    burstAtCell(r,c,["🧱","✨"]);
+    say(shuf(["Block! 🧱","A new wall! 🧱","There! Better? 😃"])[0]);
+    renderCells();
+  }else{
+    const ch=G[r][c];if(ch !=='#')return;
+    G[r][c]='.';sBreak();
+    burstAtCell(r,c,["💥","✨","🧱"]);
+    say(shuf(["Block broken! 💥","Bye-bye, wall! 👋","Open! 😄"])[0]);
+    renderCells();
+  }
+}
+
+/* ═══════════ GAMEPLAY ═══════════ */
+function go(dir){
+  if(locked||editMode)return;
+  sClick();say("Go "+dir+"!");
+  const s=slide(G,hero.r,hero.c,dir);
+  if(!s){
+    const h=$("hero");h.classList.remove("nudge");void h.offsetWidth;h.classList.add("nudge");
+    sBonk();
+    const st=$("stage");st.classList.remove("shaking");void st.offsetWidth;st.classList.add("shaking");
+    const rv=document.createElement("div");rv.className="red-ov";document.body.appendChild(rv);
+    rv.addEventListener("animationend",()=>rv.remove());
+    setTimeout(()=>say(shuf(["Ouch! A wall! 🧱","Bonk! Blocked! 😵","That way is closed! 😤"])[0]),350);
+    setFb("","");
+    return;
+  }
+  locked=true;setPad(false);
+  sWhoosh();
+  hero={r:s.r,c:s.c};
+  const h=$("hero"),dur=s.passed.length*80;
+  h.style.transitionDuration=dur+"ms";
+  requestAnimationFrame(()=>positionHero(false));
+  setTimeout(()=>{
+    sThud();
+    const h2=$("hero");h2.classList.remove("hop");void h2.offsetWidth;h2.classList.add("hop");
+    puffAtHero();
+    updateCoinUnder();
+    const onCoin=coins.some(k=>k[0]===hero.r&&k[1]===hero.c);
+    if(hero.r===goal[0]&&hero.c===goal[1]){levelClear();return;}
+    if(onCoin){
+      say("A coin! Say: Pick up! 🪙");
+      setFb("Robby is ON a coin! 📣 \"Pick up!\"","re");
+    }else{
+      say(shuf(["Wheee! 🤖","Nice slide! 😄","Again! Again! 🎉"])[0]);
+      setFb("","");
+    }
+    locked=false;setPad(true);
+  },dur+90);
+}
+function pickUp(){
+  if(locked||editMode)return;
+  sClick();say("Pick up!");
+  const h=$("hero");h.classList.remove("grab");void h.offsetWidth;h.classList.add("grab");
+  const idx=coins.findIndex(k=>k[0]===hero.r&&k[1]===hero.c);
+  if(idx>-1){
+    coins.splice(idx,1);
+    const el=$("coin_"+hero.r+"_"+hero.c);
+    if(el){burstAt(el);el.remove();}
+    sPickup();score++;
+    const sb=$("sb");sb.textContent="⭐ "+score;sb.classList.add("pop");
+    setTimeout(()=>say(shuf(["Pick up! Yay! 🪙","Got it! Cool! 😎","A coin for me! 🥳"])[0]),250);
+    setFb(shuf(PRAISE)[0]+" +1 🪙!","ok");
+    launchConfetti(40);
+    if(hero.r===goal[0]&&hero.c===goal[1])levelClear();
+  }else{
+    setFb(shuf(["Nothing to pick up here! 🤷","Just air! Haha! 😆","Pick up WHAT? There's nothing! 😂","Robby grabs… nothing! 😂"])[0],"re");
+    setTimeout(()=>say(shuf(["Pick up what? 😅","There's nothing here! 🤷","Air! Yummy air! 😂"])[0]),250);
+  }
+}
+function levelClear(){
+  locked=true;setPad(false);exitEdit();
+  const d=$("door");if(d){burstAt(d);}
+  sFanfare();launchConfetti(140);
+  say("Yay! The exit! 🎉 What a cool game!");
+  setFb("🎉 Level "+level+" clear! Next maze coming…","ok");
+  setTimeout(()=>startLevel(level+1),2300);
+}
+function newMaze(){
+  if(locked)return;
+  sClick();say("Ooh! A new maze! 🌈");
+  startLevel(level);
+  setFb("🆕 Brand-new maze! Say it, then press it!","re");
+}
+function puffAtHero(){
+  const h=$("hero"),rc=h.getBoundingClientRect();
+  for(let i=0;i<4;i++){
+    const s=document.createElement("div");s.className="spark";s.textContent="💨";
+    s.style.left=(rc.left+rc.width/2)+"px";s.style.top=(rc.top+rc.height/2)+"px";
+    s.style.setProperty("--dx",(Math.random()*70-35)+"px");
+    s.style.setProperty("--dy",(Math.random()*-40-10)+"px");
+    document.body.appendChild(s);
+    s.addEventListener("animationend",()=>s.remove());
+  }
+}
+function burstAt(el){
+  const rc=el.getBoundingClientRect();
+  for(let i=0;i<8;i++){
+    const s=document.createElement("div");s.className="spark";
+    s.textContent=shuf(["✨","⭐","💫","🌟"])[0];
+    s.style.left=(rc.left+rc.width/2)+"px";s.style.top=(rc.top+rc.height/2)+"px";
+    s.style.setProperty("--dx",(Math.random()*140-70)+"px");
+    s.style.setProperty("--dy",(Math.random()*140-90)+"px");
+    document.body.appendChild(s);
+    s.addEventListener("animationend",()=>s.remove());
+  }
+}
+function burstAtCell(r,c,emojis){
+  const[x,y,s]=cellTopLeft(r,c);
+  const rc=$("board").getBoundingClientRect();
+  for(let i=0;i<6;i++){
+    const sp=document.createElement("div");sp.className="spark";
+    sp.textContent=shuf(emojis)[0];
+    sp.style.left=(rc.left+x+s/2)+"px";sp.style.top=(rc.top+y+s/2)+"px";
+    sp.style.setProperty("--dx",(Math.random()*90-45)+"px");
+    sp.style.setProperty("--dy",(Math.random()*90-60)+"px");
+    document.body.appendChild(sp);
+    sp.addEventListener("animationend",()=>sp.remove());
+  }
+}
+const PRAISE=["Cool! 😎","Super cool! 🚀","What a cool game! 🎮","Nice one! 🌟","Awesome! 💥"];
+
+/* ═══════════ FLOW ═══════════ */
+function startGame(){
+  ia();sClick();score=0;
+  $("sb").textContent="⭐ 0";
+  scr("game");startLevel(1);
+}
+
+/* board clicks (play mode ignores them; edit mode uses them) */
+$("board").addEventListener("click",onBoardClick);
+
+/* keyboard support for the teacher */
+addEventListener("keydown",e=>{
+  if(!$("game").classList.contains("on"))return;
+  if(e.key==="Escape"){exitEdit();say("Back to the game! 🎮");return;}
+  const m={ArrowUp:"up",ArrowDown:"down",ArrowLeft:"left",ArrowRight:"right"};
+  if(m[e.key]){e.preventDefault();go(m[e.key]);}
+  if(e.key===" "){e.preventDefault();pickUp();}
+});
+addEventListener("resize",()=>{
+  if(!G||!$("game").classList.contains("on"))return;
+  positionHero(false);
+  coins.forEach(([r,c])=>{const el=$("coin_"+r+"_"+c);if(el)place(el,r,c);});
+  if($("door"))place($("door"),goal[0],goal[1]);
+  positionBubble();
+});
+
+/* ═══════════ CONFETTI ═══════════ */
+const cv=$("confetti"),cx=cv.getContext("2d");let pts=[],raf;
+function rsz(){cv.width=innerWidth;cv.height=innerHeight;}
+addEventListener("resize",rsz);rsz();
+const COLS=["#f5576c","#43e97b","#667eea","#ffc107","#ff6b6b","#48dbfb","#ff9ff3","#feca57","#00cec9"];
+function launchConfetti(n){
+  for(let i=0;i<(n||100);i++)pts.push({
+    x:innerWidth/2+(Math.random()-.5)*280,y:innerHeight*.32,
+    vx:(Math.random()-.5)*18,vy:Math.random()*-16-5,
+    w:5+Math.random()*11,h:3+Math.random()*7,
+    c:COLS[0|Math.random()*COLS.length],r:Math.random()*360,
+    rv:(Math.random()-.5)*14,g:.25+Math.random()*.22,life:1,d:.004+Math.random()*.007,
+    shape:Math.random()<.3?"circle":"rect"});
+  if(!raf)anim();
+}
+function anim(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  pts=pts.filter(p=>p.life>0);
+  for(const p of pts){
+    p.x+=p.vx;p.vy+=p.g;p.y+=p.vy;p.r+=p.rv;p.life-=p.d;p.vx*=.99;
+    cx.save();cx.translate(p.x,p.y);cx.rotate(p.r*Math.PI/180);
+    cx.globalAlpha=Math.max(0,p.life);cx.fillStyle=p.c;
+    if(p.shape==="circle"){cx.beginPath();cx.arc(0,0,p.w/2,0,Math.PI*2);cx.fill();}
+    else cx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+    cx.restore();
+  }
+  if(pts.length)raf=requestAnimationFrame(anim);
+  else{raf=null;cx.clearRect(0,0,cv.width,cv.height);}
+}
+</script>
+<!-- Bilingo game controls: zoom + fullscreen toggle (auto-collapsing) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .85; }
+  .bilingo-ui .b-handle { display: none; }
+  .bilingo-ui.mini > *:not(.b-handle) { display: none; }
+  .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-handle" title="Show controls" aria-label="Show controls">&#9881;&#65039;</button>
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">&minus;</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">&#9966;</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom';
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() {
+    z = Math.max(MIN, Math.round((z - STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function grow() {
+    z = Math.min(MAX, Math.round((z + STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+  }
+
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.remove('mini');
+    poke();
+  });
+
+  // Collapse to just the handle after 5s without interaction, so the bar
+  // never sits on top of the game's own buttons.
+  var idleTimer = null;
+  function poke() {
+    bar.classList.remove('mini');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.add('mini'); }, 5000);
+  }
+  bar.addEventListener('pointerdown', poke);
+  poke();
+  apply();
+})();
+</script>
+
+</body>
+</html>
