@@ -133,7 +133,7 @@ h1{font-size:clamp(1.1em,3.4vw,1.8em);text-shadow:2px 2px 8px rgba(0,0,0,.3)}
 
   <div class="boxes">
     <div class="box like" id="boxLike">
-      <div class="bh"><span class="zi">😋</span><span class="l1">I LIKE</span><span class="fruitword" id="likeWord"></span></div>
+      <div class="bh"><span class="zi">😋</span><span class="l1">YES</span><span class="fruitword" id="likeWord"></span></div>
       <div class="pile" id="pileLike"></div>
     </div>
     <div class="box mystery" id="boxMystery">
@@ -142,7 +142,7 @@ h1{font-size:clamp(1.1em,3.4vw,1.8em);text-shadow:2px 2px 8px rgba(0,0,0,.3)}
       <div class="mname hidden" id="mname">?</div>
     </div>
     <div class="box dont" id="boxDont">
-      <div class="bh"><span class="zi">😝</span><span class="l1">I DON'T LIKE</span><span class="fruitword" id="dontWord"></span></div>
+      <div class="bh"><span class="zi">😝</span><span class="l1">NO</span><span class="fruitword" id="dontWord"></span></div>
       <div class="pile" id="pileDont"></div>
     </div>
   </div>
@@ -301,6 +301,33 @@ function shakeBox(box,power=1){
   wakePile(cat);
 }
 
+/* keep every pile fruit inside its box — resting items skip the physics
+   clamp, so a resize / zoom / spawn could leave one stranded past the
+   border. Clamp them all here and wake the pile so they drop back in. */
+function refitPiles(){
+  let any=false;
+  for(const cat of ['like','dont']){
+    const items=piles[cat];
+    if(!items.length)continue;
+    const {w,h}=pileSize(cat);
+    for(const it of items){
+      let moved=false;
+      if(it.x<it.r){it.x=it.r;moved=true}
+      if(it.x>w-it.r){it.x=w-it.r;moved=true}
+      if(it.y<it.r){it.y=it.r;moved=true}
+      if(it.y>h-it.r){it.y=h-it.r;it.vy=Math.min(it.vy,0);moved=true}
+      if(moved){it.rest=false;styleIt(it);any=true}
+    }
+    if(any)wakePile(cat);
+  }
+}
+addEventListener('resize',refitPiles);
+if(window.ResizeObserver){
+  const pileRO=new ResizeObserver(()=>refitPiles());
+  pileRO.observe(document.getElementById('pileLike'));
+  pileRO.observe(document.getElementById('pileDont'));
+}
+
 /* ============ DATA ============
    All 10 fruits — lesson fruit + review fruit from two levels back.
    p = plural (kids practice plurals: "I like oranges") */
@@ -335,7 +362,7 @@ function popup(txt){
   const p=$('popup');p.textContent=txt;p.className='popup show';
   setTimeout(()=>p.className='popup',1300);
 }
-function solidBanner(html){banner.className='banner solid';banner.innerHTML=`<div class="row">${html}</div>`}
+function solidBanner(html,cls){banner.className='banner solid'+(cls?' '+cls:'');banner.innerHTML=`<div class="row">${html}</div>`}
 function setPrompt(t){prompt.textContent=t}
 function setBtn(label,fn,cls){
   mainBtn.className='mainbtn'+(cls?' '+cls:'');
@@ -376,8 +403,8 @@ function phaseWord(){
   $('silImg').src=imgOf(cur);
   const mn=$('mname');mn.textContent=cur.w;mn.classList.remove('hidden');
   /* the question appears WITHOUT a button — kids just answer it */
-  solidBanner('Do you like <b>'+cur.p+'</b>? 🤔');
-  setPrompt('🗣️ Answer! "Yes, I do!" / "No, I don\'t!" Then DRAG the fruit into a box! 👇');
+  solidBanner('Do you like <b>'+cur.p+'</b>? 🤔','bigquestion');
+  setPrompt('🗣️ Everyone answer the question! Then DRAG the fruit into a box! 👇');
   setReady(true);
   hideBtn();
   popup('🗣️');
@@ -396,6 +423,11 @@ function phaseFly(choice){
   popup(choice==='like'?['😋 YUMMY!','💚 Me too!','👍 YUMMY!'][~~(Math.random()*3)]:['😝 YUCK!','🙅 No way!','👎 BLECH!'][~~(Math.random()*3)]);
   setTimeout(()=>{
     showBtn();
+    /* the new target question appears once the fruit has landed */
+    solidBanner(pendingChoice==='like'
+      ?'What fruit do <b>you</b> like? 🤔'
+      :'What fruit don\'t <b>you</b> like? 🤔','bigquestion');
+    setPrompt('🗣️ Everyone answer! Then reveal the sentence! 👇');
     setBtn('Reveal Sentence 👀',phaseRevealSentence);
   },700);
 }
@@ -462,8 +494,8 @@ for(const id of ['boxLike','boxDont']){
   const choice=id==='boxLike'?'like':'dont';
   box.addEventListener('click',()=>{
     initAudio();
-    if(phase==='word')phaseFly(choice);
-    else shakeBox(box);
+    if(phase==='word'&&!locked){phaseFly(choice)}
+    else{shakeBox(box);sndPop()}
   });
   box.addEventListener('dragover',e=>{e.preventDefault();box.classList.add('drag-over')});
   box.addEventListener('dragleave',()=>box.classList.remove('drag-over'));
