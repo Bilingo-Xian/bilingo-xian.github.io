@@ -1,0 +1,190 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<title>Customs Passports — Print Me!</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#f0f0f0;padding:0;font-family:'Nunito',sans-serif}
+
+@page{size:A4 portrait;margin:10mm}
+
+.page{width:210mm;min-height:297mm;margin:0 auto;display:flex;flex-direction:column;page-break-after:always}
+.page:last-child{page-break-after:auto}
+
+.passport{width:190mm;height:133mm;margin:5mm auto;background:linear-gradient(145deg,#f6f6f8,#bfbfc3);border-radius:12px;border:3px solid #c9a84c;padding:20px 28px;display:grid;grid-template-columns:1fr 1.4fr;gap:16px;position:relative;overflow:hidden}
+.passport::before{content:'';position:absolute;top:-30px;right:-30px;width:160px;height:160px;background:rgba(201,168,76,.06);border-radius:50%}
+.passport::after{content:'PASSPORT';position:absolute;top:12px;right:20px;font-family:'Playfair Display',serif;color:rgba(201,168,76,.2);font-size:1em;letter-spacing:4px}
+
+.pass-left{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px}
+.photo-box{width:130px;height:130px;background:rgba(255,255,255,.08);border:2px solid #c9a84c;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:5.5em}
+.flag{font-size:2em;margin-top:6px}
+
+.pass-right{display:flex;flex-direction:column;justify-content:center;gap:10px}
+.pass-title{font-family:'Playfair Display',serif;color:#c9a84c;font-size:1.4em;letter-spacing:2px;border-bottom:1px solid rgba(201,168,76,.3);padding-bottom:6px;margin-bottom:4px}
+.field{display:flex;flex-direction:column;gap:2px}
+.field-label{color:rgba(201,168,76,.7);font-size:.65em;font-weight:800;text-transform:uppercase;letter-spacing:1px}
+.field-value{color:#fff;font-size:1.05em;font-weight:700}
+.items-list{color:#fff;font-size:.9em;font-weight:600;line-height:1.6}
+.items-list span{display:inline-block;margin-right:6px}
+
+.name-row{display:flex;gap:20px}
+.name-row .field{flex:1}
+
+@media print{
+    body{background:#fff}
+    .no-print{display:none}
+    .passport{break-inside:avoid}
+}
+
+.controls{text-align:center;padding:20px;background:#2d1654}
+.controls button{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;border:none;padding:12px 32px;border-radius:10px;font-size:1em;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif}
+.controls button:hover{transform:scale(1.05)}
+.controls p{color:rgba(255,255,255,.6);margin-top:8px;font-size:.85em}
+</style>
+</head>
+<body>
+<div class="controls no-print">
+    <button onclick="window.print()">🖨️ Print Passports</button>
+    <p>Prints 2 per A4 page. Cut in half! ✂️</p>
+</div>
+
+<div id="passports"></div>
+
+<script>
+const data=[
+    {flag:"🇩🇰",nat:"Danish",first:"Erik",last:"Lund",age:25,emoji:"👦",items:["2 red suitcases 🧳","1 green umbrella ☂️"]},
+    {flag:"🇳🇴",nat:"Norwegian",first:"Anna",last:"Berg",age:30,emoji:"👧",items:["1 brown handbag 👜","1 black umbrella ☂️"]},
+    {flag:"🇷🇺",nat:"Russian",first:"Dima",last:"Petrov",age:22,emoji:"👦",items:["3 grey suitcases 🧳","1 yellow school bag 🎒"]},
+    {flag:"🇳🇱",nat:"Dutch",first:"Piet",last:"de Jong",age:35,emoji:"👦",items:["1 orange handbag 👜","2 brown hats 🎩"]},
+    {flag:"🇨🇳",nat:"Chinese",first:"Li",last:"Wei",age:28,emoji:"👧",items:["2 black school bags 🎒","1 red umbrella ☂️"]},
+    {flag:"🇫🇷",nat:"French",first:"Marie",last:"Blanc",age:26,emoji:"👧",items:["1 red handbag 👜","1 grey suitcase 🧳"]},
+    {flag:"🇩🇪",nat:"German",first:"Hans",last:"Koch",age:40,emoji:"👦",items:["2 brown suitcases 🧳","1 green school bag 🎒"]},
+    {flag:"🇯🇵",nat:"Japanese",first:"Yuki",last:"Sato",age:23,emoji:"👧",items:["1 black handbag 👜","1 orange umbrella ☂️"]},
+    {flag:"🇰🇷",nat:"Korean",first:"Min",last:"Park",age:27,emoji:"👦",items:["3 red school bags 🎒","1 brown hat 🎩"]},
+    {flag:"🇺🇸",nat:"American",first:"Jake",last:"Hill",age:32,emoji:"👦",items:["2 yellow suitcases 🧳","1 black umbrella ☂️"]},
+    {flag:"🇬🇧",nat:"English",first:"Emma",last:"Bell",age:29,emoji:"👧",items:["1 grey handbag 👜","2 green hats 🎩"]},
+    {flag:"🇮🇹",nat:"Italian",first:"Marco",last:"Rossi",age:34,emoji:"👦",items:["2 orange suitcases 🧳","1 red school bag 🎒"]},
+    {flag:"🇸🇪",nat:"Swedish",first:"Ida",last:"Gren",age:21,emoji:"👧",items:["1 yellow handbag 👜","1 grey umbrella ☂️"]}
+];
+
+const container=document.getElementById('passports');
+
+data.forEach((p,i)=>{
+    let page;
+    if(i%2===0){
+        page=document.createElement('div');
+        page.className='page';
+        container.appendChild(page);
+    } else {
+        page=container.lastChild;
+    }
+    const div=document.createElement('div');
+    div.className='passport';
+    div.innerHTML=`
+        <div class="pass-left">
+            <div class="photo-box">${p.emoji}</div>
+            <div class="flag">${p.flag}</div>
+        </div>
+        <div class="pass-right">
+            <div class="pass-title">PASSPORT</div>
+            <div class="name-row">
+                <div class="field">
+                    <div class="field-label">First Name</div>
+                    <div class="field-value">${p.first}</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Surname</div>
+                    <div class="field-value">${p.last}</div>
+                </div>
+            </div>
+            <div class="field">
+                <div class="field-label">Age</div>
+                <div class="field-value">${p.age}</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Nationality</div>
+                <div class="field-value">${p.nat}</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Belongings</div>
+                <div class="items-list">${p.items.map(x=>`<span>${x}</span>`).join('<br>')}</div>
+            </div>
+        </div>
+    `;
+    page.appendChild(div);
+});
+</script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

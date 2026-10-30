@@ -1,0 +1,2500 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Clean Kitchen — Prepositions</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 24px 12px;
+    background: #edf3f5;
+    color: #263e49;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+button {
+    font: inherit;
+}
+
+button:focus {
+    outline: 3px solid #d48716;
+    outline-offset: 3px;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+.app {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.eyebrow {
+    margin-bottom: 5px;
+    color: #327b74;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+h1 {
+    margin: 0 0 8px;
+    font-size: 30px;
+}
+
+.subtitle {
+    margin: 0;
+    color: #536b75;
+    line-height: 1.5;
+}
+
+.card {
+    background: #fff;
+    border: 1px solid #dce6e9;
+    border-radius: 15px;
+    box-shadow: 0 5px 18px rgba(29, 60, 70, 0.06);
+}
+
+.instructions {
+    max-width: 800px;
+    margin: 0 auto 16px;
+    padding: 16px;
+}
+
+.instructions h2 {
+    margin: 0 0 12px;
+    font-size: 17px;
+}
+
+.sentences {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0;
+}
+
+.sentences li {
+    display: inline-block;
+    vertical-align: top;
+    width: 50%;
+    padding: 4px;
+    font-size: 14px;
+}
+
+.sentence-text {
+    display: block;
+    min-height: 43px;
+    padding: 9px 10px;
+    border-left: 3px solid #71a9a1;
+    border-radius: 5px;
+    background: #f2f7f7;
+    line-height: 1.5;
+}
+
+.sentences .done .sentence-text {
+    background: #eaf5ee;
+    border-left-color: #378653;
+    color: #42614d;
+}
+
+.sentences .active .sentence-text {
+    background: #fff3d7;
+    border-left-color: #d48716;
+}
+
+.prep {
+    font-weight: bold;
+    color: #226b65;
+}
+
+.toolbar {
+    max-width: 750px;
+    margin: 0 auto 10px;
+    font-size: 0;
+}
+
+.status {
+    display: inline-block;
+    width: 74%;
+    vertical-align: middle;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 42px;
+    padding: 3px 10px 3px 0;
+}
+
+.progress {
+    display: inline-block;
+    width: 26%;
+    text-align: right;
+    vertical-align: middle;
+    font-size: 14px;
+    font-weight: bold;
+    color: #226b65;
+}
+
+/* The scene is drawn at 750 × 480, then scaled as one unit. */
+.stage {
+    width: 100%;
+    max-width: 750px;
+    height: 480px;
+    position: relative;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 15px;
+    background: #f5eedf;
+    box-shadow: 0 8px 24px rgba(29, 60, 70, 0.16);
+}
+
+.scene {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 750px;
+    height: 480px;
+    overflow: hidden;
+    transform-origin: 0 0;
+    -ms-transform-origin: 0 0;
+}
+
+.art {
+    position: absolute;
+    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.wall {
+    position: absolute;
+    width: 750px;
+    height: 320px;
+    background-color: #f7f0e3;
+    background-image:
+        linear-gradient(90deg, rgba(173, 153, 120, 0.12) 1px, transparent 1px),
+        linear-gradient(rgba(173, 153, 120, 0.12) 1px, transparent 1px);
+    background-size: 50px 40px;
+}
+
+.wall-trim {
+    position: absolute;
+    top: 310px;
+    left: 0;
+    width: 750px;
+    height: 12px;
+    background: #a77c50;
+    border-top: 3px solid #bc946c;
+}
+
+.floor {
+    position: absolute;
+    top: 322px;
+    left: 0;
+    width: 750px;
+    height: 158px;
+    background-color: #d9b38d;
+    background-image:
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 124px,
+            rgba(108, 74, 44, 0.17) 124px,
+            rgba(108, 74, 44, 0.17) 126px
+        ),
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 50px,
+            rgba(108, 74, 44, 0.12) 50px,
+            rgba(108, 74, 44, 0.12) 52px
+        );
+}
+
+.window {
+    position: absolute;
+    left: 200px;
+    top: 21px;
+    width: 120px;
+    height: 111px;
+    border: 7px solid #fffaf0;
+    border-radius: 5px;
+    background: linear-gradient(#91cddb, #d7edf0);
+    box-shadow:
+        0 0 0 3px #bc9974,
+        3px 5px 0 rgba(143, 112, 74, 0.12);
+    overflow: hidden;
+}
+
+.window:before {
+    content: "";
+    position: absolute;
+    right: 13px;
+    top: 10px;
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    background: #fff1ad;
+}
+
+.window:after {
+    content: "";
+    position: absolute;
+    left: -15px;
+    bottom: -23px;
+    width: 145px;
+    height: 55px;
+    border-radius: 50%;
+    background: #9ac4a0;
+}
+
+.window-cross-v {
+    position: absolute;
+    left: 50px;
+    top: 0;
+    width: 6px;
+    height: 100%;
+    background: #fffaf0;
+    z-index: 1;
+}
+
+.window-cross-h {
+    position: absolute;
+    left: 0;
+    top: 42px;
+    width: 100%;
+    height: 5px;
+    background: #fffaf0;
+    z-index: 1;
+}
+
+.shelf {
+    position: absolute;
+    left: 184px;
+    top: 139px;
+    width: 153px;
+    height: 10px;
+    border-radius: 3px;
+    background: #a6784e;
+    border-bottom: 4px solid #805639;
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.08);
+}
+
+.shelf:before,
+.shelf:after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    width: 6px;
+    height: 17px;
+    background: #805639;
+}
+
+.shelf:before { left: 20px; }
+.shelf:after { right: 20px; }
+
+.counter {
+    position: absolute;
+    left: 139px;
+    top: 262px;
+    width: 452px;
+    height: 16px;
+    background: #fdf8ed;
+    border: 2px solid #cab99f;
+    border-radius: 4px;
+    box-shadow: 0 5px 0 #ae9677;
+    z-index: 3;
+}
+
+.cabinet {
+    position: absolute;
+    left: 143px;
+    top: 283px;
+    width: 444px;
+    height: 88px;
+    background: #83a59b;
+    border: 3px solid #66877d;
+    z-index: 2;
+}
+
+.cabinet-door {
+    position: absolute;
+    top: 7px;
+    bottom: 8px;
+    width: 132px;
+    border: 2px solid #6f9387;
+    border-radius: 3px;
+    background: #97b6ac;
+}
+
+.cabinet-door:after {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: 48px;
+    width: 30px;
+    height: 5px;
+    background: #c6ac75;
+    border-radius: 4px;
+}
+
+.cabinet-door.one { left: 8px; }
+.cabinet-door.two { left: 153px; }
+.cabinet-door.three { left: 298px; }
+
+/* Fridge: rounded body, freezer, glass-fronted lower compartment. */
+.fridge {
+    position: absolute;
+    left: 18px;
+    top: 73px;
+    width: 111px;
+    height: 298px;
+    border: 3px solid #6d918d;
+    border-radius: 14px 14px 8px 8px;
+    background: linear-gradient(90deg, #c6e4de, #e5f3ef 42%, #a9cfc6);
+    box-shadow:
+        inset -5px 0 0 rgba(73, 119, 109, 0.13),
+        5px 6px 8px rgba(31, 58, 51, 0.17);
+    z-index: 5;
+}
+
+.fridge-freezer {
+    position: absolute;
+    left: 5px;
+    right: 5px;
+    top: 5px;
+    height: 91px;
+    border: 1px solid #9ebfb6;
+    border-bottom: 3px solid #7ea399;
+    border-radius: 9px 9px 3px 3px;
+    background: linear-gradient(120deg, #e4f3ee, #b7d8ce);
+}
+
+.fridge-brand {
+    position: absolute;
+    top: 14px;
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: #426e64;
+}
+
+.fridge-freezer:after {
+    content: "";
+    position: absolute;
+    right: 10px;
+    top: 38px;
+    width: 7px;
+    height: 34px;
+    border: 1px solid #7f9c94;
+    border-radius: 5px;
+    background: linear-gradient(90deg, #fafbf6, #a1b8af);
+    box-shadow: 2px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.fridge-interior {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    top: 106px;
+    height: 159px;
+    border: 4px solid #8caaa1;
+    border-radius: 6px;
+    background: linear-gradient(120deg, #e7f4eb, #c4dbd0);
+    box-shadow: inset 4px 4px 7px rgba(53, 96, 81, 0.16);
+}
+
+.fridge-shelf {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: #f7fff9;
+    border-bottom: 2px solid #a2c0b3;
+}
+
+.fridge-shelf.first { top: 52px; }
+.fridge-shelf.second { top: 98px; }
+
+.fridge-drawer {
+    position: absolute;
+    left: 5px;
+    right: 5px;
+    bottom: 7px;
+    height: 30px;
+    border: 2px solid #aac5b5;
+    border-radius: 3px;
+    background: rgba(245, 255, 248, 0.5);
+}
+
+.fridge-drawer:after {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: 21px;
+    width: 23px;
+    height: 3px;
+    background: #94afa0;
+}
+
+.fridge-foot {
+    position: absolute;
+    bottom: -8px;
+    width: 15px;
+    height: 6px;
+    background: #526c64;
+    border-radius: 0 0 3px 3px;
+}
+
+.fridge-foot.left { left: 12px; }
+.fridge-foot.right { right: 12px; }
+
+/* Microwave */
+.microwave {
+    position: absolute;
+    left: 320px;
+    top: 176px;
+    width: 140px;
+    height: 86px;
+    border: 3px solid #667b82;
+    border-radius: 7px;
+    background: linear-gradient(#e7edef, #b7c4c8);
+    box-shadow: 2px 3px 5px rgba(30, 45, 50, 0.16);
+    z-index: 5;
+}
+
+.microwave-glass {
+    position: absolute;
+    left: 6px;
+    top: 8px;
+    width: 88px;
+    height: 61px;
+    border: 4px solid #41565f;
+    border-radius: 4px;
+    background: linear-gradient(135deg, #627b88, #263b46);
+}
+
+.microwave-glass:before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    width: 43px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.15);
+    transform: rotate(-24deg);
+}
+
+.microwave-handle {
+    position: absolute;
+    left: 85px;
+    top: 24px;
+    width: 5px;
+    height: 34px;
+    border-radius: 3px;
+    background: #dde7e8;
+}
+
+.microwave-display {
+    position: absolute;
+    right: 5px;
+    top: 10px;
+    padding: 3px;
+    border-radius: 2px;
+    background: #293d40;
+    color: #b6e6b0;
+    font: 9px monospace;
+}
+
+.microwave-dial {
+    position: absolute;
+    right: 11px;
+    top: 37px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 3px solid #82959b;
+    background: #f0f4f3;
+}
+
+/* Cooker: hob, burners, control panel, oven and handle. */
+.cooker {
+    position: absolute;
+    left: 601px;
+    top: 188px;
+    width: 132px;
+    height: 184px;
+    border: 3px solid #73838a;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #cbd4d8, #f0f3f3 45%, #b8c5ca);
+    box-shadow: 4px 5px 7px rgba(30, 45, 50, 0.18);
+    z-index: 5;
+}
+
+.cooker-back {
+    position: absolute;
+    left: -3px;
+    right: -3px;
+    top: -19px;
+    height: 22px;
+    border: 3px solid #73838a;
+    border-radius: 6px 6px 0 0;
+    background: #ccd7da;
+}
+
+.hob {
+    position: absolute;
+    left: -3px;
+    top: -3px;
+    width: 132px;
+    height: 72px;
+    border: 3px solid #4c5b61;
+    border-radius: 6px 6px 2px 2px;
+    background: linear-gradient(135deg, #68767a, #35434a);
+}
+
+.burner {
+    position: absolute;
+    width: 43px;
+    height: 23px;
+    border: 3px solid #1f2d33;
+    border-radius: 50%;
+    background: #4a595e;
+    box-shadow: inset 0 0 0 3px #859195;
+}
+
+.burner:after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: 4px;
+    width: 13px;
+    height: 8px;
+    border-radius: 50%;
+    background: #202d33;
+}
+
+.burner.one { left: 9px; top: 7px; }
+.burner.two { right: 9px; top: 7px; }
+.burner.three { left: 9px; top: 36px; }
+.burner.four { right: 9px; top: 36px; }
+
+.cooker-controls {
+    position: absolute;
+    top: 69px;
+    left: 0;
+    right: 0;
+    height: 28px;
+    border-bottom: 2px solid #9faeb4;
+    text-align: center;
+    background: #d9e1e3;
+}
+
+.knob {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin: 5px 5px 0;
+    border: 2px solid #607079;
+    border-radius: 50%;
+    background: #f5f6f3;
+}
+
+.knob:after {
+    content: "";
+    display: block;
+    width: 2px;
+    height: 4px;
+    margin: 0 auto;
+    background: #5c7078;
+}
+
+.oven {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: 106px;
+    bottom: 12px;
+    border: 5px solid #50616a;
+    border-radius: 6px;
+    background: linear-gradient(140deg, #56717c, #273f49);
+}
+
+.oven:before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    top: -2px;
+    height: 7px;
+    border-radius: 4px;
+    background: #e4ebec;
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.22);
+}
+
+.oven:after {
+    content: "";
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 13px;
+    height: 3px;
+    background: #81939a;
+    box-shadow: 0 -9px 0 rgba(129, 147, 154, 0.6);
+}
+
+/* Table */
+.table-shadow {
+    position: absolute;
+    left: 226px;
+    top: 430px;
+    width: 270px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(91, 59, 34, 0.13);
+    z-index: 6;
+}
+
+.table-leg {
+    position: absolute;
+    top: 410px;
+    width: 14px;
+    height: 59px;
+    border-radius: 0 0 4px 4px;
+    background: #9b6940;
+    border-right: 4px solid #825632;
+    z-index: 7;
+}
+
+.table-leg.left { left: 238px; }
+.table-leg.right { left: 470px; }
+
+.table-top {
+    position: absolute;
+    left: 218px;
+    top: 348px;
+    width: 284px;
+    height: 104px;
+    border: 3px solid #b78250;
+    border-bottom: 8px solid #a47144;
+    border-radius: 17px;
+    background: linear-gradient(140deg, #f0cea0, #dbac79);
+    box-shadow: inset 0 3px 0 #f9dfba;
+    z-index: 8;
+}
+
+/* Object destinations */
+.zone,
+.compare-item {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    padding: 2px;
+    margin: 0;
+    border: 2px dashed #8b9c96;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.42);
+    color: #44665b;
+    cursor: pointer;
+    z-index: 20;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: none;
+    -ms-touch-action: none;
+}
+
+.zone .empty-dot {
+    display: block;
+    width: 6px;
+    height: 6px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: #94a79d;
+}
+
+.zone.filled {
+    border: 2px solid rgba(81, 115, 102, 0.45);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.choosing .zone {
+    border-color: #bd861c;
+    background-color: rgba(255, 242, 201, 0.55);
+}
+
+.zone.over {
+    border: 3px solid #b57810;
+    background: #ffedb7;
+    box-shadow: 0 0 0 4px rgba(255, 224, 141, 0.55);
+}
+
+.zone.selected {
+    border: 3px solid #ba7910;
+    background: #ffe5a4;
+}
+
+.zone.correct {
+    border: 3px solid #338653;
+    background: rgba(211, 243, 221, 0.6);
+}
+
+.zone.incorrect {
+    border: 3px solid #c35b4e;
+    background: rgba(255, 226, 217, 0.65);
+}
+
+.check-mark {
+    position: absolute;
+    right: -7px;
+    top: -9px;
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    background: #338653;
+    color: #fff;
+    font: bold 13px/19px Arial, sans-serif;
+    text-align: center;
+    pointer-events: none;
+}
+
+.check-mark.wrong {
+    background: #c35b4e;
+}
+
+.icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.zone *,
+.bank-item *,
+.compare-item * {
+    pointer-events: none;
+}
+
+/* Object bank */
+.bank-card {
+    max-width: 800px;
+    margin: 16px auto 0;
+    padding: 12px;
+}
+
+.bank-header {
+    margin: 0 0 7px;
+    padding: 0 5px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.bank {
+    text-align: center;
+    min-height: 88px;
+    border: 2px dashed transparent;
+    border-radius: 10px;
+    padding: 2px;
+}
+
+.bank.over {
+    border-color: #bd861c;
+    background: #fff3d7;
+}
+
+.bank-item {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    width: 66px;
+    height: 78px;
+    margin: 3px;
+    padding: 5px;
+    border: 2px solid #d9e4e5;
+    border-radius: 11px;
+    background: #f5f8f8;
+    cursor: grab;
+    cursor: -webkit-grab;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: none;
+    -ms-touch-action: none;
+}
+
+.bank-item:hover {
+    border-color: #729b91;
+    background: #edf5f1;
+}
+
+.bank-item .icon {
+    width: 43px;
+    height: 43px;
+    margin: 0 auto 3px;
+}
+
+.item-name {
+    display: block;
+    font-size: 10px;
+    color: #35544d;
+    line-height: 15px;
+}
+
+.bank-item.placed {
+    background: #e7f0eb;
+    border-color: #b3cec0;
+}
+
+.bank-item.placed:after {
+    content: "\2713";
+    position: absolute;
+    right: 2px;
+    top: 0;
+    color: #32764b;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.bank-item.selected {
+    border-color: #ba7910;
+    background: #ffedbd;
+    box-shadow: 0 0 0 2px rgba(208, 154, 50, 0.22);
+}
+
+.bank-item.drag-source {
+    opacity: 0.45;
+}
+
+.help {
+    text-align: center;
+    margin: 10px 0 0;
+    color: #597078;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.actions {
+    margin: 17px auto;
+    text-align: center;
+}
+
+.btn {
+    display: inline-block;
+    margin: 4px;
+    padding: 11px 17px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: #e0e9eb;
+    color: #304d58;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    filter: brightness(0.97);
+}
+
+.btn.primary {
+    background: #2e7a6e;
+    color: #fff;
+}
+
+.btn.next {
+    background: #a4692b;
+    color: #fff;
+}
+
+.btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.score {
+    text-align: center;
+    margin: 12px 0;
+    font-weight: bold;
+    color: #286b48;
+}
+
+/* Floating drag preview */
+.drag-ghost {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 58px;
+    height: 58px;
+    padding: 5px;
+    border: 2px solid #bd861c;
+    border-radius: 13px;
+    background: #fff5d9;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    z-index: 10000;
+}
+
+/* Spot the differences */
+.compare-grid {
+    text-align: center;
+    font-size: 0;
+}
+
+.compare-panel {
+    display: inline-block;
+    vertical-align: top;
+    width: 50%;
+    padding: 10px;
+    font-size: 14px;
+}
+
+.compare-panel h2 {
+    margin: 0 0 10px;
+    font-size: 17px;
+}
+
+.compare-panel .stage {
+    max-width: 520px;
+}
+
+.compare-item {
+    cursor: default;
+    border: 2px solid transparent;
+    background: transparent;
+    touch-action: manipulation;
+}
+
+button.compare-item {
+    cursor: pointer;
+}
+
+button.compare-item:hover {
+    background: rgba(255, 244, 192, 0.7);
+    border-color: #bd861c;
+}
+
+.compare-item.found {
+    background: rgba(211, 243, 221, 0.75);
+    border-color: #338653;
+}
+
+.diff-score {
+    text-align: center;
+    margin: 18px 0 8px;
+    color: #226b65;
+    font-size: 19px;
+    font-weight: bold;
+}
+
+.celebration {
+    max-width: 620px;
+    margin: 20px auto;
+    padding: 24px;
+    text-align: center;
+    background: #e4f3e9;
+    border: 2px solid #80b795;
+    border-radius: 15px;
+}
+
+.celebration h2 {
+    margin: 0 0 8px;
+    color: #286b48;
+}
+
+.celebration p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+noscript {
+    display: block;
+    margin: 16px;
+    padding: 16px;
+    background: #fff0d9;
+}
+
+@media (max-width: 700px) {
+    .compare-panel {
+        display: block;
+        width: 100%;
+        max-width: 540px;
+        margin: 0 auto;
+        padding: 10px 0;
+    }
+}
+
+@media (max-width: 520px) {
+    body {
+        padding: 15px 8px;
+    }
+
+    h1 {
+        font-size: 25px;
+    }
+
+    .instructions {
+        padding: 10px;
+    }
+
+    .sentences li {
+        width: 100%;
+        font-size: 13px;
+        padding: 3px;
+    }
+
+    .sentence-text {
+        min-height: 0;
+        padding: 6px 8px;
+    }
+
+    .bank-card {
+        padding: 8px;
+    }
+
+    .bank-item {
+        width: 60px;
+        margin: 3px 2px;
+    }
+
+    .status {
+        width: 77%;
+        font-size: 12px;
+    }
+
+    .progress {
+        width: 23%;
+        font-size: 12px;
+    }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+    <noscript>
+        This activity needs JavaScript. Please enable JavaScript and reload.
+    </noscript>
+
+    <section id="phase1">
+        <header class="page-header">
+            <div class="eyebrow">Read · Choose · Place</div>
+            <h1>A Clean Kitchen</h1>
+            <p class="subtitle">
+                Drag each object to a place, or click an object and then a place.
+            </p>
+        </header>
+
+        <div class="card instructions">
+            <h2>Put everything where it belongs</h2>
+
+            <ol class="sentences" id="sentences">
+                <li data-sentence="pan">
+                    <span class="sentence-text">
+                        1. Put the pan <span class="prep">on</span> the cooker.
+                    </span>
+                </li>
+                <li data-sentence="cup">
+                    <span class="sentence-text">
+                        2. Put the cup <span class="prep">on the left of</span>
+                        the microwave.
+                    </span>
+                </li>
+                <li data-sentence="cupcake">
+                    <span class="sentence-text">
+                        3. Put the cupcake <span class="prep">on the right of</span>
+                        the microwave.
+                    </span>
+                </li>
+                <li data-sentence="teapot">
+                    <span class="sentence-text">
+                        4. Put the teapot <span class="prep">next to</span> the fridge.
+                    </span>
+                </li>
+                <li data-sentence="spoon">
+                    <span class="sentence-text">
+                        5. Put the spoon <span class="prep">between</span>
+                        the teapot and the cup.
+                    </span>
+                </li>
+                <li data-sentence="bowl">
+                    <span class="sentence-text">
+                        6. Put the bowl <span class="prep">in the middle of</span>
+                        the table.
+                    </span>
+                </li>
+                <li data-sentence="dumpling">
+                    <span class="sentence-text">
+                        7. Put the dumpling <span class="prep">in</span> the fridge.
+                    </span>
+                </li>
+                <li data-sentence="bread">
+                    <span class="sentence-text">
+                        8. Put the bread <span class="prep">in front of</span>
+                        the window.
+                    </span>
+                </li>
+                <li data-sentence="knife">
+                    <span class="sentence-text">
+                        9. Put the knife <span class="prep">behind</span> the bowl.
+                    </span>
+                </li>
+                <li data-sentence="watermelon">
+                    <span class="sentence-text">
+                        10. Put the watermelon <span class="prep">on</span>
+                        the microwave.
+                    </span>
+                </li>
+            </ol>
+        </div>
+
+        <div class="toolbar">
+            <div class="status" id="status" role="status" aria-live="polite">
+                Choose an object below to begin.
+            </div>
+            <div class="progress" id="progress">Placed: 0 / 10</div>
+        </div>
+
+        <div class="stage" id="mainStage">
+            <div class="scene" id="mainScene">
+
+                <!-- Decorative scene; reused in the second activity. -->
+                <div class="art" id="kitchenArt" aria-hidden="true">
+                    <div class="wall"></div>
+                    <div class="floor"></div>
+                    <div class="wall-trim"></div>
+
+                    <div class="window">
+                        <div class="window-cross-v"></div>
+                        <div class="window-cross-h"></div>
+                    </div>
+                    <div class="shelf"></div>
+
+                    <div class="cabinet">
+                        <div class="cabinet-door one"></div>
+                        <div class="cabinet-door two"></div>
+                        <div class="cabinet-door three"></div>
+                    </div>
+                    <div class="counter"></div>
+
+                    <div class="fridge">
+                        <div class="fridge-freezer">
+                            <div class="fridge-brand">FRIDGE</div>
+                        </div>
+                        <div class="fridge-interior">
+                            <div class="fridge-shelf first"></div>
+                            <div class="fridge-shelf second"></div>
+                            <div class="fridge-drawer"></div>
+                        </div>
+                        <div class="fridge-foot left"></div>
+                        <div class="fridge-foot right"></div>
+                    </div>
+
+                    <div class="microwave">
+                        <div class="microwave-glass"></div>
+                        <div class="microwave-handle"></div>
+                        <div class="microwave-display">12:00</div>
+                        <div class="microwave-dial"></div>
+                    </div>
+
+                    <div class="cooker">
+                        <div class="cooker-back"></div>
+                        <div class="hob">
+                            <div class="burner one"></div>
+                            <div class="burner two"></div>
+                            <div class="burner three"></div>
+                            <div class="burner four"></div>
+                        </div>
+                        <div class="cooker-controls">
+                            <span class="knob"></span>
+                            <span class="knob"></span>
+                            <span class="knob"></span>
+                            <span class="knob"></span>
+                        </div>
+                        <div class="oven"></div>
+                    </div>
+
+                    <div class="table-shadow"></div>
+                    <div class="table-leg left"></div>
+                    <div class="table-leg right"></div>
+                    <div class="table-top"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bank-card">
+            <p class="bank-header">Object tray</p>
+            <div class="bank" id="bank" aria-label="Object tray"></div>
+            <p class="help">
+                Move objects again whenever you like.
+                Drop an object back into the tray to remove it.<br>
+                Keyboard: Tab to an object, press Enter, then Tab to a place
+                and press Enter. Escape cancels selection.
+            </p>
+        </div>
+
+        <div class="score" id="score" role="status" hidden=""></div>
+
+        <div class="actions">
+            <button type="button" class="btn" id="resetButton">Reset</button>
+            <button type="button" class="btn" id="returnButton" disabled="">
+                Return selected to tray
+            </button>
+            <button type="button" class="btn primary" id="checkButton">
+                Check answers
+            </button>
+            <button type="button" class="btn next" id="nextButton" hidden="">
+                Next: Spot the differences
+            </button>
+        </div>
+    </section>
+
+    <section id="phase2" hidden="">
+        <header class="page-header">
+            <div class="eyebrow">Look · Compare · Find</div>
+            <h1 id="phase2Heading" tabindex="-1">Spot the Differences!</h1>
+            <p class="subtitle">
+                Compare the reference kitchen with the mixed-up kitchen.
+                Click each misplaced object in the mixed-up kitchen.
+            </p>
+        </header>
+
+        <div class="diff-score" id="diffScore" role="status" aria-live="polite">
+            Found: 0 / 10
+        </div>
+
+        <div class="compare-grid">
+            <div class="compare-panel">
+                <h2>Reference kitchen</h2>
+                <div class="stage" id="correctStage">
+                    <div class="scene" id="correctScene"></div>
+                </div>
+            </div>
+
+            <div class="compare-panel">
+                <h2>Mixed-up kitchen — click here</h2>
+                <div class="stage" id="mixedStage">
+                    <div class="scene" id="mixedScene"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="celebration" id="celebration" role="status" hidden="">
+            <h2>You found every difference!</h2>
+            <p>Excellent work with your kitchen prepositions.</p>
+        </div>
+
+        <div class="actions">
+            <button type="button" class="btn" id="backButton">
+                Back to my kitchen
+            </button>
+            <button type="button" class="btn primary" id="shuffleButton">
+                Mix it up again
+            </button>
+        </div>
+    </section>
+</div>
+
+<script>
+(function () {
+    "use strict";
+
+    /*
+     * Self-contained SVG drawings.
+     * No external assets and no dependency on emoji font support.
+     * JavaScript intentionally avoids newer syntax and collection helpers.
+     */
+    var drawings = {
+        pan:
+            '<path d="M9 27 L4 25 M51 27 L57 25" fill="none" stroke="#344e57" stroke-width="5" stroke-linecap="round"/>' +
+            '<path d="M9 25 Q10 47 30 48 Q50 47 51 25Z" fill="#cf7051" stroke="#794e3e" stroke-width="2"/>' +
+            '<ellipse cx="30" cy="25" rx="22" ry="9" fill="#334b52"/>' +
+            '<ellipse cx="30" cy="25" rx="18" ry="6" fill="#edbc58"/>' +
+            '<circle cx="21" cy="25" r="4" fill="#dc6c46"/>' +
+            '<circle cx="36" cy="25" r="4" fill="#79a35d"/>' +
+            '<path d="M26 21 L30 28 M41 22 L44 25" stroke="#fff0bf" stroke-width="3" stroke-linecap="round"/>',
+
+        cup:
+            '<path d="M43 21 C59 17 58 40 43 38" fill="none" stroke="#448f89" stroke-width="5"/>' +
+            '<ellipse cx="29" cy="48" rx="23" ry="4" fill="#a7cbc6"/>' +
+            '<path d="M11 20 L15 41 Q29 52 43 41 L47 20Z" fill="#77b7ad" stroke="#387e78" stroke-width="2"/>' +
+            '<ellipse cx="29" cy="20" rx="18" ry="6" fill="#dfede0" stroke="#387e78" stroke-width="2"/>' +
+            '<ellipse cx="29" cy="21" rx="14" ry="3.5" fill="#957046"/>' +
+            '<path d="M24 12 Q20 7 25 3 M35 12 Q31 7 36 3" fill="none" stroke="#9daea8" stroke-width="2" stroke-linecap="round"/>',
+
+        cupcake:
+            '<path d="M14 31 L19 52 L43 52 L48 31Z" fill="#c58fc0" stroke="#885c88" stroke-width="2"/>' +
+            '<path d="M23 35 L25 48 M31 35 L31 48 M39 35 L37 48" stroke="#f2c9e7" stroke-width="2"/>' +
+            '<path d="M12 31 Q7 21 20 20 Q15 11 28 11 Q34 1 40 14 Q51 13 49 23 Q58 30 48 34Z" fill="#fff0d5" stroke="#c69b7a" stroke-width="2"/>' +
+            '<circle cx="33" cy="9" r="4" fill="#d36368"/>' +
+            '<path d="M20 25 L24 27 M37 19 L40 22 M32 29 L35 27" stroke="#d98799" stroke-width="2" stroke-linecap="round"/>',
+
+        teapot:
+            '<path d="M42 23 C60 12 62 43 44 41" fill="none" stroke="#487f91" stroke-width="5"/>' +
+            '<path d="M17 27 L4 18 L7 33 L18 41Z" fill="#87b7c7" stroke="#487f91" stroke-width="2"/>' +
+            '<ellipse cx="31" cy="35" rx="19" ry="17" fill="#8bbccc" stroke="#487f91" stroke-width="2"/>' +
+            '<path d="M17 22 Q30 13 45 22Z" fill="#d5e9ed" stroke="#487f91" stroke-width="2"/>' +
+            '<circle cx="31" cy="15" r="4" fill="#487f91"/>' +
+            '<path d="M24 29 Q19 37 26 43" fill="none" stroke="#c7e2e9" stroke-width="3" stroke-linecap="round"/>',
+
+        spoon:
+            '<g transform="rotate(32 30 30)">' +
+            '<rect x="27" y="25" width="6" height="31" rx="3" fill="#a8b9c3" stroke="#627b89" stroke-width="1.5"/>' +
+            '<ellipse cx="30" cy="17" rx="11" ry="14" fill="#c5d3da" stroke="#627b89" stroke-width="2"/>' +
+            '<path d="M25 9 Q20 17 26 24" fill="none" stroke="#f2f8fa" stroke-width="3" stroke-linecap="round"/>' +
+            '</g>',
+
+        bowl:
+            '<ellipse cx="30" cy="49" rx="15" ry="3" fill="#87a5b6"/>' +
+            '<path d="M5 23 Q8 49 30 49 Q52 49 55 23Z" fill="#6f9fb9" stroke="#426c87" stroke-width="2"/>' +
+            '<ellipse cx="30" cy="23" rx="25" ry="9" fill="#d8e8ed" stroke="#426c87" stroke-width="2"/>' +
+            '<ellipse cx="30" cy="24" rx="20" ry="5.5" fill="#e9bd72"/>' +
+            '<path d="M14 35 Q30 45 46 35" fill="none" stroke="#bed9e3" stroke-width="3"/>' +
+            '<circle cx="23" cy="24" r="2" fill="#7c9e62"/>' +
+            '<circle cx="36" cy="22" r="2" fill="#cd7957"/>',
+
+        dumpling:
+            '<path d="M7 40 Q10 15 30 15 Q50 15 54 40 Q32 56 7 40Z" fill="#f5dfb4" stroke="#b99361" stroke-width="2"/>' +
+            '<path d="M9 38 Q15 25 18 24 L21 35 L25 19 L30 33 L35 19 L40 35 L44 24 Q49 28 52 39" fill="none" stroke="#c7a472" stroke-width="2" stroke-linejoin="round"/>' +
+            '<path d="M17 43 Q30 48 44 42" fill="none" stroke="#fff2d4" stroke-width="3" stroke-linecap="round"/>',
+
+        bread:
+            '<path d="M12 27 Q3 19 12 10 Q20 3 30 8 Q41 2 50 11 Q58 20 49 27 L49 51 L12 51Z" fill="#ca8c4f" stroke="#945a32" stroke-width="2"/>' +
+            '<path d="M17 26 Q10 19 17 14 Q24 9 30 13 Q40 8 46 16 Q50 22 44 26 L44 46 L17 46Z" fill="#f3d19a"/>' +
+            '<circle cx="25" cy="29" r="2" fill="#dcb47b"/>' +
+            '<circle cx="36" cy="36" r="2.5" fill="#dcb47b"/>' +
+            '<circle cx="25" cy="41" r="1.5" fill="#dcb47b"/>',
+
+        knife:
+            '<g transform="rotate(38 30 30)">' +
+            '<path d="M24 4 L37 4 L37 32 L24 32 Q19 19 24 4Z" fill="#d3dce0" stroke="#718792" stroke-width="2"/>' +
+            '<path d="M33 7 L33 29" stroke="#f8fcfd" stroke-width="2"/>' +
+            '<rect x="25" y="32" width="12" height="24" rx="4" fill="#856247" stroke="#584638" stroke-width="2"/>' +
+            '<circle cx="31" cy="39" r="1.5" fill="#dfcba3"/>' +
+            '<circle cx="31" cy="49" r="1.5" fill="#dfcba3"/>' +
+            '</g>',
+
+        watermelon:
+            '<path d="M4 18 L56 18 Q50 53 30 55 Q10 53 4 18Z" fill="#5f9a62" stroke="#397348" stroke-width="2"/>' +
+            '<path d="M8 20 L52 20 Q46 48 30 50 Q14 48 8 20Z" fill="#dce8ab"/>' +
+            '<path d="M12 21 L48 21 Q43 43 30 46 Q17 43 12 21Z" fill="#e37d7c"/>' +
+            '<ellipse cx="22" cy="29" rx="1.7" ry="3" fill="#634645" transform="rotate(-25 22 29)"/>' +
+            '<ellipse cx="38" cy="29" rx="1.7" ry="3" fill="#634645" transform="rotate(25 38 29)"/>' +
+            '<ellipse cx="30" cy="37" rx="1.7" ry="3" fill="#634645"/>'
+    };
+
+    var items = [
+        { id: "pan", name: "Pan", x: 641, y: 217,
+          place: "On the cooker" },
+        { id: "cup", name: "Cup", x: 288, y: 237,
+          place: "On the counter, left of the microwave" },
+        { id: "cupcake", name: "Cupcake", x: 488, y: 237,
+          place: "On the counter, right of the microwave" },
+        { id: "teapot", name: "Teapot", x: 166, y: 237,
+          place: "On the counter, next to the fridge" },
+        { id: "spoon", name: "Spoon", x: 227, y: 237,
+          place: "On the counter, between the two left-hand places" },
+        { id: "bowl", name: "Bowl", x: 360, y: 418,
+          place: "In the middle of the table" },
+        { id: "dumpling", name: "Dumpling", x: 72, y: 208,
+          place: "Inside the fridge" },
+        { id: "bread", name: "Bread", x: 260, y: 114,
+          place: "On the shelf, in front of the window" },
+        { id: "knife", name: "Knife", x: 360, y: 367,
+          place: "At the back of the table, behind its middle place" },
+        { id: "watermelon", name: "Watermelon", x: 390, y: 151,
+          place: "On top of the microwave" }
+    ];
+
+    var bankOrder = [
+        "bowl", "knife", "teapot", "pan", "cup",
+        "dumpling", "spoon", "cupcake", "bread", "watermelon"
+    ];
+
+    var byId = {};
+    var zoneButtons = {};
+    var bankButtons = {};
+    var placements = {};
+    var selected = null;
+    var checked = false;
+    var found = {};
+    var foundCount = 0;
+
+    var drag = null;
+    var ghost = null;
+    var captureElement = null;
+    var captureId = null;
+    var suppressClickUntil = 0;
+    var lastTouchTime = 0;
+
+    function el(id) {
+        return document.getElementById(id);
+    }
+
+    var phase1 = el("phase1");
+    var phase2 = el("phase2");
+    var mainScene = el("mainScene");
+    var bank = el("bank");
+    var art = el("kitchenArt");
+
+    function now() {
+        return new Date().getTime();
+    }
+
+    function setText(node, value) {
+        node.textContent = value;
+    }
+
+    function hasClass(node, name) {
+        return (" " + node.className + " ").indexOf(" " + name + " ") !== -1;
+    }
+
+    function addClass(node, name) {
+        if (!hasClass(node, name)) {
+            node.className += " " + name;
+        }
+    }
+
+    function removeClass(node, name) {
+        node.className = (" " + node.className + " ")
+            .replace(" " + name + " ", " ")
+            .replace(/^\s+|\s+$/g, "");
+    }
+
+    function say(message) {
+        setText(el("status"), message);
+    }
+
+    function icon(id) {
+        return '<svg class="icon" xmlns="http://www.w3.org/2000/svg"' +
+            ' viewBox="0 0 60 60" width="60" height="60"' +
+            ' aria-hidden="true" focusable="false">' +
+            drawings[id] + '</svg>';
+    }
+
+    function itemZone(id) {
+        var i;
+        for (i = 0; i < items.length; i++) {
+            if (placements[items[i].id] === id) {
+                return items[i].id;
+            }
+        }
+        return null;
+    }
+
+    function correctCount() {
+        var count = 0;
+        var i;
+        for (i = 0; i < items.length; i++) {
+            if (placements[items[i].id] === items[i].id) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    function render() {
+        var count = 0;
+        var i;
+        var item;
+        var zone;
+        var current;
+        var button;
+        var sentence;
+        var label;
+
+        mainScene.className = "scene" + (selected ? " choosing" : "");
+
+        for (i = 0; i < items.length; i++) {
+            item = items[i];
+            zone = zoneButtons[item.id];
+            current = placements[item.id];
+
+            zone.className = "zone";
+            zone.innerHTML = current ?
+                icon(current) :
+                '<span class="empty-dot"></span>';
+
+            label = item.place;
+
+            if (current) {
+                count++;
+                addClass(zone, "filled");
+                label += ": " + byId[current].name;
+            } else {
+                label += ": empty";
+            }
+
+            if (selected && current === selected) {
+                addClass(zone, "selected");
+            }
+
+            if (checked) {
+                if (current === item.id) {
+                    addClass(zone, "correct");
+                    zone.innerHTML +=
+                        '<span class="check-mark" aria-hidden="true">&#10003;</span>';
+                    label += ", correct";
+                } else {
+                    addClass(zone, "incorrect");
+                    zone.innerHTML +=
+                        '<span class="check-mark wrong" aria-hidden="true">!</span>';
+                    label += ", needs another try";
+                }
+            }
+
+            zone.setAttribute("aria-label", label);
+            zone.setAttribute("title", label);
+            zone.setAttribute(
+                "aria-pressed",
+                selected && current === selected ? "true" : "false"
+            );
+
+            button = bankButtons[item.id];
+            button.className = "bank-item";
+
+            if (itemZone(item.id)) {
+                addClass(button, "placed");
+            }
+
+            if (selected === item.id) {
+                addClass(button, "selected");
+            }
+
+            button.setAttribute(
+                "aria-pressed",
+                selected === item.id ? "true" : "false"
+            );
+
+            button.setAttribute(
+                "aria-label",
+                item.name + (itemZone(item.id) ?
+                    ", already placed; select to move" :
+                    ", select or drag")
+            );
+
+            sentence = document.querySelector(
+                '[data-sentence="' + item.id + '"]'
+            );
+
+            sentence.className = "";
+            if (checked && placements[item.id] === item.id) {
+                addClass(sentence, "done");
+            }
+            if (selected === item.id) {
+                addClass(sentence, "active");
+            }
+        }
+
+        setText(el("progress"), "Placed: " + count + " / " + items.length);
+        el("returnButton").disabled = !selected;
+    }
+
+    function invalidateScore() {
+        checked = false;
+        el("score").hidden = true;
+        el("nextButton").hidden = true;
+    }
+
+    function selectItem(id) {
+        selected = selected === id ? null : id;
+        render();
+
+        say(selected ?
+            byId[selected].name + " selected. Now click a place in the kitchen." :
+            "Selection cancelled. Choose another object.");
+    }
+
+    function placeItem(id, destination) {
+        var oldZone;
+        var displaced;
+
+        if (!byId[id] || !byId[destination]) {
+            return;
+        }
+
+        oldZone = itemZone(id);
+        displaced = placements[destination];
+
+        if (oldZone === destination) {
+            selected = null;
+            render();
+            say(byId[id].name + " is still in the same place.");
+            return;
+        }
+
+        if (oldZone) {
+            delete placements[oldZone];
+        }
+
+        placements[destination] = id;
+        selected = null;
+        invalidateScore();
+        render();
+
+        say(
+            byId[id].name + " placed. " +
+            (displaced ?
+                byId[displaced].name + " returned to the tray." :
+                "Choose another object.")
+        );
+    }
+
+    function returnItem(id) {
+        var oldZone = itemZone(id);
+
+        if (oldZone) {
+            delete placements[oldZone];
+            invalidateScore();
+        }
+
+        selected = null;
+        render();
+        say(byId[id].name + " is in the tray.");
+    }
+
+    /*
+     * Find a button even if the event starts on one of its descendants.
+     * Avoids depending on Element.closest().
+     */
+    function actionButton(target) {
+        while (target && target !== document) {
+            if (target.getAttribute &&
+                (target.getAttribute("data-item") ||
+                 target.getAttribute("data-zone"))) {
+                return target;
+            }
+            target = target.parentNode;
+        }
+        return null;
+    }
+
+    function activate(button) {
+        var id = button.getAttribute("data-item");
+        var destination = button.getAttribute("data-zone");
+
+        if (id) {
+            selectItem(id);
+            return;
+        }
+
+        if (destination) {
+            if (selected) {
+                placeItem(selected, destination);
+            } else if (placements[destination]) {
+                selectItem(placements[destination]);
+            } else {
+                say("Choose an object from the tray first.");
+            }
+        }
+    }
+
+    phase1.addEventListener("click", function (event) {
+        var button = actionButton(event.target);
+
+        if (!button) {
+            return;
+        }
+
+        if (now() < suppressClickUntil) {
+            event.preventDefault();
+            return;
+        }
+
+        activate(button);
+    }, false);
+
+    /*
+     * Custom drag handling.
+     *
+     * Important details:
+     * - Native HTML dragging is not used.
+     * - A small movement threshold distinguishes clicks from drags.
+     * - Placement changes only after a valid drop.
+     * - Hit testing uses rendered rectangles, including scene scaling.
+     * - Pointer capture and document listeners keep the drag connected.
+     */
+    function beginDrag(button, x, y, kind, identifier) {
+        var destination = button.getAttribute("data-zone");
+        var id = button.getAttribute("data-item") ||
+            placements[destination];
+
+        if (drag || !id) {
+            return false;
+        }
+
+        drag = {
+            element: button,
+            item: id,
+            startX: x,
+            startY: y,
+            x: x,
+            y: y,
+            kind: kind,
+            identifier: identifier,
+            moving: false
+        };
+
+        return true;
+    }
+
+    function clearDropHighlights() {
+        var i;
+        for (i = 0; i < items.length; i++) {
+            removeClass(zoneButtons[items[i].id], "over");
+        }
+        removeClass(bank, "over");
+    }
+
+    function pointInside(rect, x, y) {
+        return x >= rect.left && x <= rect.right &&
+               y >= rect.top && y <= rect.bottom;
+    }
+
+    function zoneAtPoint(x, y) {
+        var i;
+        var rect;
+        var distance;
+        var best = null;
+        var bestDistance = Infinity;
+        var dx;
+        var dy;
+
+        for (i = 0; i < items.length; i++) {
+            rect = zoneButtons[items[i].id].getBoundingClientRect();
+
+            if (pointInside(rect, x, y)) {
+                dx = x - (rect.left + rect.right) / 2;
+                dy = y - (rect.top + rect.bottom) / 2;
+                distance = dx * dx + dy * dy;
+
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    best = items[i].id;
+                }
+            }
+        }
+
+        return best;
+    }
+
+    function moveDrag(x, y, event) {
+        var dx;
+        var dy;
+        var destination;
+
+        if (!drag) {
+            return;
+        }
+
+        drag.x = x;
+        drag.y = y;
+
+        dx = x - drag.startX;
+        dy = y - drag.startY;
+
+        if (!drag.moving && dx * dx + dy * dy >= 36) {
+            drag.moving = true;
+            selected = drag.item;
+            render();
+
+            addClass(drag.element, "drag-source");
+
+            ghost = document.createElement("div");
+            ghost.className = "drag-ghost";
+            ghost.setAttribute("aria-hidden", "true");
+            ghost.innerHTML = icon(drag.item);
+            document.body.appendChild(ghost);
+
+            say(
+                "Dragging " + byId[drag.item].name.toLowerCase() +
+                ". Release over a place or the object tray."
+            );
+        }
+
+        if (!drag.moving) {
+            return;
+        }
+
+        if (event && event.cancelable !== false) {
+            event.preventDefault();
+        }
+
+        ghost.style.left = (x - 29) + "px";
+        ghost.style.top = (y - 29) + "px";
+
+        clearDropHighlights();
+        destination = zoneAtPoint(x, y);
+
+        if (destination) {
+            addClass(zoneButtons[destination], "over");
+        } else if (pointInside(bank.getBoundingClientRect(), x, y)) {
+            addClass(bank, "over");
+        }
+    }
+
+    function cleanupDrag() {
+        var old = drag;
+        var node = captureElement;
+        var id = captureId;
+
+        drag = null;
+        captureElement = null;
+        captureId = null;
+
+        if (ghost && ghost.parentNode) {
+            ghost.parentNode.removeChild(ghost);
+        }
+        ghost = null;
+
+        if (old) {
+            removeClass(old.element, "drag-source");
+        }
+
+        clearDropHighlights();
+
+        if (node && node.releasePointerCapture) {
+            try {
+                node.releasePointerCapture(id);
+            } catch (ignore) {
+                // The browser may already have released capture.
+            }
+        }
+    }
+
+    function finishDrag(x, y, cancelled) {
+        var old = drag;
+        var destination;
+        var overBank;
+
+        if (!old) {
+            return;
+        }
+
+        if (old.moving) {
+            suppressClickUntil = now() + 650;
+        }
+
+        if (!cancelled && old.moving) {
+            destination = zoneAtPoint(x, y);
+            overBank = pointInside(bank.getBoundingClientRect(), x, y);
+        }
+
+        cleanupDrag();
+
+        if (cancelled) {
+            say("Drag cancelled. The object has not moved.");
+            return;
+        }
+
+        if (old.moving) {
+            if (destination) {
+                placeItem(old.item, destination);
+            } else if (overBank) {
+                returnItem(old.item);
+            } else {
+                /*
+                 * Keep the object selected after an invalid drop.
+                 * The learner can now click a destination instead.
+                 */
+                say(
+                    "Nothing moved. Click a place for the " +
+                    byId[old.item].name.toLowerCase() +
+                    ", or try dragging again."
+                );
+            }
+        } else if (old.kind === "touch") {
+            /*
+             * Legacy touch path prevents the synthetic mouse click.
+             * Activate the tapped button directly.
+             */
+            suppressClickUntil = now() + 800;
+            activate(old.element);
+        }
+    }
+
+    // Prevent browser-native image/text drag behavior in this activity.
+    phase1.addEventListener("dragstart", function (event) {
+        event.preventDefault();
+    }, false);
+
+    if (window.PointerEvent) {
+        phase1.addEventListener("pointerdown", function (event) {
+            var button;
+
+            if (event.isPrimary === false || event.button !== 0) {
+                return;
+            }
+
+            button = actionButton(event.target);
+
+            if (!button ||
+                !beginDrag(
+                    button,
+                    event.clientX,
+                    event.clientY,
+                    "pointer",
+                    event.pointerId
+                )) {
+                return;
+            }
+
+            if (button.setPointerCapture) {
+                try {
+                    button.setPointerCapture(event.pointerId);
+                    captureElement = button;
+                    captureId = event.pointerId;
+                } catch (ignore) {
+                    // Document-level handlers remain available.
+                }
+            }
+        }, false);
+
+        document.addEventListener("pointermove", function (event) {
+            if (drag && drag.identifier === event.pointerId) {
+                moveDrag(event.clientX, event.clientY, event);
+            }
+        }, false);
+
+        document.addEventListener("pointerup", function (event) {
+            if (drag && drag.identifier === event.pointerId) {
+                finishDrag(event.clientX, event.clientY, false);
+            }
+        }, false);
+
+        document.addEventListener("pointercancel", function (event) {
+            if (drag && drag.identifier === event.pointerId) {
+                finishDrag(drag.x, drag.y, true);
+            }
+        }, false);
+
+        phase1.addEventListener("lostpointercapture", function (event) {
+            if (drag && drag.identifier === event.pointerId) {
+                finishDrag(drag.x, drag.y, true);
+            }
+        }, false);
+
+    } else {
+        /*
+         * Older-browser mouse/touch fallback.
+         * Detect listener options before using passive:false.
+         */
+        var supportsPassive = false;
+        var touchOptions = false;
+
+        try {
+            var options = Object.defineProperty({}, "passive", {
+                get: function () {
+                    supportsPassive = true;
+                    return false;
+                }
+            });
+            var noop = function () {};
+            window.addEventListener("passive-test", noop, options);
+            window.removeEventListener("passive-test", noop, options);
+        } catch (ignore) {}
+
+        if (supportsPassive) {
+            touchOptions = { passive: false };
+        }
+
+        phase1.addEventListener("mousedown", function (event) {
+            var button;
+
+            if (event.button !== 0 || now() - lastTouchTime < 900) {
+                return;
+            }
+
+            button = actionButton(event.target);
+            if (button) {
+                beginDrag(button, event.clientX, event.clientY, "mouse", 0);
+            }
+        }, false);
+
+        document.addEventListener("mousemove", function (event) {
+            if (drag && drag.kind === "mouse") {
+                moveDrag(event.clientX, event.clientY, event);
+            }
+        }, false);
+
+        document.addEventListener("mouseup", function (event) {
+            if (drag && drag.kind === "mouse") {
+                finishDrag(event.clientX, event.clientY, false);
+            }
+        }, false);
+
+        function findTouch(list, identifier) {
+            var i;
+            for (i = 0; i < list.length; i++) {
+                if (list[i].identifier === identifier) {
+                    return list[i];
+                }
+            }
+            return null;
+        }
+
+        phase1.addEventListener("touchstart", function (event) {
+            var button;
+            var touch;
+
+            lastTouchTime = now();
+
+            if (event.touches.length !== 1) {
+                if (drag) {
+                    finishDrag(drag.x, drag.y, true);
+                }
+                return;
+            }
+
+            button = actionButton(event.target);
+            touch = event.changedTouches[0];
+
+            if (button &&
+                beginDrag(
+                    button,
+                    touch.clientX,
+                    touch.clientY,
+                    "touch",
+                    touch.identifier
+                )) {
+                event.preventDefault();
+                button.focus();
+            }
+        }, touchOptions);
+
+        document.addEventListener("touchmove", function (event) {
+            var touch;
+            if (!drag || drag.kind !== "touch") {
+                return;
+            }
+
+            touch = findTouch(event.touches, drag.identifier);
+
+            if (touch) {
+                event.preventDefault();
+                moveDrag(touch.clientX, touch.clientY, event);
+            }
+        }, touchOptions);
+
+        document.addEventListener("touchend", function (event) {
+            var touch;
+            lastTouchTime = now();
+
+            if (!drag || drag.kind !== "touch") {
+                return;
+            }
+
+            touch = findTouch(event.changedTouches, drag.identifier);
+
+            if (touch) {
+                finishDrag(touch.clientX, touch.clientY, false);
+            }
+        }, false);
+
+        document.addEventListener("touchcancel", function () {
+            lastTouchTime = now();
+            if (drag && drag.kind === "touch") {
+                finishDrag(drag.x, drag.y, true);
+            }
+        }, false);
+    }
+
+    window.addEventListener("blur", function () {
+        if (drag) {
+            finishDrag(drag.x, drag.y, true);
+        }
+    }, false);
+
+    document.addEventListener("keydown", function (event) {
+        var code = event.keyCode;
+
+        if (!phase2.hidden) {
+            return;
+        }
+
+        if (code === 27) {
+            if (drag) {
+                finishDrag(drag.x, drag.y, true);
+            }
+
+            selected = null;
+            render();
+            say("Selection cancelled.");
+        }
+
+        if ((code === 46 || code === 8) && selected) {
+            event.preventDefault();
+            returnItem(selected);
+        }
+    }, false);
+
+    function checkAnswers() {
+        var count = correctCount();
+
+        selected = null;
+        checked = true;
+        render();
+
+        el("score").hidden = false;
+        el("nextButton").hidden = count !== items.length;
+
+        setText(
+            el("score"),
+            count === items.length ?
+                "Perfect! All 10 objects are in the correct places." :
+                "Score: " + count + " / " + items.length +
+                ". Places marked ! need another try."
+        );
+
+        say(
+            count === items.length ?
+                "Well done! You can now play Spot the Differences." :
+                "You can move any object and check again."
+        );
+    }
+
+    function resetAll() {
+        if (drag) {
+            cleanupDrag();
+        }
+
+        placements = {};
+        selected = null;
+        invalidateScore();
+        render();
+        say("Kitchen reset. Choose an object to begin.");
+    }
+
+    el("checkButton").addEventListener("click", checkAnswers, false);
+    el("resetButton").addEventListener("click", resetAll, false);
+
+    el("returnButton").addEventListener("click", function () {
+        if (selected) {
+            returnItem(selected);
+        }
+    }, false);
+
+    /*
+     * Responsive scaling.
+     * Both the scene and its interactive targets scale together.
+     */
+    function fitStage(stageId, sceneId) {
+        var stage = el(stageId);
+        var scene = el(sceneId);
+        var width = stage.clientWidth;
+        var scale;
+
+        if (!width) {
+            return;
+        }
+
+        scale = Math.min(1, width / 750);
+        stage.style.height = (480 * scale) + "px";
+        scene.style.transform = "scale(" + scale + ")";
+        scene.style.msTransform = "scale(" + scale + ")";
+    }
+
+    function fitAll() {
+        fitStage("mainStage", "mainScene");
+        fitStage("correctStage", "correctScene");
+        fitStage("mixedStage", "mixedScene");
+    }
+
+    window.addEventListener("resize", function () {
+        if (drag) {
+            finishDrag(drag.x, drag.y, true);
+        }
+        fitAll();
+    }, false);
+
+    /*
+     * Phase 2: every object is moved to a different destination.
+     * A randomly ordered cycle guarantees there are no fixed positions.
+     */
+    function shuffledDestinations() {
+        var order = [];
+        var result = {};
+        var i;
+        var j;
+        var temp;
+
+        for (i = 0; i < items.length; i++) {
+            order.push(items[i].id);
+        }
+
+        for (i = order.length - 1; i > 0; i--) {
+            j = Math.floor(Math.random() * (i + 1));
+            temp = order[i];
+            order[i] = order[j];
+            order[j] = temp;
+        }
+
+        for (i = 0; i < order.length; i++) {
+            result[order[i]] = order[(i + 1) % order.length];
+        }
+
+        return result;
+    }
+
+    function copyArt(target) {
+        var copy = art.cloneNode(true);
+        copy.removeAttribute("id");
+        target.innerHTML = "";
+        target.appendChild(copy);
+    }
+
+    function makeCompareItem(item, position, clickable) {
+        var node = document.createElement(clickable ? "button" : "div");
+        var label = item.name + " — " + position.place;
+
+        node.className = "compare-item";
+        node.style.left = (position.x - 24) + "px";
+        node.style.top = (position.y - 24) + "px";
+        node.innerHTML = icon(item.id);
+        node.setAttribute("title", label);
+        node.setAttribute("aria-label", label);
+
+        if (clickable) {
+            node.type = "button";
+            node.setAttribute("data-difference", item.id);
+        } else {
+            node.setAttribute("role", "img");
+        }
+
+        return node;
+    }
+
+    function buildDifferences() {
+        var correctScene = el("correctScene");
+        var mixedScene = el("mixedScene");
+        var destinations = shuffledDestinations();
+        var i;
+        var item;
+
+        found = {};
+        foundCount = 0;
+        el("celebration").hidden = true;
+
+        setText(el("diffScore"), "Found: 0 / " + items.length);
+
+        copyArt(correctScene);
+        copyArt(mixedScene);
+
+        for (i = 0; i < items.length; i++) {
+            item = items[i];
+
+            correctScene.appendChild(
+                makeCompareItem(item, item, false)
+            );
+
+            mixedScene.appendChild(
+                makeCompareItem(item, byId[destinations[item.id]], true)
+            );
+        }
+
+        fitAll();
+    }
+
+    el("mixedScene").addEventListener("click", function (event) {
+        var node = event.target;
+        var id = null;
+
+        while (node && node !== this) {
+            if (node.getAttribute) {
+                id = node.getAttribute("data-difference");
+                if (id) {
+                    break;
+                }
+            }
+            node = node.parentNode;
+        }
+
+        if (!id || found[id]) {
+            return;
+        }
+
+        found[id] = true;
+        foundCount++;
+
+        addClass(node, "found");
+        node.innerHTML +=
+            '<span class="check-mark" aria-hidden="true">&#10003;</span>';
+        node.setAttribute("aria-label", byId[id].name + ", difference found");
+        node.setAttribute("aria-disabled", "true");
+
+        setText(
+            el("diffScore"),
+            "Found: " + foundCount + " / " + items.length
+        );
+
+        if (foundCount === items.length) {
+            el("celebration").hidden = false;
+        }
+    }, false);
+
+    el("nextButton").addEventListener("click", function () {
+        if (correctCount() !== items.length) {
+            return;
+        }
+
+        if (drag) {
+            cleanupDrag();
+        }
+
+        phase1.hidden = true;
+        phase2.hidden = false;
+        buildDifferences();
+        el("phase2Heading").focus();
+    }, false);
+
+    el("backButton").addEventListener("click", function () {
+        phase2.hidden = true;
+        phase1.hidden = false;
+        fitAll();
+        el("checkButton").focus();
+    }, false);
+
+    el("shuffleButton").addEventListener("click", buildDifferences, false);
+
+    /*
+     * Build the interactive objects and destinations.
+     */
+    function initialize() {
+        var i;
+        var item;
+        var button;
+
+        for (i = 0; i < items.length; i++) {
+            byId[items[i].id] = items[i];
+        }
+
+        for (i = 0; i < items.length; i++) {
+            item = items[i];
+
+            button = document.createElement("button");
+            button.type = "button";
+            button.className = "zone";
+            button.setAttribute("data-zone", item.id);
+            button.setAttribute("draggable", "false");
+            button.style.left = (item.x - 24) + "px";
+            button.style.top = (item.y - 24) + "px";
+
+            mainScene.appendChild(button);
+            zoneButtons[item.id] = button;
+        }
+
+        for (i = 0; i < bankOrder.length; i++) {
+            item = byId[bankOrder[i]];
+
+            button = document.createElement("button");
+            button.type = "button";
+            button.className = "bank-item";
+            button.setAttribute("data-item", item.id);
+            button.setAttribute("draggable", "false");
+            button.setAttribute("title", item.name);
+            button.innerHTML =
+                icon(item.id) +
+                '<span class="item-name">' + item.name + '</span>';
+
+            bank.appendChild(button);
+            bankButtons[item.id] = button;
+        }
+
+        render();
+        fitAll();
+    }
+
+    initialize();
+}());
+</script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

@@ -520,7 +520,7 @@ $('boxMystery').addEventListener('click',()=>{
 newRound();
 </script>
 
-<!-- Bilingo game controls: zoom + fullscreen toggle (auto-collapsing) -->
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
 <style>
   .bilingo-ui {
     position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
@@ -535,17 +535,17 @@ newRound();
     display: grid; place-items: center; transition: background .15s, transform .15s;
   }
   .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
-  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .85; }
-  .bilingo-ui .b-handle { display: none; }
-  .bilingo-ui.mini > *:not(.b-handle) { display: none; }
-  .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
 </style>
 <div id="bilingo-ui" class="bilingo-ui">
-  <button type="button" class="b-handle" title="Show controls" aria-label="Show controls">⚙️</button>
   <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
   <div class="b-pct">100%</div>
   <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
   <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
 </div>
 <script>
 (function () {
@@ -553,23 +553,16 @@ newRound();
   window.__bilingoUI = true;
   var bar = document.getElementById('bilingo-ui');
   var pct = bar.querySelector('.b-pct');
-  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom';
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
   var z = parseFloat(localStorage.getItem(KEY) || '1');
   if (isNaN(z)) z = 1;
   z = Math.min(MAX, Math.max(MIN, z));
-
   function apply() {
     document.documentElement.style.setProperty('zoom', z);
     pct.textContent = Math.round(z * 100) + '%';
   }
-  function shrink() {
-    z = Math.max(MIN, Math.round((z - STEP) * 100) / 100);
-    localStorage.setItem(KEY, z); apply();
-  }
-  function grow() {
-    z = Math.min(MAX, Math.round((z + STEP) * 100) / 100);
-    localStorage.setItem(KEY, z); apply();
-  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
   function toggleFS() {
     var el = document.documentElement;
     if (document.fullscreenElement || document.webkitFullscreenElement) {
@@ -579,29 +572,24 @@ newRound();
     } else if (el.webkitRequestFullscreen) {
       el.webkitRequestFullscreen();
     }
+    poke();
   }
-
   bar.querySelector('.b-plus').addEventListener('click', grow);
   bar.querySelector('.b-minus').addEventListener('click', shrink);
   bar.querySelector('.b-fs').addEventListener('click', toggleFS);
   bar.querySelector('.b-handle').addEventListener('click', function () {
-    bar.classList.remove('mini');
+    bar.classList.toggle('open');
     poke();
   });
-
-  // Collapse to just the handle after 5s without interaction, so the bar
-  // never sits on top of the game's own buttons.
+  /* collapse 7 s after the last tap anywhere on the bar */
   var idleTimer = null;
   function poke() {
-    bar.classList.remove('mini');
     clearTimeout(idleTimer);
-    idleTimer = setTimeout(function () { bar.classList.add('mini'); }, 5000);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
   }
   bar.addEventListener('pointerdown', poke);
-  poke();
   apply();
 })();
 </script>
-
 </body>
 </html>

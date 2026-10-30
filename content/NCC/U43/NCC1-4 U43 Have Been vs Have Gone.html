@@ -1,0 +1,589 @@
+<!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 5px;
+            font-size: 1.6em;
+        }
+        .subtitle {
+            color: rgba(255,255,255,0.85);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+        .score-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 15px;
+        }
+        .score-item {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .scene {
+            background: #f0f4ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .character {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        .location-icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        .scene-description {
+            font-size: 1.1em;
+            color: #444;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+        .clue {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #856404;
+        }
+        .question {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .blank {
+            background: #e8e0ff;
+            padding: 4px 20px;
+            border-radius: 8px;
+            border-bottom: 3px solid #764ba2;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            padding: 15px 20px;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            background: white;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .option-btn:hover {
+            border-color: #764ba2;
+            background: #f8f0ff;
+            transform: scale(1.02);
+        }
+        .option-btn.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+            animation: pulse 0.5s;
+        }
+        .option-btn.wrong {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+            animation: shake 0.5s;
+        }
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        .explanation {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 0.95em;
+            display: none;
+            line-height: 1.5;
+        }
+        .explanation.show {
+            display: block;
+        }
+        .explanation.correct-exp {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+        .explanation.wrong-exp {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+        .next-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            display: none;
+            transition: transform 0.2s;
+        }
+        .next-btn:hover {
+            transform: scale(1.05);
+        }
+        .next-btn.show {
+            display: inline-block;
+        }
+        .rule-box {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .rule-box h2 {
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        .rule-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+        }
+        .rule-row.been {
+            background: #d4edda;
+        }
+        .rule-row.gone {
+            background: #fff3cd;
+        }
+        .rule-emoji {
+            font-size: 2em;
+        }
+        .rule-text {
+            font-size: 0.95em;
+            color: #333;
+            text-align: left;
+        }
+        .rule-text strong {
+            color: #764ba2;
+        }
+        .start-btn {
+            margin-top: 15px;
+            padding: 14px 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        .start-btn:hover {
+            transform: scale(1.05);
+        }
+        .end-screen {
+            text-align: center;
+        }
+        .end-screen h2 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+        .end-score {
+            font-size: 3em;
+            margin: 20px 0;
+        }
+        .end-message {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            width: 100%;
+            max-width: 600px;
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #ffc107;
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+    </style>
+</head>
+<body>
+    <h1>🗺️ Been vs Gone</h1>
+    <p class="subtitle">Where have they been? Where have they gone?</p>
+    
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="score-bar">
+        <div class="score-item">⭐ Score: <span id="score">0</span></div>
+        <div class="score-item">❓ <span id="qNum">0</span> / <span id="qTotal">10</span></div>
+    </div>
+
+    <div class="card" id="gameCard">
+    </div>
+
+    <script>
+        const questions = [
+            {
+                character: "👩",
+                location: "🇫🇷",
+                description: "Mum visited Paris a couple of years ago. She says the Eiffel Tower is beautiful! She's here telling you about it.",
+                clue: "💡 She's HERE with you, sharing her experience!",
+                sentence: "Mum ___ to Paris.",
+                options: ["has been", "has gone"],
+                correct: 0,
+                explanation: "Mum went to Paris and CAME BACK. She's here now telling you about it! It's a life experience. → has been to"
+            },
+            {
+                character: "👦",
+                location: "🏙️",
+                description: "Tom isn't at school today. He's in London right now visiting Big Ben with his family.",
+                clue: "💡 Tom is NOT here. He's still in London!",
+                sentence: "Tom ___ to London.",
+                options: ["has been", "has gone"],
+                correct: 1,
+                explanation: "Tom is still IN London. He hasn't come back! → has gone to"
+            },
+            {
+                character: "👧",
+                location: "🗼",
+                description: "Lisa visited the Tokyo Tower on holiday. She's at school telling her friends about it.",
+                clue: "💡 She's HERE at school talking about her trip!",
+                sentence: "Lisa ___ to the Tokyo Tower.",
+                options: ["has been", "has gone"],
+                correct: 0,
+                explanation: "Lisa went and came back. She's sharing her life experience! → has been to"
+            },
+            {
+                character: "👨",
+                location: "🍽️",
+                description: "Dad left for a meeting at a restaurant 20 minutes ago. He's not back yet.",
+                clue: "💡 Dad is NOT home. He's still out!",
+                sentence: "Dad ___ to the restaurant.",
+                options: ["has been", "has gone"],
+                correct: 1,
+                explanation: "Dad is still at the restaurant. He hasn't returned! → has gone to"
+            },
+            {
+                character: "🧑",
+                location: "🇺🇸",
+                description: "You visited New York once. You're telling your friend about it right now.",
+                clue: "💡 Think: where are you at this moment?",
+                sentence: "I ___ to New York. It's amazing!",
+                options: ["have been", "have gone"],
+                correct: 0,
+                explanation: "You went and came back. You're here talking about your life experience! → have been to"
+            },
+            {
+                character: "👵",
+                location: "✈️",
+                description: "Grandma packed her suitcase and left for the beach this morning. She'll be away for two weeks.",
+                clue: "💡 Think: has she returned?",
+                sentence: "Grandma ___ on holiday.",
+                options: ["has been", "has gone"],
+                correct: 1,
+                explanation: "Grandma is still away. She left and hasn't come back! → has gone"
+            },
+            {
+                character: "👫",
+                location: "🛒",
+                description: "Mum and Dad went out to do the shopping. You're home with the your grandpa.",
+                clue: "💡 Think: are they back?",
+                sentence: "Mum and Dad ___ shopping.",
+                options: ["have been", "have gone"],
+                correct: 1,
+                explanation: "They're still out. They haven't come back yet! → have gone"
+            },
+            {
+                character: "👦",
+                location: "🌍",
+                description: "You're asking your friend Jack about his travels. He's sitting right next to you.",
+                clue: "💡 You're asking about his life experiences.",
+                sentence: "Have you ever ___ anywhere interesting?",
+                options: ["been", "gone"],
+                correct: 0,
+                explanation: "Asking about experience (went and came back) → been. 'Have you ever been to...?' is how we ask about experiences!"
+            },
+            {
+                character: "👩‍🏫",
+                location: "📋",
+                description: "The teacher isn't in class. Another student says she has an urgent appointment.",
+                sentence: "The teacher ___ to a meeting.",
+                options: ["has been", "has gone"],
+                correct: 1,
+                explanation: "She's not here — she's still at the meeting! → has gone to"
+            },
+            {
+                character: "👨‍👩‍👧",
+                location: "🏖️",
+                description: "Your family visited a wild beach on holiday. You're home now, showing photos to your friend.",
+                sentence: "We ___ to a beautiful beach.",
+                options: ["have been", "have gone"],
+                correct: 0,
+                explanation: "You went and came back. You're sharing the experience! → have been to"
+            }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let gameStarted = false;
+
+        function showRules() {
+            document.getElementById('gameCard').innerHTML = `
+                <div class="rule-box" style="box-shadow:none; padding:0;">
+                    <h2>🧠 Remember the Rule!</h2>
+                    <div class="rule-row been">
+                        <div class="rule-emoji">🔄</div>
+                        <div class="rule-text">
+                            <strong>has/have BEEN to</strong><br>
+                            Went somewhere and <strong>came back</strong>. It's a <strong>life experience</strong>.<br>
+                            "I've been to Paris!" (= I visited. I'm back now.)
+                        </div>
+                    </div>
+                    <div class="rule-row gone">
+                        <div class="rule-emoji">➡️</div>
+                        <div class="rule-text">
+                            <strong>has/have GONE to</strong><br>
+                            Went somewhere and is <strong>still there / not back yet</strong>.<br>
+                            "She's gone to London." (= She's NOT here. She's away!)
+                        </div>
+                    </div>
+                    <div style="margin-top:15px; padding:12px; background:#f0f4ff; border-radius:10px; text-align:left; font-size:0.85em; color:#555;">
+                        <strong>⚠️ Note:</strong> "Have been to" works with places you can <em>visit</em> — cities, countries, landmarks. It means "in my life, I have visited this place."
+                    </div>
+                    <button class="start-btn" onclick="startGame()">Let's Go! 🚀</button>
+                </div>
+            `;
+        }
+
+        function startGame() {
+            gameStarted = true;
+            currentQ = 0;
+            score = 0;
+            document.getElementById('score').textContent = '0';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentQ];
+            document.getElementById('qNum').textContent = currentQ + 1;
+            document.getElementById('progressFill').style.width = ((currentQ) / questions.length * 100) + '%';
+            
+            const clueHTML = q.clue ? `<div class="clue">${q.clue}</div>` : '';
+            
+            document.getElementById('gameCard').innerHTML = `
+                <div class="scene">
+                    <div class="character">${q.character}</div>
+                    <div class="location-icon">${q.location}</div>
+                    <div class="scene-description">${q.description}</div>
+                </div>
+                ${clueHTML}
+                <div class="question">${q.sentence.replace('___', '<span class="blank">???</span>')}</div>
+                <div class="options">
+                    ${q.options.map((opt, i) => `
+                        <button class="option-btn" onclick="checkAnswer(${i})" id="opt${i}">${opt}</button>
+                    `).join('')}
+                </div>
+                <div class="explanation" id="explanation">${q.explanation}</div>
+                <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+            `;
+        }
+
+        function checkAnswer(selected) {
+            const q = questions[currentQ];
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.disabled = true);
+
+            const expEl = document.getElementById('explanation');
+            
+            if (selected === q.correct) {
+                document.getElementById(`opt${selected}`).classList.add('correct');
+                expEl.classList.add('show', 'correct-exp');
+                score++;
+                document.getElementById('score').textContent = score;
+            } else {
+                document.getElementById(`opt${selected}`).classList.add('wrong');
+                document.getElementById(`opt${q.correct}`).classList.add('correct');
+                expEl.classList.add('show', 'wrong-exp');
+            }
+
+            document.getElementById('nextBtn').classList.add('show');
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if (currentQ >= questions.length) {
+                showEnd();
+            } else {
+                showQuestion();
+            }
+        }
+
+        function showEnd() {
+            document.getElementById('progressFill').style.width = '100%';
+            const percentage = Math.round((score / questions.length) * 100);
+            let emoji, message;
+            
+            if (percentage === 100) {
+                emoji = "🏆";
+                message = "Perfect! You really know your been vs gone!";
+            } else if (percentage >= 70) {
+                emoji = "🌟";
+                message = "Great job! Almost perfect!";
+            } else if (percentage >= 50) {
+                emoji = "👍";
+                message = "Good effort! Let's review the rule and try again!";
+            } else {
+                emoji = "💪";
+                message = "Let's look at the rule again and try once more!";
+            }
+
+            document.getElementById('gameCard').innerHTML = `
+                <div class="end-screen">
+                    <h2>Game Over!</h2>
+                    <div class="end-score">${emoji}</div>
+                    <div class="end-message">
+                        You got <strong>${score} / ${questions.length}</strong> correct!<br><br>
+                        ${message}
+                    </div>
+                    <button class="start-btn" onclick="showRules()">🔄 Play Again</button>
+                </div>
+            `;
+        }
+
+        document.getElementById('qTotal').textContent = questions.length;
+        showRules();
+    </script>
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

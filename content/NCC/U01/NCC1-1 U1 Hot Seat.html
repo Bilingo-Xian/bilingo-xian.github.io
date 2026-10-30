@@ -1,0 +1,421 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Pop &amp; Guess! 🫧</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none}
+body{background:linear-gradient(135deg,#667eea,#764ba2);transition:background 1s ease}
+
+.amb{position:fixed;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none;z-index:0}
+@keyframes ambR{0%{transform:translateY(0) translateX(0);opacity:0}10%{opacity:.06}90%{opacity:.04}100%{transform:translateY(-115vh) translateX(25px);opacity:0}}
+
+.page{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s ease;z-index:10}
+.page.on{opacity:1;pointer-events:auto}
+
+#bubCont{position:fixed;inset:0;z-index:11}
+
+.bub{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:800;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.22);z-index:12;transition:filter .1s;letter-spacing:1px}
+.bub:active{filter:brightness(.84)}
+
+.shine{position:absolute;background:rgba(255,255,255,.4);border-radius:50%;pointer-events:none;top:14%;left:18%;width:36%;height:18%;transform:rotate(-30deg)}
+.shine2{position:absolute;background:rgba(255,255,255,.2);border-radius:50%;pointer-events:none;top:36%;left:13%;width:13%;height:8%;transform:rotate(-30deg)}
+
+@keyframes fl1{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes fl2{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-7px) rotate(3deg)}}
+@keyframes fl3{0%,100%{transform:translateY(3px)}50%{transform:translateY(-11px)}}
+@keyframes fl4{0%,100%{transform:translateY(-2px) rotate(-1deg)}50%{transform:translateY(-10px) rotate(2deg)}}
+
+@keyframes dropIn{
+  0%{transform:scale(0) translateY(-25px);opacity:0}
+  65%{transform:scale(1.08) translateY(3px);opacity:1}
+  100%{transform:scale(1) translateY(0);opacity:1}
+}
+
+@keyframes popSmall{0%{transform:scale(1);opacity:1}20%{transform:scale(1.28)}100%{transform:scale(0);opacity:0}}
+@keyframes popBig{0%{transform:scale(1);opacity:1}16%{transform:scale(1.35)}100%{transform:scale(0);opacity:0}}
+
+.hintTxt{position:absolute;font-weight:900;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.55),0 0 25px rgba(0,0,0,.15);transform:translate(-50%,-50%) scale(0);opacity:0;transition:all .45s cubic-bezier(.175,.885,.32,1.275);pointer-events:none;z-index:11}
+.hintTxt.show{transform:translate(-50%,-50%) scale(1);opacity:1}
+
+.ptc{position:fixed;border-radius:50%;pointer-events:none;z-index:999}
+@keyframes ptcFly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--px),var(--py)) scale(0);opacity:0}}
+
+#prog{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:.9rem;font-weight:700;letter-spacing:3px;z-index:50;text-shadow:0 1px 3px rgba(0,0,0,.2)}
+
+.readyBtn{width:52vmin;height:52vmin;max-width:210px;max-height:210px;border-radius:50%;border:none;font-family:'Nunito',sans-serif;font-size:1.8rem;font-weight:900;color:#fff;cursor:pointer;position:relative;overflow:hidden;background:radial-gradient(circle at 35% 35%,#ff9a9e,#e84393);box-shadow:inset -5px -5px 14px rgba(0,0,0,.2),inset 5px 5px 14px rgba(255,255,255,.2),0 8px 32px rgba(0,0,0,.3);animation:pulse 1.6s ease-in-out infinite}
+.readyBtn:active{filter:brightness(.86)}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.readySub{color:rgba(255,255,255,.5);font-size:.85rem;font-weight:700;margin-top:22px;letter-spacing:1px}
+
+.finEmoji{font-size:3.5rem;margin-bottom:6px}
+.finTitle{font-size:2.4rem;font-weight:900;color:#fff;text-shadow:0 3px 8px rgba(0,0,0,.25);margin-bottom:24px}
+.finBtn{padding:14px 44px;border-radius:50px;border:none;font-family:'Nunito',sans-serif;font-size:1.15rem;font-weight:800;color:#fff;cursor:pointer;background:radial-gradient(circle at 35% 35%,#a29bfe,#6c5ce7);box-shadow:0 5px 18px rgba(0,0,0,.25);transition:transform .15s}
+.finBtn:active{transform:scale(.95)}
+
+.cft{position:fixed;pointer-events:none;z-index:998}
+@keyframes cftFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}
+
+/* Ripple ring on big pop */
+.ring{position:fixed;border-radius:50%;border:3px solid rgba(255,255,255,.5);pointer-events:none;z-index:998;animation:ringGrow .6s ease-out forwards}
+@keyframes ringGrow{0%{transform:translate(-50%,-50%) scale(0);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+</style>
+</head>
+<body>
+
+<div id="wordPage" class="page"><div id="bubCont"></div></div>
+
+<div id="readyPage" class="page">
+  <button class="readyBtn" id="readyBtn">READY?<div class="shine"></div></button>
+  <div class="readySub" id="readySub">Tap to continue</div>
+</div>
+
+<div id="finishPage" class="page">
+  <div class="finEmoji">🎉🫧🎊</div>
+  <div class="finTitle">Amazing Job!</div>
+  <button class="finBtn" id="finBtn">Play Again 🔄</button>
+</div>
+
+<div id="prog"></div>
+
+<script>
+const DATA = [
+  {w:"CAR",h:["drive","road","wheels","fast"]},
+  {w:"BOOK",h:["read","pages","story","library"]},
+  {w:"WATCH",h:["time","wrist","tick-tock","hours"]},
+  {w:"DRESS",h:["pretty","wear","long","girl"]},
+  {w:"PENCIL",h:["write","yellow","eraser","sharp"]},
+  {w:"HOUSE",h:["live","rooms","door","roof"]},
+  {w:"SHIRT",h:["buttons","collar","wear","chest"]},
+  {w:"COAT",h:["warm","winter","long","zip"]},
+  {w:"PEN",h:["write","ink","blue","cap"]},
+  {w:"SKIRT",h:["short","wear","legs","girl"]},
+  {w:"APPLE",h:["fruit","red","sweet","tree"]},
+  {w:"DOG",h:["pet","bark","tail","furry"]},
+  {w:"PHONE",h:["call","screen","ring","text"]},
+  {w:"UMBRELLA",h:["rain","wet","open","handle"]},
+  {w:"SHOES",h:["feet","walk","laces","pair"]},
+  {w:"HAT",h:["head","sun","wear","top"]},
+  {w:"CAKE",h:["sweet","birthday","candle","eat"]},
+  {w:"BALL",h:["round","play","kick","bounce"]},
+  {w:"FISH",h:["swim","water","sea","fins"]},
+  {w:"KEY",h:["lock","door","open","metal"]}
+];
+
+const BKGS = [
+  'linear-gradient(135deg,#667eea,#764ba2)',
+  'linear-gradient(135deg,#f093fb,#f5576c)',
+  'linear-gradient(135deg,#4facfe,#00b4d8)',
+  'linear-gradient(135deg,#00b894,#006d32)',
+  'linear-gradient(135deg,#fa709a,#e84393)',
+  'linear-gradient(135deg,#a18cd1,#6c5ce7)',
+  'linear-gradient(135deg,#e84393,#f39c12)',
+  'linear-gradient(135deg,#89f7fe,#6366f1)',
+  'linear-gradient(135deg,#f5576c,#c0392b)',
+  'linear-gradient(135deg,#48c6ef,#6f86d6)',
+  'linear-gradient(135deg,#ee5a24,#d63031)',
+  'linear-gradient(135deg,#6dd5ed,#2193b0)',
+  'linear-gradient(135deg,#56ab2f,#1e8449)',
+  'linear-gradient(135deg,#7f00ff,#e100ff)',
+  'linear-gradient(135deg,#e17055,#c0392b)',
+  'linear-gradient(135deg,#e84393,#6c5ce7)',
+  'linear-gradient(135deg,#0984e3,#00cec9)',
+  'linear-gradient(135deg,#d63031,#fd79a8)',
+  'linear-gradient(135deg,#6c5ce7,#00b894)',
+  'linear-gradient(135deg,#8e44ad,#2980b9)'
+];
+
+const HCOLS = [
+  ['#ff6b6b','#ee5a24'],['#6c5ce7','#a29bfe'],['#00b894','#55efc4'],
+  ['#fdcb6e','#f39c12'],['#e84393','#fd79a8'],['#0984e3','#74b9ff'],
+  ['#00cec9','#81ecec'],['#d63031','#ff7675']
+];
+
+const MCOLS = [
+  ['#6c5ce7','#a29bfe'],['#e17055','#fab1a0'],['#00b894','#55efc4'],
+  ['#0984e3','#74b9ff'],['#e84393','#fd79a8'],['#d63031','#ff7675'],
+  ['#00cec9','#81ecec'],['#fdcb6e','#f39c12']
+];
+
+let actx = null, idx = 0, words = [];
+
+function initAudio() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === 'suspended') actx.resume();
+}
+
+function popSnd(big) {
+  initAudio();
+  const t = actx.currentTime;
+  const dur = big ? .12 : .07;
+  const len = Math.floor(actx.sampleRate * dur);
+  const buf = actx.createBuffer(1, len, actx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/len, big?2:3);
+  const ns = actx.createBufferSource(); ns.buffer = buf;
+  const ng = actx.createGain(); ng.gain.value = big ? .35 : .18;
+  ns.connect(ng); ng.connect(actx.destination); ns.start(t);
+
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type = 'sine'; o.connect(g); g.connect(actx.destination);
+  o.frequency.setValueAtTime(big?700:500, t);
+  o.frequency.exponentialRampToValueAtTime(big?80:180, t+(big?.22:.11));
+  g.gain.setValueAtTime(big?.3:.2, t);
+  g.gain.exponentialRampToValueAtTime(.001, t+(big?.28:.14));
+  o.start(t); o.stop(t+(big?.3:.15));
+}
+
+function burst(x, y, cols, n, big) {
+  for (let i = 0; i < n; i++) {
+    const el = document.createElement('div'); el.className = 'ptc';
+    const a = (i/n)*Math.PI*2 + (Math.random()-.5)*.6;
+    const r = (big?70:40) + Math.random()*(big?90:50);
+    const dx = Math.cos(a)*r, dy = Math.sin(a)*r - (big?25:15);
+    const s = (big?8:5) + Math.random()*(big?14:8);
+    const c = cols[~~(Math.random()*cols.length)];
+    el.style.cssText = `width:${s}px;height:${s}px;background:${c};left:${x-s/2}px;top:${y-s/2}px;--px:${dx}px;--py:${dy}px;animation:ptcFly ${.35+Math.random()*.25}s ease-out forwards`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 700);
+  }
+}
+
+function spawnRing(x, y, size) {
+  const el = document.createElement('div'); el.className = 'ring';
+  el.style.cssText = `left:${x}px;top:${y}px;width:${size}px;height:${size}px`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 700);
+}
+
+function spawnConfetti(n) {
+  const cs = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff6bc1','#a29bfe','#fdcb6e','#00cec9'];
+  for (let i = 0; i < n; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div'); el.className = 'cft';
+      const s = 5 + Math.random()*10, rect = Math.random() > .5;
+      el.style.cssText = `width:${s}px;height:${rect?s*2.5:s}px;border-radius:${rect?'2px':'50%'};background:${cs[~~(Math.random()*cs.length)]};left:${Math.random()*innerWidth}px;top:-15px;animation:cftFall ${2+Math.random()*2}s linear forwards`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4500);
+    }, i * 50);
+  }
+}
+
+function shuffle(a) {
+  const b = [...a];
+  for (let i = b.length-1; i > 0; i--) {
+    const j = ~~(Math.random()*(i+1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+
+function getLayout() {
+  const w = innerWidth, h = innerHeight, s = Math.min(w, h);
+  const mr = Math.min(Math.max(s * .16, 50), 92);
+  const hr = Math.min(Math.max(s * .085, 30), 46);
+  let ob = Math.min(Math.max(s * .29, 100), 158);
+  ob = Math.min(ob, w/2 - hr - 14, h/2 - hr - 44);
+  return { mr, hr, ob, cx: w/2, cy: h/2 - 14 };
+}
+
+function render() {
+  const cont = document.getElementById('bubCont');
+  cont.innerHTML = '';
+  const wd = words[idx], L = getLayout();
+  document.body.style.background = BKGS[idx % BKGS.length];
+  document.getElementById('prog').textContent = `${idx+1} / ${words.length}`;
+
+  const mc = MCOLS[idx % MCOLS.length];
+  const md = L.mr * 2;
+  const fz = wd.w.length > 6 ? Math.max(L.mr*.3, 14) : Math.max(L.mr*.4, 17);
+
+  // ---- MAIN BUBBLE ----
+  const mb = document.createElement('div'); mb.className = 'bub';
+  mb.style.cssText = `width:${md}px;height:${md}px;left:${L.cx-L.mr}px;top:${L.cy-L.mr}px;font-size:${fz}px;letter-spacing:2px;background:radial-gradient(circle at 35% 35%,${mc[1]},${mc[0]});box-shadow:inset -${md*.04}px -${md*.04}px ${md*.1}px rgba(0,0,0,.2),inset ${md*.03}px ${md*.03}px ${md*.08}px rgba(255,255,255,.28),0 ${md*.05}px ${md*.2}px rgba(0,0,0,.22);animation:dropIn .5s cubic-bezier(.175,.885,.32,1.275) both,fl1 3s .55s ease-in-out infinite;z-index:15`;
+  mb.innerHTML = `<span>${wd.w}</span><div class="shine"></div><div class="shine2"></div>`;
+
+  let mainPopped = false;
+  mb.onclick = () => {
+    if (mainPopped) return; mainPopped = true;
+    const r = mb.getBoundingClientRect();
+    const bx = r.left + r.width/2, by = r.top + r.height/2;
+    mb.style.animation = 'popBig .42s ease-in forwards';
+    mb.style.pointerEvents = 'none';
+    popSnd(true);
+    burst(bx, by, [mc[0], mc[1], '#fff', '#ffd700', '#ff6b6b', '#55efc4'], 24, true);
+    spawnRing(bx, by, md * 2.5);
+    setTimeout(() => spawnRing(bx, by, md * 1.8), 80);
+    setTimeout(() => {
+      document.getElementById('readySub').textContent =
+        idx < words.length - 1 ? `Word ${idx+2} of ${words.length} coming up…` : '🏁 Last word done!';
+      showPage('readyPage');
+    }, 480);
+  };
+  cont.appendChild(mb);
+
+  // ---- HINT BUBBLES ----
+  const floats = ['fl1','fl2','fl3','fl4'];
+  wd.h.forEach((hint, i) => {
+    const ang = (i / wd.h.length) * Math.PI * 2 - Math.PI / 2;
+    const hx = L.cx + L.ob * Math.cos(ang);
+    const hy = L.cy + L.ob * Math.sin(ang);
+    const hd = L.hr * 2;
+    const hc = HCOLS[(idx * 4 + i) % HCOLS.length];
+    const del = .12 + i * .1;
+
+    const hb = document.createElement('div'); hb.className = 'bub';
+    hb.style.cssText = `width:${hd}px;height:${hd}px;left:${hx-L.hr}px;top:${hy-L.hr}px;font-size:${Math.max(L.hr*.55,15)}px;background:radial-gradient(circle at 35% 35%,${hc[1]},${hc[0]});box-shadow:inset -${hd*.04}px -${hd*.04}px ${hd*.1}px rgba(0,0,0,.2),inset ${hd*.03}px ${hd*.03}px ${hd*.08}px rgba(255,255,255,.25),0 ${hd*.05}px ${hd*.12}px rgba(0,0,0,.15);animation:dropIn .45s ${del}s cubic-bezier(.175,.885,.32,1.275) both,${floats[i%4]} ${2.8+i*.3}s ${del+.5}s ease-in-out infinite`;
+    hb.innerHTML = `<span>?</span><div class="shine"></div>`;
+
+    const ht = document.createElement('div'); ht.className = 'hintTxt';
+    ht.style.cssText = `left:${hx}px;top:${hy}px;font-size:${Math.max(L.hr*.55,15)}px`;
+    ht.textContent = hint;
+
+    let hintPopped = false;
+    hb.onclick = () => {
+      if (hintPopped) return; hintPopped = true;
+      const r = hb.getBoundingClientRect();
+      const bx = r.left + r.width/2, by = r.top + r.height/2;
+      hb.style.animation = 'popSmall .3s ease-in forwards';
+      hb.style.pointerEvents = 'none';
+      popSnd(false);
+      burst(bx, by, [hc[0], hc[1], '#fff'], 10, false);
+      spawnRing(bx, by, hd * 2);
+      setTimeout(() => { hb.style.display = 'none'; ht.classList.add('show'); }, 300);
+    };
+
+    cont.appendChild(hb);
+    cont.appendChild(ht);
+  });
+
+  showPage('wordPage');
+}
+
+function nextWord() {
+  idx++;
+  if (idx >= words.length) {
+    document.body.style.background = 'linear-gradient(135deg,#6c5ce7,#fd79a8)';
+    document.getElementById('prog').textContent = '';
+    showPage('finishPage');
+    spawnConfetti(65);
+  } else {
+    render();
+  }
+}
+
+function startGame() {
+  idx = 0;
+  words = shuffle(DATA);
+  render();
+}
+
+// Ambient background bubbles
+(function() {
+  for (let i = 0; i < 7; i++) {
+    const el = document.createElement('div'); el.className = 'amb';
+    const s = 25 + Math.random() * 70;
+    el.style.cssText = `width:${s}px;height:${s}px;left:${Math.random()*100}%;bottom:-${s}px;animation:ambR ${10+Math.random()*14}s ${Math.random()*10}s linear infinite`;
+    document.body.appendChild(el);
+  }
+})();
+
+// Events
+document.getElementById('readyBtn').onclick = () => {
+  const el = document.getElementById('readyBtn');
+  const r = el.getBoundingClientRect();
+  burst(r.left+r.width/2, r.top+r.height/2, ['#ff9a9e','#e84393','#fff','#ffd700'], 16, true);
+  popSnd(true);
+  nextWord();
+};
+
+document.getElementById('finBtn').onclick = startGame;
+
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (document.getElementById('wordPage').classList.contains('on')) render();
+  }, 250);
+});
+
+startGame();
+</script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

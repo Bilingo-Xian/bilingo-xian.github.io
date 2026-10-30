@@ -448,3 +448,27 @@ img { max-width: 100%; }
 }
 .book-tile.ge4 .stats, .book-tile.ge7 .stats, .book-tile.ge8 .stats { color: rgb(154 52 18 / .85); }
 .book-tile .chip.partial { background: rgb(154 52 18 / .12); color: inherit; border: 1.5px solid rgb(154 52 18 / .35); }
+
+/* ---------- NCC ---------- */
+.ncc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:16px 0 10px}
+a.ncc-tile{display:block;border-radius:14px;padding:10px 12px;color:#fff;text-decoration:none;transition:transform .15s;box-shadow:0 4px 14px -6px rgb(15 23 42/.35)}
+a.ncc-tile:hover{transform:translateY(-3px)}
+.ncc-tile .n-num{display:block;font-size:.72rem;font-weight:800;letter-spacing:.08em;opacity:.92}
+.ncc-tile .n-title{display:block;font-weight:700;font-size:.92rem;line-height:1.25;margin-top:3px}
+.ncc-tile .n-meta{display:block;font-size:.72rem;font-weight:700;opacity:.88;margin-top:6px}
+.ncc-tile.b1{background:linear-gradient(140deg,#fbbf24,#d97706)}
+.ncc-tile.b2{background:linear-gradient(140deg,#c084fc,#9333ea)}
+.ncc-tile.b3{background:linear-gradient(140deg,#4ade80,#16a34a)}
+.ncc-tile.b4{background:linear-gradient(140deg,#2dd4bf,#0d9488)}
+.ncc-tile.b5{background:linear-gradient(140deg,#60a5fa,#2563eb)}
+.ncc-tile.b6{background:linear-gradient(140deg,#f87171,#dc2626)}
+.ncc-tile.empty{background:var(--surface);color:var(--muted);border:2px dashed var(--border);box-shadow:none}
+.ncc-tile.empty:hover{transform:none}
+.ncc-unit{margin:30px 0;scroll-margin-top:90px}
+.ncc-unit-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-left:6px solid var(--book-color,var(--accent));padding-left:12px;margin-bottom:12px}
+.ncc-unit-head .ncc-u-num{font-weight:900;font-size:1.4rem;color:var(--book-color,var(--accent))}
+.ncc-unit-head h2{margin:0;font-size:1.35rem}
+.ncc-book-tag{font-size:.75rem;font-weight:800;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--muted)}
+.ncc-top{margin-left:auto;font-size:.82rem;font-weight:700;color:var(--muted);text-decoration:none}
+.ncc-top:hover{color:var(--accent)}
+.ncc-mats{display:flex;flex-direction:column;gap:12px;padding-left:18px}

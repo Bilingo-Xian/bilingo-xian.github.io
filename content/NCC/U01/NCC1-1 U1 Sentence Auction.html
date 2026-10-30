@@ -1,0 +1,252 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💰 Sentence Auction — K4062</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
+:root{--blue:#4a7aff;--red:#ff6a4a;--gold:#ffd700;--green:#00cc55}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:radial-gradient(ellipse at 50% 20%,#1e1e60,#0c0c35 50%,#060618);min-height:100vh;color:#fff;display:flex;flex-direction:column;align-items:center;padding:15px 20px}
+.mute{position:fixed;top:12px;right:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;width:40px;height:40px;border-radius:50%;font-size:1.2rem;cursor:pointer;z-index:200}
+.header{text-align:center;margin-bottom:15px}
+.header h1{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,#ffd700,#ffaa00,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:3px}
+.header .sub{color:#7777bb;font-size:.85rem;margin-top:4px}
+.progress{display:flex;gap:8px;margin-bottom:18px}
+.dot{width:14px;height:14px;border-radius:50%;background:#1a1a4a;border:2px solid #3a3a7a;transition:all .4s}
+.dot.active{background:var(--gold);border-color:var(--gold);box-shadow:0 0 12px rgba(255,215,0,.5)}
+.dot.done{background:#3a3a7a;border-color:#5a5aaa}
+.sf{background:linear-gradient(135deg,rgba(25,25,75,.9),rgba(15,15,50,.95));border:2px solid #4444aa;border-radius:20px;padding:28px 36px;max-width:750px;width:100%;text-align:center;margin-bottom:24px;transition:border-color .5s,box-shadow .5s}
+.sf .num{font-size:.8rem;color:#7777bb;margin-bottom:8px;text-transform:uppercase;letter-spacing:2px}
+.sf .stxt{font-size:1.85rem;font-weight:600;line-height:1.5}
+.sf.gg{border-color:var(--green);box-shadow:0 0 35px rgba(0,200,80,.25)}
+.sf.gr{border-color:#ff4444;box-shadow:0 0 35px rgba(255,50,50,.25)}
+.verdict{margin-top:14px;font-weight:700;font-size:1rem;letter-spacing:1px}
+.verdict.ok{color:#00ff66}.verdict.er{color:#ff5555}
+.teams{display:flex;gap:24px;max-width:750px;width:100%;margin-bottom:20px}
+.team{flex:1;background:linear-gradient(180deg,rgba(20,20,65,.9),rgba(12,12,45,.95));border:2px solid #3a3a7a;border-radius:16px;padding:18px 14px;text-align:center;transition:all .3s}
+.team.t1{border-color:rgba(74,122,255,.5)}.team.t2{border-color:rgba(255,106,74,.5)}
+.tname{font-size:1.05rem;font-weight:700;margin-bottom:14px;letter-spacing:1px}
+.t1 .tname{color:#6a9fff}.t2 .tname{color:#ff8a6a}
+.btns{display:flex;gap:10px;margin-bottom:12px}
+.tb{flex:1;padding:13px 6px;border:2px solid #444;border-radius:12px;background:rgba(30,30,70,.8);color:#aaa;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .25s}
+.tb:hover:not(:disabled){transform:scale(1.04);background:rgba(40,40,90,.9)}
+.tb:disabled{cursor:default;opacity:.7}
+.tb.sc{background:rgba(0,200,80,.2);border-color:#00cc55;color:#00ff66;box-shadow:0 0 12px rgba(0,200,80,.25)}
+.tb.sw{background:rgba(220,50,50,.2);border-color:#ff4444;color:#ff5555;box-shadow:0 0 12px rgba(220,50,50,.25)}
+.tscore{font-size:.8rem;color:#777}.tscore span{font-weight:700;font-size:1.1rem;color:var(--gold)}
+.tr{margin-top:10px;padding:8px 10px;border-radius:10px;font-weight:700;font-size:1rem;display:none}
+.tr.ri{display:block;background:rgba(0,200,80,.15);color:#00ff66}
+.tr.wr{display:block;background:rgba(220,50,50,.15);color:#ff4444}
+.acts{text-align:center;min-height:55px;margin-bottom:15px}
+.bb{padding:14px 38px;border:none;border-radius:30px;font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all .25s;margin:4px;display:inline-block}
+.bb:hover{transform:scale(1.06)}
+.br{background:linear-gradient(135deg,#ffd700,#ff9500);color:#1a1a3e;box-shadow:0 0 25px rgba(255,215,0,.35);animation:gp 1.2s ease-in-out infinite}
+@keyframes gp{0%,100%{transform:scale(1);box-shadow:0 0 20px rgba(255,215,0,.3)}50%{transform:scale(1.04);box-shadow:0 0 35px rgba(255,215,0,.55)}}
+.bc{background:linear-gradient(135deg,#4a7aff,#6a4aff);color:#fff}
+.bn{background:linear-gradient(135deg,#00cc55,#00aa44);color:#fff}
+.wt{color:var(--gold);font-size:1.15rem;animation:gp .7s ease-in-out infinite}
+.corr{background:rgba(0,150,80,.1);border:2px solid rgba(0,200,80,.4);border-radius:16px;padding:18px 28px;max-width:750px;width:100%;text-align:center;display:none}
+.corr .lb{font-size:.75rem;color:#00cc55;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.corr .fx{font-size:1.45rem;font-weight:600;color:#00ff66}
+.corr .ht{font-size:.85rem;color:#88ccaa;margin-top:8px}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,0);pointer-events:none;z-index:50;transition:background .5s}
+.ov.on{background:rgba(0,0,0,.45)}
+.fin{text-align:center;display:none;margin-top:40px}
+.fin h2{font-size:2.2rem;background:linear-gradient(135deg,#ffd700,#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:25px}
+.fts{display:flex;gap:30px;justify-content:center;margin-bottom:25px}
+.ft{background:rgba(20,20,65,.9);border:2px solid #3a3a7a;border-radius:16px;padding:25px 45px}
+.ft.win{border-color:var(--gold);box-shadow:0 0 35px rgba(255,215,0,.3)}
+.ft .bs{font-size:3.2rem;font-weight:800;color:var(--gold)}
+.ft .pt{color:#999;font-size:.9rem}
+.wintxt{font-size:1.5rem;margin-bottom:20px}
+@media(max-width:640px){.teams{flex-direction:column;gap:14px}.sf .stxt{font-size:1.4rem}.header h1{font-size:1.6rem}}
+</style>
+</head>
+<body>
+<button class="mute" id="muteBtn" onclick="toggleMute()" title="Toggle sound">🔊</button>
+<div class="ov" id="ov"></div>
+<div class="header"><h1>💰 SENTENCE AUCTION</h1><div class="sub">K4062 with Joey — Correct or wrong? Lock in your answer!</div></div>
+<div class="progress" id="prog"></div>
+<div id="game">
+<div class="sf" id="frame"><div class="num" id="num"></div><div class="stxt" id="stxt"></div></div>
+<div class="teams">
+<div class="team t1"><div class="tname">🔵 TEAM 1</div><div class="btns"><button class="tb" id="t1c" onclick="pick(1,true)">✅ Correct</button><button class="tb" id="t1w" onclick="pick(1,false)">❌ Wrong</button></div><div class="tscore">Score: <span id="s1">0</span></div><div class="tr" id="r1"></div></div>
+<div class="team t2"><div class="tname">🔴 TEAM 2</div><div class="btns"><button class="tb" id="t2c" onclick="pick(2,true)">✅ Correct</button><button class="tb" id="t2w" onclick="pick(2,false)">❌ Wrong</button></div><div class="tscore">Score: <span id="s2">0</span></div><div class="tr" id="r2"></div></div>
+</div>
+<div class="acts" id="acts"></div>
+<div class="corr" id="corr"><div class="lb">✏️ Correct Version</div><div class="fx" id="fx"></div><div class="ht" id="ht"></div></div>
+</div>
+<div class="fin" id="fin">
+<h2>🏆 GAME OVER</h2>
+<div class="fts">
+<div class="ft" id="ft1"><div class="tname" style="color:#6a9fff">🔵 TEAM 1</div><div class="bs" id="fs1">0</div><div class="pt">points</div></div>
+<div class="ft" id="ft2"><div class="tname" style="color:#ff8a6a">🔴 TEAM 2</div><div class="bs" id="fs2">0</div><div class="pt">points</div></div>
+</div>
+<div class="wintxt" id="wt"></div>
+<button class="bb bn" onclick="reset()">🔄 Play Again</button>
+</div>
+<script>
+const D=[
+{text:`Is this you handbag?`,ok:false,fix:`Is this your handbag?`,hint:`you → your`},
+{text:`Is these your books?`,ok:false,fix:`Are these your books?`,hint:`"these" needs "are", not "is"`},
+{text:`Excuse me. Is this your coat?`,ok:true},
+{text:`Are these your watchs?`,ok:false,fix:`Are these your watches?`,hint:`watchs → watches (add -es)`},
+{text:`Is this your skirt? — Yes, it's.`,ok:false,fix:`Is this your skirt? — Yes, it is.`,hint:`Can't use "it's" at the end of a short answer`},
+{text:`Excuse me. Is this your a kebab?`,ok:false,fix:`Excuse me. Is this your kebab?`,hint:`No article "a" after a possessive like "your"`},
+{text:`Are these your strawberries?`,ok:true},
+{text:`Are this your cushions?`,ok:false,fix:`Are these your cushions?`,hint:`this → these (plural needs "these")`},
+{text:`Is this her's crutch?`,ok:false,fix:`Is this her crutch?`,hint:`"her's" doesn't exist — just use "her"`},
+{text:`Is this his camera? — No, is not his camera.`,ok:false,fix:`Is this his camera? — No, it is not his camera.`,hint:`Missing subject "it"`}
+];
+let i=0,c1=null,c2=null,s1=0,s2=0,dn=false,mt=false,ac=null;
+function cx(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();return ac}
+function toggleMute(){mt=!mt;document.getElementById('muteBtn').textContent=mt?'🔇':'🔊'}
+
+function playT(){
+if(mt)return;const c=cx(),t=c.currentTime;
+const b=c.createOscillator();b.type='sine';b.frequency.setValueAtTime(65,t);b.frequency.linearRampToValueAtTime(90,t+2.8);
+const bg=c.createGain();bg.gain.setValueAtTime(.22,t);bg.gain.linearRampToValueAtTime(.32,t+2.2);bg.gain.linearRampToValueAtTime(0,t+3);
+b.connect(bg);bg.connect(c.destination);b.start(t);b.stop(t+3);
+const r=c.createOscillator();r.type='triangle';r.frequency.setValueAtTime(220,t);r.frequency.exponentialRampToValueAtTime(700,t+2.6);
+const rg=c.createGain();rg.gain.setValueAtTime(.06,t);rg.gain.linearRampToValueAtTime(.16,t+2.2);rg.gain.linearRampToValueAtTime(0,t+2.7);
+r.connect(rg);rg.connect(c.destination);r.start(t);r.stop(t+2.7);
+const h=c.createOscillator();h.type='sine';h.frequency.setValueAtTime(330,t+.3);h.frequency.exponentialRampToValueAtTime(900,t+2.6);
+const hg=c.createGain();hg.gain.setValueAtTime(0,t);hg.gain.linearRampToValueAtTime(.08,t+1);hg.gain.linearRampToValueAtTime(0,t+2.6);
+h.connect(hg);hg.connect(c.destination);h.start(t);h.stop(t+2.7);
+for(let j=0;j<6;j++){const p=c.createOscillator();p.type='sine';p.frequency.setValueAtTime(50+j*5,t+j*.48);
+const pg=c.createGain();pg.gain.setValueAtTime(0,t+j*.48);pg.gain.linearRampToValueAtTime(.18,t+j*.48+.04);pg.gain.exponentialRampToValueAtTime(.001,t+j*.48+.25);
+p.connect(pg);pg.connect(c.destination);p.start(t+j*.48);p.stop(t+j*.48+.3)}}
+
+function playS(g){
+if(mt)return;const c=cx(),t=c.currentTime;
+const f=g?[523.25,659.25,783.99]:[233.08,277.18,349.23];
+f.forEach((fr,j)=>{const o=c.createOscillator();o.type=g?'sine':'triangle';o.frequency.setValueAtTime(fr,t);
+const gn=c.createGain();gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(g?.2:.14,t+.05);gn.gain.exponentialRampToValueAtTime(.001,t+1.4);
+o.connect(gn);gn.connect(c.destination);o.start(t+j*.07);o.stop(t+1.5)})}
+
+function playD(){if(mt)return;const c=cx(),t=c.currentTime;const o=c.createOscillator();o.type='sine';o.frequency.setValueAtTime(880,t);
+const g=c.createGain();g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+.3);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.35)}
+
+function bp(){const e=document.getElementById('prog');e.innerHTML='';D.forEach((_,j)=>{const d=document.createElement('div');d.className='dot'+(j===i?' active':j<i?' done':'');d.id='p'+j;e.appendChild(d)})}
+
+function load(){
+const s=D[i];document.getElementById('num').textContent=`Sentence ${i+1} of ${D.length}`;
+document.getElementById('stxt').innerHTML=s.text;c1=c2=null;dn=false;
+['t1c','t1w','t2c','t2w'].forEach(x=>{const b=document.getElementById(x);b.className='tb';b.disabled=false});
+['r1','r2'].forEach(x=>{const e=document.getElementById(x);e.className='tr';e.style.display='none'});
+document.getElementById('frame').className='sf';document.getElementById('acts').innerHTML='';
+document.getElementById('corr').style.display='none';bp()}
+
+function pick(t,v){
+if(dn)return;
+if(t===1){c1=v;document.getElementById('t1c').className='tb'+(v?' sc':'');document.getElementById('t1w').className='tb'+(!v?' sw':'')}
+else{c2=v;document.getElementById('t2c').className='tb'+(v?' sc':'');document.getElementById('t2w').className='tb'+(!v?' sw':'')}
+if(c1!==null&&c2!==null)document.getElementById('acts').innerHTML='<button class="bb br" onclick="rev()">🎯 FINAL ANSWER!</button>'}
+
+function rev(){
+dn=true;['t1c','t1w','t2c','t2w'].forEach(x=>document.getElementById(x).disabled=true);
+playT();document.getElementById('ov').classList.add('on');
+document.getElementById('acts').innerHTML='<div class="wt">⏳ Revealing...</div>';
+setTimeout(()=>{
+document.getElementById('ov').classList.remove('on');
+const s=D[i],a=c1===s.ok,b=c2===s.ok;
+if(a)s1++;if(b)s2++;document.getElementById('s1').textContent=s1;document.getElementById('s2').textContent=s2;
+const r1=document.getElementById('r1');r1.textContent=a?'✅ Correct!':'❌ Wrong!';r1.className='tr '+(a?'ri':'wr');r1.style.display='block';
+const r2=document.getElementById('r2');r2.textContent=b?'✅ Correct!':'❌ Wrong!';r2.className='tr '+(b?'ri':'wr');r2.style.display='block';
+document.getElementById('frame').classList.add(s.ok?'gg':'gr');
+document.getElementById('stxt').innerHTML=s.text+(s.ok?'<div class="verdict ok">✅ THIS SENTENCE IS CORRECT</div>':'<div class="verdict er">❌ THIS SENTENCE HAS AN ERROR</div>');
+playS(s.ok);
+let h='';if(!s.ok)h+='<button class="bb bc" onclick="showF()">🔍 Show Correct Sentence</button> ';
+h+=i<D.length-1?'<button class="bb bn" onclick="nx()">Next ➜</button>':'<button class="bb bn" onclick="fin()">🏆 See Results</button>';
+document.getElementById('acts').innerHTML=h},3200)}
+
+function showF(){const s=D[i];document.getElementById('fx').textContent=s.fix;document.getElementById('ht').textContent='💡 '+s.hint;document.getElementById('corr').style.display='block';playD()}
+function nx(){i++;load()}
+function fin(){
+document.getElementById('game').style.display='none';document.getElementById('prog').style.display='none';
+const f=document.getElementById('fin');f.style.display='block';
+document.getElementById('fs1').textContent=s1;document.getElementById('fs2').textContent=s2;
+const w=document.getElementById('wt');
+if(s1>s2){w.innerHTML='🎉 <span style="color:#6a9fff">TEAM 1</span> WINS! 🎉';document.getElementById('ft1').classList.add('win')}
+else if(s2>s1){w.innerHTML='🎉 <span style="color:#ff8a6a">TEAM 2</span> WINS! 🎉';document.getElementById('ft2').classList.add('win')}
+else{w.innerHTML="🤝 IT'S A TIE!";document.getElementById('ft1').classList.add('win');document.getElementById('ft2').classList.add('win')}
+playS(true)}
+function reset(){i=0;s1=s2=0;document.getElementById('s1').textContent='0';document.getElementById('s2').textContent='0';
+document.getElementById('game').style.display='';document.getElementById('prog').style.display='flex';
+document.getElementById('fin').style.display='none';document.getElementById('ft1').classList.remove('win');document.getElementById('ft2').classList.remove('win');load()}
+load();
+</script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

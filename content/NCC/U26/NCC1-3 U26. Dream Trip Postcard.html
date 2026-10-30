@@ -1,0 +1,535 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Trip Postcard ✈️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&amp;family=Patrick+Hand&amp;display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Patrick Hand', cursive;
+            padding: 20px;
+        }
+
+        .title {
+            font-family: 'Caveat', cursive;
+            font-size: 2.5em;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .postcard {
+            width: 100%;
+            max-width: 600px;
+            background: #fdf6e3;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3), inset 0 0 80px rgba(139, 109, 71, 0.1);
+            border: 3px solid #d4a574;
+            position: relative;
+            overflow: hidden;
+            padding: 30px;
+        }
+
+        .postcard::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 28px,
+                rgba(100, 149, 237, 0.08) 28px,
+                rgba(100, 149, 237, 0.08) 29px
+            );
+            pointer-events: none;
+        }
+
+        .stamp {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 65px;
+            height: 80px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            border: 3px dashed #fff;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            transform: rotate(3deg);
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .date-display {
+            font-family: 'Caveat', cursive;
+            font-size: 1.1em;
+            color: #8b6914;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        .countries-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-right: 75px;
+        }
+
+        .country-badge {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 1em;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(108, 92, 231, 0.3);
+        }
+
+        .country-badge.to {
+            background: linear-gradient(135deg, #00b894, #55efc4);
+            box-shadow: 0 3px 10px rgba(0, 184, 148, 0.3);
+        }
+
+        .sentences-container {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 10px;
+        }
+
+        .sentence-block {
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            min-height: 40px;
+            transition: transform 0.1s;
+        }
+
+        .sentence-block:active {
+            transform: scale(0.98);
+        }
+
+        .sentence-content {
+            font-family: 'Caveat', cursive;
+            font-size: 1.4em;
+            line-height: 1.4;
+            padding: 10px 15px;
+            border-radius: 8px;
+            position: relative;
+            color: #2d3436;
+            background: rgba(255,255,255,0.5);
+            border: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .sentence-content.state-0 {
+            background: linear-gradient(90deg, #636e72, #b2bec3, #636e72);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+            color: transparent;
+            border: 1px solid #636e72;
+            border-radius: 8px;
+        }
+
+        .sentence-content.state-0::after {
+            content: '👆 Tap to reveal';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255,255,255,0.7);
+            font-size: 0.7em;
+            font-family: 'Patrick Hand', cursive;
+            white-space: nowrap;
+        }
+
+        .sentence-content.state-1 {
+            background: rgba(108, 92, 231, 0.08);
+            border: 1px dashed #6c5ce7;
+            color: #6c5ce7;
+            font-weight: bold;
+        }
+
+        .sentence-content.state-2 {
+            background: rgba(0, 184, 148, 0.08);
+            border: 1px solid #00b894;
+            color: #2d3436;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes pop-in {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .pop-anim {
+            animation: pop-in 0.3s ease-out;
+        }
+
+        .next-btn {
+            display: block;
+            margin: 25px auto 0;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.3em;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(232, 67, 147, 0.4);
+            transition: all 0.2s;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(232, 67, 147, 0.5);
+        }
+
+        .next-btn:active {
+            transform: translateY(1px);
+        }
+
+        .progress {
+            margin-top: 15px;
+            color: white;
+            font-size: 1em;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        .decorations {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            font-size: 1.5em;
+            opacity: 0.5;
+        }
+
+        .hint {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+
+        .state-label {
+            position: absolute;
+            top: -8px;
+            right: 10px;
+            font-size: 0.55em;
+            font-family: 'Patrick Hand', cursive;
+            background: white;
+            padding: 1px 8px;
+            border-radius: 10px;
+            opacity: 0.7;
+        }
+
+        .season-emoji {
+            font-size: 1.5em;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">✈️ Dream Trip Postcard 🌍</div>
+    <div class="postcard" id="postcard">
+        <div class="stamp" id="stamp">✈️</div>
+        <div class="date-display" id="dateDisplay"></div>
+        <div class="countries-header">
+            <span class="country-badge" id="fromBadge">FROM: ---</span>
+            <span class="country-badge to" id="toBadge">TO: ---</span>
+        </div>
+        <div class="sentences-container" id="sentencesContainer"></div>
+        <div class="decorations">🌴🗺️✨</div>
+    </div>
+    <button class="next-btn" onclick="nextPostcard()">Next Postcard ✈️➡️</button>
+    <div class="progress" id="progress"></div>
+    <div class="hint">Tap each grey block: 1st → structure, 2nd → full sentence, 3rd → hide</div>
+
+    <script>
+        const countries = ['Brazil', 'England', 'France', 'Germany', 'Greece', 'Holland', 'Italy', 'Norway', 'Russia', 'Spain', 'Sweden', 'the U.S.'];
+
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+        const seasonMap = {
+            'January': 'winter', 'February': 'winter', 'March': 'spring',
+            'April': 'spring', 'May': 'spring', 'June': 'summer',
+            'July': 'summer', 'August': 'summer', 'September': 'autumn',
+            'October': 'autumn', 'November': 'autumn', 'December': 'winter'
+        };
+
+        const seasonEmojis = { 'spring': '🌸', 'summer': '☀️', 'autumn': '🍂', 'winter': '❄️' };
+
+        const weatherByCountrySeason = {
+            'Brazil':   { spring: ['sunny', 'warm'], summer: ['sunny', 'warm'], autumn: ['warm', 'pleasant'], winter: ['warm', 'pleasant'] },
+            'England':  { spring: ['rainy', 'windy'], summer: ['pleasant', 'sunny'], autumn: ['rainy', 'windy'], winter: ['rainy', 'windy'] },
+            'France':   { spring: ['pleasant', 'sunny'], summer: ['sunny', 'warm'], autumn: ['windy', 'rainy'], winter: ['windy', 'rainy'] },
+            'Germany':  { spring: ['pleasant', 'windy'], summer: ['warm', 'sunny'], autumn: ['windy', 'rainy'], winter: ['snowy', 'windy'] },
+            'Greece':   { spring: ['sunny', 'warm'], summer: ['sunny', 'warm'], autumn: ['pleasant', 'windy'], winter: ['pleasant', 'rainy'] },
+            'Holland':  { spring: ['windy', 'rainy'], summer: ['pleasant', 'sunny'], autumn: ['windy', 'rainy'], winter: ['windy', 'rainy'] },
+            'Italy':    { spring: ['sunny', 'warm'], summer: ['sunny', 'warm'], autumn: ['pleasant', 'rainy'], winter: ['pleasant', 'rainy'] },
+            'Norway':   { spring: ['windy', 'snowy'], summer: ['pleasant', 'sunny'], autumn: ['windy', 'rainy'], winter: ['snowy', 'windy'] },
+            'Russia':   { spring: ['windy', 'snowy'], summer: ['warm', 'sunny'], autumn: ['windy', 'rainy'], winter: ['snowy', 'windy'] },
+            'Spain':    { spring: ['sunny', 'warm'], summer: ['sunny', 'warm'], autumn: ['pleasant', 'windy'], winter: ['pleasant', 'rainy'] },
+            'Sweden':   { spring: ['windy', 'pleasant'], summer: ['pleasant', 'sunny'], autumn: ['windy', 'rainy'], winter: ['snowy', 'windy'] },
+            'the U.S.': { spring: ['warm', 'pleasant'], summer: ['sunny', 'warm'], autumn: ['pleasant', 'windy'], winter: ['snowy', 'windy'] }
+        };
+
+        const greetings = [
+            (c) => `Hello from ${c}! 👋`,
+            (c) => `Greetings from ${c}! 🌟`,
+            (c) => `Hi there from ${c}! 😊`,
+            (c) => `Hey! Writing to you from ${c}! ✉️`,
+            (c) => `Good day from ${c}! 🎉`,
+            (c) => `Wish you were here in ${c}! 💫`
+        ];
+
+        const farewells = [
+            'See you later! 👋',
+            'Wish you were here! 💕',
+            'See you soon! 🤗',
+            'Take care! 🌈',
+            'Bye for now! ✨',
+            'Missing you! 💌'
+        ];
+
+        const stampEmojis = ['✈️', '🌍', '🗺️', '🏖️', '🏔️', '⛵', '🚂', '🎒'];
+
+        let shuffledCountries = [];
+        let currentIndex = 0;
+        let cardCount = 0;
+
+        function shuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function pickRandom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function getMonthDays(month) {
+            const days = { 'January':31,'February':28,'March':31,'April':30,'May':31,'June':30,'July':31,'August':31,'September':30,'October':31,'November':30,'December':31 };
+            return days[month];
+        }
+
+        // Audio pop using Web Audio API
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playPop() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        function initShuffle() {
+            shuffledCountries = shuffle(countries);
+            currentIndex = 0;
+        }
+
+        function generatePostcard() {
+            const fromCountry = shuffledCountries[currentIndex];
+            const toCountry = shuffledCountries[(currentIndex + 1) % shuffledCountries.length];
+
+            const month = pickRandom(months);
+            const day = Math.floor(Math.random() * getMonthDays(month)) + 1;
+            const season = seasonMap[month];
+            const weather = weatherByCountrySeason[fromCountry][season];
+
+            // Update UI
+            document.getElementById('fromBadge').textContent = `✈️ FROM: ${fromCountry}`;
+            document.getElementById('toBadge').textContent = `📍 TO: ${toCountry}`;
+            document.getElementById('dateDisplay').textContent = `📅 ${month} ${day} ${seasonEmojis[season]} ${season}`;
+            document.getElementById('stamp').textContent = pickRandom(stampEmojis);
+
+            const greeting = pickRandom(greetings)(fromCountry);
+            const farewell = pickRandom(farewells);
+
+            const sentences = [
+                {
+                    gaps: `_______ from ${fromCountry}!`,
+                    full: greeting
+                },
+                {
+                    gaps: `I am visiting _______ in ________, so it's _____ and _____.`,
+                    full: `I am visiting ${fromCountry} in ${season}, so it's ${weather[0]} and ${weather[1]}.`
+                },
+                {
+                    gaps: `How about the climate in _______? What is the weather like there in _______?`,
+                    full: `How about the climate in ${toCountry}? What is the weather like there in ${season}?`
+                },
+                {
+                    gaps: `_______ ! (farewell)`,
+                    full: farewell
+                }
+            ];
+
+            const container = document.getElementById('sentencesContainer');
+            container.innerHTML = '';
+
+            sentences.forEach((s, i) => {
+                const block = document.createElement('div');
+                block.className = 'sentence-block';
+                block.dataset.state = '0';
+                block.dataset.gaps = s.gaps;
+                block.dataset.full = s.full;
+
+                const content = document.createElement('div');
+                content.className = 'sentence-content state-0';
+                content.textContent = s.full; // hidden by CSS
+
+                block.appendChild(content);
+                block.addEventListener('click', handleTap);
+                container.appendChild(block);
+            });
+
+            cardCount++;
+            document.getElementById('progress').textContent = `Postcard #${cardCount} | ${fromCountry} → ${toCountry}`;
+        }
+
+        function handleTap(e) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const block = e.currentTarget;
+            const content = block.querySelector('.sentence-content');
+            let state = parseInt(block.dataset.state);
+
+            state = (state + 1) % 3;
+            block.dataset.state = state;
+
+            content.className = 'sentence-content pop-anim state-' + state;
+
+            if (state === 0) {
+                content.textContent = block.dataset.full;
+            } else if (state === 1) {
+                content.textContent = block.dataset.gaps;
+                playPop();
+            } else if (state === 2) {
+                content.textContent = block.dataset.full;
+                playPop();
+            }
+
+            // Remove animation class after it plays
+            setTimeout(() => content.classList.remove('pop-anim'), 300);
+        }
+
+        function nextPostcard() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            currentIndex++;
+            if (currentIndex >= shuffledCountries.length) {
+                initShuffle();
+            }
+            generatePostcard();
+        }
+
+        // Initialize
+        initShuffle();
+        generatePostcard();
+    </script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

@@ -1,0 +1,744 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jason's Kitchen Memory Game</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #1a1a2e;
+  color: #eee;
+  min-height: 100vh;
+  padding: 10px;
+}
+h1 {
+  text-align: center;
+  font-size: 1.5rem;
+  margin: 10px 0;
+  color: #ffd700;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+.game-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Kitchen */
+.kitchen {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  background: linear-gradient(180deg, #fdf6e3 0%, #f5e6d3 100%);
+  border-radius: 12px;
+  border: 4px solid #5a3e0a;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+.kitchen::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    linear-gradient(90deg, rgba(200,180,150,0.1) 1px, transparent 1px),
+    linear-gradient(rgba(200,180,150,0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.kitchen-label {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1rem;
+  color: #5a3e0a;
+  font-weight: bold;
+  z-index: 5;
+  background: rgba(255,248,220,0.8);
+  padding: 2px 12px;
+  border-radius: 4px;
+}
+.kitchen-hidden .kitchen-items .emoji-group:not(.found) {
+  opacity: 0 !important;
+  transform: scale(0.5);
+}
+.kitchen-items {
+  transition: opacity 0.5s;
+}
+
+/* Shelves */
+.shelf {
+  position: absolute;
+  left: 20px; right: 20px;
+  height: 10px;
+  background: linear-gradient(180deg, #8b5e3c, #6b4226);
+  border-radius: 2px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+  z-index: 2;
+}
+.shelf::before {
+  content: '';
+  position: absolute;
+  top: -4px; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(180deg, #a0722c, #8b5e3c);
+  border-radius: 2px 2px 0 0;
+}
+
+/* Counter */
+.counter {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: linear-gradient(180deg, #6b4226, #5a3518);
+  border-top: 6px solid #8b5e3c;
+  z-index: 2;
+}
+.counter::before {
+  content: '';
+  position: absolute;
+  top: -6px; left: 0; right: 0;
+  height: 6px;
+  background: linear-gradient(180deg, #b8860b, #8b6508);
+}
+
+/* Emoji items */
+.emoji-group {
+  position: absolute;
+  display: flex;
+  gap: 2px;
+  font-size: 2.2rem;
+  z-index: 3;
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  opacity: 1;
+  transform: scale(1);
+}
+.emoji-group.found {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  animation: pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.emoji-group.found::after {
+  content: '✓';
+  position: absolute;
+  top: -10px; right: -14px;
+  background: #4caf50;
+  color: white;
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(76,175,80,0.6);
+  animation: pop-in 0.4s 0.2s both;
+}
+
+/* Timer */
+.timer-area {
+  text-align: center;
+  margin: 15px 0;
+}
+.btn {
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.btn:active { transform: translateY(0); }
+.btn-start {
+  background: linear-gradient(135deg, #4caf50, #45a049);
+  color: white;
+}
+.btn-reset {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: white;
+  margin-left: 10px;
+}
+.timer {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #ff6b6b;
+  margin: 10px 0;
+  text-shadow: 0 0 10px rgba(255,107,107,0.5);
+}
+.timer.warning { animation: pulse 0.5s infinite; }
+
+/* Options */
+.options-area {
+  margin-top: 15px;
+}
+.sentence-frame {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #ffd700;
+  margin-bottom: 12px;
+  padding: 8px;
+  border: 1px dashed #ffd700;
+  border-radius: 8px;
+  background: rgba(255,215,0,0.05);
+}
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+.option {
+  padding: 8px 6px;
+  font-size: 0.82rem;
+  background: linear-gradient(135deg, #16213e, #1a1a2e);
+  border: 2px solid #334;
+  border-radius: 6px;
+  color: #eee;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  line-height: 1.3;
+}
+.option:hover:not(.disabled) {
+  border-color: #ffd700;
+  background: linear-gradient(135deg, #1e2a4a, #222240);
+  transform: scale(1.05);
+}
+.option.disabled { cursor: not-allowed; }
+.option.correct {
+  border-color: #4caf50;
+  background: linear-gradient(135deg, #1b5e1b, #1a3e1a);
+  color: #8f8;
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(76,175,80,0.5);
+  animation: correct-pulse 0.6s;
+}
+.option.wrong {
+  border-color: #f44336;
+  background: linear-gradient(135deg, #5a1a1a, #3e1212);
+  animation: mega-shake 0.7s;
+  color: #f88;
+}
+.option.wrong-done {
+  opacity: 0.35;
+  text-decoration: line-through;
+  transform: scale(0.95);
+}
+
+/* Score */
+.score {
+  text-align: center;
+  font-size: 1.2rem;
+  margin: 10px 0;
+  color: #4caf50;
+}
+
+/* Flash overlay */
+.flash {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 999;
+  animation: flash-anim 0.4s ease-out forwards;
+}
+.flash-green { background: rgba(76,175,80,0.3); }
+.flash-red { background: rgba(244,67,54,0.2); }
+
+/* Confetti */
+.confetti-piece {
+  position: fixed;
+  top: -20px;
+  z-index: 1000;
+  pointer-events: none;
+  animation: confetti-fall linear forwards;
+}
+.sparkle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1001;
+  font-size: 1.5rem;
+  animation: sparkle-rise 1s ease-out forwards;
+}
+
+/* Win message */
+.win-msg {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #ffd700;
+  margin: 20px 0;
+  animation: mega-bounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-shadow: 0 0 20px rgba(255,215,0,0.5);
+}
+
+@keyframes mega-shake {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  10% { transform: translateX(-8px) rotate(-2deg); }
+  20% { transform: translateX(8px) rotate(2deg); }
+  30% { transform: translateX(-8px) rotate(-1deg); }
+  40% { transform: translateX(8px) rotate(1deg); }
+  50% { transform: translateX(-5px) rotate(-1deg); }
+  60% { transform: translateX(5px) rotate(1deg); }
+  70% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+  90% { transform: translateX(-1px); }
+}
+@keyframes correct-pulse {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.15); }
+  60% { transform: scale(0.95); }
+  100% { transform: scale(1.05); }
+}
+@keyframes pop-in {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.05); }
+}
+@keyframes flash-anim {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes confetti-fall {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateY(105vh) rotate(1080deg) scale(0.5); opacity: 0; }
+}
+@keyframes sparkle-rise {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-80px) scale(0.3); opacity: 0; }
+}
+@keyframes mega-bounce {
+  0% { transform: scale(0.3) rotate(-5deg); opacity: 0; }
+  50% { transform: scale(1.2) rotate(2deg); opacity: 1; }
+  70% { transform: scale(0.9) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@media (max-width: 700px) {
+  .kitchen { height: 340px; }
+  .emoji-group { font-size: 1.7rem; }
+  h1 { font-size: 1.2rem; }
+  .options-grid { grid-template-columns: repeat(3, 1fr); }
+  .option { font-size: 0.78rem; padding: 7px 4px; }
+  .timer { font-size: 2rem; }
+}
+@media (max-width: 450px) {
+  .options-grid { grid-template-columns: repeat(2, 1fr); }
+  .kitchen { height: 310px; }
+  .emoji-group { font-size: 1.4rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="game-container">
+  <h1>🍳 Jason's Kitchen — Memory Game 🧠</h1>
+  
+  <div class="kitchen" id="kitchen">
+    <div class="kitchen-label">~ Jason's Kitchen ~</div>
+    
+    <div class="shelf" style="top: 100px;"></div>
+    <div class="shelf" style="top: 200px;"></div>
+    <div class="shelf" style="top: 300px;"></div>
+    
+    <div class="counter"></div>
+    
+    <div class="kitchen-items" id="kitchenItems">
+      <!-- Shelf 1: top row (above 100px) -->
+      <div class="emoji-group" id="item-bread" style="top: 55px; left: 30px;">🍞🍞</div>
+      <div class="emoji-group" id="item-cheese" style="top: 55px; left: 180px;">🧀🧀🧀</div>
+      <div class="emoji-group" id="item-milk" style="top: 50px; left: 380px;">🍼🍼</div>
+      <div class="emoji-group" id="item-honey" style="top: 55px; left: 560px;">🍯</div>
+      
+      <!-- Shelf 2: middle row (above 200px) -->
+      <div class="emoji-group" id="item-chocolate" style="top: 152px; left: 25px;">🍫🍫🍫🍫</div>
+      <div class="emoji-group" id="item-soap" style="top: 155px; left: 240px;">🧼🧼🧼</div>
+      <div class="emoji-group" id="item-candy" style="top: 152px; left: 420px;">🍬🍬🍬🍬🍬</div>
+      <div class="emoji-group" id="item-pizza" style="top: 155px; left: 650px;">🍕</div>
+      
+      <!-- Shelf 3: bottom row (above 300px) -->
+      <div class="emoji-group" id="item-butter" style="top: 253px; left: 30px;">🧈🧈</div>
+      <div class="emoji-group" id="item-cake" style="top: 252px; left: 180px;">🍰🍰</div>
+      <div class="emoji-group" id="item-meat" style="top: 252px; left: 370px;">🥩🥩🥩</div>
+      <div class="emoji-group" id="item-tea" style="top: 253px; left: 570px;">🍵🍵</div>
+    </div>
+  </div>
+
+  <div class="timer-area">
+    <div class="timer" id="timer" style="display:none;">15</div>
+    <button class="btn btn-start" id="startBtn" onclick="startGame()">👀 Show the Kitchen! (15 sec)</button>
+    <button class="btn btn-reset" id="resetBtn" onclick="resetGame()" style="display:none;">🔄 Play Again</button>
+  </div>
+
+  <div class="score" id="score"></div>
+
+  <div class="options-area" id="optionsArea" style="display:none;">
+    <div class="sentence-frame">There was / were <strong>___</strong> in Jason's Kitchen.</div>
+    <div class="options-grid" id="optionsGrid"></div>
+  </div>
+
+  <div class="win-msg" id="winMsg" style="display:none;"></div>
+</div>
+
+<script>
+const correctAnswers = [
+  { id: 'bread', text: 'two loaves of bread', itemId: 'item-bread' },
+  { id: 'cheese', text: 'three pieces of cheese', itemId: 'item-cheese' },
+  { id: 'milk', text: 'two bottles of milk', itemId: 'item-milk' },
+  { id: 'honey', text: 'a pot of honey', itemId: 'item-honey' },
+  { id: 'chocolate', text: 'four bars of chocolate', itemId: 'item-chocolate' },
+  { id: 'soap', text: 'three bars of soap', itemId: 'item-soap' },
+  { id: 'candy', text: 'five pieces of candy', itemId: 'item-candy' },
+  { id: 'pizza', text: 'a slice of pizza', itemId: 'item-pizza' },
+  { id: 'butter', text: 'two pounds of butter', itemId: 'item-butter' },
+  { id: 'cake', text: 'two slices of cake', itemId: 'item-cake' },
+  { id: 'meat', text: 'three pounds of meat', itemId: 'item-meat' },
+  { id: 'tea', text: 'two cups of tea', itemId: 'item-tea' },
+];
+
+const wrongAnswers = [
+  { id: 'w1', text: 'three loaves of bread' },
+  { id: 'w2', text: 'one piece of cheese' },
+  { id: 'w3', text: 'four bottles of milk' },
+  { id: 'w4', text: 'two pots of honey' },
+  { id: 'w5', text: 'three bars of chocolate' },
+  { id: 'w6', text: 'one bar of soap' },
+  { id: 'w7', text: 'three pieces of candy' },
+  { id: 'w8', text: 'one pound of butter' },
+  { id: 'w9', text: 'four slices of cake' },
+  { id: 'w10', text: 'five pounds of meat' },
+  { id: 'w11', text: 'three slices of pizza' },
+  { id: 'w12', text: 'four cups of tea' },
+  { id: 'w13', text: 'five loaves of bread' },
+  { id: 'w14', text: 'two bars of soap' },
+  { id: 'w15', text: 'one bottle of milk' },
+  { id: 'w16', text: 'six pieces of candy' },
+  { id: 'w17', text: 'a bar of chocolate' },
+  { id: 'w18', text: 'three slices of cake' },
+];
+
+let timerInterval = null;
+let foundCount = 0;
+const totalCorrect = correctAnswers.length;
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playDing() {
+  try {
+    const ctx = getAudioCtx();
+    const notes = [660, 880];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.1);
+      gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.1 + 0.4);
+      osc.start(ctx.currentTime + i * 0.1);
+      osc.stop(ctx.currentTime + i * 0.1 + 0.4);
+    });
+  } catch(e) {}
+}
+
+function playBuzz() {
+  try {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(80, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(50, ctx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.35, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+function playFanfare() {
+  try {
+    const ctx = getAudioCtx();
+    const notes = [523, 659, 784, 880, 1047];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
+      gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.12 + 0.5);
+      osc.start(ctx.currentTime + i * 0.12);
+      osc.stop(ctx.currentTime + i * 0.12 + 0.5);
+    });
+  } catch(e) {}
+}
+
+function flash(color) {
+  const el = document.createElement('div');
+  el.className = 'flash flash-' + color;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 500);
+}
+
+function spawnSparkles(x, y, count) {
+  const emojis = ['✨', '⭐', '🌟', '💫'];
+  for (let i = 0; i < count; i++) {
+    const sp = document.createElement('div');
+    sp.className = 'sparkle';
+    sp.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    sp.style.left = (x + (Math.random() - 0.5) * 100) + 'px';
+    sp.style.top = (y + (Math.random() - 0.5) * 60) + 'px';
+    sp.style.animationDuration = (0.6 + Math.random() * 0.6) + 's';
+    document.body.appendChild(sp);
+    setTimeout(() => sp.remove(), 1200);
+  }
+}
+
+function spawnConfetti(amount) {
+  const colors = ['#ff6b6b','#ffd700','#4caf50','#42a5f5','#ff69b4','#ffa726','#ab47bc','#00e676','#ff5252','#ffeb3b'];
+  const shapes = ['■','●','▲','★','♦','❤','◆'];
+  for (let i = 0; i < amount; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.color = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.fontSize = (Math.random() * 16 + 10) + 'px';
+    piece.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+    piece.style.animationDelay = (Math.random() * 0.8) + 's';
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 4000);
+  }
+}
+
+function miniConfetti(x, y) {
+  const colors = ['#4caf50','#8bc34a','#ffd700','#76ff03'];
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.style.cssText = `
+      position: fixed;
+      left: ${x}px; top: ${y}px;
+      width: ${Math.random()*8+4}px;
+      height: ${Math.random()*8+4}px;
+      background: ${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius: ${Math.random()>0.5?'50%':'2px'};
+      pointer-events: none;
+      z-index: 1000;
+      animation: mini-burst 0.8s ease-out forwards;
+      --dx: ${(Math.random()-0.5)*120}px;
+      --dy: ${(Math.random()-0.8)*100}px;
+    `;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1000);
+  }
+}
+
+// Dynamic keyframe for mini burst
+const style = document.createElement('style');
+style.textContent = `
+@keyframes mini-burst {
+  0% { transform: translate(0,0) scale(1); opacity:1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity:0; }
+}`;
+document.head.appendChild(style);
+
+function startGame() {
+  document.getElementById('startBtn').style.display = 'none';
+  document.getElementById('kitchen').classList.remove('kitchen-hidden');
+  document.getElementById('optionsArea').style.display = 'none';
+  document.getElementById('timer').style.display = 'block';
+  document.getElementById('winMsg').style.display = 'none';
+  document.getElementById('score').textContent = '';
+  document.getElementById('resetBtn').style.display = 'none';
+  
+  document.querySelectorAll('.emoji-group').forEach(el => {
+    el.style.opacity = '1';
+    el.style.transform = 'scale(1)';
+    el.classList.remove('found');
+  });
+  
+  let timeLeft = 15;
+  document.getElementById('timer').textContent = timeLeft;
+  document.getElementById('timer').classList.remove('warning');
+  
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timer').textContent = timeLeft;
+    if (timeLeft <= 5) document.getElementById('timer').classList.add('warning');
+    if (timeLeft <= 0) { clearInterval(timerInterval); hideKitchen(); }
+  }, 1000);
+}
+
+function hideKitchen() {
+  document.getElementById('timer').style.display = 'none';
+  document.getElementById('kitchen').classList.add('kitchen-hidden');
+  showOptions();
+}
+
+function showOptions() {
+  const grid = document.getElementById('optionsGrid');
+  grid.innerHTML = '';
+  
+  const allOptions = [
+    ...correctAnswers.map(a => ({ ...a, correct: true })),
+    ...wrongAnswers.map(a => ({ ...a, correct: false }))
+  ];
+  
+  for (let i = allOptions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
+  }
+  
+  allOptions.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.textContent = opt.text;
+    btn.onclick = (e) => handleChoice(btn, opt, e);
+    grid.appendChild(btn);
+  });
+  
+  document.getElementById('optionsArea').style.display = 'block';
+  foundCount = 0;
+  document.getElementById('score').textContent = `Found: ${foundCount} / ${totalCorrect}`;
+}
+
+function handleChoice(btn, opt, e) {
+  if (btn.classList.contains('disabled')) return;
+  btn.classList.add('disabled');
+  
+  const rect = btn.getBoundingClientRect();
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+  
+  if (opt.correct) {
+    btn.classList.add('correct');
+    playDing();
+    flash('green');
+    miniConfetti(cx, cy);
+    spawnSparkles(cx, cy, 5);
+    foundCount++;
+    document.getElementById('score').textContent = `Found: ${foundCount} / ${totalCorrect}`;
+    
+    // Show item back on shelf
+    const itemEl = document.getElementById(opt.itemId);
+    if (itemEl) {
+      itemEl.classList.add('found');
+    }
+    
+    if (foundCount >= totalCorrect) {
+      setTimeout(() => {
+        document.getElementById('winMsg').style.display = 'block';
+        document.getElementById('winMsg').textContent = '🎉 Amazing! You remembered everything! 🎉';
+        document.getElementById('resetBtn').style.display = 'inline-block';
+        playFanfare();
+        spawnConfetti(60);
+        setTimeout(() => spawnConfetti(40), 600);
+        setTimeout(() => spawnConfetti(30), 1200);
+      }, 500);
+    }
+  } else {
+    btn.classList.add('wrong');
+    playBuzz();
+    flash('red');
+    setTimeout(() => {
+      btn.classList.remove('wrong');
+      btn.classList.add('wrong-done');
+    }, 700);
+  }
+}
+
+function resetGame() {
+  foundCount = 0;
+  document.getElementById('winMsg').style.display = 'none';
+  document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('optionsArea').style.display = 'none';
+  document.getElementById('score').textContent = '';
+  document.getElementById('startBtn').style.display = 'inline-block';
+  document.getElementById('kitchen').classList.remove('kitchen-hidden');
+  document.querySelectorAll('.emoji-group').forEach(el => {
+    el.classList.remove('found');
+    el.style.opacity = '1';
+    el.style.transform = 'scale(1)';
+  });
+}
+</script>
+
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

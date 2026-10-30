@@ -1,0 +1,577 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whose...? Perhaps it's... — NCC1-1 U6</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: white;
+            font-size: 1.8em;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .stage {
+            width: 100%;
+            max-width: 900px;
+            min-height: 520px;
+            background: linear-gradient(180deg, #1e3a5f 0%, #152238 100%);
+            border-radius: 24px;
+            border: 3px solid rgba(255,255,255,0.1);
+            padding: 30px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+        }
+
+        /* ITEM DISPLAY */
+        .item-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px 40px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            transition: all 0.5s ease;
+        }
+
+        .item-display .object-emoji {
+            font-size: 4.5em;
+            animation: floatItem 3s ease-in-out infinite;
+        }
+
+        .item-display .pointer-emoji {
+            font-size: 3em;
+            animation: pointBounce 1.5s ease-in-out infinite;
+        }
+
+        @keyframes floatItem {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(3deg); }
+        }
+
+        @keyframes pointBounce {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(8px); }
+        }
+
+        /* DIALOGUE AREA */
+        .dialogue-area {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 200px;
+            gap: 20px;
+        }
+
+        /* SPEECH BUBBLES */
+        .bubble {
+            max-width: 320px;
+            padding: 18px 22px;
+            border-radius: 20px;
+            font-size: 1.3em;
+            font-weight: 600;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .bubble.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .bubble-question {
+            background: #4fc3f7;
+            color: #0d2137;
+            align-self: flex-start;
+            border-bottom-left-radius: 6px;
+        }
+
+        .bubble-question::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 20px;
+            width: 0;
+            height: 0;
+            border-left: 12px solid #4fc3f7;
+            border-bottom: 12px solid transparent;
+        }
+
+        .bubble-answer {
+            background: #ce93d8;
+            color: #1a0525;
+            align-self: flex-end;
+            border-bottom-right-radius: 6px;
+            text-align: right;
+        }
+
+        .bubble-answer::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            right: 20px;
+            width: 0;
+            height: 0;
+            border-right: 12px solid #ce93d8;
+            border-bottom: 12px solid transparent;
+        }
+
+        /* CHARACTER BOX */
+        .character-box {
+            width: 180px;
+            height: 180px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            border: 2px dashed rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .character-box.visible {
+            opacity: 1;
+            transform: scale(1);
+            border-color: rgba(255,255,255,0.4);
+            background: rgba(255,255,255,0.12);
+        }
+
+        .character-box img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            animation: charWalk 4s ease-in-out infinite;
+        }
+
+        .character-box .char-item-emoji {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            font-size: 1.8em;
+            animation: itemBob 2s ease-in-out infinite;
+        }
+
+        .character-box .char-name-tag {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: 700;
+        }
+
+        @keyframes charWalk {
+            0% { transform: translateX(-15px) scaleX(1) rotate(-2deg); }
+            25% { transform: translateX(10px) scaleX(1) rotate(1deg); }
+            50% { transform: translateX(15px) scaleX(-1) rotate(-1deg); }
+            75% { transform: translateX(-10px) scaleX(-1) rotate(2deg); }
+            100% { transform: translateX(-15px) scaleX(1) rotate(-2deg); }
+        }
+
+        @keyframes itemBob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* BUTTONS */
+        .btn-area {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn.show {
+            display: inline-flex;
+            animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-reveal-q {
+            background: linear-gradient(135deg, #4fc3f7, #0288d1);
+            color: white;
+        }
+
+        .btn-reveal-a {
+            background: linear-gradient(135deg, #ce93d8, #7b1fa2);
+            color: white;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #66bb6a, #2e7d32);
+            color: white;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* ROUND COUNTER */
+        .counter {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9em;
+        }
+
+        /* Left column & Right column layout */
+        .left-col {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            flex: 1;
+            gap: 15px;
+        }
+
+        .right-col {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 700px) {
+            .stage { padding: 20px 15px; min-height: 480px; }
+            .dialogue-area { flex-direction: column; align-items: center; }
+            .bubble { max-width: 280px; font-size: 1.1em; }
+            .character-box { width: 140px; height: 140px; }
+            .character-box img { width: 90px; height: 90px; }
+            .item-display .object-emoji { font-size: 3.5em; }
+            .item-display .pointer-emoji { font-size: 2.2em; }
+            h1 { font-size: 1.4em; }
+        }
+    </style>
+</head>
+<body>
+    <h1>👟 Whose...? — Perhaps it's... 👟</h1>
+
+    <div class="stage">
+        <span class="counter" id="counter">1 / ∞</span>
+
+        <!-- Item Display -->
+        <div class="item-display" id="itemDisplay">
+            <span class="object-emoji" id="objectEmoji">👟</span>
+            <span class="pointer-emoji" id="pointerEmoji">👉</span>
+        </div>
+
+        <!-- Dialogue Area -->
+        <div class="dialogue-area">
+            <div class="left-col">
+                <div class="bubble bubble-question" id="bubbleQ">
+                    Whose shoes are those?
+                </div>
+            </div>
+
+            <div class="right-col">
+                <div class="character-box" id="charBox">
+                    <img id="charImg" src="Laki.png" alt="character">
+                    <span class="char-item-emoji" id="charItemEmoji">👟</span>
+                    <span class="char-name-tag" id="charNameTag">Laki</span>
+                </div>
+                <div class="bubble bubble-answer" id="bubbleA">
+                    Perhaps they're Laki's shoes.
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="btn-area">
+            <button class="btn btn-reveal-q show" id="btnRevealQ" onclick="revealQuestion()">
+                💬 Reveal Question
+            </button>
+            <button class="btn btn-reveal-a" id="btnRevealA" onclick="revealAnswer()">
+                🔮 Reveal Answer
+            </button>
+            <button class="btn btn-next" id="btnNext" onclick="nextRound()">
+                ➡️ Next
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const items = [
+            { name: 'shoes', emoji: '👟', plural: true },
+            { name: 'blouse', emoji: '👚', plural: false },
+            { name: 'tie', emoji: '👔', plural: false },
+            { name: 'shirt', emoji: '👕', plural: false },
+            { name: 'hat', emoji: '🧢', plural: false },
+            { name: 'dress', emoji: '👗', plural: false },
+            { name: 'bag', emoji: '👜', plural: false },
+            { name: 'coat', emoji: '🧥', plural: false },
+            { name: 'pen', emoji: '🖊️', plural: false },
+            { name: 'book', emoji: '📘', plural: false },
+            { name: 'cat', emoji: '🐈', plural: false },
+            { name: 'dog', emoji: '🐕', plural: false },
+            { name: 'burger', emoji: '🍔', plural: false },
+            { name: 'hot dog', emoji: '🌭', plural: false },
+            { name: 'pizza', emoji: '🍕', plural: false },
+            { name: 'taco', emoji: '🌮', plural: false },
+            { name: 'sandwich', emoji: '🥪', plural: false },
+            { name: 'cookie', emoji: '🍪', plural: false },
+            { name: 'apple', emoji: '🍎', plural: false },
+            { name: 'banana', emoji: '🍌', plural: false },
+            { name: 'ice cream', emoji: '🍦', plural: false },
+            { name: 'cake', emoji: '🎂', plural: false },
+            { name: 'donut', emoji: '🍩', plural: false },
+            { name: 'fries', emoji: '🍟', plural: true },
+            { name: 'ruler', emoji: '📏', plural: false },
+            { name: 'backpack', emoji: '🎒', plural: false },
+            { name: 'pencil', emoji: '✏️', plural: false },
+            { name: 'umbrella', emoji: '☂️', plural: false },
+            { name: 'watch', emoji: '⌚', plural: false },
+            { name: 'scarf', emoji: '🧣', plural: false },
+            { name: 'glasses', emoji: '👓', plural: true },
+            { name: 'socks', emoji: '🧦', plural: true },
+            { name: 'gloves', emoji: '🧤', plural: true },
+            { name: 'keys', emoji: '🔑', plural: true },
+            { name: 'guitar', emoji: '🎸', plural: false },
+            { name: 'bicycle', emoji: '🚲', plural: false },
+            { name: 'ball', emoji: '⚽', plural: false },
+            { name: 'teddy bear', emoji: '🧸', plural: false },
+            { name: 'cup', emoji: '☕', plural: false },
+            { name: 'laptop', emoji: '💻', plural: false },
+            { name: 'phone', emoji: '📱', plural: false },
+            { name: 'candy', emoji: '🍬', plural: false },
+            { name: 'lollipop', emoji: '🍭', plural: false },
+            { name: 'watermelon', emoji: '🍉', plural: false },
+            { name: 'cupcake', emoji: '🧁', plural: false }
+        ];
+
+        const characters = [
+            { name: 'Ola', img: 'Ola.png', gender: 'her' },
+            { name: 'Lele', img: 'Lele.png', gender: 'her' },
+            { name: 'Nani', img: 'Nani.png', gender: 'her' },
+            { name: 'Laki', img: 'Laki.png', gender: 'his' },
+            { name: 'Pili', img: 'Pili.png', gender: 'his' }
+        ];
+
+        let round = 0;
+        let currentItem = null;
+        let currentChar = null;
+        let currentDeictic = 'that';
+
+        function init() {
+            nextRound();
+        }
+
+        function getRandomItem() {
+            return items[Math.floor(Math.random() * items.length)];
+        }
+
+        function getRandomChar() {
+            return characters[Math.floor(Math.random() * characters.length)];
+        }
+
+        function nextRound() {
+            round++;
+            document.getElementById('counter').textContent = round + ' / ∞';
+
+            // Reset visibility
+            document.getElementById('bubbleQ').classList.remove('visible');
+            document.getElementById('bubbleA').classList.remove('visible');
+            document.getElementById('charBox').classList.remove('visible');
+
+            // Hide buttons
+            document.getElementById('btnRevealA').classList.remove('show');
+            document.getElementById('btnNext').classList.remove('show');
+
+            // Pick random
+            currentItem = getRandomItem();
+            currentChar = getRandomChar();
+            currentDeictic = Math.random() > 0.5 ? 'this' : 'that';
+
+            // Set item display
+            document.getElementById('objectEmoji').textContent = currentItem.emoji;
+            document.getElementById('pointerEmoji').textContent = currentDeictic === 'this' ? '☝️' : '👉';
+
+            // Build question text
+            let qText;
+            if (currentItem.plural) {
+                const dem = currentDeictic === 'this' ? 'these' : 'those';
+                qText = `Whose ${currentItem.name} are ${dem}?`;
+            } else {
+                qText = `Whose ${currentItem.name} is ${currentDeictic}?`;
+            }
+            document.getElementById('bubbleQ').textContent = qText;
+
+            // Build answer text
+            let aText;
+            if (currentItem.plural) {
+                aText = `Perhaps they're ${currentChar.name}'s ${currentItem.name}.`;
+            } else {
+                aText = `Perhaps it's ${currentChar.name}'s ${currentItem.name}.`;
+            }
+            document.getElementById('bubbleA').textContent = aText;
+
+            // Set character
+            document.getElementById('charImg').src = currentChar.img;
+            document.getElementById('charNameTag').textContent = currentChar.name;
+            document.getElementById('charItemEmoji').textContent = currentItem.emoji;
+
+            // Show reveal question button
+            setTimeout(() => {
+                document.getElementById('btnRevealQ').classList.add('show');
+            }, 300);
+        }
+
+        function revealQuestion() {
+            document.getElementById('bubbleQ').classList.add('visible');
+            document.getElementById('btnRevealQ').classList.remove('show');
+
+            // Show character box after a moment
+            setTimeout(() => {
+                document.getElementById('charBox').classList.add('visible');
+            }, 500);
+
+            // Show reveal answer button
+            setTimeout(() => {
+                document.getElementById('btnRevealA').classList.add('show');
+            }, 1000);
+        }
+
+        function revealAnswer() {
+            document.getElementById('bubbleA').classList.add('visible');
+            document.getElementById('btnRevealA').classList.remove('show');
+
+            // Show next button
+            setTimeout(() => {
+                document.getElementById('btnNext').classList.add('show');
+            }, 500);
+        }
+
+        // Start
+        init();
+    </script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

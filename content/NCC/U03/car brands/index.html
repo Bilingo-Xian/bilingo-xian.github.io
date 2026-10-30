@@ -1,0 +1,405 @@
+<!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta charset="UTF-8">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #1a1a1a;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  display: flex;
+  flex: 1;
+  padding: 20px;
+  gap: 20px;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-area {
+  width: 100%;
+  max-width: 800px;
+  aspect-ratio: 4/3;
+  background: #333;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 3px solid #555;
+}
+
+.image-area img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.image-placeholder {
+  color: #888;
+  font-size: 18px;
+  text-align: center;
+  padding: 20px;
+}
+
+.reveal-area {
+  margin-top: 30px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.reveal-box {
+  text-align: center;
+}
+
+.reveal-btn {
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.reveal-btn.brand {
+  background: #4a90d9;
+  color: #fff;
+}
+
+.reveal-btn.brand:hover {
+  background: #357abd;
+}
+
+.reveal-btn.country {
+  background: #e67e22;
+  color: #fff;
+}
+
+.reveal-btn.country:hover {
+  background: #d35400;
+}
+
+.reveal-answer {
+  margin-top: 10px;
+  font-size: 32px;
+  font-weight: bold;
+  min-height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reveal-answer.hidden {
+  visibility: hidden;
+}
+
+.nav-area {
+  margin-top: 30px;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.nav-btn {
+  padding: 10px 20px;
+  font-size: 20px;
+  font-weight: bold;
+  background: #555;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.nav-btn:hover {
+  background: #777;
+}
+
+.nav-counter {
+  font-size: 18px;
+  color: #aaa;
+}
+
+.sidebar {
+  width: 200px;
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 20px;
+  border: 2px solid #444;
+}
+
+.sidebar h3 {
+  font-size: 16px;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 8px;
+}
+
+.sidebar ul {
+  list-style: none;
+  margin-bottom: 25px;
+}
+
+.sidebar ul li {
+  font-size: 18px;
+  padding: 5px 0;
+  color: #ddd;
+}
+
+.shuffle-btn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  background: #27ae60;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.shuffle-btn:hover {
+  background: #1e8449;
+}
+
+@media (max-width: 700px) {
+  .container {
+    flex-direction: column-reverse;
+  }
+  .sidebar {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .sidebar h3 {
+    width: 100%;
+  }
+  .sidebar ul {
+    margin-bottom: 10px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="main">
+    <div class="image-area">
+      <img id="carImage" src="" alt="" style="display:none;">
+      <div class="image-placeholder" id="placeholder">Press ◀ or ▶ to start</div>
+    </div>
+
+    <div class="reveal-area">
+      <div class="reveal-box">
+        <button class="reveal-btn brand" onclick="revealBrand()">Reveal Brand Name</button>
+        <div class="reveal-answer hidden" id="brandAnswer" style="color: #4a90d9;">—</div>
+      </div>
+      <div class="reveal-box">
+        <button class="reveal-btn country" onclick="revealCountry()">Reveal Country</button>
+        <div class="reveal-answer hidden" id="countryAnswer" style="color: #e67e22;">—</div>
+      </div>
+    </div>
+
+    <div class="nav-area">
+      <button class="nav-btn" onclick="prev()">◀</button>
+      <span class="nav-counter" id="counter">0 / 8</span>
+      <button class="nav-btn" onclick="next()">▶</button>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <h3>Brands</h3>
+    <ul>
+      <li>BYD</li>
+      <li>Fiat</li>
+      <li>Ford</li>
+      <li>Mercedes</li>
+      <li>Mini</li>
+      <li>Peugeot</li>
+      <li>Toyota</li>
+      <li>Volvo</li>
+    </ul>
+    <h3>Countries</h3>
+    <ul>
+      <li>China</li>
+      <li>England</li>
+      <li>France</li>
+      <li>Germany</li>
+      <li>Italy</li>
+      <li>Japan</li>
+      <li>Sweden</li>
+      <li>America</li>
+    </ul>
+    <button class="shuffle-btn" onclick="shuffle()">🔀 Shuffle Order</button>
+  </div>
+</div>
+
+<script>
+const cars = [
+  { brand: "Fiat", country: "Italy", file: "fiat.jpg" },
+  { brand: "Ford", country: "America", file: "ford.jpg" },
+  { brand: "Mercedes", country: "Germany", file: "mercedes.jpg" },
+  { brand: "Mini", country: "England", file: "mini.jpg" },
+  { brand: "Peugeot", country: "France", file: "peugeot.jpg" },
+  { brand: "Toyota", country: "Japan", file: "toyota.jpg" },
+  { brand: "Volvo", country: "Sweden", file: "volvo.jpg" },
+  { brand: "BYD", country: "China", file: "byd.webp" }
+];
+
+let order = [0,1,2,3,4,5,6,7];
+let currentIndex = -1;
+
+function showCar(idx) {
+  const car = cars[order[idx]];
+  const img = document.getElementById('carImage');
+  const placeholder = document.getElementById('placeholder');
+  
+  img.src = car.file;
+  img.alt = "Car logo";
+  img.style.display = "block";
+  placeholder.style.display = "none";
+
+  document.getElementById('brandAnswer').classList.add('hidden');
+  document.getElementById('countryAnswer').classList.add('hidden');
+  document.getElementById('brandAnswer').textContent = car.brand;
+  document.getElementById('countryAnswer').textContent = car.country;
+  document.getElementById('counter').textContent = (idx + 1) + " / " + cars.length;
+}
+
+function next() {
+  if (currentIndex < cars.length - 1) {
+    currentIndex++;
+    showCar(currentIndex);
+  }
+}
+
+function prev() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    showCar(currentIndex);
+  }
+}
+
+function revealBrand() {
+  if (currentIndex >= 0) {
+    document.getElementById('brandAnswer').classList.remove('hidden');
+  }
+}
+
+function revealCountry() {
+  if (currentIndex >= 0) {
+    document.getElementById('countryAnswer').classList.remove('hidden');
+  }
+}
+
+function shuffle() {
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  currentIndex = -1;
+  document.getElementById('carImage').style.display = "none";
+  document.getElementById('placeholder').style.display = "block";
+  document.getElementById('placeholder').textContent = "Shuffled! Press ▶ to start";
+  document.getElementById('brandAnswer').classList.add('hidden');
+  document.getElementById('countryAnswer').classList.add('hidden');
+  document.getElementById('counter').textContent = "0 / " + cars.length;
+}
+</script>
+
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

@@ -1,0 +1,555 @@
+<!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country → Nationality Quiz!</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 15px;
+            overflow: hidden;
+            transition: background 0.3s;
+        }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px 25px;
+            max-width: 500px;
+            width: 95%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            transition: width 0.5s ease;
+            border-radius: 0 3px 3px 0;
+        }
+        .flag {
+            font-size: 5rem;
+            margin: 10px 0;
+            animation: flagWave 1s ease;
+        }
+        @keyframes flagWave {
+            0% { transform: scale(0) rotate(-20deg); }
+            60% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+        .country-name {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #2d3436;
+            margin-bottom: 5px;
+        }
+        .prompt {
+            font-size: 1.1rem;
+            color: #636e72;
+            margin-bottom: 20px;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .option-btn {
+            padding: 14px 20px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: 3px solid #dfe6e9;
+            border-radius: 14px;
+            background: #fafafa;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #2d3436;
+        }
+        .option-btn:hover {
+            border-color: #a29bfe;
+            background: #f0eeff;
+            transform: scale(1.03);
+        }
+        .option-btn:active {
+            transform: scale(0.97);
+        }
+        .option-btn.correct {
+            background: #00b894;
+            border-color: #00b894;
+            color: white;
+            animation: correctPulse 0.5s;
+        }
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+        .option-btn.wrong {
+            background: #ff7675;
+            border-color: #d63031;
+            color: white;
+            animation: wrongShake 0.5s;
+        }
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-12px); }
+            40% { transform: translateX(12px); }
+            60% { transform: translateX(-8px); }
+            80% { transform: translateX(8px); }
+        }
+        .sentence-box {
+            display: none;
+            margin-top: 20px;
+            padding: 18px;
+            background: linear-gradient(135deg, #dfe6e9, #b2bec3);
+            border-radius: 14px;
+            font-size: 1.1rem;
+            color: #2d3436;
+            line-height: 1.5;
+            animation: slideUp 0.4s ease;
+        }
+        .sentence-box .highlight {
+            font-weight: 800;
+            color: #6c5ce7;
+        }
+        @keyframes slideUp {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        .next-btn {
+            display: none;
+            margin-top: 18px;
+            padding: 14px 40px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .next-btn:hover { transform: scale(1.05); }
+        .next-btn:active { transform: scale(0.95); }
+        .score-bar {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: #636e72;
+        }
+        .confetti-container {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            top: -20px;
+            animation: confettiFall 2.5s ease-in forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .shake-screen {
+            animation: screenShake 0.4s;
+        }
+        @keyframes screenShake {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-5px, 3px); }
+            40% { transform: translate(5px, -3px); }
+            60% { transform: translate(-3px, 5px); }
+            80% { transform: translate(3px, -5px); }
+        }
+        .red-flash {
+            background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+            transition: background 0.1s;
+        }
+        .end-screen {
+            display: none;
+        }
+        .end-screen h2 {
+            font-size: 2rem;
+            color: #2d3436;
+            margin-bottom: 10px;
+        }
+        .end-screen .final-score {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #6c5ce7;
+            margin: 15px 0;
+        }
+        .end-screen .restart-btn {
+            padding: 14px 40px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00b894, #55efc4);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        .intro-screen h2 {
+            font-size: 1.8rem;
+            color: #2d3436;
+            margin-bottom: 10px;
+        }
+        .intro-screen p {
+            color: #636e72;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        .intro-screen .start-btn {
+            padding: 14px 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        .intro-flags {
+            font-size: 2.5rem;
+            margin: 10px 0;
+            letter-spacing: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="confetti-container" id="confettiContainer"></div>
+    <div class="card" id="card">
+        <div class="progress" id="progress"></div>
+
+        <!-- Intro -->
+        <div class="intro-screen" id="introScreen">
+            <h2>🌍 Country → Nationality</h2>
+            <div class="intro-flags">🇦🇺🇨🇦🇯🇵🇳🇬🇧🇷🇹🇷</div>
+            <p>Can you pick the correct nationality for each country?</p>
+            <p>⚡ Correct = Confetti! ❌ Wrong = Shake!</p>
+            <button class="start-btn" onclick="startGame()">Let's Go! 🚀</button>
+        </div>
+
+        <!-- Quiz -->
+        <div id="quizScreen" style="display:none;">
+            <div class="flag" id="flag"></div>
+            <div class="country-name" id="countryName"></div>
+            <div class="prompt">What's the nationality? 🤔</div>
+            <div class="options" id="options"></div>
+            <div class="sentence-box" id="sentenceBox"></div>
+            <button class="next-btn" id="nextBtn" onclick="nextCountry()">Next → </button>
+            <div class="score-bar" id="scoreBar"></div>
+        </div>
+
+        <!-- End -->
+        <div class="end-screen" id="endScreen">
+            <h2>🎉 Amazing Work!</h2>
+            <div class="intro-flags">🏆✨🌟</div>
+            <div class="final-score" id="finalScore"></div>
+            <p id="endMessage"></p>
+            <button class="restart-btn" onclick="restartGame()">Play Again! 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        const countries = [
+            {
+                country: 'Australia', nationality: 'Australian', flag: '🇦🇺',
+                wrongs: ['Australish', 'Australianese', 'Australic'],
+                sentences: ['She comes from <hl>Australia</hl>. She\'s <hl>Australian</hl>.', '<hl>Australian</hl> summers are very hot! ☀️']
+            },
+            {
+                country: 'Austria', nationality: 'Austrian', flag: '🇦🇹',
+                wrongs: ['Austrich', 'Austrianese', 'Austral'],
+                sentences: ['He lives in <hl>Austria</hl>. He\'s <hl>Austrian</hl>.', 'Vienna is a beautiful <hl>Austrian</hl> city. 🎵']
+            },
+            {
+                country: 'Canada', nationality: 'Canadian', flag: '🇨🇦',
+                wrongs: ['Canadish', 'Canadese', 'Canadic'],
+                sentences: ['They\'re from <hl>Canada</hl>. They\'re <hl>Canadian</hl>.', '<hl>Canadian</hl> winters are very cold! 🥶']
+            },
+            {
+                country: 'China', nationality: 'Chinese', flag: '🇨🇳',
+                wrongs: ['Chinish', 'Chinan', 'Chinalese'],
+                sentences: ['She lives in <hl>China</hl>. She\'s <hl>Chinese</hl>.', '<hl>Chinese</hl> food is delicious! 🥟']
+            },
+            {
+                country: 'Finland', nationality: 'Finnish', flag: '🇫🇮',
+                wrongs: ['Finlandian', 'Finlandese', 'Finnic'],
+                sentences: ['He comes from <hl>Finland</hl>. He\'s <hl>Finnish</hl>.', '<hl>Finnish</hl> people love saunas! 🧖']
+            },
+            {
+                country: 'India', nationality: 'Indian', flag: '🇮🇳',
+                wrongs: ['Indish', 'Indianese', 'Indic'],
+                sentences: ['She\'s from <hl>India</hl>. She\'s <hl>Indian</hl>.', '<hl>Indian</hl> spices are amazing! 🌶️']
+            },
+            {
+                country: 'Japan', nationality: 'Japanese', flag: '🇯🇵',
+                wrongs: ['Japanian', 'Japanish', 'Japonic'],
+                sentences: ['He lives in <hl>Japan</hl>. He\'s <hl>Japanese</hl>.', '<hl>Japanese</hl> trains are always on time! 🚄']
+            },
+            {
+                country: 'Korea', nationality: 'Korean', flag: '🇰🇷',
+                wrongs: ['Koreanese', 'Korish', 'Koraic'],
+                sentences: ['She comes from <hl>Korea</hl>. She\'s <hl>Korean</hl>.', '<hl>Korean</hl> music is popular everywhere! 🎶']
+            },
+            {
+                country: 'Nigeria', nationality: 'Nigerian', flag: '🇳🇬',
+                wrongs: ['Nigerish', 'Nigerianese', 'Nigeric'],
+                sentences: ['He\'s from <hl>Nigeria</hl>. He\'s <hl>Nigerian</hl>.', '<hl>Nigerian</hl> films are very popular! 🎬']
+            },
+            {
+                country: 'Poland', nationality: 'Polish', flag: '🇵🇱',
+                wrongs: ['Polandan', 'Polandese', 'Polanic'],
+                sentences: ['She lives in <hl>Poland</hl>. She\'s <hl>Polish</hl>.', '<hl>Polish</hl> winters are long and cold! ❄️']
+            },
+            {
+                country: 'Thailand', nationality: 'Thai', flag: '🇹🇭',
+                wrongs: ['Thailandish', 'Thailandese', 'Thailic'],
+                sentences: ['He comes from <hl>Thailand</hl>. He\'s <hl>Thai</hl>.', '<hl>Thai</hl> beaches are beautiful! 🏖️']
+            },
+            {
+                country: 'Turkey', nationality: 'Turkish', flag: '🇹🇷',
+                wrongs: ['Turkeyan', 'Turkeyese', 'Turkian'],
+                sentences: ['She\'s from <hl>Turkey</hl>. She\'s <hl>Turkish</hl>.', '<hl>Turkish</hl> coffee is very strong! ☕']
+            },
+            {
+                country: 'Brazil', nationality: 'Brazilian', flag: '🇧🇷',
+                wrongs: ['Brazilish', 'Brazilese', 'Brazilic'],
+                sentences: ['He lives in <hl>Brazil</hl>. He\'s <hl>Brazilian</hl>.', '<hl>Brazilian</hl> football is exciting! ⚽']
+            },
+            {
+                country: 'Mexico', nationality: 'Mexican', flag: '🇲🇽',
+                wrongs: ['Mexish', 'Mexicanese', 'Mexic'],
+                sentences: ['She comes from <hl>Mexico</hl>. She\'s <hl>Mexican</hl>.', '<hl>Mexican</hl> tacos are the best! 🌮']
+            },
+        ];
+
+        let shuffled = [];
+        let currentIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        function shuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function startGame() {
+            document.getElementById('introScreen').style.display = 'none';
+            document.getElementById('quizScreen').style.display = 'block';
+            shuffled = shuffle(countries);
+            currentIndex = 0;
+            score = 0;
+            showCountry();
+        }
+
+        function restartGame() {
+            document.getElementById('endScreen').style.display = 'none';
+            document.getElementById('quizScreen').style.display = 'block';
+            shuffled = shuffle(countries);
+            currentIndex = 0;
+            score = 0;
+            showCountry();
+        }
+
+        function showCountry() {
+            answered = false;
+            const c = shuffled[currentIndex];
+            document.getElementById('flag').textContent = c.flag;
+            document.getElementById('countryName').textContent = c.country;
+            document.getElementById('sentenceBox').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+
+            // Progress
+            const pct = (currentIndex / shuffled.length) * 100;
+            document.getElementById('progress').style.width = pct + '%';
+
+            // Options: correct + 2 wrongs, shuffled
+            const wrongs = shuffle(c.wrongs).slice(0, 2);
+            const opts = shuffle([c.nationality, ...wrongs]);
+
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            opts.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.onclick = () => handleAnswer(btn, opt, c);
+                optionsDiv.appendChild(btn);
+            });
+
+            document.getElementById('scoreBar').textContent = `⭐ ${score}/${shuffled.length} | Question ${currentIndex + 1} of ${shuffled.length}`;
+        }
+
+        function handleAnswer(btn, chosen, country) {
+            if (answered) return;
+            answered = true;
+
+            const allBtns = document.querySelectorAll('.option-btn');
+
+            if (chosen === country.nationality) {
+                // Correct!
+                btn.classList.add('correct');
+                score++;
+                launchConfetti();
+                allBtns.forEach(b => { if (b !== btn) b.style.opacity = '0.4'; });
+            } else {
+                // Wrong!
+                btn.classList.add('wrong');
+                document.body.classList.add('red-flash');
+                document.getElementById('card').classList.add('shake-screen');
+                setTimeout(() => {
+                    document.body.classList.remove('red-flash');
+                    document.getElementById('card').classList.remove('shake-screen');
+                }, 500);
+                // Highlight correct
+                allBtns.forEach(b => {
+                    if (b.textContent === country.nationality) b.classList.add('correct');
+                    else if (b !== btn) b.style.opacity = '0.4';
+                });
+            }
+
+            // Show sentence
+            const sentenceBox = document.getElementById('sentenceBox');
+            const sentence = country.sentences[Math.floor(Math.random() * country.sentences.length)];
+            sentenceBox.innerHTML = sentence.replace(/<hl>/g, '<span class="highlight">').replace(/<\/hl>/g, '</span>');
+            sentenceBox.style.display = 'block';
+
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').textContent = currentIndex < shuffled.length - 1 ? 'Next →' : 'See Results! 🏆';
+            document.getElementById('scoreBar').textContent = `⭐ ${score}/${shuffled.length} | Question ${currentIndex + 1} of ${shuffled.length}`;
+        }
+
+        function nextCountry() {
+            currentIndex++;
+            if (currentIndex >= shuffled.length) {
+                showEnd();
+            } else {
+                showCountry();
+            }
+        }
+
+        function showEnd() {
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('endScreen').style.display = 'block';
+            document.getElementById('progress').style.width = '100%';
+            document.getElementById('finalScore').textContent = score + ' / ' + shuffled.length;
+            const pct = score / shuffled.length;
+            let msg = '';
+            if (pct === 1) msg = 'PERFECT! You\'re a geography genius! 🌍🧠';
+            else if (pct >= 0.8) msg = 'Excellent work! Almost perfect! 🌟';
+            else if (pct >= 0.6) msg = 'Good job! Keep practising! 💪';
+            else msg = 'Nice try! Let\'s review and try again! 📚';
+            document.getElementById('endMessage').textContent = msg;
+            launchConfetti();
+        }
+
+        function launchConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#55efc4', '#a29bfe', '#fd79a8', '#00b894'];
+            for (let i = 0; i < 40; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + '%';
+                piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.animationDelay = Math.random() * 0.8 + 's';
+                piece.style.animationDuration = (1.5 + Math.random() * 1.5) + 's';
+                piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                piece.style.width = (8 + Math.random() * 10) + 'px';
+                piece.style.height = (8 + Math.random() * 10) + 'px';
+                container.appendChild(piece);
+            }
+            setTimeout(() => { container.innerHTML = ''; }, 3000);
+        }
+    </script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>These ... Are ... ! Opposite Pairs Game</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 5px;
+            font-size: 1.8rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .instructions {
+            color: rgba(255,255,255,0.85);
+            text-align: center;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            max-width: 450px;
+        }
+
+        .score-board {
+            color: white;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            max-width: 600px;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .card {
+            aspect-ratio: 1;
+            background: #fff;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            padding: 4px;
+            text-align: center;
+        }
+
+        .card:hover {
+            transform: scale(1.04);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+        }
+
+        .card.face-down {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .card.face-down .card-content {
+            display: none;
+        }
+
+        .card.face-down::after {
+            content: "?";
+            font-size: 2rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .card .emoji {
+            font-size: 1.1rem;
+            line-height: 1.2;
+        }
+
+        .card .label {
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .card.matched {
+            background: #d4edda;
+            border: 3px solid #28a745;
+            cursor: default;
+            transform: none;
+        }
+
+        .card.selected {
+            border: 3px solid #ffc107;
+            transform: scale(1.05);
+        }
+
+        .card.wrong {
+            animation: shake 0.5s;
+            border: 3px solid #dc3545;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .sentence-area {
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .sentence-area h2 {
+            color: #333;
+            font-size: 1.2rem;
+        }
+
+        .sentence-area .sentences {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sentence-area .sentences.visible {
+            display: flex;
+        }
+
+        .sentence {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #764ba2;
+            padding: 8px 16px;
+            background: #f0e6ff;
+            border-radius: 8px;
+        }
+
+        .reveal-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 28px;
+            font-size: 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            font-weight: bold;
+        }
+
+        .reveal-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .reset-btn {
+            margin-top: 12px;
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
+
+        .reset-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .celebration {
+            display: none;
+            font-size: 1.4rem;
+            color: #28a745;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .celebration.visible {
+            display: block;
+            animation: bounce 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        @media (max-width: 480px) {
+            .grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px;
+            }
+            .card .emoji {
+                font-size: 0.85rem;
+            }
+            .card .label {
+                font-size: 0.6rem;
+            }
+            .card.face-down::after {
+                font-size: 1.5rem;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>These ... Are ... !</h1>
+    <p class="instructions">Find opposite pairs! Flip two cards and match opposites.</p>
+    <div class="score-board">Pairs: <span id="score">0</span> / 12</div>
+    <div class="grid" id="grid"></div>
+
+    <div class="sentence-area" id="sentenceArea">
+        <h2 id="sentenceTitle">Find a pair to start!</h2>
+        <button class="reveal-btn" id="revealBtn" style="display:none;" onclick="revealSentences()">
+            👀 Show Sentences
+        </button>
+        <div class="sentences" id="sentences">
+            <div class="sentence" id="sentence1"></div>
+            <div class="sentence" id="sentence2"></div>
+        </div>
+    </div>
+
+    <div class="celebration" id="celebration">🎉 All 12 pairs found! Amazing! 🎉</div>
+    <button class="reset-btn" onclick="resetGame()">🔄 Play Again</button>
+
+    <script>
+        const pairs = [
+            { noun: "shoes", emoji: "👟👟👟", adj1: "big", adj2: "small" },
+            { noun: "boxes", emoji: "📦📦📦📦📦", adj1: "heavy", adj2: "light" },
+            { noun: "hot dogs", emoji: "🌭🌭🌭", adj1: "long", adj2: "short" },
+            { noun: "doors", emoji: "🚪🚪🚪🚪", adj1: "open", adj2: "shut" },
+            { noun: "pizzas", emoji: "🍕🍕🍕🍕", adj1: "hot", adj2: "cold" },
+            { noun: "children", emoji: "👧🧒👧🧒👧", adj1: "happy", adj2: "sad" },
+            { noun: "cars", emoji: "🚗🚗🚗🚗🚗🚗🚗🚗", adj1: "fast", adj2: "slow" },
+            { noun: "computers", emoji: "💻💻💻", adj1: "old", adj2: "new" },
+            { noun: "dogs", emoji: "🐕🐕🐕🐕🐕🐕", adj1: "clean", adj2: "dirty" },
+            { noun: "cups", emoji: "🥤🥤🥤", adj1: "full", adj2: "empty" },
+            { noun: "cats", emoji: "🐱🐱🐱🐱", adj1: "wet", adj2: "dry" },
+            { noun: "birds", emoji: "🐦🐦🐦🐦🐦🐦🐦", adj1: "loud", adj2: "quiet" }
+        ];
+
+        let cards = [];
+        let selectedCards = [];
+        let matchedCount = 0;
+        let locked = false;
+
+        function initGame() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            cards = [];
+            selectedCards = [];
+            matchedCount = 0;
+            locked = false;
+            document.getElementById('score').textContent = '0';
+            document.getElementById('celebration').classList.remove('visible');
+            document.getElementById('sentenceTitle').textContent = 'Find a pair to start!';
+            document.getElementById('revealBtn').style.display = 'none';
+            document.getElementById('sentences').classList.remove('visible');
+
+            let cardData = [];
+            pairs.forEach((pair, index) => {
+                cardData.push({
+                    id: index * 2,
+                    pairId: index,
+                    emoji: pair.emoji,
+                    adj: pair.adj1,
+                    noun: pair.noun
+                });
+                cardData.push({
+                    id: index * 2 + 1,
+                    pairId: index,
+                    emoji: pair.emoji,
+                    adj: pair.adj2,
+                    noun: pair.noun
+                });
+            });
+
+            // Shuffle
+            for (let i = cardData.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cardData[i], cardData[j]] = [cardData[j], cardData[i]];
+            }
+
+            cardData.forEach((data, index) => {
+                const card = document.createElement('div');
+                card.className = 'card face-down';
+                card.dataset.index = index;
+                card.dataset.pairId = data.pairId;
+                card.innerHTML = `<div class="card-content"><span class="emoji">${data.emoji}</span><span class="label">${data.adj}</span></div>`;
+                card.addEventListener('click', () => selectCard(card, index));
+                grid.appendChild(card);
+                cards.push({ element: card, data: data, faceDown: true });
+            });
+        }
+
+        function selectCard(cardEl, index) {
+            if (locked) return;
+            if (!cards[index].faceDown) return;
+            if (selectedCards.length >= 2) return;
+
+            cards[index].faceDown = false;
+            cardEl.classList.remove('face-down');
+            cardEl.classList.add('selected');
+            selectedCards.push(index);
+
+            if (selectedCards.length === 2) {
+                locked = true;
+                const card1 = cards[selectedCards[0]];
+                const card2 = cards[selectedCards[1]];
+
+                if (card1.data.pairId === card2.data.pairId) {
+                    setTimeout(() => {
+                        card1.element.classList.remove('selected');
+                        card2.element.classList.remove('selected');
+                        card1.element.classList.add('matched');
+                        card2.element.classList.add('matched');
+                        matchedCount++;
+                        document.getElementById('score').textContent = matchedCount;
+
+                        const pair = pairs[card1.data.pairId];
+                        document.getElementById('sentenceTitle').textContent = '✅ Pair found! Now make a sentence!';
+                        document.getElementById('revealBtn').style.display = 'inline-block';
+                        document.getElementById('sentences').classList.remove('visible');
+                        document.getElementById('sentence1').textContent = `These ${pair.noun} are ${pair.adj1}!`;
+                        document.getElementById('sentence2').textContent = `These ${pair.noun} are ${pair.adj2}!`;
+
+                        if (matchedCount === pairs.length) {
+                            setTimeout(() => {
+                                document.getElementById('celebration').classList.add('visible');
+                            }, 500);
+                        }
+
+                        selectedCards = [];
+                        locked = false;
+                    }, 600);
+                } else {
+                    setTimeout(() => {
+                        card1.element.classList.add('wrong');
+                        card2.element.classList.add('wrong');
+                        setTimeout(() => {
+                            card1.element.classList.remove('selected', 'wrong');
+                            card2.element.classList.remove('selected', 'wrong');
+                            card1.element.classList.add('face-down');
+                            card2.element.classList.add('face-down');
+                            cards[selectedCards[0]].faceDown = true;
+                            cards[selectedCards[1]].faceDown = true;
+                            selectedCards = [];
+                            locked = false;
+                        }, 700);
+                    }, 500);
+                }
+            }
+        }
+
+        function revealSentences() {
+            document.getElementById('sentences').classList.add('visible');
+            document.getElementById('revealBtn').style.display = 'none';
+        }
+
+        function resetGame() {
+            initGame();
+        }
+
+        initGame();
+    </script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

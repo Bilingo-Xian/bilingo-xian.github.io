@@ -1,0 +1,579 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opposite Snap!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2em;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.85);
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+
+        .score-bar {
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 8px 20px;
+            color: white;
+            font-size: 1em;
+            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            max-width: 600px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 500px) {
+            .grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+        }
+
+        .word-card {
+            background: white;
+            border-radius: 12px;
+            padding: 14px 8px;
+            text-align: center;
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            user-select: none;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word-card:hover:not(.matched):not(.disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+        }
+
+        .word-card.selected {
+            background: #fbbf24;
+            color: #92400e;
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.5);
+        }
+
+        .word-card.matched {
+            background: #10b981;
+            color: white;
+            cursor: default;
+            opacity: 0.7;
+            transform: scale(0.95);
+        }
+
+        .word-card.wrong {
+            background: #ef4444;
+            color: white;
+            animation: shake 0.5s ease;
+        }
+
+        .word-card.disabled {
+            pointer-events: none;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal h2 {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .modal .pair-display {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #667eea;
+            margin: 15px 0;
+        }
+
+        .modal .step-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .modal .question-text {
+            font-size: 1.15em;
+            color: #333;
+            margin: 15px 0 20px;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-verb {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-verb:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-adj {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-adj:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .btn-continue {
+            background: #10b981;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn-continue:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .feedback {
+            font-size: 1em;
+            font-weight: 600;
+            margin: 10px 0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .feedback.correct {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .feedback.incorrect {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .discussion-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .finish-screen {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .finish-screen.active {
+            display: block;
+        }
+
+        .finish-screen h2 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .finish-screen p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .btn-restart {
+            background: #667eea;
+            color: white;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-restart:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .instruction {
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.15);
+            padding: 8px 16px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body>
+    <h1>🔀 Opposite Snap!</h1>
+    <p class="subtitle">Find the opposite pairs</p>
+    <div class="score-bar">Pairs found: <span id="score">0</span> / 10</div>
+    <p class="instruction">👆 Click one word, then click its opposite!</p>
+    <div class="grid" id="grid"></div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <!-- Content injected by JS -->
+        </div>
+    </div>
+
+    <!-- Finish Screen -->
+    <div class="modal-overlay" id="finishOverlay">
+        <div class="finish-screen active">
+            <h2>🎉 Well Done!</h2>
+            <p>You found all 10 opposite pairs!</p>
+            <button class="btn-restart" onclick="restartGame()">Play Again 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        const pairs = [
+            { words: ["open", "shut"], type: "verb", question: "Do you open or close your window when you go to sleep? Why?" },
+            { words: ["turn on", "turn off"], type: "verb", question: "What do you turn on first when you wake up?" },
+            { words: ["put on", "take off"], type: "verb", question: "What clothes do you take off when you come back home?" },
+            { words: ["tidy", "untidy"], type: "adjective", question: "Is your bedroom tidy or untidy right now?" },
+            { words: ["empty", "full"], type: "adjective", question: "When is your stomach empty? When is it full? What makes you feel full?" },
+            { words: ["black", "white"], type: "adjective", question: "Do you prefer black or white clothes? Why?" },
+            { words: ["clean", "dirty"], type: "adjective", question: "What is dirty right now in your house? Who cleans it?" },
+            { words: ["heavy", "light"], type: "adjective", question: "What is the heaviest thing in your home? What is the lightest thing in this classroom?" },
+            { words: ["fast", "slow"], type: "adjective", question: "Are you fast or slow in the morning? What about your family?" },
+            { words: ["long", "short"], type: "adjective", question: "Do you like long books or short books? Long films or short films or videos? Why?" }
+        ];
+
+        let allWords = [];
+        let selected = null;
+        let matchedCount = 0;
+        let isProcessing = false;
+
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function initGame() {
+            matchedCount = 0;
+            selected = null;
+            isProcessing = false;
+            document.getElementById('score').textContent = '0';
+            document.getElementById('finishOverlay').style.display = 'none';
+
+            allWords = [];
+            pairs.forEach((pair, pairIndex) => {
+                pair.words.forEach(word => {
+                    allWords.push({ word, pairIndex });
+                });
+            });
+            allWords = shuffle(allWords);
+
+            renderGrid();
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            allWords.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'word-card';
+                card.textContent = item.word;
+                card.dataset.index = index;
+                card.dataset.pairIndex = item.pairIndex;
+                card.addEventListener('click', () => handleClick(card, index));
+                grid.appendChild(card);
+            });
+        }
+
+        function handleClick(card, index) {
+            if (isProcessing) return;
+            if (card.classList.contains('matched')) return;
+            if (card.classList.contains('selected')) {
+                card.classList.remove('selected');
+                selected = null;
+                return;
+            }
+
+            if (selected === null) {
+                selected = { card, index };
+                card.classList.add('selected');
+            } else {
+                const firstPairIndex = allWords[selected.index].pairIndex;
+                const secondPairIndex = allWords[index].pairIndex;
+
+                if (selected.index === index) return;
+
+                if (firstPairIndex === secondPairIndex) {
+                    // Correct match!
+                    isProcessing = true;
+                    card.classList.add('selected');
+                    setTimeout(() => {
+                        selected.card.classList.remove('selected');
+                        selected.card.classList.add('matched');
+                        card.classList.remove('selected');
+                        card.classList.add('matched');
+                        matchedCount++;
+                        document.getElementById('score').textContent = matchedCount;
+                        selected = null;
+                        isProcessing = false;
+                        showModal(firstPairIndex);
+                    }, 400);
+                } else {
+                    // Wrong match
+                    isProcessing = true;
+                    card.classList.add('wrong');
+                    selected.card.classList.remove('selected');
+                    selected.card.classList.add('wrong');
+                    setTimeout(() => {
+                        card.classList.remove('wrong');
+                        document.querySelectorAll('.word-card.wrong').forEach(c => c.classList.remove('wrong'));
+                        selected = null;
+                        isProcessing = false;
+                    }, 600);
+                }
+            }
+        }
+
+        function showModal(pairIndex) {
+            const pair = pairs[pairIndex];
+            const modal = document.getElementById('modal');
+            const overlay = document.getElementById('modalOverlay');
+
+            modal.innerHTML = `
+                <h2>✅ Match!</h2>
+                <div class="pair-display">${pair.words[0]} ↔ ${pair.words[1]}</div>
+                <div class="step-label">Step 1: What type of words are these?</div>
+                <div class="btn-group">
+                    <button class="btn btn-verb" onclick="checkType('verb', '${pairIndex}')">Verb 🏃</button>
+                    <button class="btn btn-adj" onclick="checkType('adjective', '${pairIndex}')">Adjective 🎨</button>
+                </div>
+                <div id="typeResult"></div>
+            `;
+            overlay.classList.add('active');
+        }
+
+        function checkType(answer, pairIndex) {
+            const pair = pairs[parseInt(pairIndex)];
+            const resultDiv = document.getElementById('typeResult');
+            const isCorrect = answer === pair.type;
+
+            if (isCorrect) {
+                resultDiv.innerHTML = `
+                    <div class="feedback correct">✅ Yes! ${pair.words[0]} & ${pair.words[1]} are ${pair.type}s!</div>
+                    <div style="margin-top:20px;">
+                        <div class="discussion-icon">💬</div>
+                        <div class="step-label">Step 2: Discuss with your partner:</div>
+                        <div class="question-text">"${pair.question}"</div>
+                        <button class="btn btn-continue" onclick="closeModal()">Continue ➜</button>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="feedback incorrect">❌ Not quite! These are <strong>${pair.type}s</strong>, not ${answer}s.</div>
+                    <div style="margin-top:20px;">
+                        <div class="discussion-icon">💬</div>
+                        <div class="step-label">Step 2: Discuss with the class:</div>
+                        <div class="question-text">"${pair.question}"</div>
+                        <button class="btn btn-continue" onclick="closeModal()">Continue ➜</button>
+                    </div>
+                `;
+            }
+
+            // Disable buttons after clicking
+            document.querySelectorAll('.btn-verb, .btn-adj').forEach(btn => {
+                btn.style.pointerEvents = 'none';
+                btn.style.opacity = '0.5';
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            if (matchedCount === 10) {
+                setTimeout(() => {
+                    document.getElementById('finishOverlay').style.display = 'flex';
+                }, 300);
+            }
+        }
+
+        function restartGame() {
+            initGame();
+        }
+
+        // Start
+        initGame();
+    </script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

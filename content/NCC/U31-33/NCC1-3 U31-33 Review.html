@@ -1,0 +1,1118 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocab Challenge — Units 31–33</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 24px;
+            padding: 36px;
+            max-width: 720px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+        }
+
+        .screen { display: none; }
+        .screen.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .emoji-big { font-size: 60px; margin-bottom: 12px; }
+
+        h1 { font-size: 2rem; color: #2d3748; margin-bottom: 6px; }
+        h2 { font-size: 1.3rem; color: #4a5568; margin-bottom: 10px; }
+
+        .subtitle { color: #718096; font-size: 1.05rem; margin-bottom: 6px; }
+
+        .unit-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.05rem;
+            margin: 10px 0;
+        }
+
+        .word-cloud {
+            font-size: 0.78rem;
+            color: #a0aec0;
+            line-height: 1.7;
+            margin: 14px 0;
+            padding: 10px;
+            background: #f7fafc;
+            border-radius: 12px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 34px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102,126,234,0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .round-info { font-size: 0.85rem; color: #718096; font-weight: 600; }
+
+        .score-display {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .timer {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #e53e3e;
+            min-width: 36px;
+        }
+
+        .timer.warning { animation: pulse 0.5s ease infinite alternate; }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.15); }
+        }
+
+        .round-type {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 12px;
+            font-size: 0.73rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .type-gap { background: #ebf8ff; color: #2b6cb0; }
+        .type-match { background: #f0fff4; color: #276749; }
+        .type-sort { background: #fefcbf; color: #975a16; }
+
+        .question-text {
+            font-size: 1.2rem;
+            color: #2d3748;
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+
+        .question-text .blank {
+            display: inline-block;
+            min-width: 90px;
+            border-bottom: 3px solid #667eea;
+            margin: 0 4px;
+            padding: 2px 6px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .option-btn {
+            padding: 13px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .option-btn:hover { border-color: #667eea; background: #f7fafc; }
+        .option-btn.correct { border-color: #48bb78; background: #f0fff4; color: #276749; font-weight: bold; }
+        .option-btn.incorrect { border-color: #fc8181; background: #fff5f5; color: #c53030; }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+
+        .sort-situation {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+            color: #4a5568;
+            border-left: 4px solid #667eea;
+            text-align: left;
+        }
+
+        .sort-words {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 16px;
+            min-height: 44px;
+            padding: 6px;
+        }
+
+        .sort-word {
+            display: inline-block;
+            padding: 9px 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: grab;
+            transition: all 0.2s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        .sort-word:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        .sort-word.placed { background: #a0aec0; cursor: default; opacity: 0.4; pointer-events: none; }
+        .sort-word.selected-word { outline: 3px solid #ffd700; outline-offset: 2px; }
+        .sort-word.dragging { opacity: 0.5; }
+
+        .sort-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .sort-bucket {
+            flex: 1;
+            min-width: 170px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 14px;
+            padding: 12px;
+            min-height: 110px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .sort-bucket.drag-over { border-color: #667eea; background: #ebf4ff; border-style: solid; }
+
+        .sort-bucket h3 {
+            font-size: 0.85rem;
+            color: #4a5568;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .bucket-content { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+
+        .sort-word-in-bucket {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #edf2f7;
+            color: #4a5568;
+            border-radius: 14px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .sort-word-in-bucket:hover { background: #fed7d7; color: #c53030; }
+        .sort-word-in-bucket.correct { background: #c6f6d5; color: #276749; cursor: default; }
+        .sort-word-in-bucket.incorrect { background: #fed7d7; color: #c53030; cursor: default; }
+
+        .feedback {
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 12px;
+            font-weight: 600;
+            display: none;
+            font-size: 0.93rem;
+        }
+
+        .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+        .feedback.correct { background: #f0fff4; color: #276749; border: 2px solid #c6f6d5; }
+        .feedback.incorrect { background: #fff5f5; color: #c53030; border: 2px solid #fee2e2; }
+
+        .sentence-example {
+            font-style: italic;
+            font-weight: normal;
+            margin-top: 5px;
+            font-size: 0.88rem;
+            color: #4a5568;
+        }
+
+        .inline-bonus {
+            margin-top: 14px;
+            padding: 14px;
+            background: linear-gradient(135deg, #faf5ff, #ebf4ff);
+            border: 2px solid #d6bcfa;
+            border-radius: 14px;
+            display: none;
+        }
+
+        .inline-bonus.show { display: block; animation: fadeIn 0.4s ease; }
+        .inline-bonus .bonus-label { font-size: 0.73rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #6b46c1; margin-bottom: 6px; }
+        .inline-bonus .bonus-text { font-size: 1rem; color: #553c9a; line-height: 1.5; }
+        .inline-bonus .bonus-hint { font-size: 0.78rem; color: #9f7aea; margin-top: 5px; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 0; }
+
+        .stat-card { background: #f7fafc; border-radius: 12px; padding: 12px; }
+        .stat-value { font-size: 1.7rem; font-weight: bold; color: #667eea; }
+        .stat-label { font-size: 0.78rem; color: #718096; margin-top: 3px; }
+        .stars { font-size: 2.8rem; margin: 10px 0; }
+
+        @media (max-width: 600px) {
+            .game-container { padding: 18px; }
+            .options-grid { grid-template-columns: 1fr; }
+            .sort-container { flex-direction: column; }
+            h1 { font-size: 1.4rem; }
+            .question-text { font-size: 1.05rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+
+        <!-- INTRO SCREEN -->
+        <div class="screen active" id="intro-screen">
+            <div class="emoji-big">🏥</div>
+            <h1>Vocab Challenge!</h1>
+            <p class="subtitle">Class Edition</p>
+            <div class="unit-badge">Units 31 – 33</div>
+            <div class="word-cloud">
+                bad · call · cold · doctor · feel · look · mouth · must · news · remember · telephone · tongue · aspirin · dentist · earache · flu · headache · medicine · stomachache · temperature · toothache · dry · fever · hospital · itchy · patient · better · certainly · food · get up · remain · rich · yet · break · drive · lean out of · library · match · noise · play · quickly · so · talk · back · rest · sweet · baby · dad · enjoy · hear · mum · ourselves · yourself · herself · himself · myself · themselves · cinema · film
+            </div>
+            <button class="btn btn-primary" onclick="startGame()">Let's Go! 🚀</button>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div class="screen" id="game-screen">
+            <div class="game-header">
+                <span class="round-info" id="round-info">1 / 27</span>
+                <span class="timer" id="timer">15</span>
+                <span class="score-display">🏆 <span id="score">0</span></span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+            </div>
+            <div id="round-type-badge"></div>
+            <div id="question-area"></div>
+            <div id="options-area"></div>
+            <div class="feedback" id="feedback"></div>
+            <div class="inline-bonus" id="inline-bonus">
+                <div class="bonus-label">🌟 BONUS — Discussion Question!</div>
+                <div class="bonus-text" id="inline-bonus-text"></div>
+                <div class="bonus-hint">Award a point to the team with the best answer!</div>
+            </div>
+            <div id="action-area" style="margin-top:14px;"></div>
+        </div>
+
+        <!-- GAME OVER SCREEN -->
+        <div class="screen" id="gameover-screen">
+            <div class="emoji-big">🎉</div>
+            <h1>Game Over!</h1>
+            <div class="stars" id="stars">⭐⭐⭐</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="final-score">0</div>
+                    <div class="stat-label">Points</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="final-correct">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="final-total">0</div>
+                    <div class="stat-label">Questions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="final-accuracy">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="startGame()">Play Again 🔄</button>
+        </div>
+    </div>
+
+<script>
+/* ==================== DATA ==================== */
+
+var gapFillQuestions = [
+    { sentence:'I ___ bad today. I think I have the flu.', blank:'feel', options:['feel','look','keep','hear'], example:'"I feel bad." — feel + adjective' },
+    { sentence:'You ___ tired. Did you sleep well?', blank:'look', options:['look','feel','see','watch'], example:'"You look tired." — look + adjective (what I can see)' },
+    { sentence:"I can't come to school ___ I have a headache.", blank:'because', options:['because','so','but','yet'], example:'"...because I have a headache." — gives the reason' },
+    { sentence:'You ___ stay in bed. You have a fever!', blank:'must', options:['must','can','will','may'], example:'"You must stay in bed." — very important!' },
+    { sentence:"You ___ lean out of the window. It's dangerous!", blank:"mustn't", options:["mustn't","don't","can't","won't"], example:'"You mustn\'t..." — it is forbidden' },
+    { sentence:'The children enjoyed ___ at the party.', blank:'themselves', options:['themselves','ourselves','himself','yourself'], example:'"They enjoyed themselves." — reflexive pronoun' },
+    { sentence:'Keep the room ___! The baby is sleeping.', blank:'quiet', options:['quiet','quietly','quick','quickly'], example:'"Keep + something + adjective"' },
+    { sentence:'She made the cake by ___.', blank:'herself', options:['herself','himself','myself','yourself'], example:'"by herself" — alone, without help' },
+    { sentence:'I have a terrible ___. I need to see the dentist.', blank:'toothache', options:['toothache','headache','earache','stomachache'], example:'Toothache → dentist!' },
+    { sentence:"Don't forget to take your ___.", blank:'medicine', options:['medicine','temperature','news','telephone'], example:'"Take your medicine" — what the doctor gives you' },
+    { sentence:'Are you feeling ___ today? You were sick yesterday.', blank:'better', options:['better','good','rich','sweet'], example:'"Feeling better" — improved!' },
+    { sentence:'We enjoyed ___ at the cinema last night.', blank:'ourselves', options:['ourselves','themselves','myself','himself'], example:'"We enjoyed ourselves." — we = ourselves' },
+    { sentence:"He drives too ___. It's dangerous!", blank:'quickly', options:['quickly','quick','quiet','quietly'], example:'"Drives quickly" — adverb (how he drives)' },
+    { sentence:'I taught ___ to play the piano. No teacher!', blank:'myself', options:['myself','yourself','himself','herself'], example:'"I taught myself" — I = myself' },
+    { sentence:'Let me take your ___. You feel hot.', blank:'temperature', options:['temperature','medicine','aspirin','toothache'], example:'"Take your temperature" — check if you have a fever' },
+    { sentence:"Don't make so much ___! People are reading.", blank:'noise', options:['noise','news','talk','play'], example:'"Don\'t make noise" — be quiet!' },
+    { sentence:'My throat feels very ___. I need water.', blank:'dry', options:['dry','itchy','sweet','cold'], example:'"My throat is dry." — needs water' },
+    { sentence:"She hasn't finished her homework ___.", blank:'yet', options:['yet','certainly','quickly','so'], example:'"not...yet" — it will happen later' },
+    { sentence:'You must ___ to call the doctor.', blank:'remember', options:['remember','remain','rest','hear'], example:'"Remember to..." — don\'t forget!' },
+    { sentence:'I feel ___. I think I ate something bad.', blank:'bad', options:['bad','badly','better','back'], example:'"I feel bad." — feel + adjective (not adverb)' },
+    { sentence:'Can you ___ the doctor, please? I need help.', blank:'call', options:['call','talk','hear','play'], example:'"Call the doctor" — telephone them' },
+    { sentence:'You must ___ in bed until you feel better.', blank:'remain', options:['remain','remember','rest','get up'], example:'"Remain" — stay, don\'t move' },
+    { sentence:"Open your ___ and say 'Ahhh'!", blank:'mouth', options:['mouth','medicine','noise','back'], example:'"Open your mouth" — the doctor needs to look inside' },
+    { sentence:"Did you ___ the news? There's no school tomorrow!", blank:'hear', options:['hear','call','remember','talk'], example:'"Hear the news" — receive information' }
+];
+
+var matchQuestions = [
+    { clue:'🤒 Your body is very hot — you have a...', answer:'fever', options:['fever','cold','headache','toothache'] },
+    { clue:'📞 You use this to call someone:', answer:'telephone', options:['telephone','television','news','noise'] },
+    { clue:'🏥 A place where sick people go:', answer:'hospital', options:['hospital','library','cinema','school'] },
+    { clue:'💊 A small white pill for headaches:', answer:'aspirin', options:['aspirin','medicine','temperature','food'] },
+    { clue:'🦷 A person who looks at your teeth:', answer:'dentist', options:['dentist','doctor','dad','driver'] },
+    { clue:'🎬 You go here to watch a film:', answer:'cinema', options:['cinema','library','hospital','school'] },
+    { clue:'📚 A quiet place with lots of books:', answer:'library', options:['library','cinema','hospital','school'] },
+    { clue:'😴 To stop working and relax:', answer:'rest', options:['rest','remain','remember','rich'] },
+    { clue:'🎬 Another word for "movie":', answer:'film', options:['film','play','match','news'] },
+    { clue:"👅 It's in your mouth and you taste food with it:", answer:'tongue', options:['tongue','mouth','tooth','ear'] },
+    { clue:'🍬 Sugar, chocolate, candy — they taste...', answer:'sweet', options:['sweet','dry','itchy','bad'] },
+    { clue:'🤢 Your tummy hurts — you have a...', answer:'stomachache', options:['stomachache','headache','toothache','earache'] },
+    { clue:'📰 Information about what happened today:', answer:'news', options:['news','noise','film','talk'] },
+    { clue:'⚽ A game between two teams:', answer:'match', options:['match','play','film','noise'] },
+    { clue:"🥶 You're sneezing, your nose is blocked, but you don't have a high temperature. You have a...", answer:'cold', options:['cold','earache','stomachache','toothache'] }
+];
+
+var sortActivities = [
+    {
+        title:'You are sick with the flu. What should you do?',
+        situation:'🤒 Situation: You have the flu and a high temperature...',
+        buckets:['✅ You MUST...','🚫 You MUSTN\'T...'],
+        words:[
+            { text:'take medicine', bucket:0 },
+            { text:'go to school', bucket:1 },
+            { text:'drink lots of water', bucket:0 },
+            { text:'play outside', bucket:1 },
+            { text:'stay in bed', bucket:0 },
+            { text:'go to a party', bucket:1 }
+        ]
+    },
+    {
+        title:'You are at the library. What are the rules?',
+        situation:'📚 Situation: You are studying at the library...',
+        buckets:['✅ You MUST...','🚫 You MUSTN\'T...'],
+        words:[
+            { text:'make noise', bucket:1 },
+            { text:'be quiet', bucket:0 },
+            { text:'return books', bucket:0 },
+            { text:'eat and drink', bucket:1 },
+            { text:'talk loudly', bucket:1 },
+            { text:'sit down', bucket:0 }
+        ]
+    },
+    {
+        title:'Sort: One person or more than one?',
+        situation:'👤👥 Sort these reflexive pronouns:',
+        buckets:['👤 One person','👥 More than one'],
+        words:[
+            { text:'myself', bucket:0 },
+            { text:'themselves', bucket:1 },
+            { text:'herself', bucket:0 },
+            { text:'ourselves', bucket:1 },
+            { text:'himself', bucket:0 },
+            { text:'yourself', bucket:0 }
+        ]
+    },
+    {
+        title:'You are on a school bus. What are the rules?',
+        situation:'🚌 Situation: You are on a school bus going on a trip...',
+        buckets:['✅ You MUST...','🚫 You MUSTN\'T...'],
+        words:[
+            { text:'lean out of the window', bucket:1 },
+            { text:'remain in your seat', bucket:0 },
+            { text:'listen to the teacher', bucket:0 },
+            { text:'throw things', bucket:1 },
+            { text:'shout', bucket:1 },
+            { text:'wear a seatbelt', bucket:0 }
+        ]
+    },
+    {
+        title:'Sort: Illness or body part?',
+        situation:'🏥 Which ones are illnesses? Which are body parts?',
+        buckets:['🤒 Illness','🦴 Body part'],
+        words:[
+            { text:'earache', bucket:0 },
+            { text:'tongue', bucket:1 },
+            { text:'flu', bucket:0 },
+            { text:'mouth', bucket:1 },
+            { text:'fever', bucket:0 },
+            { text:'back', bucket:1 }
+        ]
+    },
+    {
+        title:'What do you find at a hospital?',
+        situation:'🏥 Situation: You are visiting someone at the hospital...',
+        buckets:['🏥 Hospital things','🎬 NOT hospital things'],
+        words:[
+            { text:'doctor', bucket:0 },
+            { text:'cinema', bucket:1 },
+            { text:'medicine', bucket:0 },
+            { text:'film', bucket:1 },
+            { text:'patient', bucket:0 },
+            { text:'library', bucket:1 },
+            { text:'aspirin', bucket:0 },
+            { text:'match', bucket:1 }
+        ]
+    }
+];
+
+var bonusData = [
+    { text:"Tell your teacher why you can't go to school today. Use 'because'.", hint:"e.g. I can't go to school because I have a...", keys:['because'] },
+    { text:"Describe how your partner looks today. Use 'look + adjective'.", hint:"e.g. You look happy / tired / great...", keys:['look'] },
+    { text:"Last weekend, did you enjoy yourself? Tell your partner!", hint:"e.g. I enjoyed myself because... / We enjoyed ourselves at...", keys:['enjoy'] },
+    { text:"What three things must you remember to bring to school every day?", hint:"e.g. I must remember to bring my...", keys:['remember'] },
+    { text:"Describe something you must do every day.", hint:"e.g. I must brush my teeth. I must...", keys:['must','mustn'] },
+    { text:"Do you like going to the cinema? Why?", hint:"e.g. I like / don't like going to the cinema because...", keys:['cinema','film'] },
+    { text:"What activity can you do by yourself?", hint:"e.g. I can cook by myself. I taught myself to...", keys:['myself','herself','himself','yourself'] }
+];
+
+/* ==================== GAME STATE ==================== */
+
+var currentRound = 0;
+var score = 0;
+var correctCount = 0;
+var totalQuestions = 0;
+var timerInterval = null;
+var timeLeft = 15;
+var rounds = [];
+var answered = false;
+var selectedWord = null;
+
+function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = a[i];
+        a[i] = a[j];
+        a[j] = temp;
+    }
+    return a;
+}
+
+/* ==================== BUILD ROUNDS ==================== */
+
+function getRoundText(r) {
+    var t = '';
+    if (r.type === 'gap') t = (r.data.sentence + ' ' + r.data.blank).toLowerCase();
+    else if (r.type === 'match') t = (r.data.clue + ' ' + r.data.answer).toLowerCase();
+    else if (r.type === 'sort') {
+        t = r.data.title.toLowerCase();
+        for (var i = 0; i < r.data.words.length; i++) t += ' ' + r.data.words[i].text.toLowerCase();
+    }
+    return t;
+}
+
+function buildRounds() {
+    rounds = [];
+
+    var g = shuffle(gapFillQuestions).slice(0, 13);
+    var m = shuffle(matchQuestions).slice(0, 9);
+    var s = shuffle(sortActivities).slice(0, 5);
+
+    var gI = 0, mI = 0, sI = 0;
+
+    /* 27 rounds: 13 gap, 9 match, 5 sort */
+    var pattern = [
+        'g','m','g','g','s',
+        'm','g','m','g','s',
+        'g','m','g','m','s',
+        'g','m','g','m','g',
+        'm','s','g','m','g',
+        's','g'
+    ];
+
+    for (var i = 0; i < pattern.length; i++) {
+        var type = pattern[i];
+        var round = null;
+
+        if (type === 'g' && gI < g.length) {
+            round = { type:'gap', data:g[gI++] };
+        } else if (type === 'm' && mI < m.length) {
+            round = { type:'match', data:m[mI++] };
+        } else if (type === 's' && sI < s.length) {
+            round = { type:'sort', data:s[sI++] };
+        } else {
+            if (gI < g.length) round = { type:'gap', data:g[gI++] };
+            else if (mI < m.length) round = { type:'match', data:m[mI++] };
+            else round = { type:'gap', data:shuffle(gapFillQuestions)[0] };
+        }
+        rounds.push(round);
+    }
+
+    /* Attach discussion bonuses thematically with min spacing of 3 */
+    var bonuses = shuffle(bonusData).slice();
+    var usedIdx = [];
+
+    for (var b = 0; b < bonuses.length; b++) {
+        var bonus = bonuses[b];
+        var placed = false;
+
+        /* First pass: find a thematic match */
+        for (var r = 0; r < rounds.length; r++) {
+            if (rounds[r].bonus) continue;
+            if (!canPlace(r, usedIdx, 3)) continue;
+            var txt = getRoundText(rounds[r]);
+            for (var k = 0; k < bonus.keys.length; k++) {
+                if (txt.indexOf(bonus.keys[k]) >= 0) {
+                    rounds[r].bonus = { text: bonus.text, hint: bonus.hint };
+                    usedIdx.push(r);
+                    placed = true;
+                    break;
+                }
+            }
+            if (placed) break;
+        }
+
+        /* Second pass: place at next available slot */
+        if (!placed) {
+            for (var r2 = 0; r2 < rounds.length; r2++) {
+                if (!rounds[r2].bonus && canPlace(r2, usedIdx, 3)) {
+                    rounds[r2].bonus = { text: bonus.text, hint: bonus.hint };
+                    usedIdx.push(r2);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+function canPlace(idx, used, gap) {
+    for (var i = 0; i < used.length; i++) {
+        if (Math.abs(idx - used[i]) < gap) return false;
+    }
+    return true;
+}
+
+/* ==================== GAME FLOW ==================== */
+
+function startGame() {
+    score = 0;
+    correctCount = 0;
+    totalQuestions = 0;
+    currentRound = 0;
+    buildRounds();
+    showScreen('game-screen');
+    loadRound();
+}
+
+function showScreen(id) {
+    var screens = document.querySelectorAll('.screen');
+    for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
+    document.getElementById(id).classList.add('active');
+}
+
+function startTimer(seconds) {
+    timeLeft = seconds;
+    var timerEl = document.getElementById('timer');
+    timerEl.textContent = timeLeft;
+    timerEl.classList.remove('warning');
+    clearInterval(timerInterval);
+    timerInterval = setInterval(function() {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+        if (timeLeft <= 5) timerEl.classList.add('warning');
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            handleTimeout();
+        }
+    }, 1000);
+}
+
+function handleTimeout() {
+    if (answered) return;
+    answered = true;
+    var round = rounds[currentRound];
+
+    if (round.type === 'gap') {
+        showFeedback(false, "⏰ Time's up! The answer was: <strong>" + round.data.blank + "</strong>");
+        disableAllOptions();
+        totalQuestions++;
+    } else if (round.type === 'match') {
+        showFeedback(false, "⏰ Time's up! The answer was: <strong>" + round.data.answer + "</strong>");
+        disableAllOptions();
+        totalQuestions++;
+    } else if (round.type === 'sort') {
+        doSortCheck(true);
+    }
+    showNextButton();
+}
+
+function loadRound() {
+    answered = false;
+    selectedWord = null;
+    var round = rounds[currentRound];
+
+    document.getElementById('round-info').textContent = (currentRound + 1) + ' / ' + rounds.length;
+    document.getElementById('score').textContent = score;
+
+    var fb = document.getElementById('feedback');
+    fb.classList.remove('show');
+    fb.className = 'feedback';
+
+    document.getElementById('inline-bonus').classList.remove('show');
+    document.getElementById('action-area').innerHTML = '';
+
+    var pct = (currentRound / rounds.length) * 100;
+    document.getElementById('progress-fill').style.width = pct + '%';
+
+    if (round.type === 'gap') loadGapFill(round.data);
+    else if (round.type === 'match') loadMatch(round.data);
+    else if (round.type === 'sort') loadSort(round.data);
+}
+
+/* ==================== GAP FILL ==================== */
+
+function loadGapFill(data) {
+    document.getElementById('round-type-badge').innerHTML = '<span class="round-type type-gap">Gap Fill</span>';
+    var sentenceHTML = data.sentence.replace('___', '<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>');
+    document.getElementById('question-area').innerHTML = '<p class="question-text">' + sentenceHTML + '</p>';
+
+    var shuffled = shuffle(data.options);
+    var html = '<div class="options-grid">';
+    for (var i = 0; i < shuffled.length; i++) {
+        html += '<button class="option-btn" data-value="' + shuffled[i] + '">' + shuffled[i] + '</button>';
+    }
+    html += '</div>';
+    document.getElementById('options-area').innerHTML = html;
+
+    var btns = document.querySelectorAll('.option-btn');
+    for (var j = 0; j < btns.length; j++) btns[j].addEventListener('click', makeGapHandler(data));
+    startTimer(15);
+}
+
+function makeGapHandler(data) {
+    return function() { selectAnswer(this, this.dataset.value, data.blank, data.example); };
+}
+
+/* ==================== MATCH ==================== */
+
+function loadMatch(data) {
+    document.getElementById('round-type-badge').innerHTML = '<span class="round-type type-match">Match the Meaning</span>';
+    document.getElementById('question-area').innerHTML = '<p class="question-text">' + data.clue + '</p>';
+
+    var shuffled = shuffle(data.options);
+    var html = '<div class="options-grid">';
+    for (var i = 0; i < shuffled.length; i++) {
+        html += '<button class="option-btn" data-value="' + shuffled[i] + '">' + shuffled[i] + '</button>';
+    }
+    html += '</div>';
+    document.getElementById('options-area').innerHTML = html;
+
+    var btns = document.querySelectorAll('.option-btn');
+    for (var j = 0; j < btns.length; j++) btns[j].addEventListener('click', makeMatchHandler(data));
+    startTimer(15);
+}
+
+function makeMatchHandler(data) {
+    return function() { selectAnswer(this, this.dataset.value, data.answer, null); };
+}
+
+/* ==================== SELECT ANSWER ==================== */
+
+function selectAnswer(el, selected, correct, example) {
+    if (answered) return;
+    answered = true;
+    clearInterval(timerInterval);
+    totalQuestions++;
+
+    var btns = document.querySelectorAll('.option-btn');
+    for (var i = 0; i < btns.length; i++) {
+        btns[i].disabled = true;
+        if (btns[i].dataset.value === correct) btns[i].classList.add('correct');
+    }
+
+    if (selected === correct) {
+        el.classList.add('correct');
+        score++;
+        correctCount++;
+        var msg = '✅ Correct!';
+        if (example) msg += '<div class="sentence-example">' + example + '</div>';
+        showFeedback(true, msg);
+    } else {
+        el.classList.add('incorrect');
+        var msg2 = '❌ The answer was: <strong>' + correct + '</strong>';
+        if (example) msg2 += '<div class="sentence-example">' + example + '</div>';
+        showFeedback(false, msg2);
+    }
+    showNextButton();
+}
+
+/* ==================== SORT ==================== */
+
+function loadSort(data) {
+    document.getElementById('round-type-badge').innerHTML = '<span class="round-type type-sort">Sort It!</span>';
+    document.getElementById('question-area').innerHTML = '<p class="question-text" style="margin-bottom:8px">' + data.title + '</p><div class="sort-situation">' + data.situation + '</div>';
+
+    var shuffledWords = shuffle(data.words);
+
+    var html = '<div class="sort-words" id="sort-words">';
+    for (var i = 0; i < shuffledWords.length; i++) {
+        var w = shuffledWords[i];
+        html += '<span class="sort-word" data-idx="' + i + '" data-bucket="' + w.bucket + '" data-text="' + w.text + '">' + w.text + '</span>';
+    }
+    html += '</div>';
+
+    html += '<div class="sort-container">';
+    for (var b = 0; b < data.buckets.length; b++) {
+        html += '<div class="sort-bucket" id="bucket-' + b + '" data-bid="' + b + '"><h3>' + data.buckets[b] + '</h3><div class="bucket-content" id="bc-' + b + '"></div></div>';
+    }
+    html += '</div>';
+
+    html += '<button class="btn btn-primary" id="check-sort-btn" onclick="doSortCheck(false)">Check Answer ✓</button>';
+
+    document.getElementById('options-area').innerHTML = html;
+    setupSortInteractions();
+    startTimer(data.words.length > 6 ? 45 : 35);
+}
+
+function setupSortInteractions() {
+    var words = document.querySelectorAll('.sort-word');
+    var buckets = document.querySelectorAll('.sort-bucket');
+
+    for (var i = 0; i < words.length; i++) {
+        (function(word) {
+            word.addEventListener('click', function() {
+                if (answered || word.classList.contains('placed')) return;
+                for (var j = 0; j < words.length; j++) words[j].classList.remove('selected-word');
+                word.classList.add('selected-word');
+                selectedWord = word;
+            });
+
+            word.setAttribute('draggable', 'true');
+            word.addEventListener('dragstart', function(e) {
+                if (word.classList.contains('placed')) { e.preventDefault(); return; }
+                selectedWord = word;
+                word.classList.add('dragging');
+                e.dataTransfer.setData('text/plain', '');
+            });
+            word.addEventListener('dragend', function() {
+                word.classList.remove('dragging');
+                for (var j = 0; j < buckets.length; j++) buckets[j].classList.remove('drag-over');
+            });
+
+            word.addEventListener('touchstart', function() {
+                if (word.classList.contains('placed')) return;
+                selectedWord = word;
+                for (var j = 0; j < words.length; j++) words[j].classList.remove('selected-word');
+                word.classList.add('selected-word');
+            }, {passive: true});
+
+            word.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                var touch = e.touches[0];
+                var el = document.elementFromPoint(touch.clientX, touch.clientY);
+                for (var j = 0; j < buckets.length; j++) buckets[j].classList.remove('drag-over');
+                if (el) {
+                    var bk = el.closest('.sort-bucket');
+                    if (bk) bk.classList.add('drag-over');
+                }
+            });
+
+            word.addEventListener('touchend', function(e) {
+                if (!selectedWord) return;
+                var touch = e.changedTouches[0];
+                var el = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (el) {
+                    var bk = el.closest('.sort-bucket');
+                    if (bk) placeWord(selectedWord, parseInt(bk.dataset.bid));
+                }
+                for (var j = 0; j < buckets.length; j++) buckets[j].classList.remove('drag-over');
+                selectedWord = null;
+            });
+        })(words[i]);
+    }
+
+    for (var b = 0; b < buckets.length; b++) {
+        (function(bucket) {
+            bucket.addEventListener('dragover', function(e) { e.preventDefault(); bucket.classList.add('drag-over'); });
+            bucket.addEventListener('dragleave', function() { bucket.classList.remove('drag-over'); });
+            bucket.addEventListener('drop', function(e) {
+                e.preventDefault();
+                bucket.classList.remove('drag-over');
+                if (selectedWord && !selectedWord.classList.contains('placed')) {
+                    placeWord(selectedWord, parseInt(bucket.dataset.bid));
+                    selectedWord = null;
+                }
+            });
+            bucket.addEventListener('click', function(e) {
+                if (answered) return;
+                if (e.target.closest('.sort-word-in-bucket')) return;
+                if (selectedWord && !selectedWord.classList.contains('placed')) {
+                    placeWord(selectedWord, parseInt(bucket.dataset.bid));
+                    selectedWord.classList.remove('selected-word');
+                    selectedWord = null;
+                }
+            });
+        })(buckets[b]);
+    }
+}
+
+function placeWord(word, bucketId) {
+    if (answered || word.classList.contains('placed')) return;
+
+    word.classList.add('placed');
+    word.classList.remove('selected-word');
+
+    var bc = document.getElementById('bc-' + bucketId);
+    var tag = document.createElement('span');
+    tag.className = 'sort-word-in-bucket';
+    tag.textContent = word.dataset.text;
+    tag.dataset.correctBucket = word.dataset.bucket;
+    tag.dataset.placedBucket = bucketId;
+    tag.dataset.wordIdx = word.dataset.idx;
+
+    tag.addEventListener('click', function() {
+        if (answered) return;
+        tag.remove();
+        word.classList.remove('placed');
+    });
+
+    bc.appendChild(tag);
+}
+
+function doSortCheck(isTimeout) {
+    if (answered && !isTimeout) return;
+    answered = true;
+    clearInterval(timerInterval);
+    totalQuestions++;
+
+    var placed = document.querySelectorAll('.sort-word-in-bucket');
+    var allWords = document.querySelectorAll('.sort-word');
+    var totalW = allWords.length;
+    var correctPlaced = 0;
+
+    for (var i = 0; i < placed.length; i++) {
+        if (placed[i].dataset.correctBucket === placed[i].dataset.placedBucket) {
+            placed[i].classList.add('correct');
+            correctPlaced++;
+        } else {
+            placed[i].classList.add('incorrect');
+        }
+        placed[i].style.cursor = 'default';
+    }
+
+    for (var j = 0; j < allWords.length; j++) {
+        if (!allWords[j].classList.contains('placed')) {
+            var bId = allWords[j].dataset.bucket;
+            var bc = document.getElementById('bc-' + bId);
+            var t = document.createElement('span');
+            t.className = 'sort-word-in-bucket correct';
+            t.textContent = allWords[j].dataset.text;
+            t.style.opacity = '0.5';
+            bc.appendChild(t);
+        }
+    }
+
+    if (correctPlaced === totalW && placed.length === totalW) {
+        score += 2;
+        correctCount++;
+        showFeedback(true, '✅ Perfect sort! +2 points!');
+    } else if (isTimeout) {
+        showFeedback(false, "⏰ Time's up! Green = correct, Red = wrong bucket.");
+    } else {
+        showFeedback(false, '❌ Not quite! Green = correct, Red = wrong bucket.');
+    }
+
+    var checkBtn = document.getElementById('check-sort-btn');
+    if (checkBtn) checkBtn.disabled = true;
+    showNextButton();
+}
+
+/* ==================== HELPERS ==================== */
+
+function showFeedback(isCorrect, message) {
+    var fb = document.getElementById('feedback');
+    fb.className = 'feedback show ' + (isCorrect ? 'correct' : 'incorrect');
+    fb.innerHTML = message;
+}
+
+function disableAllOptions() {
+    var btns = document.querySelectorAll('.option-btn');
+    for (var i = 0; i < btns.length; i++) btns[i].disabled = true;
+}
+
+function showNextButton() {
+    var round = rounds[currentRound];
+    var isLast = currentRound >= rounds.length - 1;
+
+    if (round.bonus) {
+        var bonusDiv = document.getElementById('inline-bonus');
+        var bonusText = document.getElementById('inline-bonus-text');
+        bonusText.innerHTML = round.bonus.text + '<br><span style="font-size:0.85rem;color:#9f7aea;font-style:italic">' + round.bonus.hint + '</span>';
+        bonusDiv.classList.add('show');
+    }
+
+    var label = isLast ? 'See Results →' : 'Next Player →';
+    document.getElementById('action-area').innerHTML = '<button class="btn btn-primary" onclick="nextRound()">' + label + '</button>';
+    document.getElementById('score').textContent = score;
+}
+
+function nextRound() {
+    currentRound++;
+    if (currentRound >= rounds.length) endGame();
+    else loadRound();
+}
+
+function endGame() {
+    clearInterval(timerInterval);
+    showScreen('gameover-screen');
+
+    document.getElementById('final-score').textContent = score;
+    document.getElementById('final-correct').textContent = correctCount;
+    document.getElementById('final-total').textContent = totalQuestions;
+
+    var accuracy = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+    document.getElementById('final-accuracy').textContent = accuracy + '%';
+
+    var stars = '⭐';
+    if (accuracy >= 85) stars = '⭐⭐⭐';
+    else if (accuracy >= 60) stars = '⭐⭐';
+    document.getElementById('stars').textContent = stars;
+}
+</script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

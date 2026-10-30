@@ -1,0 +1,563 @@
+<!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Which...? On the Shelf!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+        }
+        h1 {
+            font-size: 1.6rem;
+            color: #5a3e2b;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        .instruction {
+            font-size: 0.9rem;
+            color: #7a5c3e;
+            margin-bottom: 15px;
+            text-align: center;
+            max-width: 500px;
+        }
+        .cupboard {
+            width: 95%;
+            max-width: 420px;
+            background: #fdf6ee;
+            border: 6px solid #6b3410;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .cupboard-top {
+            position: absolute;
+            top: -12px;
+            left: -3px;
+            right: -3px;
+            height: 14px;
+            background: linear-gradient(to bottom, #5a2d0c, #8B4513);
+            border-radius: 6px 6px 0 0;
+        }
+        .shelf-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            min-height: 100px;
+            position: relative;
+            padding: 10px 5px;
+        }
+        .shelf-row::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background: linear-gradient(to bottom, #A0522D, #8B4513, #6b3410);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+        .shelf-row:last-child::after {
+            display: none;
+        }
+        .shelf-label {
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            font-size: 0.65rem;
+            color: #a08060;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 14px;
+            position: relative;
+            min-height: 90px;
+        }
+        .cell-label {
+            position: absolute;
+            bottom: 15px;
+            font-size: 0.55rem;
+            color: #c0a080;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .item-group {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .item-emoji {
+            font-size: 2.2rem;
+            transition: transform 0.2s;
+            animation: popIn 0.4s ease;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .target-cell {
+            position: relative;
+        }
+        .target-cell::before {
+            content: '👆';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2rem;
+            animation: bounce 0.8s infinite alternate;
+            z-index: 10;
+        }
+        @keyframes bounce {
+            0% { transform: translateX(-50%) translateY(0); }
+            100% { transform: translateX(-50%) translateY(-6px); }
+        }
+        .target-cell .item-emoji {
+            filter: drop-shadow(0 0 6px gold);
+        }
+        .adj-tag {
+            font-size: 0.7rem;
+            background: #ff6b6b;
+            color: white;
+            padding: 2px 7px;
+            border-radius: 10px;
+            margin-bottom: 3px;
+            font-weight: bold;
+        }
+        .prompt-area {
+            margin-top: 18px;
+            text-align: center;
+            width: 95%;
+            max-width: 500px;
+        }
+        .prompt-label {
+            font-size: 1rem;
+            color: #5a3e2b;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+        .hint-text {
+            font-size: 1.1rem;
+            color: #333;
+            background: #fff;
+            padding: 12px 16px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.3s;
+            text-align: center;
+            line-height: 1.4;
+        }
+        .hint-text.revealed {
+            background: #d4edda;
+        }
+        .tap-msg {
+            color: #aaa;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+        .buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .btn {
+            padding: 11px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn-next {
+            background: #4CAF50;
+            color: white;
+        }
+        .btn-mode {
+            background: #9b59b6;
+            color: white;
+        }
+        .badges {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .sg-pl-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+        }
+        .sg-pl-badge.singular { background: #9b59b6; }
+        .sg-pl-badge.plural { background: #e67e22; }
+        .sg-pl-badge.want { background: #2196F3; }
+        .sg-pl-badge.like { background: #e91e63; }
+        .counter {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #7a5c3e;
+        }
+        .distractor-items {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <h1>🗂️ Which...? Snack Shelf!</h1>
+    <p class="instruction">Look at the cupboard. Say the question &amp; answer about the 👆 item! Tap boxes to check.</p>
+
+    <div class="cupboard">
+        <div class="cupboard-top"></div>
+        <div class="shelf-row" id="topShelf">
+            <div class="shelf-label">top shelf</div>
+            <div class="cell" id="top-left"><span class="cell-label"></span></div>
+            <div class="cell" id="top-middle"><span class="cell-label"></span></div>
+            <div class="cell" id="top-right"><span class="cell-label"></span></div>
+        </div>
+        <div class="shelf-row" id="bottomShelf">
+            <div class="shelf-label">bottom shelf</div>
+            <div class="cell" id="bottom-left"><span class="cell-label"></span></div>
+            <div class="cell" id="bottom-middle"><span class="cell-label"></span></div>
+            <div class="cell" id="bottom-right"><span class="cell-label"></span></div>
+        </div>
+    </div>
+
+    <div class="prompt-area">
+        <div class="prompt-label">❓ Ask the question:</div>
+        <div class="hint-text" id="questionBox" onclick="revealQuestion()">
+            <span class="tap-msg">[ tap to reveal ]</span>
+        </div>
+        <div class="prompt-label">💬 Say the answer:</div>
+        <div class="hint-text" id="answerBox" onclick="revealAnswer()">
+            <span class="tap-msg">[ tap to reveal ]</span>
+        </div>
+        <div class="badges" id="badges"></div>
+        <div class="buttons">
+            <button class="btn btn-next" onclick="newRound()">🔀 New One!</button>
+            <button class="btn btn-mode" id="modeBtn" onclick="toggleMode()">Mode: do you want</button>
+        </div>
+        <div class="counter" id="counter">Round: 1</div>
+    </div>
+
+    <script>
+        const items = [
+            { emoji: '🍪', singular: 'biscuit', plural: 'biscuits' },
+            { emoji: '🍫', singular: 'chocolate', plural: 'chocolates' },
+            { emoji: '🥄', singular: 'spoon', plural: 'spoons' },
+            { emoji: '🍴', singular: 'fork', plural: 'forks' },
+            { emoji: '🔪', singular: 'knife', plural: 'knives' },
+            { emoji: '🥃', singular: 'glass', plural: 'glasses' },
+            { emoji: '🍶', singular: 'bottle', plural: 'bottles' },
+            { emoji: '📦', singular: 'box', plural: 'boxes' },
+            { emoji: '🍽️', singular: 'plate', plural: 'plates' },
+            { emoji: '☕', singular: 'cup', plural: 'cups' },
+            { emoji: '📰', singular: 'newspaper', plural: 'newspapers' },
+            { emoji: '📕', singular: 'magazine', plural: 'magazines' },
+            { emoji: '🥫', singular: 'tin', plural: 'tins' },
+        ];
+
+        const adjectives = [
+            { word: 'large' },
+            { word: 'little' },
+            { word: 'sharp', validItems: [4] },
+            { word: 'blunt', validItems: [4] },
+            { word: 'empty', validItems: [5, 6, 7, 8, 9, 12] },
+            { word: 'full', validItems: [5, 6, 7, 8, 9, 12] },
+        ];
+
+        const positions = ['left', 'middle', 'right'];
+        const shelves = ['top', 'bottom'];
+
+        let round = 1;
+        let currentQuestion = '';
+        let currentAnswer = '';
+        let questionRevealed = false;
+        let answerRevealed = false;
+        let mode = 'want'; // 'want' or 'like'
+
+        function pickRandom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function shuffleArray(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function toggleMode() {
+            mode = mode === 'want' ? 'like' : 'want';
+            document.getElementById('modeBtn').textContent = mode === 'want' ? 'Mode: do you want' : 'Mode: would you like';
+            newRound();
+        }
+
+        function clearCupboard() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.className = 'cell';
+                cell.innerHTML = '';
+            });
+        }
+
+        function placeItem(shelfPos, colPos, emoji, count, adj, isTarget) {
+            const cellId = shelfPos + '-' + colPos;
+            const cell = document.getElementById(cellId);
+            if (!cell) return;
+
+            if (isTarget) {
+                cell.classList.add('target-cell');
+            } else {
+                cell.classList.add('distractor-items');
+            }
+
+            if (adj) {
+                const tag = document.createElement('span');
+                tag.className = 'adj-tag';
+                tag.textContent = adj;
+                cell.appendChild(tag);
+            }
+
+            const group = document.createElement('div');
+            group.className = 'item-group';
+            for (let i = 0; i < count; i++) {
+                const span = document.createElement('span');
+                span.className = 'item-emoji';
+                span.textContent = emoji;
+                span.style.animationDelay = (i * 0.1) + 's';
+                group.appendChild(span);
+            }
+            cell.appendChild(group);
+        }
+
+        function newRound() {
+            questionRevealed = false;
+            answerRevealed = false;
+            clearCupboard();
+
+            // Pick target item
+            const isPlural = Math.random() > 0.45;
+            const count = isPlural ? Math.floor(Math.random() * 2) + 2 : 1;
+
+            // Pick adjective (65% chance)
+            let adj = null;
+            let targetItem;
+            if (Math.random() < 0.65) {
+                adj = pickRandom(adjectives);
+                if (adj.validItems) {
+                    targetItem = items[pickRandom(adj.validItems)];
+                } else {
+                    targetItem = pickRandom(items);
+                }
+            } else {
+                targetItem = pickRandom(items);
+            }
+
+            // Pick target position
+            const targetShelf = pickRandom(shelves);
+            const targetCol = pickRandom(positions);
+
+            // Place target
+            placeItem(targetShelf, targetCol, targetItem.emoji, count, adj ? adj.word : null, true);
+
+            // Place 2-4 distractors
+            const distractorCount = Math.floor(Math.random() * 3) + 2;
+            const allPositions = [];
+            shelves.forEach(s => positions.forEach(p => {
+                if (!(s === targetShelf && p === targetCol)) {
+                    allPositions.push({ shelf: s, col: p });
+                }
+            }));
+            const shuffledPositions = shuffleArray(allPositions);
+
+            for (let i = 0; i < Math.min(distractorCount, shuffledPositions.length); i++) {
+                const pos = shuffledPositions[i];
+                const dItem = pickRandom(items);
+                const dCount = Math.random() > 0.5 ? Math.floor(Math.random() * 2) + 2 : 1;
+                const dAdj = Math.random() < 0.4 ? pickRandom(adjectives) : null;
+                let adjWord = null;
+                if (dAdj) {
+                    if (dAdj.validItems) {
+                        // skip adj if item doesn't match
+                        if (dAdj.validItems.includes(items.indexOf(dItem))) {
+                            adjWord = dAdj.word;
+                        }
+                    } else {
+                        adjWord = dAdj.word;
+                    }
+                }
+                placeItem(pos.shelf, pos.col, dItem.emoji, dCount, adjWord, false);
+            }
+
+            // Build sentences
+            const noun = isPlural ? targetItem.plural : targetItem.singular;
+            const adjWord = adj ? adj.word + ' ' : '';
+            const positionText = targetCol === 'middle' ? 'in the middle' : 'on the ' + targetCol;
+            const shelfText = 'on the ' + targetShelf + ' shelf';
+
+            if (mode === 'want') {
+                currentQuestion = `Which ${adjWord}${noun} do you want?`;
+                currentAnswer = `I want the ${adjWord}${noun} ${shelfText}, ${positionText}.`;
+            } else {
+                currentQuestion = `Which ${adjWord}${noun} would you like?`;
+                currentAnswer = `I'd like the ${adjWord}${noun} ${shelfText}, ${positionText}.`;
+            }
+
+            // Reset boxes
+            document.getElementById('questionBox').innerHTML = '<span class="tap-msg">[ tap to reveal ]</span>';
+            document.getElementById('questionBox').classList.remove('revealed');
+            document.getElementById('answerBox').innerHTML = '<span class="tap-msg">[ tap to reveal ]</span>';
+            document.getElementById('answerBox').classList.remove('revealed');
+
+            // Badges
+            const badges = document.getElementById('badges');
+            let badgeHTML = '';
+            if (isPlural) {
+                badgeHTML += '<span class="sg-pl-badge plural">PLURAL ✌️</span>';
+            } else {
+                badgeHTML += '<span class="sg-pl-badge singular">SINGULAR ☝️</span>';
+            }
+            if (mode === 'want') {
+                badgeHTML += '<span class="sg-pl-badge want">do you want</span>';
+            } else {
+                badgeHTML += '<span class="sg-pl-badge like">would you like</span>';
+            }
+            badges.innerHTML = badgeHTML;
+
+            document.getElementById('counter').textContent = 'Round: ' + round;
+            round++;
+        }
+
+        function revealQuestion() {
+            if (!questionRevealed) {
+                document.getElementById('questionBox').textContent = currentQuestion;
+                document.getElementById('questionBox').classList.add('revealed');
+                questionRevealed = true;
+            }
+        }
+
+        function revealAnswer() {
+            if (!answerRevealed) {
+                document.getElementById('answerBox').textContent = currentAnswer;
+                document.getElementById('answerBox').classList.add('revealed');
+                answerRevealed = true;
+            }
+        }
+
+        // Start
+        newRound();
+    </script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

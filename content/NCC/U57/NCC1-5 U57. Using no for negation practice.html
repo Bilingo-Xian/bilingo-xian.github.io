@@ -1,0 +1,266 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentence Conversion - K7045</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f4f8;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            color: #1e3a5f;
+            margin-bottom: 8px;
+            font-size: 1.5rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #555;
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+        }
+        .instructions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #664d03;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            transition: box-shadow 0.2s;
+        }
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+        .card-number {
+            font-size: 0.75rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .sentence {
+            font-size: 1.15rem;
+            color: #1e3a5f;
+            font-weight: 600;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .answer-area {
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .reveal-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .reveal-btn:hover {
+            background: #2563eb;
+        }
+        .reveal-btn.revealed {
+            background: #94a3b8;
+            cursor: default;
+        }
+        .answer-text {
+            font-size: 1.1rem;
+            color: #16a34a;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        .answer-text.show {
+            opacity: 1;
+        }
+        .section-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #7c3aed;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 28px 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #7c3aed;
+            display: inline-block;
+        }
+        .direction {
+            font-size: 0.8rem;
+            color: #888;
+            font-style: italic;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔄 Sentence Conversion</h1>
+    <p class="subtitle">NCC1-5 U53 — Gary's Bus Trip</p>
+
+    <div class="instructions">
+        <strong>How it works:</strong> Read each sentence, then convert it in your head (or say it aloud). When you're ready, click <em>Show Answer</em> to check. No cheating! 🙂
+    </div>
+
+    <div class="section-label">Part A: "haven't/hasn't got any" → "have/has got no"</div>
+
+    <div id="container-a"></div>
+
+    <div class="section-label">Part B: "have/has got no" → "haven't/hasn't got any"</div>
+
+    <div id="container-b"></div>
+
+    <div class="section-label">Part C: Mixed — with "none of"</div>
+
+    <div id="container-c"></div>
+
+    <script>
+        const partA = [
+            { q: "He hasn't got any change for the fare.", a: "He has got no change for the fare." },
+            { q: "The tramp hasn't got any money for the bus.", a: "The tramp has got no money for the bus." },
+            { q: "The passengers haven't got any reason to be rude.", a: "The passengers have got no reason to be rude." },
+            { q: "She hasn't got any notes, only coins.", a: "She has got no notes, only coins." },
+            { q: "I haven't got any change except a £20 note.", a: "I have got no change except a £20 note." },
+            { q: "The conductor hasn't got any patience left.", a: "The conductor has got no patience left." },
+        ];
+
+        const partB = [
+            { q: "The tramp has got no home.", a: "The tramp hasn't got any home." },
+            { q: "None of the passengers have got tickets.", a: "The passengers haven't got any tickets." },
+            { q: "She has got no fare for the bus.", a: "She hasn't got any fare for the bus." },
+            { q: "We have got no reason to get off here.", a: "We haven't got any reason to get off here." },
+            { q: "He has got no laptop — he can't afford one.", a: "He hasn't got any laptop — he can't afford one." },
+        ];
+
+        const partC = [
+            { q: "None of the passengers can afford the fare.", dir: "Rewrite using 'no'", a: "No passengers can afford the fare." },
+            { q: "He doesn't have any friends except Gary.", dir: "Rewrite using 'no … except'", a: "He has no friends except Gary." },
+            { q: "There are no seats on the bus.", dir: "Rewrite using 'aren't any'", a: "There aren't any seats on the bus." },
+            { q: "Nobody wants to pay in instalments.", dir: "Rewrite using 'none of them'", a: "None of them want to pay in instalments." },
+            { q: "Neither of them has got any money.", dir: "Rewrite using 'no'", a: "Neither of them has got no money." },
+        ];
+
+        function buildCards(data, containerId, showDirection) {
+            const container = document.getElementById(containerId);
+            data.forEach((item, i) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-number">Sentence ${i + 1}</div>
+                    ${showDirection && item.dir ? `<div class="direction">${item.dir}</div>` : ''}
+                    <div class="sentence">${item.q}</div>
+                    <div class="answer-area">
+                        <button class="reveal-btn" onclick="reveal(this)">Show Answer</button>
+                        <span class="answer-text">${item.a}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function reveal(btn) {
+            if (btn.classList.contains('revealed')) return;
+            btn.classList.add('revealed');
+            btn.textContent = '✓';
+            const answerText = btn.nextElementSibling;
+            answerText.classList.add('show');
+        }
+
+        buildCards(partA, 'container-a', false);
+        buildCards(partB, 'container-b', false);
+        buildCards(partC, 'container-c', true);
+    </script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

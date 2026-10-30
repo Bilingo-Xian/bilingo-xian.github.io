@@ -1,0 +1,759 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocab Challenge — Units 28–30</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=Caveat:wght@700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--ink:#2d2926;--green:#10b981;--red:#ff5a4e;--amber:#f0b420;--purple:#b0a5f4;--orange:#e8590c;--cream:#fff8ef}
+body{font-family:'Nunito',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;color:var(--ink);user-select:none;-webkit-user-select:none;touch-action:manipulation;overflow-x:hidden}
+
+/* ===== Wavy animated background ===== */
+.bg-stack{position:fixed;inset:0;z-index:0;overflow:hidden}
+.bg-layer{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease,filter .5s ease}
+.bg-layer.on{opacity:1}
+body.fail-mood .bg-layer{filter:saturate(.5) sepia(.3) brightness(.9)}
+.wave{position:absolute;left:0;width:200%;pointer-events:none;animation:waveDrift 17s linear infinite,waveBob 7s ease-in-out infinite}
+.wave path{fill:rgba(255,255,255,.22)}
+.wave.w2{animation-duration:27s,9s;animation-direction:reverse,normal;bottom:-8px}
+.wave.w2 path{fill:rgba(255,255,255,.13)}
+@keyframes waveDrift{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes waveBob{0%,100%{margin-bottom:0}50%{margin-bottom:10px}}
+
+/* ===== Fail vignette + emoji wave ===== */
+#vignette{position:fixed;inset:0;z-index:55;pointer-events:none;opacity:0;transition:opacity .4s ease;background:radial-gradient(ellipse at center,transparent 48%,rgba(190,30,30,.42) 80%,rgba(140,15,15,.62) 100%)}
+#vignette.on{opacity:1}
+#emoji-layer{position:fixed;inset:0;z-index:60;pointer-events:none;overflow:hidden}
+.fx-emoji{position:absolute;bottom:-60px;animation:emojiRise 1.9s ease-out forwards,emojiSway .6s ease-in-out infinite alternate;text-shadow:0 2px 8px rgba(0,0,0,.15)}
+@keyframes emojiRise{from{opacity:1}to{transform:translateY(-82vh) rotate(16deg);opacity:0}}
+@keyframes emojiSway{from{margin-left:0}to{margin-left:20px}}
+
+/* ===== App frame + shake ===== */
+#app{width:100%;max-width:640px;padding:16px;position:relative;z-index:2;min-height:100vh}
+#app.shaking{animation:shakeMild .5s ease}
+#app.shaking-hard{animation:shakeHard .65s ease}
+@keyframes shakeMild{0%,100%{transform:translate(0,0) rotate(0)}15%{transform:translate(-5px,2px) rotate(-.6deg)}30%{transform:translate(5px,-2px) rotate(.5deg)}45%{transform:translate(-4px,1px) rotate(-.4deg)}60%{transform:translate(4px,2px) rotate(.4deg)}75%{transform:translate(-2px,-1px) rotate(-.2deg)}90%{transform:translate(2px,1px) rotate(.2deg)}}
+@keyframes shakeHard{0%,100%{transform:translate(0,0) rotate(0)}10%{transform:translate(-12px,4px) rotate(-1.3deg)}25%{transform:translate(12px,-5px) rotate(1.2deg)}40%{transform:translate(-10px,3px) rotate(-1deg)}55%{transform:translate(10px,5px) rotate(1deg)}70%{transform:translate(-7px,-3px) rotate(-.6deg)}85%{transform:translate(6px,2px) rotate(.5deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(36px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes confettiFall{to{top:110vh;transform:rotate(720deg)}}
+@keyframes floatUp{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-85px) scale(1.5)}}
+@keyframes starPop{from{transform:scale(0) rotate(-180deg)}to{transform:scale(1) rotate(0)}}
+
+.screen{display:none}.screen.active{display:block;animation:fadeIn .45s ease}
+
+/* ===== Top bar ===== */
+.top-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.tpill{background:#fff;border:3px solid rgba(45,41,38,.08);border-radius:100vw;padding:6px 14px;font-weight:900;font-size:.8em;box-shadow:0 4px 14px rgba(45,41,38,.10)}
+.stage-badge.easy{color:#0b7a5c;border-color:#a7f3d0;background:#ecfdf5}
+.stage-badge.medium{color:#92610b;border-color:#fde68a;background:#fffbeb}
+.stage-badge.hard{color:#c0392b;border-color:#fecaca;background:#fef2f2}
+.streak-badge{display:none;color:#c2410c}
+.streak-badge.show{display:inline-block;animation:pulse .6s ease infinite}
+.progress-wrap{height:10px;background:rgba(255,255,255,.35);border-radius:100vw;overflow:hidden;margin-bottom:12px;border:2px solid rgba(255,255,255,.35)}
+.progress-bar{height:100%;background:#fff;border-radius:100vw;transition:width .4s ease}
+
+/* ===== Timer ===== */
+.timer-wrap{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.timer-circle{width:50px;height:50px;border-radius:50%;border:4px solid rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:1.15em;color:#fff;flex-shrink:0;background:rgba(255,255,255,.18);transition:border-color .3s;text-shadow:0 2px 6px rgba(0,0,0,.18)}
+.timer-circle.warning{border-color:var(--amber);animation:pulse .5s ease infinite}
+.timer-circle.danger{border-color:var(--red);animation:pulse .3s ease infinite}
+.timer-bar-bg{flex:1;height:10px;background:rgba(255,255,255,.35);border-radius:100vw;overflow:hidden;border:2px solid rgba(255,255,255,.35)}
+.timer-bar{height:100%;border-radius:100vw;transition:width .1s linear,background .3s}
+.timer-bar.full{background:#fff}
+.timer-bar.mid{background:var(--amber)}
+.timer-bar.low{background:var(--red)}
+
+/* ===== Question card ===== */
+.q-card{background:#fff;border-radius:26px;padding:26px 24px 22px;margin-bottom:14px;box-shadow:0 12px 34px rgba(45,41,38,.16);border:3px solid rgba(45,41,38,.05);animation:slideUp .35s ease}
+.q-type-label{font-family:'Fredoka One',cursive;font-size:.95em;letter-spacing:.5px;margin-bottom:10px;color:#7c3aed}
+.q-prompt{font-weight:800;font-size:1.18em;line-height:1.5}
+.q-context{margin-top:10px;color:#666;font-size:.95em;font-weight:600;font-style:italic}
+
+/* ===== Options ===== */
+.options-grid{display:grid;gap:12px}
+.options-grid.cols-2{grid-template-columns:1fr 1fr}
+.options-grid.cols-1{grid-template-columns:1fr}
+.opt-btn{background:#fff;border:3px solid rgba(45,41,38,.10);border-radius:18px;padding:18px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1.02em;color:var(--ink);cursor:pointer;transition:all .15s;box-shadow:0 5px 0 rgba(45,41,38,.07)}
+.opt-btn:hover{transform:translateY(-3px);border-color:var(--purple);box-shadow:0 8px 0 rgba(45,41,38,.07)}
+.opt-btn:active{transform:scale(.96)}
+.opt-btn.correct{background:var(--green);border-color:#0b7a5c;color:#fff;animation:popIn .35s ease;box-shadow:0 5px 0 #0b7a5c}
+.opt-btn.wrong{background:var(--red);border-color:#b91c1c;color:#fff}
+.opt-btn.dead{background:#eceff1;border-color:#ff8a80;color:#9aa0a6;pointer-events:none;box-shadow:none}
+.opt-btn.dead::before{content:'✗ ';color:#e53935;font-weight:900}
+.opt-btn.disabled{pointer-events:none}
+.tf-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tf-btn{border:3px solid rgba(45,41,38,.10);border-radius:18px;padding:20px;font-family:'Fredoka One',cursive;font-size:1.25em;cursor:pointer;background:#fff;transition:all .15s;box-shadow:0 5px 0 rgba(45,41,38,.07)}
+.tf-true{color:#0b7a5c}.tf-false{color:#c0392b}
+.tf-btn.correct{background:var(--green);color:#fff;border-color:#0b7a5c;box-shadow:0 5px 0 #0b7a5c}
+.tf-btn.wrong{background:var(--red);color:#fff;border-color:#b91c1c}
+.tf-btn.dead{background:#eceff1;border-color:#ff8a80;color:#9aa0a6;pointer-events:none;box-shadow:none}
+.tf-btn.dead::before{content:'✗ ';color:#e53935}
+.tf-btn.disabled{pointer-events:none}
+
+/* ===== Drag / build ===== */
+.drag-sentence{background:#fff;border-radius:18px;padding:22px 18px;font-weight:800;font-size:1.12em;line-height:2.3;text-align:center;border:3px solid rgba(45,41,38,.08);box-shadow:0 5px 0 rgba(45,41,38,.06)}
+.drag-blank{display:inline-block;min-width:64px;border:3px dashed var(--purple);border-radius:12px;padding:2px 10px;margin:0 3px;color:#8b7fd4;background:#f6f4ff;cursor:pointer;transition:all .15s;font-size:.9em}
+.drag-blank.filled{border-style:solid;background:#ede9fe;color:#5b21b6}
+.drag-blank.correct-slot{border-color:var(--green);background:#d1fae5;color:#065f46;border-style:solid}
+.drag-blank.wrong-slot{border-color:var(--red);background:#ffe3e0;color:#b91c1c;border-style:solid;animation:wrongFlash .45s ease 3}
+.drag-blank.locked{pointer-events:none}
+@keyframes wrongFlash{0%,100%{background:#ffe3e0}50%{background:#ffb3ab}}
+.drag-tiles{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px}
+.drag-tile{background:#fff;border:3px solid rgba(45,41,38,.12);border-radius:14px;padding:12px 18px;font-weight:900;font-size:1em;cursor:pointer;box-shadow:0 4px 0 rgba(45,41,38,.08);transition:all .12s;font-family:'Nunito',sans-serif}
+.drag-tile:hover{transform:translateY(-2px)}
+.drag-tile.used{opacity:.25;pointer-events:none;transform:scale(.95)}
+.drag-tile.disabled{pointer-events:none;opacity:.4}
+.drag-check-btn{display:none;margin:18px auto 0;background:linear-gradient(135deg,#f0b420,#f97316);color:#fff;border:none;padding:15px 40px;border-radius:100vw;font-family:'Fredoka One',cursive;font-size:1.1em;cursor:pointer;box-shadow:0 6px 0 #c2610f;transition:all .15s}
+.drag-check-btn.show{display:block;animation:popIn .3s ease}
+.drag-check-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #c2610f}
+
+/* ===== Feedback ===== */
+.feedback{display:none;margin-top:16px;border-radius:20px;padding:16px 18px;font-weight:800;animation:slideUp .3s ease;border:3px solid transparent}
+.feedback.show{display:block}
+.feedback.fb-correct{background:#d1fae5;border-color:#6ee7b7;color:#065f46}
+.feedback.fb-wrong{background:#ffe3e0;border-color:#ffb3ab;color:#b91c1c}
+.feedback.fb-try{background:#fff7d6;border-color:#efd978;color:#8a6d0b}
+.feedback.fb-blaze{background:linear-gradient(135deg,#fef3c7,#fde68a);border-color:var(--amber);color:#92400e}
+.feedback-icon{font-size:1.3em;margin-right:6px}
+.feedback-text{font-family:'Fredoka One',cursive;font-size:1.15em}
+.feedback-explain{margin-top:8px;font-weight:700;font-size:.93em;line-height:1.5}
+.pts-badge{display:inline-block;background:#ecfdf5;color:var(--green);padding:2px 12px;border-radius:100vw;font-size:.85em;font-weight:900;margin-left:8px}
+.pts-badge.zero{background:#fef2f2;color:#dc2626}
+.pts-badge.blaze{background:linear-gradient(135deg,#f0b420,#f97316);color:#fff}
+
+/* ===== Discussion ===== */
+.discuss-card{display:none;margin-top:14px;background:var(--cream);border:3px solid var(--amber);border-radius:20px;padding:16px 18px;animation:slideUp .35s ease}
+.discuss-card.show{display:block}
+.discussion-label{font-family:'Caveat',cursive;font-size:1.5em;color:#c47f0e;margin-bottom:2px}
+.discussion-text{font-weight:800;font-size:1.05em;line-height:1.5;color:#5b4a1e}
+
+/* ===== Next button ===== */
+.next-wrap{display:none;margin-top:16px;text-align:center}
+.next-wrap.show{display:block}
+.next-btn{background:var(--ink);color:#fff;border:none;padding:16px 46px;border-radius:100vw;font-family:'Fredoka One',cursive;font-size:1.15em;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.28);transition:all .15s;animation:popIn .3s ease}
+.next-btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.28)}
+</style>
+<style>
+/* ===== Start screen ===== */
+.start-screen{text-align:center;padding-top:9vh}
+.start-kicker{font-family:'Caveat',cursive;font-size:1.7em;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.22)}
+.start-title{font-family:'Fredoka One',cursive;font-size:3em;color:#fff;line-height:1.04;margin:6px 0 10px;text-shadow:0 4px 0 rgba(45,41,38,.18),0 12px 32px rgba(0,0,0,.16)}
+.start-title .t1{display:block;transform:rotate(-2.4deg)}
+.start-title .t2{display:block;transform:rotate(1.6deg)}
+.start-units{display:inline-block;background:#fff;color:var(--ink);border-radius:100vw;padding:8px 24px;font-weight:900;transform:rotate(-1.2deg);box-shadow:0 5px 0 rgba(45,41,38,.15);margin-bottom:8px}
+.start-theme{color:#fff;font-weight:800;text-shadow:0 2px 8px rgba(0,0,0,.2);margin-bottom:30px}
+.start-btn{background:#fff;color:var(--ink);padding:18px 52px;border:4px solid var(--ink);border-radius:100vw;font-family:'Fredoka One',cursive;font-size:1.35em;cursor:pointer;box-shadow:0 7px 0 rgba(45,41,38,.35);transition:all .15s;animation:pulse 2.2s ease infinite}
+.start-btn:hover{transform:translateY(-3px) rotate(-1deg)}
+.start-btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(45,41,38,.35)}
+.start-words{margin:28px auto 0;max-width:540px;line-height:2.1;font-weight:800}
+.start-words span{display:inline-block;background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.4);border-radius:100vw;padding:2px 12px;margin:3px;font-size:.8em;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.15)}
+
+/* ===== Level up ===== */
+.levelup-screen{text-align:center;padding:12vh 20px 0}
+.levelup-icon{font-size:4.2em;margin-bottom:14px;animation:bounce 1s ease infinite}
+.levelup-title{font-family:'Fredoka One',cursive;font-size:2.4em;color:#fff;margin-bottom:10px}
+.levelup-title .u1{display:block;transform:rotate(-2deg);text-shadow:0 4px 0 rgba(45,41,38,.2)}
+.levelup-title .u2{display:block;transform:rotate(1.4deg);font-size:.6em;text-shadow:0 4px 0 rgba(45,41,38,.2)}
+.levelup-msg{color:#fff;font-weight:800;font-size:1.05em;margin-bottom:10px;text-shadow:0 1px 6px rgba(0,0,0,.22)}
+.levelup-score{font-family:'Fredoka One',cursive;font-size:1.5em;color:#fff;margin-bottom:30px;text-shadow:0 2px 8px rgba(0,0,0,.22)}
+.levelup-btn{background:#fff;color:var(--ink);border:4px solid var(--ink);padding:16px 44px;border-radius:100vw;font-family:'Fredoka One',cursive;font-size:1.25em;cursor:pointer;box-shadow:0 7px 0 rgba(45,41,38,.35);transition:all .15s}
+.levelup-btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(45,41,38,.35)}
+.levelup-next-stage{color:#fff;font-weight:800;margin-top:16px;text-shadow:0 1px 6px rgba(0,0,0,.22)}
+
+/* ===== Final ===== */
+.final-card{background:#fff;border-radius:28px;padding:36px 26px;text-align:center;box-shadow:0 14px 40px rgba(45,41,38,.2);border:3px solid rgba(45,41,38,.06);margin-top:5vh;animation:slideUp .4s ease}
+.final-title{font-family:'Fredoka One',cursive;font-size:2.1em}
+.final-score{font-family:'Fredoka One',cursive;font-size:3.6em;color:var(--orange)}
+.final-label{color:#999;font-size:.9em;font-weight:800;margin-bottom:14px}
+.final-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:14px 0}
+.fstat{background:var(--cream);border-radius:16px;padding:12px 8px;border:2px solid rgba(45,41,38,.06)}
+.fstat-val{font-family:'Fredoka One',cursive;font-size:1.5em;color:var(--orange)}
+.fstat-lbl{font-size:.68em;color:#999;text-transform:uppercase;font-weight:900;letter-spacing:.5px}
+.final-stars{font-size:3em;margin:10px 0}
+.final-stars .star{display:inline-block;opacity:.15;transition:all .4s}
+.final-stars .star.on{opacity:1;animation:starPop .5s ease backwards}
+.final-stars .star:nth-child(2){animation-delay:.2s}.final-stars .star:nth-child(3){animation-delay:.4s}
+.final-msg{font-size:1.05em;color:#555;font-weight:700;margin:12px 0 22px;line-height:1.5}
+.final-btn{background:var(--ink);color:#fff;padding:15px 40px;border:none;border-radius:100vw;font-weight:900;font-size:1.05em;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.25);transition:all .15s}
+.final-btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
+
+/* ===== Mistakes + review cards ===== */
+.mistakes-card{background:#fff;border-radius:26px;padding:30px 24px;margin-top:18px;box-shadow:0 14px 40px rgba(45,41,38,.18);text-align:left;border:3px solid #ffb3ab;position:relative;overflow:hidden;animation:slideUp .4s ease}
+.mistakes-card::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#ff5a4e,#f97316,#f0b420)}
+.mistakes-title{font-family:'Fredoka One',cursive;font-size:1.45em;color:#c0392b;text-align:center;margin-bottom:4px}
+.mistakes-subtitle{text-align:center;color:#888;font-weight:800;font-size:.92em;margin-bottom:18px}
+.mistake-item{background:#fef2f2;border:2px solid #fecaca;border-radius:14px;padding:12px 16px;margin-bottom:8px;font-weight:800;color:#991b1b;font-size:.95em;animation:slideUp .4s ease backwards}
+.mistake-sub{font-family:'Fredoka One',cursive;font-size:.95em;color:#991b1b;margin:10px 0 8px}
+.mistake-words{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.mistake-word-tag{background:#fee2e2;border:2px solid #fca5a5;border-radius:100vw;padding:4px 14px;font-weight:900;font-size:.82em;color:#991b1b}
+.perfect-card{background:#fff;border-radius:26px;padding:30px 24px;margin-top:18px;box-shadow:0 14px 40px rgba(45,41,38,.18);text-align:center;border:3px solid #a7f3d0;animation:slideUp .4s ease}
+.perfect-title{font-family:'Fredoka One',cursive;font-size:1.4em;color:var(--green)}
+.perfect-msg{color:#555;font-weight:800;margin-top:6px}
+.review-card{background:#fff;border-radius:26px;padding:30px 24px;margin-top:18px;box-shadow:0 14px 40px rgba(45,41,38,.18);text-align:left;border:3px solid rgba(45,41,38,.06);animation:slideUp .4s ease}
+.review-title{font-family:'Fredoka One',cursive;font-size:1.5em;color:#7c3aed;text-align:center;margin-bottom:4px}
+.review-prompt{text-align:center;color:#777;font-weight:800;font-size:.95em;margin-bottom:18px}
+.review-section-label{font-family:'Fredoka One',cursive;font-size:1em;color:#3b0764;margin:16px 0 10px;padding-bottom:6px;border-bottom:3px solid #ede9fe}
+.structure-list{list-style:none;padding:0;margin:0}
+.structure-list li{background:#f5f3ff;border:2px solid #c4b5fd;border-radius:14px;padding:11px 14px;margin-bottom:8px;font-weight:800;font-size:.92em;color:#5b21b6;line-height:1.4}
+.structure-list li .struct-example{display:block;font-weight:600;color:#666;font-size:.86em;margin-top:3px;font-style:italic}
+.word-cloud{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:6px}
+.word-tag{background:var(--cream);border:2px solid #fde68a;border-radius:100vw;padding:5px 14px;font-weight:900;font-size:.84em;color:#92610b}
+
+/* ===== Blaze overlay ===== */
+.blaze-overlay{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.32);animation:blazeIn .3s ease;pointer-events:none}
+@keyframes blazeIn{from{opacity:0}to{opacity:1}}
+@keyframes blazeOut{to{opacity:0}}
+.blaze-scene{position:relative;width:280px;height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.blaze-ring{position:absolute;inset:0;border-radius:50%;border:6px solid rgba(240,180,32,.85);animation:ringPulse 1.4s ease-out infinite}
+.blaze-ring:nth-child(2){animation-delay:.3s}
+.blaze-ring:nth-child(3){animation-delay:.6s}
+@keyframes ringPulse{from{transform:scale(.35);opacity:1}to{transform:scale(1.35);opacity:0}}
+.blaze-emoji{font-size:4.2em;animation:bounce .7s ease infinite;z-index:2}
+.blaze-label{font-family:'Fredoka One',cursive;font-size:1.75em;color:#fff;transform:rotate(-2deg);z-index:2;margin-top:8px;text-shadow:0 3px 0 rgba(45,41,38,.28),0 8px 24px rgba(0,0,0,.25)}
+.blaze-bonus{font-weight:900;color:#fff;background:var(--orange);padding:5px 18px;border-radius:100vw;margin-top:12px;z-index:2;box-shadow:0 3px 0 rgba(0,0,0,.22);font-size:.9em}
+
+/* ===== Floating bits ===== */
+.confetti-piece{position:fixed;top:-20px;z-index:65;pointer-events:none;animation:confettiFall linear forwards}
+.float-points{position:fixed;font-family:'Fredoka One',cursive;pointer-events:none;z-index:66;animation:floatUp 1.2s ease forwards;text-shadow:0 2px 10px rgba(0,0,0,.2)}
+
+@media(max-width:460px){
+.start-title{font-size:2.2em}
+.q-prompt{font-size:1.02em}
+.options-grid.cols-2{grid-template-columns:1fr}
+.final-score{font-size:2.8em}
+.drag-blank{min-width:52px;padding:2px 6px;font-size:.82em}
+.drag-tile{padding:10px 14px;font-size:.88em}
+.tpill{font-size:.72em;padding:5px 10px}
+.levelup-title{font-size:1.8em}
+.blaze-scene{width:230px;height:230px}
+.blaze-label{font-size:1.3em}
+}
+</style>
+</head>
+<body>
+<div class="bg-stack">
+  <div class="bg-layer" id="bg-a"></div>
+  <div class="bg-layer" id="bg-b"></div>
+  <svg class="wave w1" viewBox="0 0 2880 320" preserveAspectRatio="none" style="height:24vh;min-height:110px"><path d="M0,170 C240,90 480,250 720,170 C960,90 1200,250 1440,170 C1680,90 1920,250 2160,170 C2400,90 2640,250 2880,170 L2880,320 L0,320 Z"/></svg>
+  <svg class="wave w2" viewBox="0 0 2880 320" preserveAspectRatio="none" style="height:18vh;min-height:80px"><path d="M0,200 C90,120 270,270 360,200 C450,120 630,270 720,200 C810,120 990,270 1080,200 C1170,120 1350,270 1440,200 C1530,120 1710,270 1800,200 C1890,120 2070,270 2160,200 C2250,120 2430,270 2520,200 C2610,120 2790,270 2880,200 L2880,320 L0,320 Z"/></svg>
+</div>
+<div id="vignette"></div>
+<div id="emoji-layer"></div>
+<div id="app">
+
+<div id="start-screen" class="screen active">
+<div class="start-screen">
+  <div class="start-kicker">Bilingo English · Review Class</div>
+  <div class="start-title"><span class="t1">VOCAB</span><span class="t2">CHALLENGE!</span></div>
+  <div class="start-units">UNITS 28 – 30</div>
+  <div class="start-theme">A Week with the Wangs 🥞 · Michelle is Late ⏰ · A Great Shop Assistant 🛒</div>
+  <button class="start-btn" onclick="beginGame()">Let's Go! 🚀</button>
+  <div class="start-words">
+    <span>afternoon</span><span>arrive</span><span>evening</span><span>home</span><span>housework</span><span>live</span><span>lunch</span><span>stay</span><span>together</span><span>usually</span><span>fast</span><span>noon</span><span>often</span><span>pancake</span><span>wake up</span><span>weekend</span><span>moment</span><span>o'clock</span><span>shop</span><span>brush one's hair</span><span>get dressed</span><span>locked</span><span>chalk</span><span>change</span><span>envelope</span><span>glue</span><span>pad of paper</span><span>shop assistant</span><span>size</span><span>writing paper</span><span>forget</span><span>money</span>
+  </div>
+</div>
+</div>
+
+<div id="levelup-screen" class="screen">
+<div class="levelup-screen">
+  <div class="levelup-icon" id="lu-icon">⬆️</div>
+  <div class="levelup-title"><span class="u1" id="lu-title">LEVEL UP!</span><span class="u2" id="lu-sub">You did it!</span></div>
+  <div class="levelup-msg" id="lu-msg">Great work so far!</div>
+  <div class="levelup-score" id="lu-score">🏆 Score: 0</div>
+  <button class="levelup-btn" id="lu-btn" onclick="startNextStage()">Continue →</button>
+  <div class="levelup-next-stage" id="lu-next">Next: MEDIUM</div>
+</div>
+</div>
+
+<div id="game-screen" class="screen">
+<div class="top-bar">
+  <span class="tpill stage-badge easy" id="g-stage">EASY</span>
+  <span class="tpill streak-badge" id="g-streak">🔥 3</span>
+  <span class="tpill">🏆 <span id="g-score">0</span></span>
+  <span class="tpill" id="g-counter">1 / 8</span>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="g-progress"></div></div>
+<div class="timer-wrap" id="timer-area">
+  <div class="timer-circle" id="timer-num">15</div>
+  <div class="timer-bar-bg"><div class="timer-bar full" id="timer-bar"></div></div>
+</div>
+<div class="q-card">
+  <div class="q-type-label" id="q-label">EASY</div>
+  <div class="q-prompt" id="q-prompt"></div>
+  <div class="q-context" id="q-context"></div>
+</div>
+<div class="options-grid cols-2" id="opts-area"></div>
+<div class="tf-grid" id="tf-area" style="display:none"></div>
+<div id="drag-area" style="display:none">
+  <div class="drag-sentence" id="drag-sentence"></div>
+  <div class="drag-tiles" id="drag-tiles"></div>
+  <button class="drag-check-btn" id="drag-check" onclick="checkDrag()">Check Answer ✓</button>
+</div>
+<div class="feedback" id="feedback">
+  <span class="feedback-icon" id="fb-icon">✅</span>
+  <span class="feedback-text" id="fb-text"></span>
+  <span class="pts-badge" id="fb-pts"></span>
+  <div class="feedback-explain" id="fb-explain"></div>
+</div>
+<div class="discuss-card" id="discuss-card">
+  <div class="discussion-label">💬 BONUS — Let's Talk!</div>
+  <div class="discussion-text" id="discuss-text"></div>
+</div>
+<div class="next-wrap" id="next-wrap"><button class="next-btn" id="next-btn" onclick="nextQuestion()">Next →</button></div>
+</div>
+
+<div id="final-screen" class="screen">
+<div class="final-card">
+  <div class="final-title">Game Over! 🎬</div>
+  <div class="final-score" id="f-score">0</div>
+  <div class="final-label">Class Points</div>
+  <div class="final-stats">
+    <div class="fstat"><div class="fstat-val" id="f-correct">0</div><div class="fstat-lbl">Correct</div></div>
+    <div class="fstat"><div class="fstat-val" id="f-total">0</div><div class="fstat-lbl">Questions</div></div>
+    <div class="fstat"><div class="fstat-val" id="f-pct">0%</div><div class="fstat-lbl">Accuracy</div></div>
+  </div>
+  <div class="final-stars"><span class="star" id="fs1">⭐</span><span class="star" id="fs2">⭐</span><span class="star" id="fs3">⭐</span></div>
+  <div class="final-msg" id="f-msg"></div>
+  <button class="final-btn" onclick="location.reload()">Play Again 🔁</button>
+</div>
+<div id="mistakes-area"></div>
+<div class="review-card">
+  <div class="review-title">📚 Review Time!</div>
+  <div class="review-prompt">Can you make your own sentences with these?</div>
+  <div class="review-section-label">✏️ Key Structures</div>
+  <ul class="structure-list">
+    <li>take sb. to sp.<span class="struct-example">My dad takes me to school. (带某人去某地)</span></li>
+    <li>arrive in / at<span class="struct-example">We arrive at school at 8. / We arrive in Italy. (到达)</span></li>
+    <li>at noon<span class="struct-example">We eat lunch at noon. (在中午)</span></li>
+    <li>at the moment<span class="struct-example">At the moment, I'm doing my homework. (现在、此刻)</span></li>
+    <li>by + transport<span class="struct-example">I go to school by bus. / I walk — I go on foot! (乘坐)</span></li>
+    <li>Do you want … or …?<span class="struct-example">Do you want the big one or the small one? (你想要……还是……？)</span></li>
+    <li>What else …?<span class="struct-example">What else do you want? (还要什么？)</span></li>
+  </ul>
+  <div class="review-section-label">📖 Words — Unit 28 (A Week with the Wangs)</div>
+  <div class="word-cloud">
+    <span class="word-tag">afternoon</span><span class="word-tag">arrive</span><span class="word-tag">evening</span><span class="word-tag">home</span><span class="word-tag">housework</span><span class="word-tag">live</span><span class="word-tag">lunch</span><span class="word-tag">stay</span><span class="word-tag">together</span><span class="word-tag">usually</span><span class="word-tag">fast</span><span class="word-tag">noon</span><span class="word-tag">often</span><span class="word-tag">pancake</span><span class="word-tag">wake up</span><span class="word-tag">weekend</span>
+  </div>
+  <div class="review-section-label">📖 Words — Unit 29 (Michelle is Late)</div>
+  <div class="word-cloud">
+    <span class="word-tag">moment</span><span class="word-tag">o'clock</span><span class="word-tag">shop</span><span class="word-tag">brush one's hair</span><span class="word-tag">get dressed</span><span class="word-tag">locked</span>
+  </div>
+  <div class="review-section-label">📖 Words — Unit 30 (A Great Shop Assistant)</div>
+  <div class="word-cloud">
+    <span class="word-tag">chalk</span><span class="word-tag">change</span><span class="word-tag">envelope</span><span class="word-tag">glue</span><span class="word-tag">pad of paper</span><span class="word-tag">shop assistant</span><span class="word-tag">size</span><span class="word-tag">writing paper</span><span class="word-tag">forget</span><span class="word-tag">money</span>
+  </div>
+</div>
+</div>
+
+</div>
+<div id="blaze-container"></div>
+
+<script>
+/* ===== AUDIO (all synthesized, no files) ===== */
+let ac;
+function initAC(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}
+function note(f,t0,dur,type,vol,slideTo){type=type||'sine';vol=vol||.07;const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.connect(g);g.connect(ac.destination);o.frequency.setValueAtTime(f,ac.currentTime+t0);if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,ac.currentTime+t0+dur);g.gain.setValueAtTime(vol,ac.currentTime+t0);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t0+dur);o.start(ac.currentTime+t0);o.stop(ac.currentTime+t0+dur+.03)}
+function snd(t){try{initAC();
+if(t==='cl'){note(700,0,.05,'sine',.045)}
+else if(t==='ok'){note(523,0,.12);note(659,.08,.12);note(784,.16,.28)}
+else if(t==='ok2'){note(392,0,.1,'triangle',.08);[784,988,1175,1319,1568].forEach((f,i)=>note(f,.06+i*.08,.22,'triangle',.075));note(2093,.5,.4,'sine',.05)}
+else if(t==='no1'){note(311,0,.14,'sine',.06,277);note(233,.13,.24,'sine',.06)}
+else if(t==='no2'){note(392,0,.16,'sawtooth',.04);note(370,.16,.16,'sawtooth',.04);note(349,.32,.16,'sawtooth',.04);note(330,.48,.22,'sawtooth',.04);note(262,.7,.6,'sawtooth',.045,235)}
+else if(t==='win'){[523,659,784,1047].forEach((f,i)=>note(f,i*.13,.34,'sine',.065))}
+}catch(e){}}
+
+/* ===== FX: confetti, floating points, emoji wave, vignette, shake ===== */
+function confetti(n){n=n||20;const cols=['#f0b420','#fb66e5','#00c2b9','#6595f9','#ff5800','#10b981','#b0a5f4'];for(let i=0;i<n;i++){const p=document.createElement('div');p.className='confetti-piece';p.style.left=Math.random()*100+'vw';p.style.background=cols[~~(Math.random()*cols.length)];p.style.width=(Math.random()*8+5)+'px';p.style.height=(Math.random()*8+5)+'px';p.style.borderRadius=Math.random()>.5?'50%':'3px';p.style.animationDuration=(Math.random()*2+1.5)+'s';p.style.animationDelay=Math.random()*.4+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),4200)}}
+function floatPts(x,y,txt,col){const e=document.createElement('div');e.className='float-points';e.textContent=txt;e.style.left=x+'px';e.style.top=y+'px';e.style.color=col||'#0b7a5c';e.style.fontSize='1.5em';document.body.appendChild(e);setTimeout(()=>e.remove(),1200)}
+const FAIL_EMOJIS=['🤔','😅','🙈','😬','❓','🤷','💭','😵‍💫'];
+function emojiWave(){const layer=document.getElementById('emoji-layer');for(let i=0;i<16;i++){const e=document.createElement('div');e.className='fx-emoji';e.textContent=FAIL_EMOJIS[~~(Math.random()*FAIL_EMOJIS.length)];e.style.left=(3+Math.random()*92)+'vw';e.style.fontSize=(1.5+Math.random()*1.5)+'em';e.style.animationDelay=(Math.random()*.35)+'s';layer.appendChild(e);setTimeout(()=>e.remove(),2700)}}
+function vignetteFlash(){const v=document.getElementById('vignette');document.body.classList.add('fail-mood');v.classList.add('on');setTimeout(()=>{v.classList.remove('on');document.body.classList.remove('fail-mood')},1500)}
+function shake(lvl){const app=document.getElementById('app');app.classList.remove('shaking','shaking-hard');void app.offsetWidth;app.classList.add(lvl===1?'shaking':'shaking-hard')}
+
+/* ===== Wavy gradient background, re-rolled every question ===== */
+const PALETTES=['linear-gradient(160deg,#f5d76e,#ff8c69 55%,#c8a2c8)','linear-gradient(160deg,#00c2b9,#6595f9 60%,#b0a5f4)','linear-gradient(160deg,#ffc72c,#ff5800 55%,#fb66e5)','linear-gradient(160deg,#a8e6cf,#77c3f2 55%,#b0a5f4)','linear-gradient(160deg,#ff9a8b,#ff6a88 60%,#ffb38a)','linear-gradient(160deg,#f6d365,#fda085 55%,#f6a6c1)','linear-gradient(160deg,#84fab0,#8fd3f4 60%,#a6c1ee)','linear-gradient(160deg,#fccb90,#d57eeb 60%,#8fd3f4)'];
+let bgFlip=false,lastPal=-1;
+function rollPalette(){let i;do{i=~~(Math.random()*PALETTES.length)}while(i===lastPal&&PALETTES.length>1);lastPal=i;const a=document.getElementById('bg-a'),b=document.getElementById('bg-b');const showEl=bgFlip?a:b,hideEl=bgFlip?b:a;showEl.style.background=PALETTES[i];showEl.classList.add('on');hideEl.classList.remove('on');bgFlip=!bgFlip}
+rollPalette();
+
+/* ===== Blaze praise pool ===== */
+const PRAISES=[{e:'🚀',t:'BLAZING FAST!'},{e:'🧠',t:'GENIUS!'},{e:'🔥',t:'ON FIRE!'},{e:'🎯',t:'BULLSEYE!'},{e:'💎',t:'DIAMOND MIND!'},{e:'⚡',t:'LIGHTNING SPEED!'},{e:'👑',t:'SPEED KING!'},{e:'🌟',t:'STAR POWER!'}];
+function showBlaze(praise){const container=document.getElementById('blaze-container');const overlay=document.createElement('div');overlay.className='blaze-overlay';overlay.innerHTML='<div class="blaze-scene"><div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-emoji">'+praise.e+'</div><div class="blaze-label">'+praise.t+'</div><div class="blaze-bonus">⚡ SPEED BONUS +2 ⚡</div></div>';container.appendChild(overlay);snd('ok2');confetti(45);setTimeout(()=>{overlay.style.animation='blazeOut .4s ease forwards';setTimeout(()=>overlay.remove(),420)},1600)}
+</script>
+
+<script>
+/* ====== GAME DATA — Units 58-60 ====== */
+const BLAZE_THRESHOLD=5;
+const stages=[
+{
+  name:"EASY",badgeClass:"easy",icon:"🌟",timer:15,
+  questions:[
+    {qlabel:"🕛 Fill the gap",prompt:"It's 12:00 — the middle of the day. It's ___ .",opts:["noon","evening","weekend","moment"],ans:0,explain:"'Noon' = 12 o'clock in the middle of the day (中午). We eat lunch AT noon!",discuss:"What do you usually do at noon?",focus:{words:["noon","lunch"],structures:["at noon"]}},
+    {qlabel:"🔑 Fill the gap",prompt:"Oh no! The door is ___ — I can't get out!",opts:["locked","forgot","stayed","fast"],ans:0,explain:"'Locked' = closed with a key (锁着的). Michelle couldn't open the shop door — it was locked!",discuss:"The first person to stand up and lock a door will get a point.",focus:{words:["locked","forget"],structures:["be locked"]}},
+    {qlabel:"True or False?",prompt:"The 'weekend' means Saturday and Sunday. 🗓️",type:"tf",correct:true,explain:"Yes! The weekend = Saturday and Sunday (周末). No school — the Wangs stay home together!",discuss:"What do you usually do at the weekend?",focus:{words:["weekend","usually","stay","together"],structures:["usually + present simple"]}},
+    {qlabel:"✉️ Fill the gap",prompt:"You put a letter inside this before you send it. It's an ___ .",opts:["envelope","glue","pad","chalk"],ans:0,explain:"'Envelope' = the paper cover for a letter (信封). You put writing paper inside an envelope!",discuss:"Do you prefer writing letters, calling or texting? Why?",focus:{words:["envelope","writing paper"],structures:["Vocab: envelope"]}},
+    {qlabel:"True or False?",prompt:"You 'get dressed' when you put your clothes on in the morning. 👕",type:"tf",correct:true,explain:"Yes! 'Get dressed' = put on your clothes (穿衣服). Michelle got dressed fast — she was late!",discuss:"What do you do first in the morning — get dressed or have breakfast?",focus:{words:["get dressed","fast"],structures:["get dressed"]}},
+    {qlabel:"🚌 Fill the gap (review!)",prompt:"I go to school ___ bus every morning.",opts:["by","on","in","at"],ans:0,explain:"'By + transport': by bus, by car, by train (乘坐). But careful — 'on foot', not 'by foot'!",discuss:"How do you go to school? And how do your parents go to work?",focus:{words:["by bus","by car","by train"],structures:["by + transport; on foot"]}},
+    {qlabel:"🛒 Fill the gap",prompt:"'Can I help you?' says the shop ___ .",opts:["assistant","chalk","change","size"],ans:0,explain:"'Shop assistant' = the person who works in a shop and helps you (店员). A GREAT shop assistant smiles and helps!",discuss:"What is a 'great' shop assistant like? Describe him or her.",focus:{words:["shop assistant"],structures:["Vocab: shop assistant"]}},
+    {qlabel:"🥩 Fill the gap (review!)",prompt:"Beef, lamb and chicken are all kinds of ___ .",opts:["meat","fruit","vegetables","envelopes"],ans:0,explain:"Review (U25): beef, lamb and chicken are MEAT (肉). Beans and tomatoes are vegetables!",discuss:"What's your favourite meat? What meat don't you like? Why?",focus:{words:["beef","lamb","chicken","meat"],structures:["Vocab review: meat, vegetables, fruit"]}}
+  ]
+},
+{
+  name:"MEDIUM",badgeClass:"medium",icon:"🔥",timer:25,
+  questions:[
+    {qtype:"drag",qlabel:"🧩 Build it! (4 gaps, 6 tiles)",prompt:"Put the words in the correct places:",sentence:"I ___ up at seven, ___ my hair, ___ dressed, and my dad ___ me to school.",words:["wake","brush","get","takes","arrive","usually"],correct:["wake","brush","get","takes"],explain:"'Wake up → brush your hair → get dressed → Dad takes me to school.' Extra tiles: 'arrive' and 'usually' — don't use them!",discuss:"Tell me your morning routine — from wake up to arrive at school!",focus:{words:["wake up","brush one's hair","get dressed"],structures:["take sb. to sp.","morning routine order"]}},
+    {qtype:"drag",qlabel:"🧩 Build it! (4 gaps, 6 tiles)",prompt:"Put the words in the correct places:",sentence:"___ the moment, the shop ___ is very busy, ___ I come back ___ noon.",words:["At","assistant","so","at","in","moment"],correct:["At","assistant","so","at"],explain:"'At the moment' = NOW (现在). 'At noon' = at 12:00. Extra tiles: 'in' and 'moment'.",discuss:"What are you doing at the moment? Use the full sentence!",focus:{words:["at the moment","noon","shop assistant"],structures:["at the moment = now","at noon"]}},
+    {qtype:"drag",qlabel:"🧩 Build it! (4 gaps, 6 tiles)",prompt:"Put the words in the correct places:",sentence:"— ___ you want one box or two ___? — Two boxes, please! ___ ___?",words:["Do","boxes","What","else","Are","one"],correct:["Do","boxes","What","else"],explain:"'Do you want one box or two boxes?' — then the assistant asks 'What else?' (还要别的吗?). Extra tiles: 'Are' and 'one'.",discuss:"You are a shop assistant. A customer buys some chalk. What can you ask?",focus:{words:["What else","one / two boxes"],structures:["Do you want … or … ?","What else …?"]}},
+    {qtype:"drag",qlabel:"🧩 Build it! (review!)",prompt:"Put the words in the correct places:",sentence:"My friend ___ from Italy. She is ___. She lives ___ Rome. We can ___ there by train.",words:["comes","Italian","in","arrive","at","from"],correct:["comes","Italian","in","arrive"],explain:"Review (U27): 'Where does she come from?' — Italy. 'She is Italian.' We arrive IN a city or country — but arrive AT a small place. Extra tiles: 'at', 'from'.",discuss:"Where can you go by train? Where an you go by plane?",focus:{words:["come from","Italian","arrive"],structures:["Where … come from?","arrive in / at"]}},
+    {qlabel:"⚡ Which is CORRECT?",prompt:"Choose the sentence with NO mistakes:",opts:["Do you want the big one or the small one?","Do you wants the big one or the small one?","Do you wanting the big one or the small one?","Does you want the big one or the small one?"],ans:0,explain:"'Do you want…?' — after 'do', the verb stays 'want': no -s, no -ing. 'Do you want the big one or the small one?' ✓",discuss:"You are buying a gift for a friend. Do you buy a big one or a small one? Why?",focus:{words:["Do you want … or … ?"],structures:["Do / Does + subject + verb"]}},
+    {qlabel:"🚪 Fill the gap",prompt:"We arrive ___ school at eight o'clock.",opts:["at","in","on","by"],ans:0,explain:"'Arrive AT' a small place (school, the shop, home) — 'arrive IN' a big place (a city or country). We arrive AT school!",discuss:"What time do you arrive at school? Do you arrive early or late?",focus:{words:["arrive"],structures:["arrive in (city/country) / arrive at (place)"]}},
+    {qlabel:"🛍️ Fill the gap",prompt:"'— ___ else would you like?' asks the shop assistant. — 'Some glue, please!'",opts:["What","How","Who","Where"],ans:0,explain:"'What else?' = what other thing do you want? (还要什么?) A great assistant always asks 'What else?'!",discuss:"You have ¥1000 to spend in a toy shop. What do you buy? What else can you buy with change?",focus:{words:["What else","glue"],structures:["What else …?"]}},
+    {qlabel:"💰 Fill the gap",prompt:"I buy a pad of paper for ¥6 and give the shop assistant ¥10. She gives me ¥4 ___ .",opts:["change","chalk","money","size"],ans:0,explain:"'Change' = the money you get back (找零). ¥10 − ¥6 = ¥4 change!",discuss:"If you got ¥100 change by mistake, what would you do?",focus:{words:["change","money"],structures:["Here's your change."]}}
+  ]
+},
+{
+  name:"HARD",badgeClass:"hard",icon:"🏆",timer:20,
+  questions:[
+    {qlabel:"💵 What's this?",prompt:"You use these to buy things — coins and notes. What are they?",opts:["money","envelopes","chalk","pancakes"],ans:0,explain:"'Money' = 钱. You pay with money, and the shop assistant gives you your change!",discuss:"If you had a lot of money, what would you buy?",focus:{words:["money","change"],structures:["pay with money; get change back"]}},
+    {qlabel:"🛒 At the shop",prompt:"You buy a pad of paper for ¥6 and give the shop assistant ¥10. What happens next?",opts:["She gives me ¥4 change.","She gives me a box of chalk.","She says: 'Sorry, what do you want?.'","She gives me ¥16 back."],ans:0,explain:"¥10 − ¥6 = ¥4. She says: 'Here's your change!' — ¥4 back.",discuss:"Do you ever buy things yourself? What was the last thing you bought?",focus:{words:["change","money","pad"],structures:["Here's your change."]}},
+    {qlabel:"🔍 Odd One Out",prompt:"Which word is NOT about time?",opts:["afternoon","noon","evening","size"],ans:3,explain:"'Size' = how big or small something is (尺寸) — not a time! Afternoon, noon and evening are times of day.",discuss:"What size shoes do you wear? Do you like big things or small things?",focus:{words:["size","noon","evening","afternoon"],structures:["Vocab: size = big/small"]}},
+    {qlabel:"🤔 What does it mean?",prompt:"'I forgot my money at home!' says Michelle. What does 'forgot' mean?",opts:["I left it at home","I locked it in a box","I don't remember what money is","I gave it to the shop assistant"],ans:0,explain:"'Forget – forgot – forgotten' = 忘记. Michelle forgot her money — and the shop door was locked! Bad day!",discuss:"What do you often forget?",focus:{words:["forget","money","locked"],structures:["forget – forgot"]}},
+    {qlabel:"⚡ Which is CORRECT?",prompt:"Choose the sentence with NO mistakes:",opts:["He usually wakes up at seven o'clock.","He usually wake me up at seven o'clock.","He usually waking up at seven o'clock.","He usually to wake up at seven o'clock."],ans:0,explain:"'He / she / it' + verb-s: 'He usually WAKES up.' With 'usually' we use the present simple!",discuss:"What time do you wake up on school days? And what about the weekend?",focus:{words:["usually","wake up"],structures:["3rd person singular: wakes / takes / brushes"]}},
+    {qlabel:"🧑‍💼 At the shop",prompt:"You are the shop assistant. A customer just bought some chalk. What do you ask next?",opts:["What else? Do you want anything else?","What you want else?","Else what do you want?","What do else you want?"],ans:0,explain:"'What else?' = 还要别的吗? A great shop assistant always asks 'What else?'",discuss:"Do you want to be a shop assistant? Why? Why not?",focus:{words:["What else"],structures:["What else …?"]}},
+    {qlabel:"🔍 Odd One Out",prompt:"Which word is NOT something in a stationery shop?",opts:["envelope","glue","shop assistant","pancake"],ans:3,explain:"A pancake is food — you eat it! Envelopes, glue and pads of paper are stationery (文具).",discuss:"Do you like pancakes? What kind? What's the most delicious food for you?",focus:{words:["envelope","glue","pancake"],structures:["Vocab: stationery vs food"]}},
+    {qlabel:"⏰ Which is CORRECT?",prompt:"Your friend is brushing her hair RIGHT NOW. Choose the best sentence:",opts:["At the moment, she is brushing her hair.","At the moment, she brushes her hair.","She is brush her hair at the moment.","She brushing her hair at the moment."],ans:0,explain:"'At the moment' = now → use -ing: 'She IS brushing her hair.' 'Brushes every day' is NOT now!",discuss:"What are your parents doing at the moment? Guess!",focus:{words:["at the moment"],structures:["at the moment + be + -ing"]}}
+  ]
+}
+]
+;
+window.stages=stages;
+
+/* ====== STATE ====== */
+let G={stage:0,q:0,score:0,correct:0,total:0,timerInt:null,timeLeft:0,timerMax:0,answered:false,attempt:0,streak:0,qStart:0,wrongQs:[]};
+window.G=G;
+let dragState={placed:[],correct:[],locked:[]};
+function shuffleArray(a){for(let i=a.length-1;i>0;i--){const j=~~(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t}return a}
+function prepGame(){stages.forEach(st=>{shuffleArray(st.questions);st.questions.forEach(q=>{if(q.opts){const order=shuffleArray(q.opts.map(function(_,i){return i}));const oldOpts=q.opts.slice();q.opts=order.map(function(i){return oldOpts[i]});q.ans=order.indexOf(q.ans)}})})}
+
+function showScr(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+
+function beginGame(){
+  initAC();snd('cl');prepGame();
+  G={stage:0,q:0,score:0,correct:0,total:0,timerInt:null,timeLeft:0,timerMax:0,answered:false,attempt:0,streak:0,qStart:0,wrongQs:[]};
+  window.G=G;
+  const h=location.hash.match(/s(\d)q(\d+)/);if(h){G.stage=Math.min(2,parseInt(h[1]));G.q=Math.min(7,parseInt(h[2]))}
+  showScr('game-screen');showQuestion();
+}
+
+function calcPoints(){const pct=G.timeLeft/G.timerMax;if(pct>0.66)return 3;if(pct>0.33)return 2;return 1}
+function isBlaze(){return(Date.now()-G.qStart)/1000<=BLAZE_THRESHOLD}
+
+function updateStreak(ok){if(ok)G.streak++;else G.streak=0;const b=document.getElementById('g-streak');if(G.streak>=3){b.textContent='🔥 '+G.streak;b.className='tpill streak-badge show'}else b.className='tpill streak-badge'}
+
+function showQuestion(){
+  G.answered=false;G.attempt=0;clearInterval(G.timerInt);G.qStart=Date.now();
+  document.getElementById('app').classList.remove('shaking','shaking-hard');
+  rollPalette();
+  const st=stages[G.stage],q=st.questions[G.q];
+  const qTime=q.qTimer||st.timer;
+  const badge=document.getElementById('g-stage');
+  badge.textContent=st.name;badge.className='tpill stage-badge '+st.badgeClass;
+  document.getElementById('g-score').textContent=G.score;
+  document.getElementById('g-counter').textContent=(G.q+1)+' / '+st.questions.length;
+  const totalQs=stages.reduce((s,x)=>s+x.questions.length,0);
+  const doneQs=stages.slice(0,G.stage).reduce((s,x)=>s+x.questions.length,0)+G.q;
+  document.getElementById('g-progress').style.width=(doneQs/totalQs*100)+'%';
+  document.getElementById('q-label').textContent=q.qlabel||st.name;
+  document.getElementById('q-prompt').innerHTML=q.prompt;
+  document.getElementById('q-context').textContent=q.qcontext||'';
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('discuss-card').className='discuss-card';
+  document.getElementById('next-wrap').className='next-wrap';
+  document.getElementById('fb-pts').textContent='';document.getElementById('fb-pts').className='pts-badge';
+  G.timerMax=qTime;G.timeLeft=qTime;
+  const tn=document.getElementById('timer-num'),tb=document.getElementById('timer-bar');
+  tn.textContent=G.timeLeft;tn.className='timer-circle';
+  tb.style.width='100%';tb.className='timer-bar full';
+  G.timerInt=setInterval(()=>{
+    G.timeLeft--;tn.textContent=G.timeLeft;
+    tb.style.width=(G.timeLeft/qTime*100)+'%';
+    if(G.timeLeft<=4){tn.className='timer-circle danger';tb.className='timer-bar low'}
+    else if(G.timeLeft<=7){tn.className='timer-circle warning';tb.className='timer-bar mid'}
+    if(G.timeLeft<=0){clearInterval(G.timerInt);timeUp()}
+  },1000);
+  const oa=document.getElementById('opts-area'),ta=document.getElementById('tf-area'),da=document.getElementById('drag-area');
+  oa.innerHTML='';ta.innerHTML='';oa.style.display='none';ta.style.display='none';da.style.display='none';
+  const dc=document.getElementById('drag-check');dc.style.display='';dc.className='drag-check-btn';
+  if(q.qtype==='drag'){da.style.display='block';setupDrag(q)}
+  else if(q.type==='tf'){ta.style.display='grid';
+    const bT=document.createElement('button');bT.className='tf-btn tf-true';bT.innerHTML='✓ True';bT.onclick=function(e){answerTF(true,e)};
+    const bF=document.createElement('button');bF.className='tf-btn tf-false';bF.innerHTML='✗ False';bF.onclick=function(e){answerTF(false,e)};
+    ta.appendChild(bT);ta.appendChild(bF);
+  }else{oa.style.display='grid';oa.className='options-grid '+(q.opts.some(o=>o.length>25)?'cols-1':'cols-2');
+    q.opts.forEach((opt,i)=>{const b=document.createElement('button');b.className='opt-btn';b.textContent=opt;b.onclick=function(e){answerMC(i,e)};oa.appendChild(b)})}
+}
+</script>
+
+<script>
+/* ====== DRAG / BUILD ====== */
+function setupDrag(q){
+  dragState={placed:new Array(q.correct.length).fill(null),correct:q.correct.slice(),locked:new Array(q.correct.length).fill(false)};
+  const se=document.getElementById('drag-sentence'),te=document.getElementById('drag-tiles');
+  te.innerHTML='';document.getElementById('drag-check').className='drag-check-btn';
+  const parts=q.sentence.split('___');let html='';
+  for(let i=0;i<parts.length;i++){html+=parts[i];if(i<parts.length-1)html+='<span class="drag-blank" data-idx="'+i+'" onclick="removeFromBlank('+i+')">('+(i+1)+')</span>'}
+  se.innerHTML=html;
+  shuffleArray(q.words).forEach(w=>{const t=document.createElement('button');t.className='drag-tile';t.textContent=w;t.setAttribute('data-word',w);t.onclick=function(){placeWord(w)};te.appendChild(t)});
+}
+function placeWord(w){
+  if(G.answered)return;const idx=dragState.placed.indexOf(null);if(idx===-1)return;
+  dragState.placed[idx]=w;snd('cl');
+  const b=document.querySelector('.drag-blank[data-idx="'+idx+'"]');if(!b)return;b.textContent=w;b.className='drag-blank filled'+(dragState.locked[idx]?' locked':'');
+  document.querySelectorAll('#drag-tiles .drag-tile').forEach(t=>{if(t.getAttribute('data-word')===w&&!t.classList.contains('used'))t.classList.add('used')});
+  if(!dragState.placed.includes(null))document.getElementById('drag-check').className='drag-check-btn show';
+}
+function removeFromBlank(idx){
+  if(G.answered||dragState.locked[idx])return;const w=dragState.placed[idx];if(!w)return;
+  dragState.placed[idx]=null;snd('cl');
+  const b=document.querySelector('.drag-blank[data-idx="'+idx+'"]');b.textContent='('+(idx+1)+')';b.className='drag-blank';
+  document.querySelectorAll('#drag-tiles .drag-tile').forEach(t=>{if(t.getAttribute('data-word')===w&&t.classList.contains('used'))t.classList.remove('used')});
+  document.getElementById('drag-check').className='drag-check-btn';
+}
+function checkDrag(){
+  if(G.answered)return;
+  const wrongIdx=[];dragState.placed.forEach((w,i)=>{if(w!==dragState.correct[i])wrongIdx.push(i)});
+  if(wrongIdx.length===0){resolveCorrect(null);return}
+  if(G.attempt===0){
+    G.attempt=1;snd('no1');shake(1);
+    wrongIdx.forEach(i=>{
+      const w=dragState.placed[i];dragState.placed[i]=null;
+      const b=document.querySelector('.drag-blank[data-idx="'+i+'"]');if(b){b.textContent='('+(i+1)+')';b.className='drag-blank wrong-slot'}
+      if(w)document.querySelectorAll('#drag-tiles .drag-tile').forEach(t=>{if(t.getAttribute('data-word')===w)t.classList.remove('used')});
+    });
+    document.getElementById('drag-check').className='drag-check-btn';
+    showFeedback('try','Almost! 🛠️','Fix the red gaps and check again — you have one more try!',0);
+  }else{
+    resolveFail(null);
+  }
+}
+
+/* ====== ANSWERS: two chances ====== */
+function answerMC(i,ev){
+  if(G.answered)return;
+  const st=stages[G.stage],q=st.questions[G.q];
+  if(i===q.ans){resolveCorrect(ev);return}
+  const btns=document.querySelectorAll('#opts-area .opt-btn');
+  if(G.attempt===0){
+    G.attempt=1;snd('no1');shake(1);
+    btns[i].classList.add('dead');
+    showFeedback('try','Try again! 🤔','One more chance — read it carefully!',0);
+  }else{
+    resolveFail(ev);
+  }
+}
+function answerTF(val,ev){
+  if(G.answered)return;
+  const st=stages[G.stage],q=st.questions[G.q];
+  if(val===q.correct){resolveCorrect(ev);return}
+  if(G.attempt===0){
+    G.attempt=1;snd('no1');shake(1);
+    (val?document.querySelector('.tf-true'):document.querySelector('.tf-false')).classList.add('dead-soft');
+    showFeedback('try','Try again! 🤔','One more chance — think about it!',0);
+  }else{
+    resolveFail(ev);
+  }
+}
+
+/* ====== RESOLUTION ====== */
+function markReveal(){
+  const st=stages[G.stage],q=st.questions[G.q];
+  if(q.qtype==='drag'){
+    document.querySelectorAll('#drag-tiles .drag-tile').forEach(t=>t.classList.add('disabled'));
+    document.getElementById('drag-check').style.display='none';
+    document.querySelectorAll('.drag-blank').forEach((b,i)=>{
+      b.textContent=dragState.correct[i];
+      b.className='drag-blank filled correct-slot';
+    });
+  }else if(q.type==='tf'){
+    const btns=document.querySelectorAll('#tf-area .tf-btn');
+    btns.forEach((b,i)=>{b.classList.add('disabled');if((i===0)===q.correct)b.classList.add('correct');else b.classList.add('dead')});
+  }else{
+    const btns=document.querySelectorAll('#opts-area .opt-btn');
+    btns.forEach((b,i)=>{b.classList.add('disabled');if(i===q.ans)b.classList.add('correct');else b.classList.add('dead')});
+  }
+}
+function resolveCorrect(ev){
+  G.answered=true;clearInterval(G.timerInt);G.total++;
+  const st=stages[G.stage],q=st.questions[G.q];
+  markReveal();
+  const firstTry=G.attempt===0,blazed=firstTry&&isBlaze();
+  let pts=firstTry?calcPoints():1;
+  if(blazed)pts+=2;
+  G.score+=pts;G.correct++;updateStreak(true);
+  if(blazed){const p=PRAISES[~~(Math.random()*PRAISES.length)];showBlaze(p);showFeedback('blaze',p.t+' '+p.e,q.explain||'',pts,true)}
+  else{snd('ok');confetti(firstTry?14:8);showFeedback('correct',firstTry?'Correct! ✅':'Nice save! 🛟',q.explain||'',pts,false)}
+  if(ev&&ev.clientX)floatPts(ev.clientX,ev.clientY-20,'+'+pts,blazed?'#e8590c':firstTry?'#0b7a5c':'#6595f9');
+  else floatPts(window.innerWidth/2,window.innerHeight/2-60,'+'+pts,blazed?'#e8590c':'#0b7a5c');
+  document.getElementById('g-score').textContent=G.score;
+  showDiscussionAndNext(q);
+}
+function resolveFail(ev,customTitle){
+  G.answered=true;clearInterval(G.timerInt);G.total++;
+  const st=stages[G.stage],q=st.questions[G.q];
+  markReveal();
+  snd('no2');shake(2);vignetteFlash();emojiWave();updateStreak(false);G.wrongQs.push(q);
+  let ansText='';
+  if(q.qtype==='drag')ansText='Correct sentence: '+q.sentence.split('___').map((p,i)=>i<dragState.correct.length?p+dragState.correct[i]:p).join(' ');
+  else if(q.type==='tf')ansText=(q.correct?'The answer is TRUE. ':'The answer is FALSE. ')+(q.explain||'');
+  else ansText='The answer is: '+q.opts[q.ans]+(q.explain?' — '+q.explain:'');
+  showFeedback('wrong',customTitle||'Not quite! ❌',ansText,0,false);
+  document.getElementById('g-score').textContent=G.score;
+  showDiscussionAndNext(q);
+}
+function timeUp(){if(G.answered)return;resolveFail(null,"Time's up! ⏰")}
+
+/* ====== FEEDBACK + DISCUSSION ====== */
+function showFeedback(kind,text,explain,pts,blazed){
+  const fb=document.getElementById('feedback');
+  fb.className='feedback show fb-'+kind;
+  document.getElementById('fb-icon').textContent=kind==='correct'?'✅':kind==='wrong'?'❌':kind==='try'?'🤔':'⚡';
+  document.getElementById('fb-text').textContent=text;
+  document.getElementById('fb-explain').textContent=explain||'';
+  const pb=document.getElementById('fb-pts');
+  if(pts>0&&blazed){pb.textContent='+'+pts+' 🔥';pb.className='pts-badge blaze'}
+  else if(pts>0){pb.textContent='+'+pts;pb.className='pts-badge'}
+  else if(pts===0&&kind==='wrong'){pb.textContent='+0';pb.className='pts-badge zero'}
+  else pb.textContent='';
+}
+function showDiscussionAndNext(q){
+  if(q.discuss){document.getElementById('discuss-card').className='discuss-card show';document.getElementById('discuss-text').textContent=q.discuss}
+  document.getElementById('next-wrap').className='next-wrap show';
+  const st=stages[G.stage],isLastQ=G.q>=st.questions.length-1,isLastStage=G.stage>=stages.length-1;
+  const btn=document.getElementById('next-btn');
+  if(isLastQ&&isLastStage)btn.textContent='See Results! 🎉';
+  else if(isLastQ)btn.textContent='Level Up! ⬆️';
+  else btn.textContent='Next →';
+}
+function nextQuestion(){
+  snd('cl');const st=stages[G.stage];G.q++;
+  if(G.q>=st.questions.length){
+    if(G.stage>=stages.length-1)showFinalResults();
+    else showLevelUp();
+  }else showQuestion();
+}
+
+/* ====== LEVEL UP + FINAL ====== */
+function showLevelUp(){
+  const st=stages[G.stage],nx=stages[G.stage+1];
+  document.getElementById('lu-icon').textContent=nx?'⬆️':'🏆';
+  document.getElementById('lu-title').textContent=st.name+' COMPLETE!';
+  document.getElementById('lu-sub').textContent=nx?'Level Up!':'Wow!';
+  document.getElementById('lu-msg').textContent='Great work so far!';
+  document.getElementById('lu-score').textContent='🏆 Score: '+G.score;
+  document.getElementById('lu-next').textContent=nx?'Next: '+nx.name+' '+nx.icon:'';
+  document.getElementById('lu-btn').textContent=nx?'Level Up! →':'See Results!';
+  showScr('levelup-screen');snd('win');confetti(25);
+}
+function startNextStage(){snd('cl');G.stage++;G.q=0;showScr('game-screen');showQuestion()}
+function buildMistakesSection(){
+  const area=document.getElementById('mistakes-area');area.innerHTML='';
+  if(G.wrongQs.length===0){area.innerHTML='<div class="perfect-card"><div class="perfect-title">🎉 Perfect Run!</div><div class="perfect-msg">You got everything right! No mistakes to review. Amazing work!</div></div>';return}
+  const allS=new Set(),allW=new Set();
+  G.wrongQs.forEach(q=>{if(q.focus){if(q.focus.structures)q.focus.structures.forEach(s=>allS.add(s));if(q.focus.words)q.focus.words.forEach(w=>allW.add(w))}});
+  let html='<div class="mistakes-card"><div class="mistakes-title">⚠️ Pay Extra Attention to These!</div><div class="mistakes-subtitle">You made '+G.wrongQs.length+' mistake'+(G.wrongQs.length>1?'s':'')+' — review these structures and words:</div>';
+  if(allS.size>0){html+='<div class="mistake-sub">📌 Structures to Review</div>';allS.forEach(s=>{html+='<div class="mistake-item">'+s+'</div>'})}
+  if(allW.size>0){html+='<div class="mistake-sub">📝 Words to Review</div><div class="mistake-words">';allW.forEach(w=>{html+='<span class="mistake-word-tag">'+w+'</span>'});html+='</div>'}
+  html+='</div>';area.innerHTML=html;
+}
+function showFinalResults(){
+  showScr('final-screen');snd('win');
+  setTimeout(()=>confetti(50),300);setTimeout(()=>confetti(30),900);
+  document.getElementById('f-score').textContent=G.score;
+  document.getElementById('f-correct').textContent=G.correct;
+  document.getElementById('f-total').textContent=G.total;
+  const pct=Math.round(G.correct/G.total*100);
+  document.getElementById('f-pct').textContent=pct+'%';
+  const scorePct=G.score/(G.total*5)*100;
+  const stars=scorePct>=60?3:scorePct>=40?2:scorePct>=20?1:0;
+  for(let i=1;i<=3;i++)document.getElementById('fs'+i).className=i<=stars?'star on':'star';
+  const msgs=["Keep practising — you'll get there! 💪","Good work! A bit more practice and you'll be perfect! 👍","Great job, class! You know these words well! 🎉","AMAZING! You're vocabulary superstars! 🌟"];
+  document.getElementById('f-msg').textContent=msgs[stars];
+  buildMistakesSection();
+  window.scrollTo(0,0);
+}
+</script>
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

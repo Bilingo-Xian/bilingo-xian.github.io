@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Doctor on Rounds — Unit 31</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&family=Caveat:wght@600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f3ead8; --paper:#fffdf5; --ink:#3d3a34; --soft:#8a8578;
+  --red:#e63946; --teal:#2a9d8f; --amber:#f4a259; --green:#2f9e6e;
+}
+body{
+  font-family:'Balsamiq Sans',cursive; background:var(--bg); color:var(--ink);
+  min-height:100vh; display:flex; align-items:center; justify-content:center; padding:18px;
+  background-image:radial-gradient(rgba(61,58,52,.05) 1.2px, transparent 1.2px);
+  background-size:22px 22px;
+}
+#app{width:100%;max-width:720px}
+.screen{display:none}
+.screen.active{display:block;animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* ============ START SCREEN ============ */
+.start-wrap{text-align:center;padding:12px 0}
+.hospital-door{
+  width:170px;height:190px;margin:0 auto 18px;border-radius:16px 16px 0 0;
+  background:linear-gradient(180deg,#5aa9a0,#3c8a81);position:relative;
+  box-shadow:inset 0 0 0 6px rgba(255,255,255,.25), 0 10px 0 rgba(61,58,52,.15);
+  display:flex;align-items:center;justify-content:center;
+}
+.hospital-door::before{content:'+';position:absolute;top:16px;left:50%;transform:translateX(-50%);
+  width:46px;height:46px;border-radius:12px;background:#fff;color:var(--red);
+  font-size:2.2em;font-weight:700;line-height:46px;box-shadow:0 3px 0 rgba(0,0,0,.15)}
+.hospital-door .knob{position:absolute;right:16px;top:50%;width:12px;height:12px;border-radius:50%;background:#ffd166;box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.badge{
+  display:inline-block;background:var(--paper);border:3px dashed var(--red);border-radius:14px;
+  padding:8px 20px;font-family:'Caveat',cursive;font-size:1.5em;color:var(--red);
+  transform:rotate(-2deg);margin-bottom:14px;
+}
+h1{font-size:2.3em;line-height:1.1;margin-bottom:8px}
+h1 .rx{color:var(--red)}
+.sub{color:var(--soft);font-size:1.05em;margin-bottom:22px;line-height:1.5}
+.big-btn{
+  font-family:'Balsamiq Sans',cursive;font-weight:700;font-size:1.25em;color:#fff;
+  background:var(--red);border:none;border-radius:14px;padding:16px 42px;cursor:pointer;
+  box-shadow:0 6px 0 #b52b35;transition:all .12s;letter-spacing:.5px;
+}
+.big-btn:hover{transform:translateY(-2px);box-shadow:0 8px 0 #b52b35}
+.big-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #b52b35}
+.tiny{margin-top:16px;color:var(--soft);font-size:.85em}
+
+/* ============ TOP BAR: ECG + ROOMS ============ */
+.topbar{margin-bottom:12px}
+.ecg-box{background:var(--paper);border:3px solid var(--ink);border-radius:12px;padding:6px 10px;box-shadow:0 4px 0 rgba(61,58,52,.15)}
+.ecg-box svg{display:block;width:100%;height:38px}
+.rooms{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.rooms-track{position:relative;padding-bottom:72px}
+.walker{position:absolute;bottom:0;left:0;height:66px;width:auto;transform:translateX(-50%);transition:left .9s cubic-bezier(.5,1.3,.5,1);filter:drop-shadow(0 3px 2px rgba(61,58,52,.25))}
+.walker.walking{animation:walkBob .28s infinite}
+@keyframes walkBob{0%,100%{transform:translateX(-50%) rotate(-5deg)}50%{transform:translateX(-50%) rotate(5deg) translateY(-4px)}}
+.room-pill{
+  flex:1;min-width:100px;background:var(--paper);border:2.5px solid var(--ink);border-radius:10px;
+  padding:5px 8px;font-size:.8em;font-weight:700;text-align:center;opacity:.45;transition:all .3s;position:relative;
+}
+.room-pill.now{opacity:1;background:#ffe9d6;border-color:var(--amber);animation:roomPulse 1.4s infinite}
+.room-pill.done{opacity:.85;background:#e2f3ec}
+.room-pill .rname{font-size:.72em;color:var(--soft);display:block;font-weight:400}
+@keyframes roomPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+
+/* ============ PAPER CARD ============ */
+.paper{
+  background:var(--paper);border:3px solid var(--ink);border-radius:6px;
+  padding:34px 26px 26px;position:relative;box-shadow:0 8px 0 rgba(61,58,52,.14);
+}
+.paper::before{ /* clipboard clip */
+  content:'';position:absolute;top:-16px;left:50%;transform:translateX(-50%);
+  width:92px;height:30px;border-radius:10px;background:linear-gradient(180deg,#c9c4b4,#a8a395);
+  box-shadow:0 3px 0 rgba(61,58,52,.25), inset 0 3px 0 rgba(255,255,255,.5);
+}
+.paper::after{ /* red cross in corner */
+  content:'+';position:absolute;top:12px;right:14px;width:26px;height:26px;border-radius:7px;
+  background:var(--red);color:#fff;font-size:1.25em;line-height:24px;text-align:center;font-weight:700;
+}
+.paper.shake{animation:shk .45s ease}
+@keyframes shk{0%,100%{transform:none}20%{transform:translateX(-9px) rotate(-.6deg)}40%{transform:translateX(8px) rotate(.5deg)}60%{transform:translateX(-6px)}70%{transform:translateX(5px)}}
+.room-tag{
+  display:inline-block;background:var(--teal);color:#fff;border-radius:8px;padding:4px 14px;
+  font-size:.85em;font-weight:700;margin-bottom:14px;letter-spacing:.5px;
+}
+.q-title{font-size:1.25em;font-weight:700;margin-bottom:12px}
+
+/* patient bubble */
+.patient-row{display:flex;gap:16px;align-items:flex-start;margin:6px 0 18px}
+.patient-emoji{font-size:3.6em;line-height:1;flex-shrink:0;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.bubble{
+  background:#fff;border:2.5px solid var(--ink);border-radius:16px;border-top-left-radius:3px;
+  padding:12px 16px;font-family:'Caveat',cursive;font-size:1.45em;line-height:1.25;position:relative;flex:1;
+  box-shadow:2px 3px 0 rgba(61,58,52,.12);
+}
+
+/* chart note */
+.chart-note{
+  background:#fdf9e7;border:2px dashed var(--amber);border-radius:10px;padding:14px 18px;
+  font-family:'Caveat',cursive;font-size:1.5em;line-height:1.35;margin-bottom:18px;
+}
+.chart-note .gap{color:var(--red);font-weight:700;border-bottom:2.5px solid var(--red);padding:0 8px}
+
+/* options */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{
+  font-family:'Balsamiq Sans',cursive;font-size:1.02em;font-weight:700;color:var(--ink);
+  background:#fff;border:3px solid var(--ink);border-radius:12px;padding:14px 12px;cursor:pointer;
+  box-shadow:0 4px 0 rgba(61,58,52,.18);transition:all .12s;
+}
+.opt:hover:not(.dead):not(.picked){transform:translateY(-3px);box-shadow:0 7px 0 rgba(61,58,52,.18);border-color:var(--teal)}
+.opt:active:not(.dead){transform:translateY(2px);box-shadow:0 1px 0 rgba(61,58,52,.18)}
+.opt.dead{opacity:.35;pointer-events:none;text-decoration:line-through}
+.opt.picked{background:var(--teal);color:#fff;border-color:#1e7468}
+.opt.right{background:var(--green);color:#fff;border-color:#217a52;animation:pop .35s ease}
+.opt.wrongpick{background:var(--red);color:#fff;border-color:#b52b35}
+@keyframes pop{0%{transform:scale(.9)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
+.opts-wide{grid-template-columns:1fr}
+
+/* drama buttons */
+.drama-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.drama-btn{font-size:1.05em}
+
+/* cabinet shelves */
+.shelves{display:flex;gap:12px;margin:8px 0 16px}
+.shelf{flex:1;border:3px solid var(--ink);border-radius:12px;background:#fff;min-height:150px;padding:8px;display:flex;flex-direction:column;gap:6px;transition:all .15s}
+.shelf .shelf-name{text-align:center;font-size:.8em;font-weight:700;color:var(--soft);letter-spacing:.5px;text-transform:uppercase;pointer-events:none}
+.shelf.over{background:#e6f4f1;border-color:var(--teal)}
+.shelf.bad{animation:shk .4s ease}
+.shelf.goodfl{background:#e2f3ec;border-color:var(--green)}
+.tile-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px}
+.tile{
+  font-family:'Balsamiq Sans',cursive;font-weight:700;font-size:.95em;background:#ffe9d6;border:2.5px solid var(--amber);
+  border-radius:10px;padding:8px 14px;cursor:pointer;box-shadow:0 3px 0 rgba(61,58,52,.15);transition:all .12s;
+}
+.tile:hover{transform:translateY(-2px)}
+.tile.sel{background:var(--amber);color:#fff;transform:scale(1.07)}
+.tile.placed{align-self:center}
+
+/* surgery */
+.surgery-rows{display:flex;flex-direction:column;gap:12px;margin:6px 0 18px}
+.surg-row{display:flex;align-items:center;gap:10px;font-size:1.3em;font-weight:700;justify-content:center}
+.surg-slot{
+  min-width:96px;text-align:center;background:#fff;border:3px dashed var(--ink);border-radius:10px;
+  padding:6px 12px;cursor:pointer;min-height:44px;letter-spacing:1px;
+}
+.surg-slot.filled{border-style:solid;border-color:var(--teal);background:#e6f4f1}
+.surg-pic{font-size:1.5em;width:44px;text-align:center}
+.tile-emoji{font-size:1.1em;margin-left:3px}
+.surg-suffix{color:var(--red)}
+
+/* unscramble */
+.un-clue{font-family:'Caveat',cursive;font-size:1.45em;margin-bottom:14px;color:#6b6656}
+.un-built{display:flex;gap:8px;justify-content:center;margin-bottom:16px;min-height:56px;flex-wrap:wrap}
+.un-letter{
+  width:52px;height:56px;font-family:'Balsamiq Sans',cursive;font-weight:700;font-size:1.6em;
+  background:#fff;border:3px solid var(--ink);border-radius:10px;cursor:pointer;
+  box-shadow:0 4px 0 rgba(61,58,52,.18);transition:all .1s;
+}
+.un-letter:hover{transform:translateY(-3px)}
+.un-letter.used{opacity:.2;pointer-events:none;transform:scale(.92)}
+.un-letter.inword{background:var(--teal);color:#fff;border-color:#1e7468;box-shadow:0 4px 0 #1e7468}
+.un-pool{display:flex;gap:8px;justify-content:center;margin-bottom:8px;flex-wrap:wrap}
+
+/* check + next */
+.controls{display:flex;justify-content:center;gap:12px;margin-top:6px}
+.check-btn{
+  font-family:'Balsamiq Sans',cursive;font-weight:700;font-size:1.05em;color:#fff;background:var(--teal);
+  border:none;border-radius:12px;padding:13px 34px;cursor:pointer;box-shadow:0 5px 0 #1e7468;transition:all .12s;
+}
+.check-btn:hover{transform:translateY(-2px);box-shadow:0 7px 0 #1e7468}
+.check-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1e7468}
+.next-btn{
+  font-family:'Balsamiq Sans',cursive;font-weight:700;font-size:1.05em;color:#fff;background:var(--ink);
+  border:none;border-radius:12px;padding:13px 34px;cursor:pointer;box-shadow:0 5px 0 #14120f;transition:all .12s;
+}
+.next-btn:hover{transform:translateY(-2px)}
+.hidden{display:none !important}
+
+/* stamps */
+.stamp{
+  position:absolute;top:38%;left:50%;transform:translate(-50%,-50%) rotate(-12deg) scale(3);
+  font-size:2.3em;font-weight:700;padding:8px 26px;border:5px solid;border-radius:12px;
+  opacity:0;pointer-events:none;letter-spacing:2px;background:rgba(255,253,245,.85);z-index:5;
+}
+.stamp.show{animation:stampIn .45s cubic-bezier(.2,2.2,.4,1) forwards}
+.stamp.ok{color:var(--green);border-color:var(--green)}
+.stamp.no{color:var(--red);border-color:var(--red)}
+.stamp.try{color:var(--amber);border-color:var(--amber);font-size:1.7em}
+@keyframes stampIn{0%{opacity:0;transform:translate(-50%,-50%) rotate(-12deg) scale(3)}60%{opacity:1;transform:translate(-50%,-50%) rotate(-12deg) scale(.92)}100%{opacity:1;transform:translate(-50%,-50%) rotate(-12deg) scale(1)}}
+
+/* feedback line */
+.feedback{min-height:30px;text-align:center;font-size:1.05em;font-weight:700;margin-top:12px}
+.feedback.good{color:var(--green)}
+.feedback.bad{color:var(--red)}
+
+/* ============ END ============ */
+.end-paper{text-align:center}
+.end-stamp{
+  display:inline-block;font-size:2em;font-weight:700;color:var(--teal);border:6px solid var(--teal);
+  border-radius:14px;padding:10px 30px;margin:24px 0 20px;letter-spacing:2px;
+  animation:stampIn2 .5s cubic-bezier(.2,2.2,.4,1) forwards;
+}
+@keyframes stampIn2{0%{opacity:0;transform:rotate(-6deg) scale(2.6)}60%{opacity:1;transform:rotate(-6deg) scale(.94)}100%{opacity:1;transform:rotate(-6deg) scale(1)}}
+.end-score{font-size:3.2em;font-weight:700;color:var(--red)}
+.end-stats{display:flex;justify-content:center;gap:14px;margin:18px 0}
+.estat{background:#fff;border:2.5px solid var(--ink);border-radius:12px;padding:10px 22px}
+.estat .v{font-size:1.6em;font-weight:700}
+.estat .l{font-size:.75em;color:var(--soft);text-transform:uppercase;letter-spacing:1px}
+.end-note{font-family:'Caveat',cursive;font-size:1.4em;color:#6b6656;margin-bottom:20px}
+@media(max-width:560px){
+  .opts{grid-template-columns:1fr}
+  .drama-grid{grid-template-columns:1fr}
+  .shelves{flex-direction:column}
+  .patient-emoji{font-size:2.6em}
+  h1{font-size:1.8em}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="scr-start" class="screen active">
+  <div class="start-wrap">
+    <div class="hospital-door"><div class="knob"></div></div>
+    <div class="badge">🏥 Bilingo Hospital</div>
+    <h1><span class="rx">Doctor</span> on Rounds</h1>
+    <div class="sub">You are the new junior doctor! 🩺<br>Walk through 5 rooms, check 12 patients and charts,<br>and finish your morning shift. Good luck, doctor!</div>
+    <button class="big-btn" onclick="startShift()">Start Your Rounds 🚪</button>
+    <div class="tiny">Unit 31 · Good News — illnesses, the doctor's office and the hospital</div>
+  </div>
+</div>
+
+<div id="scr-game" class="screen">
+  <div class="topbar">
+    <div class="ecg-box">
+      <svg viewBox="0 0 600 38" preserveAspectRatio="none">
+        <path id="ecg-full" d="M0,19 L60,19 L75,19 L82,6 L90,30 L97,19 L130,19 L145,19 L152,6 L160,30 L167,19 L200,19 L215,19 L222,6 L230,30 L237,19 L270,19 L285,19 L292,6 L300,30 L307,19 L340,19 L355,19 L362,6 L370,30 L377,19 L410,19 L425,19 L432,6 L440,30 L447,19 L480,19 L495,19 L502,6 L510,30 L517,19 L550,19 L565,19 L572,6 L580,30 L587,19 L600,19" fill="none" stroke="#d8d2c0" stroke-width="2.5"/>
+        <path id="ecg-live" d="M0,19 L60,19 L75,19 L82,6 L90,30 L97,19 L130,19 L145,19 L152,6 L160,30 L167,19 L200,19 L215,19 L222,6 L230,30 L237,19 L270,19 L285,19 L292,6 L300,30 L307,19 L340,19 L355,19 L362,6 L370,30 L377,19 L410,19 L425,19 L432,6 L440,30 L447,19 L480,19 L495,19 L502,6 L510,30 L517,19 L550,19 L565,19 L572,6 L580,30 L587,19 L600,19" fill="none" stroke="#e63946" stroke-width="3"/>
+      </svg>
+    </div>
+    <div class="rooms-track" id="rooms-track">
+      <div class="rooms" id="rooms"></div>
+      <img class="walker" id="walker" src="doctor.png" alt="doctor">
+    </div>
+  </div>
+  <div class="paper" id="paper">
+    <div id="q-area"></div>
+    <div class="stamp" id="stamp"></div>
+  </div>
+  <div class="feedback" id="feedback"></div>
+</div>
+
+<div id="scr-end" class="screen">
+  <div class="paper end-paper">
+    <div class="room-tag">END OF SHIFT</div>
+    <h1 style="font-size:1.9em">Shift Complete! 🎉</h1>
+    <div class="end-stamp" id="end-stamp">EXCELLENT DOCTOR</div>
+    <div class="end-score" id="end-score">0</div>
+    <div style="color:var(--soft)">rounds points</div>
+    <div class="end-stats">
+      <div class="estat"><div class="v" id="e-ok">0</div><div class="l">correct</div></div>
+      <div class="estat"><div class="v" id="e-total">12</div><div class="l">tasks</div></div>
+      <div class="estat"><div class="v" id="e-pts">0%</div><div class="l">first-try</div></div>
+    </div>
+    <div class="end-note" id="end-note">The hospital is quiet again… until next time.</div>
+    <button class="big-btn" onclick="location.reload()">Next Shift 🔁</button>
+  </div>
+</div>
+
+</div>
+<canvas id="confetti" style="position:fixed;inset:0;pointer-events:none;z-index:50"></canvas>
+<script>
+/* ================= AUDIO (synthesized, no files) ================= */
+let AC;
+function ac(){ if(!AC) AC = new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended') AC.resume(); return AC; }
+function tone(f, t0, dur, type, vol, slide){
+  const a=ac(), o=a.createOscillator(), g=a.createGain();
+  o.type=type||'sine'; o.frequency.setValueAtTime(f, a.currentTime+t0);
+  if(slide) o.frequency.exponentialRampToValueAtTime(slide, a.currentTime+t0+dur);
+  g.gain.setValueAtTime(0.0001, a.currentTime+t0);
+  g.gain.exponentialRampToValueAtTime(vol||0.18, a.currentTime+t0+0.015);
+  g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime+t0+dur);
+  o.connect(g).connect(a.destination); o.start(a.currentTime+t0); o.stop(a.currentTime+t0+dur+0.05);
+}
+function thump(t0){ // rubber stamp: noise burst + low sine
+  const a=ac(), len=0.09, buf=a.createBuffer(1, a.sampleRate*len, a.sampleRate), d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*(1-i/d.length);
+  const s=a.createBufferSource(); s.buffer=buf;
+  const f=a.createBiquadFilter(); f.type='lowpass'; f.frequency.value=700;
+  const g=a.createGain(); g.gain.value=0.35;
+  s.connect(f).connect(g).connect(a.destination); s.start(a.currentTime+t0);
+  tone(90, t0, 0.12, 'sine', 0.3, 55);
+}
+const sfx={
+  pop(){ tone(520,0,.07,'sine',.15,760); },
+  stampOk(){ thump(0); tone(660,.09,.12,'triangle',.2); tone(880,.2,.16,'triangle',.2); },
+  stampTry(){ thump(0); tone(300,.09,.15,'triangle',.18,240); },
+  stampNo(){ thump(0); tone(180,.09,.22,'sawtooth',.16,120); },
+  win(){ [523,659,784,1047].forEach((f,i)=>tone(f,i*.13,.2,'triangle',.2)); thump(.55); }
+};
+document.addEventListener('pointerdown', ()=>ac(), {once:true});
+
+/* ================= DATA ================= */
+const ROOMS=[
+  {icon:'🚪', name:'Reception'},
+  {icon:'🩺', name:'Exam Room'},
+  {icon:'💊', name:'Pharmacy'},
+  {icon:'🛏️', name:'Ward'},
+  {icon:'🔬', name:"Doctor's Office"},
+];
+const ILLNESSES=['toothache','cold','flu','stomach ache','measles','earache','headache','mumps','fever'];
+
+const PATIENTS=[
+  {emoji:'🦷', bubble:"It hurts when I eat something. I can't drink cold drinks!", answer:'toothache'},
+  {emoji:'🤧', bubble:"I sneeze all day, and I have a very runny nose!", answer:'cold'},
+  {emoji:'🤒', bubble:"My whole body hurts. I'm hot, then cold, then hot again. I am so tiredm I just want to sleep...", answer:'flu'},
+  {emoji:'🍰', bubble:"I ate ten pancakes, three bowls of noodles, drank five glasses of cola and had two pieces of a cake for dessert...", answer:'stomach ache'},
+  {emoji:'🔴', bubble:"I have red spots everywhere!", answer:'measles'},
+  {emoji:'👂', bubble:"It hurts inside my ear. And everything sounds funny, like I'm underwater.", answer:'earache'},
+];
+const CHARTS=[
+  {note:"Patient's tooth hurts. He should go to the ___?", answer:'dentist',
+   opts:['dentist','shop assistant','teacher','farmer']},
+  {note:"Nurse checks the ___ every hour: 37 … 38 … oh no, 39!", answer:'temperature',
+   opts:['temperature','news','telephone','medicine']},
+  {note:"Patient keeps scratching his arm. 'I can't stop!' he says. His skin is ___.", answer:'itchy',
+   opts:['itchy','dry','cold','bad']},
+  {note:"Patient's mouth feels like paper. His tongue feels like paper. Everything is so ___.", answer:'dry',
+   opts:['dry','itchy','hot','bad']},
+  {note:"The doctors use ___ to call their patients", answer:'telephone',
+   opts:['telephone','aspirin','envelope','chalk']},
+];
+const DRAMA=[
+  {text:"I have measles because I ate too much chocolate.", correct:false},
+  {text:"I feel bad because I have a fever.", correct:true},
+  {text:"I have a toothache, so I must see the dentist.", correct:true},
+  {text:"My ear hurts, so I must go to the fire station.", correct:false},
+  {text:"I have a cold, so I must stay in bed and drink more hot water.", correct:true},
+  {text:"My skin is itchy because I slept very well all night.", correct:false},
+];
+const WHOSAYS=[
+  {quote:"Let me check your temperature and your tongue.", who:'doctor'},
+  {quote:"You must brush your teeth better! And don't eat candies!", who:'dentist'},
+  {quote:"It hurts when I chew. Can I have some medicine, please?", who:'patient'},
+];
+const CABINET=[
+  {shelf:'Illnesses', items:['measles','mumps','flu']},
+  {shelf:'Things', items:['aspirin','medicine','telephone']},
+  {shelf:'Body Parts', items:['tongue','mouth','stomach']},
+];
+const SURGERY={ parts:[{w:'head',e:'🙂'},{w:'ear',e:'👂'},{w:'tooth',e:'🦷'},{w:'ache',e:'😖'}],
+  targets:[{pre:'', post:'ACHE', ans:'head', e:'🙂'},{pre:'', post:'ACHE', ans:'ear', e:'👂'},{pre:'', post:'ACHE', ans:'tooth', e:'🦷'},{pre:'STOMACH', post:'', ans:'ache', e:'😖'}] };
+const UNSCRAMBLE=[
+  {word:'MUMPS', clue:"Swollen neck. It hurts to eat. You can't go to school."},
+  {word:'FEVER', clue:"The thermometer says 39°C. Your body is very hot."},
+  {word:'DENTIST', clue:"The tooth specialist. You go there when your tooth hurts."},
+  {word:'HOSPITAL', clue:"You go here when you are very ill. Lots of doctors and nurses."},
+];
+const ORDERS=[
+  {prompt:"You ___ forget your medicine. Take it every day!", opts:["must","mustn't","because","remember"], answer:"mustn't"},
+  {prompt:"I can't come to school ___ I have measles.", opts:["because","so","must","but"], answer:"because"},
+];
+
+/* ================= GAME STATE ================= */
+const G={ tasks:[], idx:0, score:0, correct:0, firstTry:0, attempts:0, state:null };
+
+function pick(arr,n){ const c=arr.slice(); for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]];} return c.slice(0,n); }
+function shuffle(a){ const c=a.slice(); for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]];} return c; }
+
+function buildTasks(){
+  const tasks=[];
+  const pats=pick(PATIENTS,3);
+  const mkPatient=(p)=>({type:'patient', title:"A new patient walks in…", emoji:p.emoji, bubble:p.bubble,
+    answer:p.answer, opts:shuffle([p.answer, ...shuffle(ILLNESSES.filter(w=>w!==p.answer)).slice(0,3)])});
+  const ch=pick(CHARTS,1);
+  const dr=pick(DRAMA,2);
+  const un=pick(UNSCRAMBLE,1)[0];
+  const ws=pick(WHOSAYS,1)[0];
+  tasks.push({room:0, ...mkPatient(pats[0])});
+  tasks.push({room:0, ...mkPatient(pats[1])});
+  tasks.push({room:1, type:'chart', title:"Read the patient's chart", note:ch[0].note, answer:ch[0].answer, opts:shuffle(ch[0].opts)});
+  tasks.push({room:1, type:'drama', title:"True patient or drama patient?", text:dr[0].text, answer:dr[0].correct});
+  tasks.push({room:2, type:'cabinet', title:"Sort the medicine cabinet!"});
+  tasks.push({room:2, type:'orders', title:"Doctor's orders", prompt:ORDERS[0].prompt, opts:shuffle(ORDERS[0].opts), answer:ORDERS[0].answer});
+  tasks.push({room:3, ...mkPatient(pats[2])});
+  tasks.push({room:3, type:'drama', title:"True patient or drama patient?", text:dr[1].text, answer:dr[1].correct});
+  tasks.push({room:4, type:'surgery', title:"Word surgery!"});
+  tasks.push({room:4, type:'unscramble', title:"Unscramble the chart!", clue:un.clue, word:un.word});
+  tasks.push({room:4, type:'whosaysit', title:"Who says it?", quote:ws.quote, who:ws.who});
+  tasks.push({room:4, type:'orders', title:"Doctor's orders", prompt:ORDERS[1].prompt, opts:shuffle(ORDERS[1].opts), answer:ORDERS[1].answer});
+  return tasks;
+}
+
+/* ================= FLOW ================= */
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function startShift(){
+  ac(); G.tasks=buildTasks(); G.idx=0; G.score=0; G.correct=0; G.firstTry=0;
+  buildRooms(); show('scr-game'); render();
+}
+function buildRooms(){
+  const r=document.getElementById('rooms'); r.innerHTML='';
+  ROOMS.forEach((rm,i)=>{ const d=document.createElement('div'); d.className='room-pill'; d.id='room-'+i;
+    d.innerHTML=rm.icon+'<span class="rname">'+rm.name+'</span>'; r.appendChild(d); });
+}
+function updateEcg(){
+  const path=document.getElementById('ecg-live'), full=document.getElementById('ecg-full');
+  const L=full.getTotalLength();
+  path.style.strokeDasharray=L;
+  path.style.strokeDashoffset=L*(1-(G.idx)/G.tasks.length);
+}
+function updateRooms(){
+  const cur=G.tasks[G.idx]?G.tasks[G.idx].room:5;
+  ROOMS.forEach((_,i)=>{ const d=document.getElementById('room-'+i);
+    d.className='room-pill'+(i<cur?' done':i===cur?' now':''); });
+  const pill=document.getElementById('room-'+Math.min(cur,4));
+  const w=document.getElementById('walker');
+  if(pill&&w){ const x=pill.offsetLeft+pill.offsetWidth/2;
+    if(!w.dataset.pos){ w.dataset.pos=x; w.style.transition='none'; w.style.left=x+'px'; requestAnimationFrame(()=>{ w.style.transition=''; }); }
+    else if(+w.dataset.pos!==x){ w.dataset.pos=x; w.classList.add('walking'); w.style.left=x+'px'; setTimeout(()=>w.classList.remove('walking'),950); }
+  }
+}
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+function render(){
+  const t=G.tasks[G.idx];
+  G.attempts=0; G.state={picked:null, placed:{}, built:[], selShelf:-1};
+  updateEcg(); updateRooms();
+  document.getElementById('feedback').textContent=''; document.getElementById('feedback').className='feedback';
+  const tag=document.createElement('div'); // rebuild q-area
+  const area=document.getElementById('q-area'); area.innerHTML='';
+  const roomTag=document.createElement('div'); roomTag.className='room-tag';
+  roomTag.textContent=ROOMS[t.room].icon+' '+ROOMS[t.room].name.toUpperCase()+' · TASK '+(G.idx+1)+'/'+G.tasks.length;
+  const title=document.createElement('div'); title.className='q-title'; title.textContent=t.title;
+  area.appendChild(roomTag); area.appendChild(title);
+  RENDER[t.type](t, area);
+}
+function stamp(text, cls){
+  const s=document.getElementById('stamp');
+  s.textContent=text; s.className='stamp '+cls; void s.offsetWidth; s.classList.add('show');
+  setTimeout(()=>{ s.className='stamp'; }, 1600);
+}
+function feedback(msg, cls){ const f=document.getElementById('feedback'); f.textContent=msg; f.className='feedback '+cls; }
+function shakePaper(){ const p=document.getElementById('paper'); p.classList.remove('shake'); void p.offsetWidth; p.classList.add('shake'); }
+function addControls(area, checkLabel, onCheck){
+  const c=document.createElement('div'); c.className='controls'; c.id='controls';
+  if(checkLabel){ const b=document.createElement('button'); b.className='check-btn'; b.id='check-btn'; b.textContent=checkLabel; b.onclick=onCheck; c.appendChild(b); }
+  area.appendChild(c);
+}
+function addNext(){
+  const c=document.getElementById('controls'); c.innerHTML='';
+  const b=document.createElement('button'); b.className='next-btn'; b.textContent=G.idx+1<G.tasks.length?'Next Room → 🚶':'Finish Shift 🏁';
+  b.onclick=next; c.appendChild(b);
+}
+function next(){ G.idx++; if(G.idx>=G.tasks.length){ endGame(); } else render(); }
+
+function resolveMC(btn, t, isRight){
+  const firstTry=G.attempts===0;
+  if(isRight){
+    btn.classList.add('right');
+    G.correct++; const pts=firstTry?2:1; G.score+=pts; if(firstTry)G.firstTry++;
+    sfx.stampOk(); stamp(firstTry?'CORRECT!':'OK!', 'ok');
+    feedback((firstTry?'Excellent, doctor! +2':'Good — you fixed it! +1'), 'good');
+  }else{
+    btn.classList.add('wrongpick'); btn.classList.add('dead'); shakePaper();
+    G.attempts++; sfx.stampTry(); stamp('TRY AGAIN', 'try');
+    feedback('Hmm… check the chart again! ('+(G.attempts)+'/2)', 'bad');
+    return;
+  }
+  document.querySelectorAll('.opt').forEach(o=>o.style.pointerEvents='none');
+  addNext();
+}
+function lockAndNext(){
+  G.correct++; const pts=G.attempts===0?2:1; G.score+=pts; if(G.attempts===0)G.firstTry++;
+  addNext();
+}
+
+/* ================= RENDERERS ================= */
+const RENDER={
+  patient(t, area){
+    const row=document.createElement('div'); row.className='patient-row';
+    row.innerHTML='<div class="patient-emoji">'+t.emoji+'</div><div class="bubble">“'+esc(t.bubble)+'”</div>';
+    area.appendChild(row);
+    const grid=document.createElement('div'); grid.className='opts';
+    t.opts.forEach(o=>{ const b=document.createElement('button'); b.className='opt'; b.textContent=o;
+      b.onclick=()=>{ sfx.pop(); resolveMC(b, t, o===t.answer); }; grid.appendChild(b); });
+    area.appendChild(grid); addControls(area,null,null);
+  },
+  chart(t, area){
+    const note=document.createElement('div'); note.className='chart-note';
+    note.innerHTML=esc(t.note).replace('___','<span class="gap">&nbsp;?&nbsp;</span>');
+    area.appendChild(note);
+    const grid=document.createElement('div'); grid.className='opts';
+    t.opts.forEach(o=>{ const b=document.createElement('button'); b.className='opt'; b.textContent=o;
+      b.onclick=()=>{ sfx.pop(); resolveMC(b, t, o===t.answer); }; grid.appendChild(b); });
+    area.appendChild(grid); addControls(area,null,null);
+  },
+  drama(t, area){
+    const p=document.createElement('div'); p.className='chart-note'; p.style.fontSize='1.6em';
+    p.innerHTML='🗣️ “'+esc(t.text)+'”';
+    area.appendChild(p);
+    const grid=document.createElement('div'); grid.className='drama-grid';
+    [['✓ True', true],['✗ False', false]].forEach(([label, val])=>{
+      const b=document.createElement('button'); b.className='opt drama-btn'; b.textContent=label;
+      b.onclick=()=>{ sfx.pop(); resolveMC(b, t, val===t.answer); }; grid.appendChild(b);
+    });
+    area.appendChild(grid); addControls(area,null,null);
+  },
+  orders(t, area){
+    const p=document.createElement('div'); p.className='chart-note'; p.style.fontSize='1.5em'; p.textContent='📋 '+t.prompt;
+    area.appendChild(p);
+    const grid=document.createElement('div'); grid.className='opts';
+    t.opts.forEach(o=>{ const b=document.createElement('button'); b.className='opt'; b.textContent=o;
+      b.onclick=()=>{ sfx.pop(); resolveMC(b, t, o===t.answer); }; grid.appendChild(b); });
+    area.appendChild(grid); addControls(area,null,null);
+  },
+  cabinet(t, area){
+    G.state.selShelf=-1;
+    const hint=document.createElement('div'); hint.style.cssText='text-align:center;color:var(--soft);margin-bottom:10px;font-size:.9em';
+    hint.textContent='Tap a word, then tap the shelf it belongs to.'; area.appendChild(hint);
+    const sh=document.createElement('div'); sh.className='shelves';
+    CABINET.forEach((c,ci)=>{
+      const s=document.createElement('div'); s.className='shelf'; s.dataset.shelf=ci;
+      const nm=document.createElement('div'); nm.className='shelf-name'; nm.textContent=c.shelf; s.appendChild(nm);
+      s.onclick=()=>placeOnShelf(ci); sh.appendChild(s);
+    });
+    area.appendChild(sh);
+    const tr=document.createElement('div'); tr.className='tile-row'; tr.id='tile-row';
+    shuffle(CABINET.flatMap(c=>c.items)).forEach(w=>{
+      const b=document.createElement('button'); b.className='tile'; b.textContent=w; b.dataset.word=w;
+      b.onclick=()=>selectTile(b); tr.appendChild(b);
+    });
+    area.appendChild(tr);
+    addControls(area,'Check Cabinet ✓', checkCabinet);
+  },
+  surgery(t, area){
+    const hint=document.createElement('div'); hint.style.cssText='text-align:center;color:var(--soft);margin-bottom:10px;font-size:.9em';
+    hint.textContent='Make four pain words! Tap a word, then tap its slot.'; area.appendChild(hint);
+    const rows=document.createElement('div'); rows.className='surgery-rows';
+    SURGERY.targets.forEach((tg,i)=>{
+      const r=document.createElement('div'); r.className='surg-row';
+      const pic=document.createElement('span'); pic.className='surg-pic'; pic.textContent=tg.e; r.appendChild(pic);
+      if(tg.pre){ const pre=document.createElement('span'); pre.textContent=tg.pre; r.appendChild(pre); }
+      const slot=document.createElement('button'); slot.className='surg-slot'; slot.dataset.idx=i; slot.textContent='???';
+      slot.onclick=()=>placePart(i); r.appendChild(slot);
+      if(tg.post){ const post=document.createElement('span'); post.className='surg-suffix'; post.textContent=tg.post; r.appendChild(post); }
+      rows.appendChild(r);
+    });
+    area.appendChild(rows);
+    const tr=document.createElement('div'); tr.className='tile-row';
+    shuffle(SURGERY.parts).forEach(p=>{
+      const b=document.createElement('button'); b.className='tile'; b.innerHTML=p.w.toUpperCase()+' <span class="tile-emoji">'+p.e+'</span>'; b.dataset.word=p.w;
+      b.onclick=()=>selectTile(b); tr.appendChild(b);
+    });
+    area.appendChild(tr);
+    addControls(area,'Check Surgery ✓', checkSurgery);
+  },
+  whosaysit(t, area){
+    const row=document.createElement('div'); row.className='patient-row';
+    row.innerHTML='<div class="patient-emoji">💬</div><div class="bubble">“'+esc(t.quote)+'”</div>';
+    area.appendChild(row);
+    const grid=document.createElement('div'); grid.className='opts';
+    const opts=[['The Doctor 🩺','doctor'],['The Dentist 🦷','dentist'],['The Patient 🤒','patient']];
+    shuffle(opts).forEach(([label, val])=>{
+      const b=document.createElement('button'); b.className='opt'; b.textContent=label;
+      b.onclick=()=>{ sfx.pop(); resolveMC(b, t, val===t.who); }; grid.appendChild(b);
+    });
+    area.appendChild(grid); addControls(area,null,null);
+  },
+  unscramble(t, area){
+    const cl=document.createElement('div'); cl.className='un-clue'; cl.textContent='📝 '+t.clue; area.appendChild(cl);
+    const built=document.createElement('div'); built.className='un-built'; built.id='un-built'; area.appendChild(built);
+    const pool=document.createElement('div'); pool.className='un-pool';
+    const letters=t.word.split('');
+    shuffle(letters.map((l,i)=>l+i)).forEach(key=>{
+      const i=parseInt(key.slice(1)); const l=key[0];
+      const b=document.createElement('button'); b.className='un-letter'; b.textContent=l; b.dataset.letter=l; b.dataset.key=i;
+      b.onclick=()=>useLetter(b); pool.appendChild(b);
+    });
+    area.appendChild(pool);
+    addControls(area,'Check Word ✓', checkUnscramble);
+  },
+};
+
+function selectTile(btn){
+  if(btn.classList.contains('used'))return;
+  sfx.pop();
+  if(G.state.picked===btn){ btn.classList.remove('sel'); G.state.picked=null; return; }
+  if(G.state.picked)G.state.picked.classList.remove('sel');
+  G.state.picked=btn; btn.classList.add('sel');
+}
+function placeOnShelf(ci){
+  const btn=G.state.picked; if(!btn)return;
+  sfx.pop(); btn.classList.remove('sel');
+  document.getElementById('tile-row').appendChild(btn);
+  document.querySelector('.shelf[data-shelf="'+ci+'"]').appendChild(btn);
+  btn.classList.add('placed'); btn.onclick=()=>placedTileClick(btn);
+  G.state.picked=null;
+}
+function placedTileClick(tl){
+  if(G.state.picked){ const shelf=tl.closest('.shelf'); if(shelf){ placeOnShelf(+shelf.dataset.shelf); return; } }
+  sfx.pop(); document.getElementById('tile-row').appendChild(tl); tl.classList.remove('placed'); tl.onclick=()=>selectTile(tl);
+}
+function checkCabinet(){
+  const shelves=[...document.querySelectorAll('.shelf')];
+  const wrong=[];
+  shelves.forEach(s=>{ const ci=+s.dataset.shelf;
+    [...s.querySelectorAll('.tile')].forEach(tl=>{
+      if(!CABINET[ci].items.includes(tl.dataset.word)) wrong.push([s,tl]);
+    });
+  });
+  const totalPlaced=shelves.reduce((n,s)=>n+s.querySelectorAll('.tile').length,0);
+  if(totalPlaced<9){ feedback('The cabinet isn\'t full yet! Place all 9 words.','bad'); sfx.stampTry(); return; }
+  if(wrong.length===0){
+    sfx.stampOk(); stamp('CABINET SORTED!','ok'); lockAndNext();
+    feedback('Perfectly organized, doctor! +'+(G.attempts===0?2:1),'good');
+  }else{
+    wrong.forEach(([s,tl])=>{ s.classList.add('bad'); document.getElementById('tile-row').appendChild(tl); tl.classList.remove('placed'); tl.onclick=()=>selectTile(tl); setTimeout(()=>s.classList.remove('bad'),500); });
+    shakePaper(); G.attempts++; sfx.stampTry(); stamp('TRY AGAIN','try');
+    feedback('Some words are on the wrong shelf! ('+G.attempts+'/2)','bad');
+    if(G.attempts>=2){ // reveal: force correct placement
+      document.querySelectorAll('.shelf .tile').forEach(tl=>{ document.getElementById('tile-row').appendChild(tl); tl.classList.remove('placed'); tl.onclick=()=>selectTile(tl); });
+      stamp('LET ME SHOW YOU','try'); feedback('Watch closely…','bad');
+      setTimeout(()=>{ CABINET.forEach((c,ci)=>{ const s=document.querySelector('.shelf[data-shelf="'+ci+'"]');
+        c.items.forEach(w=>{ const tl=[...document.querySelectorAll('#tile-row .tile')].find(x=>x.dataset.word===w); if(tl){s.appendChild(tl); tl.classList.add('placed');} });
+        s.classList.add('goodfl'); }); sfx.stampOk(); feedback('There! '+c_ans(),'good'); addNext(); },1400);
+    }
+  }
+}
+function c_ans(){ G.correct++; const pts=G.attempts===0?2:1; G.score+=pts; if(G.attempts===0)G.firstTry++; return 'These were the right shelves.'; }
+function placePart(i){
+  const btn=G.state.picked; if(!btn)return;
+  sfx.pop(); btn.classList.remove('sel'); btn.classList.add('used'); btn.style.display='none';
+  const slot=document.querySelector('.surg-slot[data-idx="'+i+'"]');
+  const emoji=(SURGERY.parts.find(p=>p.w===btn.dataset.word)||{}).e||'';
+  G.state.placed[i]=btn.dataset.word; slot.innerHTML=btn.dataset.word.toUpperCase()+(emoji?' '+emoji:''); slot.classList.add('filled');
+  slot.onclick=()=>{ sfx.pop(); slot.textContent='???'; slot.classList.remove('filled'); slot.onclick=()=>placePart(i); btn.classList.remove('used'); btn.style.display=''; delete G.state.placed[i]; };
+  G.state.picked=null;
+  if(document.querySelectorAll('.surg-slot.filled').length===4) setTimeout(()=>{ if(document.querySelectorAll('.surg-slot.filled').length===4) checkSurgery(); }, 450);
+}
+function checkSurgery(){
+  const need={0:'head',1:'ear',2:'tooth',3:'ache'};
+  const slots=[...document.querySelectorAll('.surg-slot')];
+  if(slots.some(s=>!s.classList.contains('filled'))){ feedback('Fill all 4 slots first!','bad'); sfx.stampTry(); return; }
+  if(G.state.surgDone)return; G.state.surgDone=true;
+  const wrong=slots.filter(s=>G.state.placed[s.dataset.idx]!==need[s.dataset.idx]);
+  if(wrong.length===0){
+    sfx.stampOk(); stamp('STITCHED!','ok'); lockAndNext();
+    feedback('Word surgery complete! body part + ACHE = a pain word. +2','good');
+  }else{
+    wrong.forEach(s=>{ s.classList.remove('filled'); s.textContent='???'; delete G.state.placed[s.dataset.idx]; });
+    shakePaper(); G.attempts++; sfx.stampTry(); stamp('TRY AGAIN','try');
+    feedback('Ouch! Those stitches are wrong. ('+G.attempts+'/2)','bad');
+    if(G.attempts>=2){
+      slots.forEach(s=>{ const b=document.querySelector('.tile[data-word="'+need[s.dataset.idx]+'"]'); if(b && !b.classList.contains('used')){ b.classList.add('used'); }
+        s.textContent=need[s.dataset.idx].toUpperCase(); s.classList.add('filled'); });
+      stamp('LOOK HERE','try'); feedback('head+ACHE, ear+ACHE, tooth+ACHE — and stomach ACHE!','good'); addNext();
+    }
+  }
+}
+function useLetter(btn){
+  if(btn.classList.contains('used'))return;
+  sfx.pop(); btn.classList.add('used');
+  const built=document.getElementById('un-built');
+  const b=document.createElement('button'); b.className='un-letter inword'; b.textContent=btn.textContent;
+  b.onclick=()=>{ sfx.pop(); b.remove(); btn.classList.remove('used'); };
+  built.appendChild(b);
+}
+function checkUnscramble(){
+  const t=G.tasks[G.idx];
+  const word=[...document.querySelectorAll('#un-built .un-letter')].map(b=>b.textContent).join('');
+  if(word.length<t.word.length){ feedback('Use all the letters!','bad'); sfx.stampTry(); return; }
+  if(word.toUpperCase()===t.word){
+    sfx.stampOk(); stamp('DECODED!','ok'); lockAndNext();
+    feedback(t.word+' — the chart makes sense now! +2','good');
+  }else{
+    shakePaper(); G.attempts++; sfx.stampTry(); stamp('TRY AGAIN','try');
+    feedback('That\'s not a real chart word… ('+G.attempts+'/2)','bad');
+    if(G.attempts>=2){
+      document.getElementById('un-built').innerHTML='';
+      document.querySelectorAll('.un-pool .un-letter').forEach(b=>b.classList.remove('used'));
+      stamp('IT WAS: '+t.word,'try');
+      feedback('The answer is '+t.word+'. Next time, doctor!','good');
+      lockAndNext();
+    }
+  }
+}
+
+/* ================= END + CONFETTI ================= */
+function endGame(){
+  show('scr-end'); updateEcg(); sfx.win();
+  document.getElementById('end-score').textContent=G.score;
+  document.getElementById('e-ok').textContent=G.correct;
+  document.getElementById('e-total').textContent=G.tasks.length;
+  document.getElementById('e-pts').textContent=Math.round(100*G.firstTry/G.tasks.length)+'%';
+  const pct=G.score/(G.tasks.length*2);
+  const stampEl=document.getElementById('end-stamp');
+  stampEl.textContent = pct>=0.9?'EXCELLENT DOCTOR ⭐':pct>=0.65?'GOOD DOCTOR 👍':'TRAINEE DOCTOR 📋';
+  document.getElementById('end-note').textContent = pct>=0.9?'The hospital is quiet again… perfect rounds, doctor!':pct>=0.65?'Nice shift! Check the charts once more and you\'ll be perfect.':'The patients are worried… let\'s review the vocabulary and try again!';
+  fireConfetti();
+}
+const cv=document.getElementById('confetti'), cx=cv.getContext('2d'); let parts=[], confAnim=null;
+function sizeCv(){ cv.width=innerWidth; cv.height=innerHeight; }
+addEventListener('resize', sizeCv); sizeCv();
+function fireConfetti(){
+  const colors=['#e63946','#2a9d8f','#f4a259','#2f9e6e','#ffd166'];
+  for(let i=0;i<160;i++) parts.push({x:Math.random()*cv.width, y:-20-Math.random()*cv.height*0.4,
+    vx:(Math.random()-0.5)*2.2, vy:2+Math.random()*3.5, s:5+Math.random()*7, r:Math.random()*Math.PI,
+    vr:(Math.random()-0.5)*0.2, c:colors[i%5], cross:Math.random()<0.3});
+  if(!confAnim) confLoop();
+}
+function confLoop(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  parts=parts.filter(p=>p.y<cv.height+30);
+  parts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.r+=p.vr;
+    cx.save(); cx.translate(p.x,p.y); cx.rotate(p.r); cx.fillStyle=p.c;
+    if(p.cross){ cx.fillRect(-p.s/2,-p.s/6,p.s,p.s/3); cx.fillRect(-p.s/6,-p.s/2,p.s/3,p.s); }
+    else cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.6);
+    cx.restore(); });
+  confAnim = parts.length? requestAnimationFrame(confLoop) : null;
+}
+</script>
+</script>
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body>
+</html>

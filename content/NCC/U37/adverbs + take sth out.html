@@ -1,0 +1,347 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adverbs &amp; Actions</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            /* Transition for solid colors */
+            transition: background 0.5s ease;
+            background: linear-gradient(135deg, #fbcfe8 0%, #bfdbfe 100%);
+        }
+
+        header {
+            width: 100%;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        main {
+            flex-grow: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        footer {
+            width: 100%;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            font-size: 1.25rem;
+            font-weight: 900;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        #prev-btn { background-color: #e5e7eb; color: #374151; }
+        #prev-btn:hover:not(:disabled) { background-color: #d1d5db; }
+        #next-btn { background-color: #8b5cf6; color: white; box-shadow: 0 4px 6px rgba(139, 92, 246, 0.3); }
+        #next-btn:hover:not(:disabled) { background-color: #7c3aed; }
+
+        .slide {
+            display: none;
+            opacity: 0;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            max-width: 64rem;
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .badge {
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+            font-size: 1.25rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .badge.part1 { background-color: #ec4899; } /* Pink for adverbs */
+        .badge.part2 { background-color: #3b82f6; } /* Blue for take out */
+
+        .sentence {
+            font-size: clamp(1.8rem, 4vw, 3.2rem);
+            font-weight: 800;
+            color: #1e293b;
+            line-height: 1.6;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem 0;
+        }
+
+        .reveal-box {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            background-color: #ffffff;
+            border: 3px dashed #94a3b8;
+            padding: 0.2rem 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            user-select: none;
+            margin: 0 0.5rem;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+        }
+
+        .reveal-box:hover {
+            transform: scale(1.1);
+            border-color: #8b5cf6;
+        }
+
+        .reveal-box.revealed {
+            background-color: transparent;
+            border: 3px solid transparent;
+            box-shadow: none;
+            color: #8b5cf6; 
+            font-weight: 900;
+            cursor: default;
+            font-size: clamp(1.8rem, 4vw, 3.2rem);
+        }
+
+        .reveal-box.revealed:hover { transform: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 style="font-size: 1.5rem; font-weight: 900; color: #8b5cf6; margin: 0;">Grammar &amp; Vocabulary</h1>
+        <div id="progress" style="color: #6b7280; font-weight: 700; font-size: 1.125rem;">1 / 14</div>
+    </header>
+
+    <main id="slide-container"></main>
+
+    <footer>
+        <button id="prev-btn">⬅️ Back</button>
+        <button id="next-btn">Next ➡️</button>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const part1Gradient = "linear-gradient(135deg, #fbcfe8 0%, #bfdbfe 100%)"; // Pink to Blue gradient
+
+            const slidesData = [
+                // PART 1: Adverbs (All use the gradient)
+                { part: "Part 1: Adverbs", type: "part1", text: "He was late for the bus, so he walked {hurriedly|🏃‍♂️💨}.", bg: part1Gradient },
+                { part: "Part 1: Adverbs", type: "part1", text: "The turtle moves very {slowly|🐢} across the road.", bg: part1Gradient },
+                { part: "Part 1: Adverbs", type: "part1", text: "After the long run, she drank the water {thirstily|🥵💧}.", bg: part1Gradient },
+                { part: "Part 1: Adverbs", type: "part1", text: "The shop assistant smiled and greeted us {pleasantly|😊}.", bg: part1Gradient },
+                { part: "Part 1: Adverbs", type: "part1", text: "It was a sunny day, but {suddenly|⚡} it started to rain!", bg: part1Gradient },
+                { part: "Part 1: Adverbs", type: "part1", text: "The baby is sleeping, so please speak {quietly|🤫}.", bg: part1Gradient },
+                { part: "Part 1: Adverbs", type: "part1", text: "They played {happily|😄} in the park all afternoon.", bg: part1Gradient },
+                
+                // PART 2: Take out sth / Take sth out (Different solid colors based on content)
+                { part: "Part 2: Take Out", type: "part2", text: "I need to call my mom, so I take out my {phone|📱}.", bg: "#f3e8ff" }, // Light Purple
+                { part: "Part 2: Take Out", type: "part2", text: "It started raining, so take out your {umbrella|☂️}!", bg: "#e0f2fe" }, // Light Blue (Rain)
+                { part: "Part 2: Take Out", type: "part2", text: "The student takes out a {pencil|✏️} to do his homework.", bg: "#fef9c3" }, // Light Yellow (Pencil)
+                { part: "Part 2: Take Out", type: "part2", text: "She wants to buy a ticket, so she takes out her {wallet|👛}.", bg: "#ffe4e6" }, // Light Pink
+                { part: "Part 2: Take Out", type: "part2", text: "He doesn't understand the language, so he takes out a {phrase book|📘}.", bg: "#ccfbf1" }, // Light Teal
+                { part: "Part 2: Take Out", type: "part2", text: "I take my {key|🔑} out to open the front door.", bg: "#ffedd5" }, // Light Orange/Amber
+                { part: "Part 2: Take Out", type: "part2", text: "The tourist takes out a {map|🗺️} to find the museum.", bg: "#dcfce7" } // Light Green
+            ];
+
+            let currentSlide = 0;
+            const container = document.getElementById('slide-container');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const progress = document.getElementById('progress');
+
+            function parseText(text) {
+                const regex = /\{([^|]+)\|([^}]+)\}/g;
+                return text.replace(regex, (match, word, emoji) => {
+                    return `<span class="reveal-box" data-word="${word}" data-emoji="${emoji}">${emoji}</span>`;
+                });
+            }
+
+            function initSlides() {
+                slidesData.forEach((data) => {
+                    const slideEl = document.createElement('div');
+                    slideEl.className = 'slide';
+                    
+                    slideEl.innerHTML = `
+                        <span class="badge ${data.type}">${data.part}</span>
+                        <p class="sentence">${parseText(data.text)}</p>
+                    `;
+                    container.appendChild(slideEl);
+                });
+
+                updateUI();
+                attachRevealEvents();
+            }
+
+            function attachRevealEvents() {
+                const revealBoxes = document.querySelectorAll('.reveal-box');
+                revealBoxes.forEach(box => {
+                    box.addEventListener('click', function() {
+                        if (!this.classList.contains('revealed')) {
+                            this.innerHTML = this.getAttribute('data-word');
+                            this.classList.add('revealed');
+                        }
+                    });
+                });
+            }
+
+            function updateUI() {
+                const slides = document.querySelectorAll('.slide');
+                slides.forEach((slide, index) => {
+                    if (index === currentSlide) {
+                        slide.classList.add('active');
+                    } else {
+                        slide.classList.remove('active');
+                    }
+                });
+
+                // Apply the specific background for the current slide
+                document.body.style.background = slidesData[currentSlide].bg;
+
+                prevBtn.disabled = currentSlide === 0;
+                nextBtn.disabled = currentSlide === slidesData.length - 1;
+                progress.innerText = `${currentSlide + 1} / ${slidesData.length}`;
+            }
+
+            prevBtn.addEventListener('click', () => {
+                if (currentSlide > 0) {
+                    resetCurrentSlide();
+                    currentSlide--;
+                    updateUI();
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentSlide < slidesData.length - 1) {
+                    resetCurrentSlide();
+                    currentSlide++;
+                    updateUI();
+                }
+            });
+
+            function resetCurrentSlide() {
+                const activeSlide = document.querySelectorAll('.slide')[currentSlide];
+                if(activeSlide) {
+                    const boxes = activeSlide.querySelectorAll('.reveal-box');
+                    boxes.forEach(box => {
+                        box.classList.remove('revealed');
+                        box.innerHTML = box.getAttribute('data-emoji');
+                    });
+                }
+            }
+
+            initSlides();
+        });
+    </script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

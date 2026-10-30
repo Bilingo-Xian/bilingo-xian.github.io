@@ -1,0 +1,202 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🛍️ Shop Role Play</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#1a0a2e,#2d1654);height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:20px}
+.layout{display:grid;grid-template-columns:1fr 240px;gap:20px;width:100%;max-width:1100px;height:90vh;max-height:620px}
+
+.left{display:flex;flex-direction:column;gap:8px}
+.header{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.header h1{font-family:'Fredoka One',cursive;color:#fff;font-size:1.5em}
+.scene-badge{background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4);border-radius:12px;padding:5px 12px;color:#fbbf24;font-weight:800;font-size:.85em}
+
+.dialogue{display:flex;flex-direction:column;gap:8px;flex:1;justify-content:center}
+.line{display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:16px;max-width:80%;cursor:pointer;transition:all .2s}
+.line:hover{transform:scale(1.01)}
+
+.line.a{background:rgba(16,185,129,.12);border:2px solid rgba(16,185,129,.35);align-self:flex-end;border-radius:16px 16px 4px 16px}
+.line.c{background:rgba(59,130,246,.12);border:2px solid rgba(59,130,246,.35);align-self:flex-start;border-radius:16px 16px 16px 4px}
+
+.line .num{font-family:'Fredoka One',cursive;font-size:1.3em;width:32px;text-align:center;flex-shrink:0}
+.line.a .num{color:#10b981}
+.line.c .num{color:#3b82f6}
+.line .content{flex:1}
+.line .cue{color:#fff;font-size:1em;font-weight:700}
+.line .cue .kw{color:#fbbf24;font-weight:800}
+.line .answer{display:none;color:#cbd5e1;font-size:.85em;font-style:italic;margin-top:4px;padding-top:4px;border-top:1px dashed rgba(255,255,255,.15)}
+.line.open .answer{display:block}
+.line .tap{color:rgba(255,255,255,.2);font-size:.65em;font-weight:800;flex-shrink:0}
+
+.right{display:flex;flex-direction:column;gap:10px;justify-content:center}
+.role-box{border-radius:14px;padding:12px;text-align:center}
+.role-box.asst{background:linear-gradient(135deg,#064e3b,#065f46);border:2px solid #10b981}
+.role-box.cust{background:linear-gradient(135deg,#1e3a5f,#1e40af);border:2px solid #3b82f6}
+.role-box .big-emoji{font-size:1.8em}
+.role-box .label{font-family:'Fredoka One',cursive;color:#fff;font-size:.85em;margin-top:3px}
+
+.btn{width:100%;border:none;border-radius:14px;padding:13px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.95em;cursor:pointer;transition:all .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:scale(.96)}
+.btn-new{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff}
+.btn-show{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff}
+.btn-hide{background:linear-gradient(135deg,#64748b,#475569);color:#fff}
+
+.tips{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 12px}
+.tips-title{font-family:'Fredoka One',cursive;color:#c4b5fd;font-size:.7em;letter-spacing:1px;margin-bottom:5px}
+.tips-list{color:rgba(255,255,255,.6);font-size:.78em;font-weight:700;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="layout">
+    <div class="left">
+        <div class="header">
+            <h1>🛍️ Shop Talk</h1>
+            <span class="scene-badge" id="scene-badge"></span>
+        </div>
+        <div class="dialogue" id="dialogue"></div>
+    </div>
+    <div class="right">
+        <div class="role-box asst"><div class="big-emoji">🧑‍💼</div><div class="label">Student A — Assistant</div></div>
+        <div class="role-box cust"><div class="big-emoji">🛒</div><div class="label">Student B — Customer</div></div>
+        <button class="btn btn-new" onclick="generate()">🔄 New dialogue</button>
+        <button class="btn btn-show" onclick="showAll()">👀 Show answers</button>
+        <button class="btn btn-hide" onclick="hideAll()">🙈 Hide answers</button>
+        <div class="tips">
+            <div class="tips-title">🗝️ KEY PHRASES:</div>
+            <div class="tips-list">
+                Would you like…?<br>
+                Could you show me…?<br>
+                …as well / too<br>
+                How about…?
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+const clothes=[
+    {e:"👗",n:"dress",pl:false},{e:"👔",n:"shirt",pl:false},{e:"🧥",n:"coat",pl:false},
+    {e:"👟",n:"trainers",pl:true},{e:"👒",n:"hat",pl:false},{e:"🧣",n:"scarf",pl:false},
+    {e:"👜",n:"bag",pl:false},{e:"👖",n:"jeans",pl:true},{e:"🧤",n:"gloves",pl:true},
+    {e:"👞",n:"shoes",pl:true},{e:"🎒",n:"backpack",pl:false},{e:"🕶️",n:"sunglasses",pl:true},
+    {e:"🧢",n:"cap",pl:false},{e:"👕",n:"T-shirt",pl:false}
+];
+const occasions=["a party","school","a trip","a date","a wedding","a concert"];
+const adjs=["nice","cool","cute","lovely","great"];
+
+function pick(a){return a[~~(Math.random()*a.length)]}
+function pickN(a,n){const s=[...a].sort(()=>Math.random()-.5);return s.slice(0,n)}
+
+function art(item){return item.pl?"some":"a"}
+function demo(item){return item.pl?"These":"This"}
+function verb(item){return item.pl?"are":"is"}
+
+function generate(){
+    const[item1,item2,item3]=pickN(clothes,3);
+    const occ=pick(occasions);
+    const adj1=pick(adjs);
+    const adj2=pick(adjs.filter(a=>a!==adj1));
+
+    document.getElementById('scene-badge').textContent=`${occ} — needs ${item1.e} & ${item2.e}`;
+
+    const lines=[
+        {r:"a",cue:`👋 Say hello. Offer help.`,ans:`"Hi! Would you like some help?"`},
+        {r:"c",cue:`Yes! Ask for ${item1.e} <span class="kw">${item1.n}</span> for ${occ}.`,ans:`"Yes please. Could you show me ${art(item1)} ${item1.n}? It's for ${occ}."`},
+        {r:"a",cue:`Show a <span class="kw">${adj1}</span> ${item1.e}. Suggest ${item2.e} <span class="kw">${item2.n}</span> too.`,ans:`"Here! ${demo(item1)} ${item1.n} ${verb(item1)} really ${adj1}. Would you like ${art(item2)} ${item2.n} too?"`},
+        {r:"c",cue:`Yes! 👍 You want the ${item2.e} <span class="kw">${item2.n}</span>.`,ans:`"Oh yes please! I need ${art(item2)} ${item2.n} as well."`},
+        {r:"a",cue:`Show ${adj2} ${item2.e}. Ask: anything else?`,ans:`"Here you go. ${demo(item2)} ${item2.n} ${verb(item2)} very ${adj2}. Anything else?"`},
+        {r:"c",cue:`No thanks. Say bye! 👋`,ans:`"No thanks, that's all. Bye!"`}
+    ];
+
+    const area=document.getElementById('dialogue');
+    area.innerHTML='';
+    lines.forEach((l,i)=>{
+        const div=document.createElement('div');
+        div.className=`line ${l.r}`;
+        div.innerHTML=`<div class="num">${i+1}</div><div class="content"><div class="cue">${l.cue}</div><div class="answer">${l.ans}</div></div><div class="tap">tap</div>`;
+        div.onclick=()=>div.classList.toggle('open');
+        area.appendChild(div);
+    });
+}
+
+function showAll(){document.querySelectorAll('.line').forEach(l=>l.classList.add('open'))}
+function hideAll(){document.querySelectorAll('.line').forEach(l=>l.classList.remove('open'))}
+
+generate();
+</script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

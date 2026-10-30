@@ -1,0 +1,813 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocab Challenge — Units 55–57</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--teal:#0d9488;--emerald:#059669;--gold:#d97706;--amber:#f59e0b;--coral:#f97316;--rose:#e11d48;--dark:#0c2628;--cyan:#06b6d4;--lime:#65a30d;--green:#10b981;--red:#ef4444;--deep:#134e4a;--mint:#5eead4}
+body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#1a0533 0%,#2d1b69 40%,#1a1a4e 100%);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;color:#333;user-select:none;-webkit-user-select:none;touch-action:manipulation;overflow-x:hidden}
+#app{width:100%;max-width:620px;padding:16px;position:relative;z-index:1;min-height:100vh}
+
+.screen{display:none;animation:fadeIn .5s ease}.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(139,92,246,.3)}50%{box-shadow:0 0 40px rgba(139,92,246,.6)}}
+@keyframes confettiFall{to{top:110vh;transform:rotate(720deg)}}
+@keyframes floatUp{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-80px) scale(1.5)}}
+@keyframes starPop{from{transform:scale(0) rotate(-180deg)}to{transform:scale(1) rotate(0)}}
+@keyframes levelGlow{0%,100%{text-shadow:0 0 10px rgba(139,92,246,.5)}50%{text-shadow:0 0 30px rgba(249,115,22,.8)}}
+@keyframes blazeIn{0%{transform:scale(0) rotate(-20deg);opacity:0}50%{transform:scale(1.3) rotate(5deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes blazeOut{from{transform:scale(1);opacity:1}to{transform:scale(1.5);opacity:0}}
+@keyframes ringExpand{from{transform:scale(0);opacity:1}to{transform:scale(3);opacity:0}}
+@keyframes blazeText{0%{transform:scale(0) rotate(-10deg);letter-spacing:0}50%{transform:scale(1.2) rotate(3deg);letter-spacing:4px}100%{transform:scale(1) rotate(0);letter-spacing:2px}}
+
+.blaze-overlay{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:2000;pointer-events:none;animation:fadeIn .1s ease}
+.blaze-scene{position:relative;width:280px;height:280px;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.blaze-ring{position:absolute;width:120px;height:120px;border:6px solid var(--amber);border-radius:50%;animation:ringExpand .8s ease forwards}
+.blaze-ring:nth-child(2){animation-delay:.15s;border-color:var(--coral)}
+.blaze-ring:nth-child(3){animation-delay:.3s;border-color:var(--rose)}
+.blaze-label{font-family:'Fredoka One',cursive;font-size:1.6em;color:#fff;text-shadow:0 0 20px rgba(249,115,22,.8),0 0 40px rgba(249,115,22,.4);animation:blazeText .5s ease .2s backwards;margin-top:8px;white-space:nowrap}
+.blaze-emoji{font-size:3.5em;animation:blazeIn .4s cubic-bezier(.34,1.56,.64,1) backwards}
+.blaze-bonus{font-family:'Fredoka One',cursive;font-size:1.3em;color:var(--amber);animation:blazeIn .5s ease .4s backwards;margin-top:4px}
+
+.top-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:rgba(255,255,255,.08);border-radius:16px;margin-bottom:14px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1)}
+.stage-badge{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;padding:5px 14px;border-radius:20px;font-weight:800;font-size:.78em;letter-spacing:.5px}
+.stage-badge.easy{background:linear-gradient(135deg,#10b981,#06b6d4)}
+.stage-badge.medium{background:linear-gradient(135deg,var(--gold),var(--coral))}
+.stage-badge.hard{background:linear-gradient(135deg,var(--rose),#be123c)}
+.class-score{color:#fff;font-family:'Fredoka One',cursive;font-size:1.3em}
+.q-counter{color:rgba(255,255,255,.6);font-weight:700;font-size:.88em}
+.streak-badge{display:none;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;padding:3px 10px;border-radius:12px;font-size:.72em;font-weight:800;animation:pulse .6s ease infinite}
+.streak-badge.show{display:inline-block}
+
+.progress-wrap{background:rgba(255,255,255,.1);border-radius:10px;height:8px;margin-bottom:16px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,#8b5cf6,#06b6d4,var(--gold),var(--coral));border-radius:10px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+
+.timer-wrap{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.timer-circle{width:48px;height:48px;border-radius:50%;border:4px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:1.1em;color:#fff;flex-shrink:0;transition:border-color .3s}
+.timer-circle.warning{border-color:var(--amber);color:var(--amber);animation:pulse .5s ease infinite}
+.timer-circle.danger{border-color:var(--red);color:var(--red);animation:pulse .3s ease infinite}
+.timer-bar-bg{flex:1;height:8px;background:rgba(255,255,255,.12);border-radius:8px;overflow:hidden}
+.timer-bar{height:100%;border-radius:8px;transition:width .1s linear,background .3s}
+.timer-bar.full{background:var(--green)}.timer-bar.mid{background:var(--amber)}.timer-bar.low{background:var(--red)}
+
+.q-card{background:#fff;border-radius:24px;padding:28px 24px;margin-bottom:16px;box-shadow:0 8px 30px rgba(0,0,0,.15);position:relative;overflow:hidden}
+.q-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#8b5cf6,#06b6d4,var(--gold))}
+.q-type-label{font-size:.75em;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#7c3aed;margin-bottom:8px}
+.q-prompt{font-size:1.15em;font-weight:700;line-height:1.5;color:#222}
+.q-context{font-size:.88em;color:#888;margin-top:8px;font-style:italic}
+
+.options-grid{display:grid;gap:10px;margin-bottom:10px}
+.options-grid.cols-2{grid-template-columns:1fr 1fr}
+.options-grid.cols-1{grid-template-columns:1fr}
+.opt-btn{background:#fff;border:3px solid #e8e8ef;border-radius:16px;padding:16px 18px;font-size:1.02em;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .2s;color:#333;text-align:center;position:relative;overflow:hidden}
+.opt-btn:hover{border-color:#8b5cf6;background:#f5f3ff;transform:translateY(-2px)}
+.opt-btn:active{transform:scale(.97)}
+.opt-btn.correct{background:#d1fae5!important;border-color:var(--green)!important;color:#047857!important;animation:popIn .3s ease}
+.opt-btn.wrong{background:#fee2e2!important;border-color:var(--red)!important;color:var(--red)!important;animation:shake .4s ease}
+.opt-btn.disabled{pointer-events:none;opacity:.45}
+.opt-btn.correct.disabled{opacity:1}.opt-btn.wrong.disabled{opacity:1}
+
+.tf-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px}
+.tf-btn{padding:22px;border-radius:20px;font-family:'Fredoka One',cursive;font-size:1.3em;border:4px solid #e8e8ef;cursor:pointer;transition:all .2s;text-align:center;background:#fff}
+.tf-btn.tf-true{color:var(--green)}.tf-btn.tf-false{color:var(--red)}
+.tf-btn:hover{transform:scale(1.05)}
+.tf-btn:active{transform:scale(.95)}
+.tf-btn.correct{border-color:var(--green)!important;animation:popIn .3s ease;transform:scale(1.08);background:#d1fae5!important}
+.tf-btn.wrong{border-color:var(--red)!important;animation:shake .4s ease;opacity:.5;background:#fee2e2!important}
+.tf-btn.disabled{pointer-events:none}
+
+.drag-area{margin-bottom:10px}
+.drag-sentence{background:#f5f3ff;border:2px solid #c4b5fd;border-radius:16px;padding:18px 16px;font-size:1.05em;font-weight:700;line-height:2.2;margin-bottom:14px;color:#333;text-align:center}
+.drag-blank{display:inline-block;min-width:70px;padding:4px 12px;margin:2px 4px;border-radius:10px;border:2px dashed #8b5cf6;background:#fff;color:#7c3aed;font-weight:800;cursor:pointer;transition:all .2s;vertical-align:middle;text-align:center}
+.drag-blank.filled{border-style:solid;background:#ede9fe;border-color:#8b5cf6}
+.drag-blank.correct-slot{border-color:var(--green)!important;background:#d1fae5!important;color:#047857!important}
+.drag-blank.wrong-slot{border-color:var(--red)!important;background:#fee2e2!important;color:var(--red)!important;animation:shake .4s ease}
+.drag-tiles{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:14px}
+.drag-tile{background:#fff;border:3px solid #e8e8ef;border-radius:14px;padding:12px 18px;font-weight:800;font-family:'Nunito',sans-serif;font-size:.95em;cursor:pointer;transition:all .2s;color:#333}
+.drag-tile:hover{border-color:#8b5cf6;transform:translateY(-2px)}
+.drag-tile:active{transform:scale(.93)}
+.drag-tile.used{opacity:.3;pointer-events:none;border-style:dashed}
+.drag-tile.disabled{pointer-events:none}
+.drag-check-btn{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;padding:14px 32px;border:none;border-radius:16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1em;cursor:pointer;width:100%;transition:all .2s;display:none;box-shadow:0 4px 16px rgba(139,92,246,.3)}
+.drag-check-btn.show{display:block!important}
+.drag-check-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(139,92,246,.4)}
+.drag-check-btn:active{transform:scale(.97)}
+
+.feedback{border-radius:16px;padding:16px 20px;margin:12px 0;display:none;animation:slideUp .3s ease}
+.feedback.show{display:block}
+.feedback.fb-correct{background:#ecfdf5;border:2px solid #a7f3d0}
+.feedback.fb-wrong{background:#fef2f2;border:2px solid #fecaca}
+.feedback.fb-blaze{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;box-shadow:0 0 20px rgba(251,191,36,.2)}
+.feedback-icon{font-size:1.5em;margin-right:8px}
+.feedback-text{font-weight:700;display:inline}
+.feedback-explain{font-size:.88em;color:#666;margin-top:6px}
+
+.discuss-card{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:20px;padding:20px;margin:14px 0;border:3px solid #8b5cf6;display:none;animation:slideUp .4s ease}
+.discuss-card.show{display:block}
+.discussion-label{font-family:'Fredoka One',cursive;color:#5b21b6;font-size:.92em;margin-bottom:6px}
+.discussion-text{font-size:1.05em;font-weight:700;color:#3b0764;line-height:1.5}
+
+.next-wrap{text-align:center;margin-top:16px;display:none;animation:slideUp .3s ease .1s backwards}
+.next-wrap.show{display:block}
+.next-btn{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;padding:16px 40px;border:none;border-radius:18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1.1em;cursor:pointer;box-shadow:0 6px 20px rgba(139,92,246,.4);transition:all .2s;animation:glow 2s ease infinite}
+.next-btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(139,92,246,.5)}
+.next-btn:active{transform:scale(.95)}
+
+.levelup-screen{text-align:center;padding:12vh 20px 0}
+.levelup-icon{font-size:4em;margin-bottom:16px;animation:bounce 1s ease infinite}
+.levelup-title{font-family:'Fredoka One',cursive;font-size:2.2em;color:#fff;margin-bottom:8px;animation:levelGlow 2s ease infinite}
+.levelup-msg{color:rgba(255,255,255,.7);font-size:1.05em;margin-bottom:12px}
+.levelup-score{font-family:'Fredoka One',cursive;font-size:1.4em;color:var(--amber);margin-bottom:28px}
+.levelup-btn{background:#fff;color:#7c3aed;padding:18px 44px;border:none;border-radius:20px;font-family:'Fredoka One',cursive;font-size:1.3em;cursor:pointer;transition:all .2s;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.levelup-btn:hover{transform:translateY(-3px) scale(1.05)}
+.levelup-btn:active{transform:scale(.95)}
+.levelup-next-stage{color:rgba(255,255,255,.5);font-size:.9em;margin-top:16px;font-weight:700}
+
+.start-screen{text-align:center;padding-top:12vh}
+.start-title{font-family:'Fredoka One',cursive;font-size:2.8em;color:#fff;margin-bottom:4px;text-shadow:0 4px 20px rgba(0,0,0,.3)}
+.start-sub{color:rgba(255,255,255,.5);font-size:1em;margin-bottom:6px}
+.start-units{color:rgba(255,255,255,.7);font-size:1.1em;margin-bottom:36px;font-weight:700}
+.start-btn{background:linear-gradient(135deg,#8b5cf6,var(--coral));color:#fff;padding:20px 50px;border:none;border-radius:22px;font-family:'Fredoka One',cursive;font-size:1.4em;cursor:pointer;box-shadow:0 8px 30px rgba(139,92,246,.4);transition:all .2s;animation:pulse 2s ease infinite}
+.start-btn:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(139,92,246,.5)}
+.start-btn:active{transform:scale(.95)}
+.start-words{color:rgba(255,255,255,.35);font-size:.8em;margin-top:30px;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.6}
+
+.final-card{background:#fff;border-radius:28px;padding:40px 28px;text-align:center;box-shadow:0 12px 50px rgba(0,0,0,.25);margin-top:6vh}
+.final-title{font-family:'Fredoka One',cursive;font-size:2em;color:#7c3aed;margin-bottom:4px}
+.final-score{font-family:'Fredoka One',cursive;font-size:3.5em;background:linear-gradient(135deg,#8b5cf6,var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.final-label{color:#888;font-size:.9em;margin-bottom:16px}
+.final-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:16px 0}
+.fstat{background:#f5f3ff;border-radius:14px;padding:12px 8px}
+.fstat-val{font-family:'Fredoka One',cursive;font-size:1.4em;color:#7c3aed}
+.fstat-lbl{font-size:.72em;color:#888;text-transform:uppercase;font-weight:700}
+.final-stars{font-size:3em;margin:12px 0}
+.final-stars .star{display:inline-block;opacity:.12;transition:all .4s}
+.final-stars .star.on{opacity:1;animation:starPop .5s ease backwards}
+.final-stars .star:nth-child(2){animation-delay:.2s}.final-stars .star:nth-child(3){animation-delay:.4s}
+.final-msg{font-size:1.1em;color:#555;margin:14px 0 24px;line-height:1.5}
+.final-btn{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;padding:16px 40px;border:none;border-radius:18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1.1em;cursor:pointer;box-shadow:0 6px 20px rgba(139,92,246,.4);transition:all .2s}
+.final-btn:hover{transform:translateY(-3px)}
+.final-btn:active{transform:scale(.95)}
+
+.review-card{background:#fff;border-radius:28px;padding:32px 24px;margin-top:20px;box-shadow:0 12px 50px rgba(0,0,0,.25);text-align:left}
+.review-title{font-family:'Fredoka One',cursive;font-size:1.5em;color:#7c3aed;text-align:center;margin-bottom:6px}
+.review-prompt{text-align:center;color:#555;font-weight:700;font-size:1.05em;margin-bottom:20px;line-height:1.5}
+.review-section-label{font-family:'Fredoka One',cursive;font-size:1em;color:#3b0764;margin-bottom:10px;margin-top:18px;padding-bottom:6px;border-bottom:3px solid #ede9fe}
+.review-section-label:first-of-type{margin-top:0}
+.structure-list{list-style:none;padding:0;margin:0 0 10px 0}
+.structure-list li{background:#f5f3ff;border:2px solid #c4b5fd;border-radius:12px;padding:12px 16px;margin-bottom:8px;font-weight:700;font-size:.95em;color:#5b21b6;line-height:1.4}
+.structure-list li .struct-example{display:block;font-weight:600;color:#555;font-size:.88em;margin-top:4px;font-style:italic}
+.word-cloud{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
+.word-tag{background:#fffbeb;border:2px solid #fde68a;border-radius:10px;padding:6px 14px;font-weight:700;font-size:.85em;color:#92400e}
+
+.pts-badge{display:inline-block;background:#ecfdf5;color:var(--green);padding:2px 10px;border-radius:10px;font-size:.82em;font-weight:800;margin-left:6px}
+.pts-badge.zero{background:#fef2f2;color:var(--red)}
+.pts-badge.blaze{background:linear-gradient(135deg,#fbbf24,#f97316);color:#fff}
+
+.confetti-piece{position:fixed;top:-20px;z-index:1000;pointer-events:none;animation:confettiFall linear forwards}
+.float-points{position:fixed;font-family:'Fredoka One',cursive;pointer-events:none;z-index:999;animation:floatUp 1.2s ease forwards;text-shadow:0 2px 10px rgba(0,0,0,.2)}
+
+/* Mistakes review section */
+.mistakes-card{background:#fff;border-radius:28px;padding:32px 24px;margin-top:20px;box-shadow:0 12px 50px rgba(0,0,0,.25);text-align:left;border:3px solid #fecaca;position:relative;overflow:hidden}
+.mistakes-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#ef4444,#f97316,#f59e0b)}
+.mistakes-title{font-family:'Fredoka One',cursive;font-size:1.4em;color:#dc2626;text-align:center;margin-bottom:4px}
+.mistakes-subtitle{text-align:center;color:#888;font-weight:700;font-size:.92em;margin-bottom:18px}
+.mistake-item{background:#fef2f2;border:2px solid #fecaca;border-radius:14px;padding:14px 16px;margin-bottom:10px;animation:slideUp .4s ease backwards}
+.mistake-item:nth-child(2){animation-delay:.1s}
+.mistake-item:nth-child(3){animation-delay:.2s}
+.mistake-item:nth-child(4){animation-delay:.3s}
+.mistake-item:nth-child(5){animation-delay:.4s}
+.mistake-struct{font-weight:800;color:#991b1b;font-size:.95em;margin-bottom:4px}
+.mistake-hint{font-size:.85em;color:#666;line-height:1.4}
+.mistake-words{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.mistake-word-tag{background:#fee2e2;border:2px solid #fca5a5;border-radius:8px;padding:4px 12px;font-weight:800;font-size:.82em;color:#991b1b}
+.perfect-card{background:#fff;border-radius:28px;padding:32px 24px;margin-top:20px;box-shadow:0 12px 50px rgba(0,0,0,.25);text-align:center;border:3px solid #a7f3d0}
+.perfect-title{font-family:'Fredoka One',cursive;font-size:1.4em;color:var(--green);margin-bottom:8px}
+.perfect-msg{color:#555;font-size:1em;font-weight:700}
+
+@media(max-width:420px){
+.start-title{font-size:2.1em}
+.q-prompt{font-size:1em}
+.options-grid.cols-2{grid-template-columns:1fr}
+.final-score{font-size:2.8em}
+.tf-grid{gap:8px}
+.tf-btn{padding:16px;font-size:1.1em}
+.top-bar{padding:8px 12px}
+.stage-badge{font-size:.7em;padding:4px 10px}
+.drag-blank{min-width:55px;padding:3px 8px;font-size:.85em}
+.drag-tile{padding:10px 14px;font-size:.88em}
+.review-title{font-size:1.2em}
+.levelup-title{font-size:1.7em}
+.blaze-scene{width:220px;height:220px}
+.blaze-label{font-size:1.2em}
+.blaze-emoji{font-size:2.8em}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="start-screen" class="screen active">
+<div class="start-screen">
+    <div style="font-size:3.5em;margin-bottom:10px;animation:bounce 1.5s ease infinite">🚌</div>
+    <div class="start-title">Vocab Challenge!</div>
+    <div class="start-sub">Class Edition</div>
+    <div class="start-units">Units 55 – 57</div>
+    <button class="start-btn" onclick="beginGame()">Let's Go!</button>
+    <div class="start-words">a few · a little · advice · idea · instead · less · pity · teaspoonful · best · least · most · worse · worst · cousin · flavour · healthy · honest · afford · deposit · instalment · millionaire · model · price · laptop · latest · obviously · spill · change · conductor · except · fare · get off · neither · none · note · passenger · tramp · homeless · reason · rude · unfair</div>
+</div>
+</div>
+
+<div id="levelup-screen" class="screen">
+<div class="levelup-screen">
+    <div class="levelup-icon" id="lu-icon">⬆️</div>
+    <div class="levelup-title" id="lu-title">LEVEL UP!</div>
+    <div class="levelup-msg" id="lu-msg">Great work so far!</div>
+    <div class="levelup-score" id="lu-score">🏆 Score: 0</div>
+    <button class="levelup-btn" id="lu-btn" onclick="startNextStage()">Continue →</button>
+    <div class="levelup-next-stage" id="lu-next">Next: MEDIUM</div>
+</div>
+</div>
+
+<div id="game-screen" class="screen">
+<div class="top-bar">
+    <span class="stage-badge" id="g-stage">EASY</span>
+    <span class="streak-badge" id="g-streak">🔥 3</span>
+    <span class="class-score">🏆 <span id="g-score">0</span></span>
+    <span class="q-counter" id="g-counter">1 / 10</span>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="g-progress"></div></div>
+<div class="timer-wrap" id="timer-area">
+    <div class="timer-circle" id="timer-num">15</div>
+    <div class="timer-bar-bg"><div class="timer-bar full" id="timer-bar"></div></div>
+</div>
+<div class="q-card">
+    <div class="q-type-label" id="q-label">EASY</div>
+    <div class="q-prompt" id="q-prompt"></div>
+    <div class="q-context" id="q-context"></div>
+</div>
+<div class="options-grid cols-2" id="opts-area"></div>
+<div class="tf-grid" id="tf-area" style="display:none"></div>
+<div class="drag-area" id="drag-area" style="display:none">
+    <div class="drag-sentence" id="drag-sentence"></div>
+    <div class="drag-tiles" id="drag-tiles"></div>
+    <button class="drag-check-btn" id="drag-check" onclick="checkDrag()">Check Answer ✓</button>
+</div>
+<div class="feedback" id="feedback">
+    <span class="feedback-icon" id="fb-icon">✅</span>
+    <span class="feedback-text" id="fb-text"></span>
+    <span class="pts-badge" id="fb-pts"></span>
+    <div class="feedback-explain" id="fb-explain"></div>
+</div>
+<div class="discuss-card" id="discuss-card">
+    <div class="discussion-label">💬 BONUS — Let's Talk!</div>
+    <div class="discussion-text" id="discuss-text"></div>
+</div>
+<div class="next-wrap" id="next-wrap"><button class="next-btn" id="next-btn" onclick="nextQuestion()">Next →</button></div>
+</div>
+
+<div id="final-screen" class="screen">
+<div class="final-card">
+    <div class="final-title">Game Over!</div>
+    <div class="final-score" id="f-score">0</div>
+    <div class="final-label">Class Points</div>
+    <div class="final-stats">
+        <div class="fstat"><div class="fstat-val" id="f-correct">0</div><div class="fstat-lbl">Correct</div></div>
+        <div class="fstat"><div class="fstat-val" id="f-total">0</div><div class="fstat-lbl">Questions</div></div>
+        <div class="fstat"><div class="fstat-val" id="f-pct">0%</div><div class="fstat-lbl">Accuracy</div></div>
+    </div>
+    <div class="final-stars"><span class="star" id="fs1">⭐</span><span class="star" id="fs2">⭐</span><span class="star" id="fs3">⭐</span></div>
+    <div class="final-msg" id="f-msg"></div>
+    <button class="final-btn" onclick="location.reload()">Play Again</button>
+</div>
+
+<div id="mistakes-area"></div>
+
+<div class="review-card">
+    <div class="review-title">📚 Review Time!</div>
+    <div class="review-prompt">Can you make your own sentences with these?</div>
+
+    <div class="review-section-label">✏️ Key Structures</div>
+    <ul class="structure-list">
+        <li>Shall I / we … ?<span class="struct-example">Shall I give you some advice? (我/我们……好吗？)</span></li>
+        <li>a few + countable noun<span class="struct-example">I'd like a few ideas, please. (几个)</span></li>
+        <li>a little + uncountable noun<span class="struct-example">Add a little less sugar — it's healthier! (一点儿)</span></li>
+        <li>less than …<span class="struct-example">This flavour has less sugar than that one. (少/小于……)</span></li>
+        <li>pay for sth. in instalments<span class="struct-example">She paid for the laptop in instalments. (分期付款买某物)</span></li>
+        <li>sth. cost(s) sb. sth.<span class="struct-example">The latest model cost her a lot. (某物花费某人……)</span></li>
+        <li>afford to do sth.<span class="struct-example">I can't afford to buy it — the price is too high! (负担得起做某事)</span></li>
+        <li>get off<span class="struct-example">The passengers got off the bus. (下车/火车/飞机等)</span></li>
+        <li>none of sb. / sth.<span class="struct-example">None of the passengers had any change. (没有一个……)</span></li>
+        <li>sb. have/has got no sth. = sb. haven't/hasn't got any sth.<span class="struct-example">He's got no money. = He hasn't got any money. (某人没有某物)</span></li>
+    </ul>
+
+    <div class="review-section-label">📖 Words — Unit 55 (The Worst Drink)</div>
+    <div class="word-cloud">
+        <span class="word-tag">a few</span><span class="word-tag">a little</span><span class="word-tag">advice</span>
+        <span class="word-tag">idea</span><span class="word-tag">instead</span><span class="word-tag">less</span>
+        <span class="word-tag">pity</span><span class="word-tag">teaspoonful</span><span class="word-tag">best</span>
+        <span class="word-tag">least</span><span class="word-tag">most</span><span class="word-tag">worse</span>
+        <span class="word-tag">worst</span><span class="word-tag">cousin</span><span class="word-tag">flavour</span>
+        <span class="word-tag">healthy</span><span class="word-tag">honest</span>
+    </div>
+
+    <div class="review-section-label">📖 Words — Unit 56 (Michelle's New Computer)</div>
+    <div class="word-cloud">
+        <span class="word-tag">afford</span><span class="word-tag">deposit</span><span class="word-tag">instalment</span>
+        <span class="word-tag">millionaire</span><span class="word-tag">model</span><span class="word-tag">price</span>
+        <span class="word-tag">laptop</span><span class="word-tag">latest</span><span class="word-tag">obviously</span>
+        <span class="word-tag">spill</span>
+    </div>
+
+    <div class="review-section-label">📖 Words — Unit 57 (Gary's Bus Trip)</div>
+    <div class="word-cloud">
+        <span class="word-tag">change</span><span class="word-tag">conductor</span><span class="word-tag">except</span>
+        <span class="word-tag">fare</span><span class="word-tag">get off</span><span class="word-tag">neither</span>
+        <span class="word-tag">none</span><span class="word-tag">note</span><span class="word-tag">passenger</span>
+        <span class="word-tag">tramp</span><span class="word-tag">homeless</span><span class="word-tag">reason</span>
+        <span class="word-tag">rude</span><span class="word-tag">unfair</span>
+    </div>
+</div>
+</div>
+
+</div>
+
+<div id="blaze-container"></div>
+
+<script>
+let ac;
+function initAC(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}
+function snd(t){try{initAC();const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.08,ac.currentTime);
+if(t==='ok'){o.type='sine';o.frequency.setValueAtTime(523,ac.currentTime);o.frequency.setValueAtTime(659,ac.currentTime+.07);o.frequency.setValueAtTime(784,ac.currentTime+.14);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.4);o.start();o.stop(ac.currentTime+.4)}
+else if(t==='no'){o.type='sawtooth';o.frequency.setValueAtTime(200,ac.currentTime);o.frequency.setValueAtTime(140,ac.currentTime+.2);g.gain.setValueAtTime(.04,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.3);o.start();o.stop(ac.currentTime+.3)}
+else if(t==='cl'){o.type='sine';o.frequency.setValueAtTime(700,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.05);o.start();o.stop(ac.currentTime+.05)}
+else if(t==='win'){[523,659,784,1047].forEach((f,i)=>{const o2=ac.createOscillator(),g2=ac.createGain();o2.connect(g2);g2.connect(ac.destination);o2.type='sine';o2.frequency.setValueAtTime(f,ac.currentTime+i*.12);g2.gain.setValueAtTime(.06,ac.currentTime+i*.12);g2.gain.exponentialRampToValueAtTime(.001,ac.currentTime+i*.12+.3);o2.start(ac.currentTime+i*.12);o2.stop(ac.currentTime+i*.12+.3)});return}
+else if(t==='blaze'){const notes=[784,988,1175,1319,1568];notes.forEach((f,i)=>{const o2=ac.createOscillator(),g2=ac.createGain();o2.connect(g2);g2.connect(ac.destination);o2.type='triangle';o2.frequency.setValueAtTime(f,ac.currentTime+i*.08);g2.gain.setValueAtTime(.07,ac.currentTime+i*.08);g2.gain.exponentialRampToValueAtTime(.001,ac.currentTime+i*.08+.25);o2.start(ac.currentTime+i*.08);o2.stop(ac.currentTime+i*.08+.25)});return}
+}catch(e){}}
+
+function confetti(n=20){const cols=['#8b5cf6','#f59e0b','#06b6d4','#10b981','#f97316','#ec4899','#6366f1'];for(let i=0;i<n;i++){const p=document.createElement('div');p.className='confetti-piece';p.style.left=Math.random()*100+'vw';p.style.background=cols[~~(Math.random()*cols.length)];p.style.width=(Math.random()*8+4)+'px';p.style.height=(Math.random()*8+4)+'px';p.style.borderRadius=Math.random()>.5?'50%':'2px';p.style.animationDuration=(Math.random()*2+1.5)+'s';p.style.animationDelay=Math.random()*.4+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),4000)}}
+function floatPts(x,y,txt,col='#10b981'){const e=document.createElement('div');e.className='float-points';e.textContent=txt;e.style.left=x+'px';e.style.top=y+'px';e.style.color=col;e.style.fontSize='1.5em';document.body.appendChild(e);setTimeout(()=>e.remove(),1200)}
+
+const blazeScenes=[
+    ()=>`<div class="blaze-scene"><div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-emoji">🧠</div><div class="blaze-label">BRAIN POWER!</div><div class="blaze-bonus">⚡ SPEED BONUS +2 ⚡</div></div>`,
+    ()=>`<div class="blaze-scene"><div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-emoji">🚀</div><div class="blaze-label">BLAZING FAST!</div><div class="blaze-bonus">⚡ SPEED BONUS +2 ⚡</div></div>`,
+    ()=>`<div class="blaze-scene"><div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-emoji">⚡</div><div class="blaze-label">LIGHTNING!</div><div class="blaze-bonus">⚡ SPEED BONUS +2 ⚡</div></div>`,
+    ()=>`<div class="blaze-scene"><div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-emoji">🎯</div><div class="blaze-label">BULLSEYE!</div><div class="blaze-bonus">⚡ SPEED BONUS +2 ⚡</div></div>`,
+    ()=>`<div class="blaze-scene"><div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-emoji">💎</div><div class="blaze-label">DIAMOND MIND!</div><div class="blaze-bonus">⚡ SPEED BONUS +2 ⚡</div></div>`
+];
+
+function showBlazeAnimation(){
+    const container=document.getElementById('blaze-container');
+    const scene=blazeScenes[~~(Math.random()*blazeScenes.length)];
+    const overlay=document.createElement('div');
+    overlay.className='blaze-overlay';overlay.innerHTML=scene();
+    container.appendChild(overlay);snd('blaze');confetti(40);
+    setTimeout(()=>{overlay.style.animation='blazeOut .4s ease forwards';setTimeout(()=>overlay.remove(),400)},1600);
+}
+
+function showScr(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+
+/* ====== GAME DATA ====== */
+const BLAZE_THRESHOLD=5;
+
+const stages = [
+{
+  name:"EASY", badgeClass:"easy", icon:"🌟", timer:15,
+  questions:[
+    {qlabel:"🚌 What's this?",prompt:"You pay this money to ride a bus or a train. What is it called?",opts:["fare","price","deposit","change"],ans:0,explain:"'Fare' = the money you pay to travel on a bus, train, or taxi (车费/票价). 'Price' is for things in shops!",discuss:"How much is the bus/subway fare in your city?",focus:{words:["fare","price"],structures:["Vocab: fare vs. price"]}},
+    {qlabel:"True or False?",prompt:"'A teaspoonful' means a very large amount of something. 🥄",type:"tf",correct:false,explain:"No! A teaspoonful is a tiny amount — just what fits on one small spoon (一茶匙). About 5ml!",discuss:"How many teaspoonfuls of sugar do you put in tea?",focus:{words:["teaspoonful"],structures:["Vocab: teaspoonful = a tiny amount"]}},
+    {qlabel:"💻 What's this?",prompt:"A small, portable computer you can carry in your bag. What is it?",opts:["model","deposit","laptop","instalment"],ans:2,explain:"A laptop = 笔记本电脑. You can use it on your lap (your knees when sitting)!",discuss:"Do you have a laptop? What do you use it for? What about your parents?",focus:{words:["laptop","model","deposit","instalment"],structures:["Vocab: laptop, model, deposit, instalment"]}},
+    {qlabel:"True or False?",prompt:"A 'tramp' is a rich person who lives in a big house. 🏠",type:"tf",correct:false,explain:"No! A 'tramp' is a homeless person who has no home and lives on the street (流浪汉).",discuss:"What do you feel when you see a tramp?",focus:{words:["tramp","homeless"],structures:["Vocab: tramp = homeless person"]}},
+    {qlabel:"🔍 Odd One Out",prompt:"Which word is NOT about money or paying?",opts:["deposit","instalment","price","flavour"],ans:3,explain:"'Flavour' = the taste of food or drink (味道). The other three are all about money!",discuss:"What's your favourite flavour of ice cream?",focus:{words:["deposit","instalment","price","flavour"],structures:["Vocab: flavour = taste"]}},
+    {qlabel:"🚌 Who is this?",prompt:"This person checks tickets and collects fares on a bus. Who are they?",opts:["passenger","tramp","conductor","cousin"],ans:2,explain:"A conductor = 售票员. They work on buses collecting fares from passengers.",discuss:"Do buses in your city have conductors?",focus:{words:["conductor","passenger","fare"],structures:["Vocab: conductor, passenger"]}},
+    {qlabel:"True or False?",prompt:"If someone is 'rude', they are very polite and kind. 😊",type:"tf",correct:false,explain:"No! 'Rude' = not polite, bad manners (粗鲁的). A rude person might shout at you or not say 'please'!",discuss:"Can you think of something rude that people do on the bus or in subway?",focus:{words:["rude"],structures:["Vocab: rude = impolite"]}},
+    {qtype:"drag",qlabel:"🧩 Build it!",prompt:"Put the words in the correct places:",sentence:"It's a ___ she can't ___ it.",words:["pity","afford"],correct:["pity","afford"],qTimer:12,explain:"'It's a pity…' = 真遗憾…… 'Afford' = have enough money for something.",discuss:"What's something you wish you could afford?",focus:{words:["pity","afford"],structures:["It's a pity…","afford to do sth."]}},
+    {qlabel:"💡 What does it mean?",prompt:"'I'll have tea instead of coffee.' What does 'instead' mean here?",opts:["Not tea, but coffee","Tea together with coffee","Tea before coffee"," Tea after coffee"],ans:0,explain:"'Instead (of)' = in place of / rather than (代替/而不是). Tea INSTEAD OF coffee = tea, NOT coffee.",discuss:"Do you drink tea or coffee? Or something else instead?",focus:{words:["instead"],structures:["instead (of) = in place of"]}},
+    {qlabel:"🧠 Synonyms!",prompt:"'Obviously' means ___",opts:["clearly / of course","maybe / perhaps","sadly / unfortunately","quickly / fast"],ans:0,explain:"'Obviously' = clearly, it's easy to see (明显地). 'She obviously likes chocolate — she eats it every day!'",discuss:"What do you obviously love doing?",focus:{words:["obviously"],structures:["Vocab: obviously = clearly"]}},
+  ]
+},
+{
+  name:"MEDIUM", badgeClass:"medium", icon:"🔥", timer:18,
+  questions:[
+    {qlabel:"Fill the gap",prompt:"This laptop is too expensive. I can't ___ to buy it. 💸",opts:["afford","cost","pay","spend"],ans:0,explain:"'Afford to do sth.' = have enough money to do something (负担得起做某事). 'I can't afford to buy it.'",discuss:"What's something you can't afford right now?",focus:{words:["afford"],structures:["afford to do sth."]}},
+    {qlabel:"Fill the gap",prompt:"___ of the passengers had any change for a ten-pound note.",opts:["None","No","Not","Never"],ans:0,explain:"'None of + noun' = not one, zero of the group (没有一个……). 'None of the passengers had change.'",discuss:"Do you usually carry change or notes?",focus:{words:["none","change","note","passenger"],structures:["none of sb./sth."]}},
+    {qtype:"drag",qlabel:"🧩 Build it!",prompt:"Put the words in the correct places:",sentence:"She ___ ___ the laptop ___ ___.",words:["for","paid","in","instalments"],correct:["paid","for","in","instalments"],qTimer:16,explain:"'Pay for sth. in instalments' = pay a bit every month, not all at once (分期付款买某物).",discuss:"Has your family ever paid for something in instalments?",focus:{words:["instalment","laptop"],structures:["pay for sth. in instalments"]}},
+    {qlabel:"Fill the gap",prompt:"The conductor asked every passenger to get ___ the bus at the last stop. 🚏",opts:["off","of","on","up"],ans:0,explain:"'Get off' = leave a bus, train, or plane (下车). The opposite is 'get on' (上车).",discuss:"Where do you usually get off the bus?",focus:{words:["get off","conductor","passenger"],structures:["get off (下车)"]}},
+    {qlabel:"True or False?",prompt:"'He hasn't got any money' and 'He has got no money' mean the same thing. 💰",type:"tf",correct:true,explain:"Yes! 'Haven't got any' = 'have got no'. Both mean zero! (某人没有某物)",discuss:"Have you got any money with you right now?",focus:{words:["none"],structures:["sb. have/has got no sth. = sb. haven't/hasn't got any sth."]}},
+    {qlabel:"Fill the gap",prompt:"My cousin gave me some ___ advice: eat less sugar. It's the ___ thing for your health!",opts:["honest … best","honestly … good","worst … honest","rude … most"],ans:0,explain:"'Honest' = truthful (诚实的). 'Best' = irregular superlative of 'good' (最好的). Honest advice = advice that tells the truth.",discuss:"What's the best advice anyone has given you?",focus:{words:["cousin","honest","advice","best","less","healthy"],structures:["Irregular superlatives: good → better → best","less than …"]}},
+    {qtype:"drag",qlabel:"🧩 Build it!",prompt:"Put the words in the correct places:",sentence:"The ___ laptop ___ ___ her 8000 ___.",words:["model","latest","yuan","cost"],correct:["model","cost","yuan"],qTimer:16,explain:"'Sth. cost(s) sb. sth.' = 某物花费某人…… The laptop cost her 8000 yuan.",discuss:"How much does the latest iPhone model cost?",focus:{words:["latest","model","cost"],structures:["sth. cost(s) sb. sth."]}},
+    {qlabel:"Fill the gap",prompt:"'Shall ___ give you a few ideas?' — 'Yes please!'",opts:["I","me","my","mine"],ans:0,explain:"'Shall I/we…?' = offering to do something (我/我们……好吗？). 'Shall I give you some advice?'",discuss:"How do you offer to help someone in English?",focus:{words:["idea"],structures:["Shall I/we …?","a few + countable noun"]}},
+    {qlabel:"Fill the gap",prompt:"The conductor was very ___ to the homeless man. That's so ___!",opts:["rude … unfair","rude … healthy","honest … latest","worst … pity"],ans:0,explain:"'Rude' = impolite (粗鲁的). 'Unfair' = not right, not just (不公平的). Being rude to homeless people is unfair!",discuss:"What rude things have you seen?",focus:{words:["rude","unfair","homeless","conductor"],structures:["Vocab: rude, unfair"]}},
+    {qlabel:"Fill the gap",prompt:"You should eat ___ sugar and drink water ___ of cola.",opts:["less … instead","few … instead","less … except","least … instead"],ans:0,explain:"'Less' + uncountable noun = a smaller amount (少). 'Instead of' = in place of (代替). Less sugar, water instead of cola!",discuss:"What healthy habits do you have?",focus:{words:["less","instead","healthy"],structures:["less than …","instead (of)"]}},
+  ]
+},
+{
+  name:"HARD", badgeClass:"hard", icon:"🏆", timer:22,
+  questions:[
+    {qtype:"drag",qlabel:"🧩 Build it! (4 gaps)",prompt:"Put the words in the correct places:",sentence:"___ ___ give you ___ ___ advice?",words:["a","I","little","Shall"],correct:["Shall","I","a","little"],qTimer:20,explain:"'Shall I…?' (offering) + 'a little' + uncountable noun. A little advice = 一点建议.",discuss:"What advice can you give to everyone?",focus:{words:["advice"],structures:["Shall I/we …?","a little + uncountable noun"]}},
+    {qlabel:"⚡ Which is CORRECT?",prompt:"Which sentence about the laptop is correct?",opts:["The laptop costs her 8000 yuan.","The laptop costs to her 8000 yuan.","The laptop cost she 8000 yuan.","The laptop costing her 5000 yuan."],ans:0,explain:"'Sth. costs sb. (money)' — no 'to', use an object pronoun (her, not she), and conjugate the verb correctly!",discuss:"What's the most expensive thing you've ever bought?",focus:{words:["laptop","cost"],structures:["sth. cost(s) sb. sth."]}},
+    {qtype:"drag",qlabel:"🧩 Build it! (4 gaps)",prompt:"Put the words in the correct places:",sentence:"___ of the passengers ___ ___ any ___.",words:["None","change","had","got"],correct:["None","had","got","change"],qTimer:20,explain:"'None of + noun' + 'hadn't got any' = not a single person had any change (没有一个乘客有零钱).",discuss:"Have you ever used change?",focus:{words:["none","passenger","change"],structures:["none of sb./sth.","sb. haven't/hasn't got any sth."]}},
+    {qlabel:"⚡ Tricky!",prompt:"'Durian ice cream is obviously the worst flavour of ice cream!' What does 'worst' mean?",opts:["great","obvious","very bad","sweetest"],ans:0,explain:"Bad → worse → worst (irregular!). 'Worst' = 最差的/最糟的.",discuss:"What's the worst food you've ever tasted?",focus:{words:["worst","worse","flavour","cousin","obviously"],structures:["Irregular: bad → worse → worst"]}},
+    {qtype:"drag",qlabel:"🧩 Build it! (5 gaps!)",prompt:"Put the words in the correct places:",sentence:"She can't ___ ___ buy the ___ iPhone model — the ___ is too ___.",words:["high","afford","latest","to","price"],correct:["afford","to","latest","price","high"],qTimer:25,explain:"'Can't afford to do sth.' + 'the latest model' + 'the price is too high'. Full structure!",discuss:"Is the latest always the best? Why or why not?",focus:{words:["afford","latest","model","price"],structures:["afford to do sth.","sth. cost(s) sb. sth."]}},
+    {qlabel:"⚡ Which is CORRECT?",prompt:"Choose the sentence with NO mistakes:",opts:["None of the passengers have got no change.","She paied for the laptop in instalments.","He shouldn't be rude.","The fare costed me five pounds."],ans:2,explain:"'No change' + 'none' ✗, 'paid' not 'paied', 'cost' not 'costed' (cost-cost-cost!).",discuss:"Is there ever a good reason to be rude?",focus:{words:["none","change","instalment","fare","reason","rude"],structures:["none of sb./sth.","pay for sth. in instalments","cost-cost-cost (irregular verb)"]}},
+    {qtype:"drag",qlabel:"🧩 Build it! (5 gaps!)",prompt:"Put the words in the correct places:",sentence:"The ___ told the ___ to get ___ — ___ the homeless ___.",words:["except","man","conductor","off","passengers"],correct:["conductor","passengers","off","except","man"],qTimer:25,explain:"'The conductor told the passengers to get off — except the homeless man.' 'Except' = apart from / but not (除了……之外).",discuss:"Do you want to be a conductor?",focus:{words:["conductor","passenger","get off","except","homeless"],structures:["get off","except = apart from"]}},
+    {qlabel:"⚡ Tricky!",prompt:"'I haven't got any ideas' = ___",opts:["I've got no ideas.","I've got none ideas.","I've got a few ideas.","I've got less ideas."],ans:0,explain:"'Haven't got any' = 'have got no'. They mean exactly the same! Never say 'none ideas' — use 'no ideas' or 'none' alone.",discuss:"What subject makes you say 'I have no ideas!'",focus:{words:["idea","none"],structures:["sb. have/has got no sth. = sb. haven't/hasn't got any sth.","a few + countable noun"]}},
+    {qtype:"drag",qlabel:"🧩 Build it! (5 gaps!)",prompt:"Put the words in the correct places:",sentence:"He paid a ___ and ___ for the ___ in monthly ___.",words:["paid","laptop","instalments","deposite"],correct:["deposit","paid","laptop","instalments"],qTimer:25,explain:"'Pay a deposit' = put down first payment. 'Pay for sth. in instalments' = pay bit by bit. Six monthly instalments!",discuss:"If a laptop costs 12000 yuan, and you have to pay for it in monthly installments for a year, how much money do you have to pay every month?",focus:{words:["deposit","instalment","laptop"],structures:["pay for sth. in instalments"]}},
+    {qlabel:"⚡ FINAL BOSS!",prompt:"Which sentence is COMPLETELY correct?",opts:["The conducter was rude to everyone.","None of us could afford the latest model, so we bought a cheaper one instead.","She spilled a few water on the laptop — what a pity!","He obviously haven't got no change for a note."],ans:1,explain:"'None of us could afford' ✓ + 'the latest model' ✓ + 'a cheaper one instead' ✓. In the others: 'a few' needs countable nouns (not 'water'!), double negatives are wrong, and 'he haven't' should be 'he hasn't'.",discuss:"Have you ever bought something cheaper instead of what you really wanted?",focus:{words:["afford","latest","model","instead","spill","pity","none","change","note"],structures:["afford to do sth.","a few + countable / a little + uncountable","none of sb./sth. (no double negatives!)"]}},
+  ]
+}
+];
+
+/* ====== STATE ====== */
+let G={currentStage:0,currentQ:0,score:0,correct:0,total:0,timerInterval:null,timeLeft:0,answered:false,timerMax:0,streak:0,qStartTime:0,wrongQs:[]};
+let dragState={blanks:[],words:[],correct:[],placed:[]};
+
+function beginGame(){
+    initAC();snd('cl');
+    G={currentStage:0,currentQ:0,score:0,correct:0,total:0,timerInterval:null,timeLeft:0,answered:false,timerMax:0,streak:0,qStartTime:0,wrongQs:[]};
+    showScr('game-screen');showQuestion();
+}
+
+function showLevelUp(){
+    const stage=stages[G.currentStage];
+    const nextStage=stages[G.currentStage+1];
+    document.getElementById('lu-icon').textContent=nextStage?'⬆️':'🏆';
+    document.getElementById('lu-title').textContent=stage.name+' COMPLETE!';
+    document.getElementById('lu-msg').textContent='Great work so far!';
+    document.getElementById('lu-score').textContent='🏆 Score: '+G.score;
+    document.getElementById('lu-next').textContent=nextStage?'Next: '+nextStage.name+' '+nextStage.icon:'';
+    document.getElementById('lu-btn').textContent=nextStage?'Level Up! →':'See Results!';
+    showScr('levelup-screen');snd('win');confetti(25);
+}
+
+function startNextStage(){
+    snd('cl');G.currentStage++;
+    if(G.currentStage>=stages.length){showFinalResults();return}
+    G.currentQ=0;showScr('game-screen');showQuestion();
+}
+
+function calcPoints(timeLeft,timerMax){const pct=timeLeft/timerMax;if(pct>0.66)return 3;if(pct>0.33)return 2;return 1}
+function isBlaze(){return(Date.now()-G.qStartTime)/1000<=BLAZE_THRESHOLD}
+
+function updateStreak(correct){
+    if(correct)G.streak++;else G.streak=0;
+    const badge=document.getElementById('g-streak');
+    if(G.streak>=3){badge.textContent='🔥 '+G.streak;badge.className='streak-badge show'}
+    else badge.className='streak-badge';
+}
+
+function showQuestion(){
+    G.answered=false;clearInterval(G.timerInterval);G.qStartTime=Date.now();
+    const stage=stages[G.currentStage];const q=stage.questions[G.currentQ];
+    const qTime=q.qTimer||stage.timer;
+
+    const badge=document.getElementById('g-stage');
+    badge.textContent=stage.name;badge.className='stage-badge '+stage.badgeClass;
+    document.getElementById('g-score').textContent=G.score;
+    document.getElementById('g-counter').textContent=(G.currentQ+1)+' / '+stage.questions.length;
+
+    const totalQs=stages.reduce((s,st)=>s+st.questions.length,0);
+    const doneQs=stages.slice(0,G.currentStage).reduce((s,st)=>s+st.questions.length,0)+G.currentQ;
+    document.getElementById('g-progress').style.width=(doneQs/totalQs*100)+'%';
+
+    document.getElementById('q-label').textContent=q.qlabel||stage.name;
+    document.getElementById('q-prompt').innerHTML=q.prompt;
+    document.getElementById('q-context').textContent=q.qcontext||'';
+
+    document.getElementById('feedback').className='feedback';
+    document.getElementById('discuss-card').className='discuss-card';
+    document.getElementById('next-wrap').className='next-wrap';
+    document.getElementById('fb-pts').textContent='';document.getElementById('fb-pts').className='pts-badge';
+
+    G.timerMax=qTime;G.timeLeft=qTime;
+    const timerNum=document.getElementById('timer-num');
+    const timerBar=document.getElementById('timer-bar');
+    timerNum.textContent=G.timeLeft;timerNum.className='timer-circle';
+    timerBar.style.width='100%';timerBar.className='timer-bar full';
+    document.getElementById('timer-area').style.display='flex';
+
+    G.timerInterval=setInterval(()=>{
+        G.timeLeft--;timerNum.textContent=G.timeLeft;
+        const pct=G.timeLeft/qTime*100;timerBar.style.width=pct+'%';
+        if(G.timeLeft<=4){timerNum.className='timer-circle danger';timerBar.className='timer-bar low'}
+        else if(G.timeLeft<=7){timerNum.className='timer-circle warning';timerBar.className='timer-bar mid'}
+        if(G.timeLeft<=0){clearInterval(G.timerInterval);timeUp()}
+    },1000);
+
+    const optsArea=document.getElementById('opts-area');
+    const tfArea=document.getElementById('tf-area');
+    const dragArea=document.getElementById('drag-area');
+    optsArea.innerHTML='';tfArea.innerHTML='';
+    optsArea.style.display='none';tfArea.style.display='none';dragArea.style.display='none';
+    const dragCheckBtn=document.getElementById('drag-check');
+    dragCheckBtn.style.display='';dragCheckBtn.className='drag-check-btn';
+
+    if(q.qtype==='drag'){
+        dragArea.style.display='block';setupDrag(q);
+    } else if(q.type==='tf'){
+        tfArea.style.display='grid';
+        const btnT=document.createElement('button');btnT.className='tf-btn tf-true';btnT.innerHTML='✓ True';btnT.onclick=(e)=>answerTF(true,e);
+        const btnF=document.createElement('button');btnF.className='tf-btn tf-false';btnF.innerHTML='✗ False';btnF.onclick=(e)=>answerTF(false,e);
+        tfArea.appendChild(btnT);tfArea.appendChild(btnF);
+    } else {
+        optsArea.style.display='grid';
+        optsArea.className='options-grid '+(q.opts.some(o=>o.length>25)?'cols-1':'cols-2');
+        q.opts.forEach((opt,i)=>{
+            const btn=document.createElement('button');btn.className='opt-btn';btn.textContent=opt;
+            btn.onclick=(e)=>answerMC(i,e);optsArea.appendChild(btn);
+        });
+    }
+}
+
+function setupDrag(q){
+    dragState={blanks:[],words:[...q.words],correct:[...q.correct],placed:new Array(q.correct.length).fill(null)};
+    const sentenceEl=document.getElementById('drag-sentence');
+    const tilesEl=document.getElementById('drag-tiles');
+    const checkBtn=document.getElementById('drag-check');
+    checkBtn.className='drag-check-btn';checkBtn.style.display='';tilesEl.innerHTML='';
+
+    const parts=q.sentence.split('___');let html='';
+    for(let i=0;i<parts.length;i++){
+        html+=parts[i];
+        if(i<parts.length-1) html+=`<span class="drag-blank" data-idx="${i}" onclick="removeFromBlank(${i})">(${i+1})</span>`;
+    }
+    sentenceEl.innerHTML=html;
+
+    const shuffled=[...q.words].sort(()=>Math.random()-.5);
+    shuffled.forEach(word=>{
+        const tile=document.createElement('button');tile.className='drag-tile';tile.textContent=word;
+        tile.setAttribute('data-word',word);tile.onclick=()=>placeWord(word);tilesEl.appendChild(tile);
+    });
+}
+
+function placeWord(word){
+    if(G.answered)return;const idx=dragState.placed.indexOf(null);if(idx===-1)return;
+    dragState.placed[idx]=word;snd('cl');
+    const blank=document.querySelector(`.drag-blank[data-idx="${idx}"]`);
+    blank.textContent=word;blank.classList.add('filled');
+    const tiles=document.querySelectorAll('#drag-tiles .drag-tile');
+    for(const tile of tiles){if(tile.getAttribute('data-word')===word&&!tile.classList.contains('used')){tile.classList.add('used');break}}
+    if(!dragState.placed.includes(null)) document.getElementById('drag-check').className='drag-check-btn show';
+}
+
+function removeFromBlank(idx){
+    if(G.answered)return;const word=dragState.placed[idx];if(!word)return;
+    dragState.placed[idx]=null;snd('cl');
+    const blank=document.querySelector(`.drag-blank[data-idx="${idx}"]`);
+    blank.textContent=`(${idx+1})`;blank.classList.remove('filled');
+    const tiles=document.querySelectorAll('#drag-tiles .drag-tile');
+    for(const tile of tiles){if(tile.getAttribute('data-word')===word&&tile.classList.contains('used')){tile.classList.remove('used');break}}
+    document.getElementById('drag-check').className='drag-check-btn';
+}
+
+function checkDrag(){
+    if(G.answered)return;G.answered=true;clearInterval(G.timerInterval);G.total++;
+    const stage=stages[G.currentStage];const q=stage.questions[G.currentQ];
+    let allCorrect=true;
+    dragState.placed.forEach((word,i)=>{
+        const blank=document.querySelector(`.drag-blank[data-idx="${i}"]`);
+        if(word===dragState.correct[i])blank.classList.add('correct-slot');
+        else{blank.classList.add('wrong-slot');allCorrect=false}
+    });
+    document.querySelectorAll('#drag-tiles .drag-tile').forEach(t=>t.classList.add('disabled'));
+    document.getElementById('drag-check').style.display='none';
+
+    if(allCorrect){
+        let pts=calcPoints(G.timeLeft,G.timerMax);const blazed=isBlaze();
+        if(blazed){pts+=2;showBlazeAnimation()}else{snd('ok');confetti(12)}
+        G.score+=pts;G.correct++;updateStreak(true);
+        floatPts(window.innerWidth/2,window.innerHeight/2-50,'+'+pts,blazed?'#f59e0b':'#10b981');
+        showFeedback(true,blazed?'⚡ BLAZING FAST!':'Correct!',q.explain||'',pts,blazed);
+    } else {
+        snd('no');updateStreak(false);G.wrongQs.push(q);
+        showFeedback(false,'Not quite!','Correct: '+dragState.correct.join(' → '),0);
+        setTimeout(()=>{document.querySelectorAll('.drag-blank').forEach((b,i)=>{b.textContent=dragState.correct[i];b.className='drag-blank filled correct-slot'})},1200);
+    }
+    document.getElementById('g-score').textContent=G.score;showDiscussionAndNext(q);
+}
+
+function answerMC(idx,ev){
+    if(G.answered)return;G.answered=true;clearInterval(G.timerInterval);snd('cl');
+    const stage=stages[G.currentStage];const q=stage.questions[G.currentQ];
+    const btns=document.querySelectorAll('#opts-area .opt-btn');const isCorrect=idx===q.ans;G.total++;
+    btns.forEach((b,i)=>{b.classList.add('disabled');if(i===q.ans)b.classList.add('correct');if(i===idx&&!isCorrect)b.classList.add('wrong')});
+
+    if(isCorrect){
+        let pts=calcPoints(G.timeLeft,G.timerMax);const blazed=isBlaze();
+        if(blazed){pts+=2;showBlazeAnimation()}else{snd('ok');confetti(12)}
+        G.score+=pts;G.correct++;updateStreak(true);
+        if(ev&&ev.clientX)floatPts(ev.clientX,ev.clientY-20,'+'+pts,blazed?'#f59e0b':'#10b981');
+        showFeedback(true,blazed?'⚡ BLAZING FAST!':'Correct!',q.explain||'',pts,blazed);
+    } else {
+        snd('no');updateStreak(false);G.wrongQs.push(q);
+        showFeedback(false,'Not quite!','The correct answer is: '+q.opts[q.ans]+(q.explain?' — '+q.explain:''),0);
+    }
+    document.getElementById('g-score').textContent=G.score;showDiscussionAndNext(q);
+}
+
+function answerTF(val,ev){
+    if(G.answered)return;G.answered=true;clearInterval(G.timerInterval);snd('cl');
+    const stage=stages[G.currentStage];const q=stage.questions[G.currentQ];
+    const isCorrect=val===q.correct;const btns=document.querySelectorAll('#tf-area .tf-btn');G.total++;
+    btns.forEach(b=>b.classList.add('disabled'));
+
+    if(isCorrect){
+        (val?btns[0]:btns[1]).classList.add('correct');
+        let pts=calcPoints(G.timeLeft,G.timerMax);const blazed=isBlaze();
+        if(blazed){pts+=2;showBlazeAnimation()}else{snd('ok');confetti(12)}
+        G.score+=pts;G.correct++;updateStreak(true);
+        if(ev&&ev.clientX)floatPts(ev.clientX,ev.clientY-20,'+'+pts,blazed?'#f59e0b':'#10b981');
+        showFeedback(true,blazed?'⚡ BLAZING FAST!':'Correct!',q.explain||'',pts,blazed);
+    } else {
+        (val?btns[0]:btns[1]).classList.add('wrong');
+        (!val?btns[0]:btns[1]).classList.add('correct');
+        snd('no');updateStreak(false);G.wrongQs.push(q);
+        showFeedback(false,'Not quite!',q.explain||'',0);
+    }
+    document.getElementById('g-score').textContent=G.score;showDiscussionAndNext(q);
+}
+
+function timeUp(){
+    if(G.answered)return;G.answered=true;G.total++;snd('no');updateStreak(false);
+    const stage=stages[G.currentStage];const q=stage.questions[G.currentQ];
+    G.wrongQs.push(q);
+    if(q.qtype==='drag'){
+        document.querySelectorAll('#drag-tiles .drag-tile').forEach(t=>t.classList.add('disabled'));
+        document.getElementById('drag-check').style.display='none';
+        showFeedback(false,"Time's up!",'Correct: '+dragState.correct.join(' → '),0);
+        document.querySelectorAll('.drag-blank').forEach((b,i)=>{b.textContent=dragState.correct[i];b.className='drag-blank filled correct-slot'});
+    } else if(q.type==='tf'){
+        document.querySelectorAll('#tf-area .tf-btn').forEach(b=>b.classList.add('disabled'));
+        showFeedback(false,"Time's up!",q.explain||'',0);
+    } else {
+        const btns=document.querySelectorAll('#opts-area .opt-btn');
+        btns.forEach((b,i)=>{b.classList.add('disabled');if(i===q.ans)b.classList.add('correct')});
+        showFeedback(false,"Time's up!",'The correct answer is: '+q.opts[q.ans],0);
+    }
+    showDiscussionAndNext(q);
+}
+
+function showFeedback(ok,text,explain,pts,blazed=false){
+    const fb=document.getElementById('feedback');
+    fb.className='feedback show '+(blazed?'fb-blaze':ok?'fb-correct':'fb-wrong');
+    document.getElementById('fb-icon').textContent=blazed?'⚡':ok?'✅':'❌';
+    document.getElementById('fb-text').textContent=text;
+    document.getElementById('fb-explain').textContent=explain||'';
+    const ptsBadge=document.getElementById('fb-pts');
+    if(pts>0&&blazed){ptsBadge.textContent='+'+pts+' 🔥';ptsBadge.className='pts-badge blaze'}
+    else if(pts>0){ptsBadge.textContent='+'+pts;ptsBadge.className='pts-badge'}
+    else if(pts===0&&!ok){ptsBadge.textContent='+0';ptsBadge.className='pts-badge zero'}
+    else ptsBadge.textContent='';
+}
+
+function showDiscussionAndNext(q){
+    if(q.discuss){const dc=document.getElementById('discuss-card');dc.className='discuss-card show';document.getElementById('discuss-text').textContent=q.discuss}
+    const nw=document.getElementById('next-wrap');nw.className='next-wrap show';
+    const stage=stages[G.currentStage];const isLastQ=G.currentQ>=stage.questions.length-1;const isLastStage=G.currentStage>=stages.length-1;
+    const btn=document.getElementById('next-btn');
+    if(isLastQ&&isLastStage)btn.textContent='See Results! 🎉';
+    else if(isLastQ)btn.textContent='Level Up! ⬆️';
+    else btn.textContent='Next →';
+}
+
+function nextQuestion(){
+    snd('cl');const stage=stages[G.currentStage];G.currentQ++;
+    if(G.currentQ>=stage.questions.length){
+        if(G.currentStage>=stages.length-1)showFinalResults();
+        else showLevelUp();
+    } else showQuestion();
+}
+
+function buildMistakesSection(){
+    const area=document.getElementById('mistakes-area');
+    area.innerHTML='';
+    if(G.wrongQs.length===0){
+        area.innerHTML=`<div class="perfect-card"><div class="perfect-title">🎉 Perfect Run!</div><div class="perfect-msg">You got everything right! No mistakes to review. Amazing work!</div></div>`;
+        return;
+    }
+    // Collect unique structures and words from wrong questions
+    const allStructures=new Set();
+    const allWords=new Set();
+    G.wrongQs.forEach(q=>{
+        if(q.focus){
+            if(q.focus.structures)q.focus.structures.forEach(s=>allStructures.add(s));
+            if(q.focus.words)q.focus.words.forEach(w=>allWords.add(w));
+        }
+    });
+
+    let html=`<div class="mistakes-card"><div class="mistakes-title">⚠️ Pay Extra Attention to These!</div><div class="mistakes-subtitle">You made ${G.wrongQs.length} mistake${G.wrongQs.length>1?'s':''} — review these structures and words:</div>`;
+
+    if(allStructures.size>0){
+        html+=`<div style="font-family:'Fredoka One',cursive;font-size:.9em;color:#991b1b;margin-bottom:8px;margin-top:4px">📌 Structures to Review</div>`;
+        allStructures.forEach(s=>{
+            html+=`<div class="mistake-item"><div class="mistake-struct">${s}</div></div>`;
+        });
+    }
+
+    if(allWords.size>0){
+        html+=`<div style="font-family:'Fredoka One',cursive;font-size:.9em;color:#991b1b;margin-bottom:8px;margin-top:14px">📝 Words to Review</div><div class="mistake-words">`;
+        allWords.forEach(w=>{
+            html+=`<span class="mistake-word-tag">${w}</span>`;
+        });
+        html+=`</div>`;
+    }
+
+    html+=`</div>`;
+    area.innerHTML=html;
+}
+
+function showFinalResults(){
+    showScr('final-screen');snd('win');
+    setTimeout(()=>confetti(50),300);setTimeout(()=>confetti(30),900);
+    document.getElementById('f-score').textContent=G.score;
+    document.getElementById('f-correct').textContent=G.correct;
+    document.getElementById('f-total').textContent=G.total;
+    const pct=Math.round(G.correct/G.total*100);
+    document.getElementById('f-pct').textContent=pct+'%';
+    const maxPossible=G.total*5;const scorePct=G.score/maxPossible*100;
+    const stars=scorePct>=60?3:scorePct>=40?2:scorePct>=20?1:0;
+    for(let i=1;i<=3;i++)document.getElementById('fs'+i).className=i<=stars?'star on':'star';
+    const msgs=["Keep practising — you'll get there! 💪","Good work! A bit more practice and you'll be perfect! 👍","Great job, class! You know these words well! 🎉","AMAZING! You're vocabulary superstars! 🌟"];
+    document.getElementById('f-msg').textContent=msgs[stars];
+    buildMistakesSection();
+}
+</script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

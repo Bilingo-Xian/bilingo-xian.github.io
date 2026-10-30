@@ -1,0 +1,454 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍳 My Breakfast!</title>
+<style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+        font-family:'Segoe UI',system-ui,sans-serif;
+        background:linear-gradient(135deg,#fff8e1 0%,#ffecb3 50%,#ffe082 100%);
+        min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px;
+    }
+    .screen{display:none;flex-direction:column;align-items:center;width:100%;max-width:480px}
+    .screen.active{display:flex;animation:fadeIn .4s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    h1{font-size:2rem;color:#d84315;text-align:center;margin-bottom:2px}
+    .subtitle{font-size:1.05rem;color:#5d4037;text-align:center;margin-bottom:16px;line-height:1.45}
+    .counter{
+        font-size:1.1rem;color:#e65100;font-weight:700;margin-bottom:14px;
+        background:white;padding:7px 20px;border-radius:20px;
+        box-shadow:0 2px 8px rgba(0,0,0,.08);text-align:center;
+    }
+    .menu-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;margin-bottom:18px}
+    .food-card{
+        background:white;border:3px solid #e0e0e0;border-radius:14px;
+        padding:12px 4px 10px;text-align:center;cursor:pointer;
+        transition:all .2s ease;display:flex;flex-direction:column;
+        align-items:center;gap:3px;position:relative;
+        user-select:none;-webkit-tap-highlight-color:transparent;
+    }
+    .food-card:hover{transform:scale(1.07);box-shadow:0 4px 12px rgba(0,0,0,.12)}
+    .food-card:active{transform:scale(.94)}
+    .food-card.selected{
+        border-color:#43a047;background:#e8f5e9;transform:scale(1.04);
+        box-shadow:0 4px 14px rgba(67,160,71,.3);
+    }
+    .food-card.selected .food-emoji{animation:wiggle .4s ease}
+    @keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+    .food-card .check-mark{
+        display:none;position:absolute;top:-6px;right:-6px;
+        width:22px;height:22px;border-radius:50%;background:#43a047;
+        color:white;font-size:.75rem;font-weight:900;
+        line-height:22px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,.2);
+    }
+    .food-card.selected .check-mark{display:block;animation:popIn .3s ease}
+    @keyframes popIn{0%{transform:scale(0)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
+    .food-emoji{font-size:2.4rem;line-height:1.1}
+    .food-label{font-size:.7rem;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.3px;line-height:1.2}
+    .btn{
+        padding:14px 30px;font-size:1.15rem;font-weight:bold;border:none;
+        border-radius:50px;cursor:pointer;transition:all .2s;
+        color:white;text-shadow:0 1px 2px rgba(0,0,0,.15);
+        box-shadow:0 4px 12px rgba(0,0,0,.15);
+    }
+    .btn:hover{transform:scale(1.05)}.btn:active{transform:scale(.97)}
+    .btn:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none}
+    .btn-go{background:linear-gradient(135deg,#43a047,#66bb6a)}
+    .btn-next{background:linear-gradient(135deg,#1565c0,#42a5f5);margin-top:16px;display:none}
+    .btn-next.show{display:inline-block;animation:fadeIn .4s ease}
+    .plate-area{display:flex;flex-direction:column;align-items:center;margin:6px 0 16px}
+    .plate{
+        background:linear-gradient(180deg,#fafafa,#eee);
+        border:5px solid #e0e0e0;border-radius:50%;
+        width:155px;height:155px;display:flex;align-items:center;
+        justify-content:center;gap:6px;
+        box-shadow:0 6px 18px rgba(0,0,0,.1),inset 0 -3px 6px rgba(0,0,0,.04);
+    }
+    .plate-item{font-size:2.5rem}
+    .plate-item:nth-child(1){animation:plateIn .4s ease .1s backwards}
+    .plate-item:nth-child(2){animation:plateIn .4s ease .25s backwards}
+    .plate-item:nth-child(3){animation:plateIn .4s ease .4s backwards}
+    @keyframes plateIn{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+    .q-list{width:100%;display:flex;flex-direction:column;gap:10px}
+    .q-card{width:100%;border-radius:14px;padding:14px 16px;box-shadow:0 2px 10px rgba(0,0,0,.08);transition:all .25s ease}
+    .q-card.revealed{background:white;border:3px solid #66bb6a}
+    .q-card.next-up{
+        background:linear-gradient(135deg,#e3f2fd,#bbdefb);
+        border:3px dashed #42a5f5;cursor:pointer;
+        animation:pulseGlow 2s ease-in-out infinite;
+    }
+    @keyframes pulseGlow{0%,100%{box-shadow:0 2px 10px rgba(0,0,0,.08)}50%{box-shadow:0 4px 20px rgba(66,165,245,.35)}}
+    .q-card.next-up:hover{transform:scale(1.02)}.q-card.next-up:active{transform:scale(.98)}
+    .q-card.locked{background:#f0f0f0;border:3px solid #e0e0e0;opacity:.4}
+    .q-header{display:flex;align-items:center;gap:10px}
+    .q-num{
+        display:inline-flex;align-items:center;justify-content:center;
+        width:28px;height:28px;border-radius:50%;
+        font-weight:800;font-size:.85rem;color:white;flex-shrink:0;
+    }
+    .q-card.revealed .q-num{background:#43a047}
+    .q-card.next-up .q-num{background:#1976d2}
+    .q-card.locked .q-num{background:#bdbdbd}
+    .q-hint{font-size:.95rem;font-weight:600}
+    .q-card.next-up .q-hint{color:#1565c0}
+    .q-card.locked .q-hint{color:#9e9e9e}
+    .q-body{margin-top:8px;animation:revealSlide .4s ease}
+    @keyframes revealSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .q-text{font-size:1.2rem;font-weight:700;color:#333;line-height:1.45}
+    @media(max-width:400px){
+        .menu-grid{grid-template-columns:repeat(3,1fr);gap:8px}
+        h1{font-size:1.6rem}.food-emoji{font-size:1.9rem}
+        .food-label{font-size:.6rem}
+        .plate{width:125px;height:125px}.plate-item{font-size:2rem}
+        .q-text{font-size:1.05rem}
+    }
+</style>
+</head>
+<body>
+
+<div class="screen active" id="screenMenu">
+    <h1>🍳 My Breakfast!</h1>
+    <p class="subtitle">What food do you like to eat<br>for your breakfast?</p>
+    <div class="counter" id="counter">Choose up to 3!</div>
+    <div class="menu-grid" id="menuGrid"></div>
+    <button class="btn btn-go" id="btnGo" disabled="" onclick="startQuestions()">Let's eat! 🍽️</button>
+</div>
+
+<div class="screen" id="screenQuestions">
+    <h1>🍽️ Your Breakfast!</h1>
+    <div class="plate-area"><div class="plate" id="plate"></div></div>
+    <div class="q-list" id="qList"></div>
+    <button class="btn btn-next" id="btnNext" onclick="nextStudent()">Next Student! 🔄</button>
+</div>
+
+<script>
+// =====================================================================
+//  ✏️  EDIT YOUR FOOD ITEMS HERE  ✏️
+// =====================================================================
+const MENU_ITEMS = [
+    { id: "egg",      emoji: "🥚",  label: "Egg" },
+    { id: "toast",    emoji: "🍞",  label: "Toast" },
+    { id: "banana",   emoji: "🍌",  label: "Banana" },
+    { id: "butter",   emoji: "🧈",  label: "Butter" },
+    { id: "honey",    emoji: "🍯",  label: "Honey" },
+    { id: "jam",      emoji: "🍓",  label: "Jam" },
+    { id: "porridge", emoji: "🥣",  label: "Porridge" },
+    { id: "pancake",  emoji: "🥞",  label: "Pancake" },
+];
+
+// =====================================================================
+//  ✏️  EDIT ITEM QUESTIONS HERE (one per food)  ✏️
+//  These are shown whenever that item is on the plate.
+// =====================================================================
+const ITEM_QUESTIONS = {
+    egg:      "How do you cook your egg? 🍳",
+    toast:    "Do you eat white bread or brown bread? 🍞",
+    banana:   "What colour is a banana? Is it always the same? What colour of banana do you like to eat most? 🍌",
+    butter:   "Where does butter come from? 🐄",
+    honey:    "Do you like the insects that make honey? 🐝",
+    jam:      "What is jam made from? What's your favourite jam?",
+    porridge: "Do you eat your porridge hot or cold? What do you add to your porridge? 🥣",
+    pancake:  "What do you like to put in your pancakes? 👨‍🍳",
+};
+
+// =====================================================================
+//  ✏️  EDIT COMBO QUESTIONS HERE (for pairs of items)  ✏️
+//  Key = "itemA+itemB" in ALPHABETICAL order.
+//  funny: true → this combo is preferred when picking.
+// =====================================================================
+const COMBO_QUESTIONS = {
+    // ── TOAST combos ──
+    "egg+toast":        { q: "How do you eat egg and toast? 🍳🍞",     funny: false },
+    "butter+toast":     { q: "How much butter do you put on your toast? 🧈",   funny: false },
+    "honey+toast":      { q: "Do you put honey on toast? 🍯🍞",           funny: false },
+    "jam+toast":        { q: "How much jam do you put on your toast? 🍓",      funny: false },
+    "banana+toast":     { q: "Do you eat banana and toast together? How do you do it? 🍌🍞",    funny: true },
+    "porridge+toast":   { q: "Do you dip your toast in the porridge? 😅",        funny: true },
+    "pancake+toast":    { q: "Pancake AND toast! Do you feel full after this kind of breakfast? 😄🍞🥞",      funny: true },
+
+    // ── EGG combos ──
+    "butter+egg":       { q: "Do you put butter on the egg? 🥚🧈",         funny: false },
+    "egg+honey":        { q: "Do you dip the egg in honey? 😂🥚🍯",funny: true },
+    "egg+jam":          { q: "Do you dip the egg in jam? 🤪🥚🍓",   funny: true },
+    "banana+egg":       { q: "What do you eat first — egg or banana? 🤔",               funny: false },
+    "egg+porridge":     { q: "Egg AND porridge -- it's a big breakfast! What do you eat first?", funny: false },
+    "egg+pancake":      { q: "What do you eat first — egg or pancake? 🍳🥞",           funny: false },
+
+    // ── BUTTER combos ──
+    "butter+honey":     { q: "What food do you put butter and honey on? 🧈🍯",          funny: false },
+    "butter+jam":       { q: "What food do you put butter and jam on? 🧈🍓",            funny: false },
+    "banana+butter":    { q: "Do you put butter on the banana? 😂🍌🧈",          funny: true },
+    "butter+porridge":  { q: "Do you like to put butter in the porridge? 🥣🧈",   funny: true },
+    "butter+pancake":   { q: "How much butter do you put on your pancake? 🥞🧈",funny: false },
+
+    // ── HONEY combos ──
+    "honey+jam":        { q: "Honey AND jam?! What is sweeter — honey or jam? 🍯🍓",    funny: true },
+    "banana+honey":     { q: "Banana and honey — so sweet! What other sweet food do you like? 🍬", funny: false },
+    "honey+porridge":   { q: "How much honey do you put in your porridge? 🥣🍯",funny: false },
+    "honey+pancake":    { q: "How much honey do you put on your pancake? 🥞🍯", funny: false },
+
+    // ── JAM combos ──
+    "banana+jam":       { q: "Do you dip banana in jam? 🍌🍓",    funny: true },
+    "jam+porridge":     { q: "What jam do you like to put in your porridge? 😄🥣🍓",         funny: true },
+    "jam+pancake":      { q: "How much jam do you put on your pancake? 🥞🍓",  funny: false },
+
+    // ── BANANA combos ──
+    "banana+porridge":  { q: "How do you put banana in porridge? 🍌🥣", funny: false },
+    "banana+pancake":   { q: "How do you cut banana before putting it in the pancake? 🍌🥞", funny: false },
+
+    // ── PORRIDGE + PANCAKE ──
+    "pancake+porridge": { q: "Do you dip your pancake in the porridge? 😮🥣🥞",funny: true },
+};
+
+// =====================================================================
+//  ✏️  EDIT "MISSING ITEM" QUESTIONS HERE  ✏️
+//  Checked in order — first match wins.
+//  "check" receives (chosenArray, notChosenArray).
+// =====================================================================
+const MISSING_QUESTIONS = [
+    {
+        // Chose toast but nothing to spread on it
+        check: (c, n) => c.includes("toast") && !c.includes("butter") && !c.includes("honey") && !c.includes("jam"),
+        q: "Nothing on your toast?! Do you like to eat dry toast without anything? 😮🍞"
+    },
+    {
+        // Chose spread(s) but no toast or pancake to put them on
+        check: (c, n) => (c.includes("butter")||c.includes("honey")||c.includes("jam")) && !c.includes("toast") && !c.includes("pancake"),
+        q: "No toast and no pancake! How do you eat your spread then? 🤔"
+    },
+    {
+        // Only picked 1 item
+        check: (c, n) => c.length === 1,
+        q: "Only one thing?! What else do you eat for breakfast at home? 😅"
+    },
+    {
+        // No egg
+        check: (c, n) => n.includes("egg"),
+        q: "Do you like to eat eggs? 🥚"
+    },
+    {
+        // No banana (only fruit available)
+        check: (c, n) => n.includes("banana"),
+        q: "What fruit do you like? 🍎🍊🍌"
+    },
+    {
+        // Fallback — always matches
+        check: () => true,
+        q: "Is this your breakfast at home too? 😋"
+    }
+];
+
+
+// =====================================================================
+//  🎮  GAME CODE — you probably don't need to edit below  🎮
+// =====================================================================
+let chosen = [], allQuestions = [], revealedCount = 0, audioCtx = null;
+
+function ac(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+
+function snd(type){
+    try{const c=ac();if(c.state==='suspended')c.resume();
+    if(type==='pop'){
+        const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
+        o.type='sine';g.gain.value=.25;o.frequency.setValueAtTime(520,c.currentTime);
+        o.frequency.exponentialRampToValueAtTime(920,c.currentTime+.08);
+        g.gain.exponentialRampToValueAtTime(.01,c.currentTime+.13);o.start();o.stop(c.currentTime+.13);
+    }else if(type==='off'){
+        const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
+        o.type='sine';g.gain.value=.18;o.frequency.setValueAtTime(680,c.currentTime);
+        o.frequency.exponentialRampToValueAtTime(340,c.currentTime+.1);
+        g.gain.exponentialRampToValueAtTime(.01,c.currentTime+.12);o.start();o.stop(c.currentTime+.12);
+    }else if(type==='reveal'){
+        const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
+        o.type='sine';g.gain.value=.22;o.frequency.setValueAtTime(420,c.currentTime);
+        o.frequency.exponentialRampToValueAtTime(840,c.currentTime+.12);
+        g.gain.exponentialRampToValueAtTime(.01,c.currentTime+.2);o.start();o.stop(c.currentTime+.2);
+    }else if(type==='whoosh'){
+        const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
+        o.type='sawtooth';g.gain.value=.05;o.frequency.setValueAtTime(200,c.currentTime);
+        o.frequency.exponentialRampToValueAtTime(1400,c.currentTime+.12);
+        g.gain.exponentialRampToValueAtTime(.01,c.currentTime+.18);o.start();o.stop(c.currentTime+.18);
+    }else if(type==='done'){
+        [523,659,784,1047].forEach((f,i)=>{
+            const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
+            o.type='sine';o.frequency.value=f;g.gain.value=.18;
+            g.gain.exponentialRampToValueAtTime(.01,c.currentTime+i*.15+.3);
+            o.start(c.currentTime+i*.15);o.stop(c.currentTime+i*.15+.35);
+        });
+    }}catch(e){}
+}
+
+function buildMenu(){
+    const g=document.getElementById('menuGrid');g.innerHTML='';
+    MENU_ITEMS.forEach(it=>{
+        const d=document.createElement('div');d.className='food-card';d.id='food-'+it.id;
+        d.innerHTML=`<span class="check-mark">✓</span><span class="food-emoji">${it.emoji}</span><span class="food-label">${it.label}</span>`;
+        d.addEventListener('click',()=>toggle(it.id));g.appendChild(d);
+    });
+}
+
+function toggle(id){
+    const card=document.getElementById('food-'+id);
+    if(chosen.includes(id)){
+        chosen=chosen.filter(x=>x!==id);card.classList.remove('selected');snd('off');
+    }else{
+        if(chosen.length>=3)return;
+        chosen.push(id);card.classList.add('selected');snd('pop');
+    }
+    const msgs=['Choose up to 3!','1 chosen — add more?','2 chosen — add 1 more?','3 chosen — ready! 🎉'];
+    document.getElementById('counter').textContent=msgs[chosen.length];
+    document.getElementById('btnGo').disabled=chosen.length===0;
+}
+
+function show(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    const t=document.getElementById(id);t.offsetWidth;t.classList.add('active');
+}
+
+function buildQuestions(){
+    const qs=[];
+    // 1) Item questions
+    chosen.forEach(id=>{if(ITEM_QUESTIONS[id])qs.push(ITEM_QUESTIONS[id]);});
+    // 2) Combo question (prefer funny)
+    if(chosen.length>=2){
+        const combos=[];
+        for(let i=0;i<chosen.length;i++)for(let j=i+1;j<chosen.length;j++){
+            const k=[chosen[i],chosen[j]].sort().join('+');
+            if(COMBO_QUESTIONS[k])combos.push(COMBO_QUESTIONS[k]);
+        }
+        const funny=combos.filter(c=>c.funny);
+        const c=funny.length?pick(funny):combos.length?pick(combos):null;
+        if(c)qs.push(c.q);
+    }
+    // 3) Missing question
+    const notC=MENU_ITEMS.map(m=>m.id).filter(id=>!chosen.includes(id));
+    for(const mq of MISSING_QUESTIONS){if(mq.check(chosen,notC)){qs.push(mq.q);break;}}
+    return qs;
+}
+
+function revHTML(i,q){return`<div class="q-header"><span class="q-num">${i+1}</span></div><div class="q-body"><span class="q-text">${q}</span></div>`}
+function nextHTML(i){return`<div class="q-header"><span class="q-num">${i+1}</span><span class="q-hint">👆 Tap to see the question!</span></div>`}
+function lockHTML(i){return`<div class="q-header"><span class="q-num">${i+1}</span><span class="q-hint">🔒</span></div>`}
+
+function startQuestions(){
+    snd('whoosh');
+    const plate=document.getElementById('plate');
+    plate.innerHTML=chosen.map(id=>{const it=MENU_ITEMS.find(m=>m.id===id);return`<span class="plate-item">${it.emoji}</span>`;}).join('');
+    allQuestions=buildQuestions();revealedCount=0;
+    const qL=document.getElementById('qList');qL.innerHTML='';
+    allQuestions.forEach((q,i)=>{
+        const card=document.createElement('div');card.className='q-card';
+        card.id='qcard-'+i;card.dataset.index=i;card.dataset.question=q;
+        if(i===0){card.classList.add('revealed');card.innerHTML=revHTML(i,q);revealedCount=1;}
+        else if(i===1){card.classList.add('next-up');card.innerHTML=nextHTML(i);}
+        else{card.classList.add('locked');card.innerHTML=lockHTML(i);}
+        qL.appendChild(card);
+    });
+    const btn=document.getElementById('btnNext');btn.classList.remove('show');
+    if(allQuestions.length<=1){btn.classList.add('show');snd('done');}
+    show('screenQuestions');
+}
+
+document.getElementById('qList').addEventListener('click',function(e){
+    const card=e.target.closest('.q-card.next-up');
+    if(!card)return;
+    const idx=parseInt(card.dataset.index);
+    if(idx!==revealedCount)return;
+    card.className='q-card revealed';
+    card.innerHTML=revHTML(idx,allQuestions[idx]);
+    snd('reveal');revealedCount++;
+    if(revealedCount<allQuestions.length){
+        const nx=document.getElementById('qcard-'+revealedCount);
+        nx.className='q-card next-up';nx.innerHTML=nextHTML(revealedCount);
+    }
+    if(revealedCount>=allQuestions.length){
+        document.getElementById('btnNext').classList.add('show');snd('done');
+    }
+});
+
+function nextStudent(){
+    snd('pop');chosen=[];allQuestions=[];revealedCount=0;
+    document.querySelectorAll('.food-card').forEach(c=>c.classList.remove('selected'));
+    document.getElementById('counter').textContent='Choose up to 3!';
+    document.getElementById('btnGo').disabled=true;
+    document.getElementById('btnNext').classList.remove('show');
+    show('screenMenu');
+}
+
+buildMenu();
+</script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>What Time Is It? — Clock Challenge</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Nunito',sans-serif;overflow:hidden;
+  height:100vh;width:100vw;background:#0f0f23;color:#fff;
+  user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;
+}
+.page{display:none;position:absolute;top:0;left:0;width:100%;height:100vh;flex-direction:column}
+.page.active{display:flex}
+
+/* ============ INTRO / REVIEW ============ */
+#intro{background:linear-gradient(160deg,#0f0f23,#1a2a4a);align-items:center;padding:16px;gap:12px;overflow-y:auto}
+.i-title{font-size:2em;font-weight:900;text-align:center;margin-top:8px}
+.i-title .hl{color:#ffd93d}
+.i-sub{opacity:.65;text-align:center;margin-bottom:4px}
+.rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:640px}
+.rev-card{background:rgba(255,255,255,.06);border-radius:14px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.rev-card .lab{font-weight:900;font-size:.95em;color:#4ecdc4}
+.rev-card .sen{font-size:.85em;opacity:.85;line-height:1.3}
+.btn{border:none;color:#fff;font-family:inherit;font-weight:700;padding:13px 36px;border-radius:50px;cursor:pointer;transition:transform .15s;font-size:1.15em}
+.btn:active{transform:scale(.95)}
+.btn-purple{background:linear-gradient(135deg,#667eea,#764ba2)}
+.btn-gold{background:linear-gradient(135deg,#ffd93d,#ff9f43);color:#3a2c00}
+
+/* ============ GAME ============ */
+#game{background:radial-gradient(ellipse at 50% 30%,#1c1c42,#0f0f23)}
+.g-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;flex-shrink:0}
+.g-stats{display:flex;gap:16px;font-weight:700;font-size:.95em}
+.g-stats .pts{color:#ffd93d}.g-stats .fst{color:#4ecdc4}
+.g-end{background:none;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.6);font-family:inherit;font-size:.8em;font-weight:700;padding:6px 14px;border-radius:20px;cursor:pointer}
+.g-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:8px 18px;overflow-y:auto}
+.clock-wrap{position:relative}
+.fast-badge{
+  position:absolute;top:-6px;right:-46px;font-size:2.2em;
+  filter:drop-shadow(0 0 8px #ffd93d);transition:opacity .6s, transform .6s;
+}
+.fast-badge.off{opacity:.15;transform:scale(.8);filter:none}
+.tries{display:flex;gap:6px;font-size:1em;font-weight:700;opacity:.8;min-height:1.4em}
+.tries .dot{color:#4ecdc4}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:420px}
+.opt{
+  background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);
+  color:#fff;font-family:inherit;font-size:1.5em;font-weight:900;
+  padding:16px;border-radius:14px;cursor:pointer;transition:all .15s;
+}
+.opt:hover{background:rgba(255,255,255,.14)}
+.opt.correct{background:rgba(78,205,196,.25);border-color:#4ecdc4}
+.opt.wrong{background:rgba(255,107,107,.25);border-color:#ff6b6b;opacity:.55}
+.opt:disabled{cursor:default}
+.shake{animation:shake .45s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-12px)}40%,80%{transform:translateX(12px)}}
+#redFlash{position:fixed;inset:0;background:rgba(255,60,60,.22);pointer-events:none;opacity:0;z-index:40}
+#redFlash.on{animation:flash .45s}
+@keyframes flash{0%{opacity:1}100%{opacity:0}}
+
+/* fast banner */
+#fastBanner{
+  font-size:1.5em;font-weight:900;color:#ffd93d;text-align:center;
+  text-shadow:0 0 18px rgba(255,217,61,.8);display:none;
+  animation:pop .4s;
+}
+#fastBanner.show{display:block}
+@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+
+/* reveal button */
+#revealBtn{display:none;margin-top:2px}
+#revealBtn.show{display:inline-block}
+
+/* sentence card */
+#sentCard{
+  display:none;background:rgba(255,255,255,.07);border:2px solid rgba(78,205,196,.5);
+  border-radius:18px;padding:18px 26px;text-align:center;max-width:520px;width:100%;
+}
+#sentCard.show{display:block;animation:pop .35s}
+#sentCard .tag{font-weight:900;color:#4ecdc4;font-size:.85em;letter-spacing:2px;margin-bottom:6px}
+#sentCard .sen{font-size:2em;font-weight:900;line-height:1.25}
+#sentCard .hint{opacity:.55;font-size:.85em;margin-top:8px}
+#sentCard .btn{margin-top:12px}
+
+/* summary overlay */
+#sumOverlay{position:fixed;inset:0;background:rgba(10,10,30,.94);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:60;padding:20px}
+#sumOverlay.show{display:flex}
+#sumOverlay .trophy{font-size:4em}
+#sumOverlay .big{font-size:1.5em;font-weight:900;text-align:center;line-height:1.6}
+#sumOverlay .big b{color:#ffd93d}
+
+canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:100}
+</style>
+</head>
+<body>
+
+<!-- INTRO: REVIEW -->
+<div class="page active" id="intro">
+  <div class="i-title">🕐 What Time Is It?<br><span class="hl">Clock Challenge</span></div>
+  <div class="i-sub">One student at a time. Two tries. Answer FAST for bonus points!</div>
+  <div class="rev-grid" id="revGrid"></div>
+  <button class="btn btn-gold" id="startBtn">▶ Start</button>
+</div>
+
+<!-- GAME -->
+<div class="page" id="game">
+  <div class="g-head">
+    <div class="g-stats">
+      <span id="statRound">Student 1</span>
+      <span class="pts" id="statPts">⭐ 0</span>
+      <span class="fst" id="statFast">⚡ 0</span>
+    </div>
+    <button class="g-end" id="endBtn">✕ End</button>
+  </div>
+  <div class="g-body" id="gBody">
+    <div class="clock-wrap" id="clockWrap">
+      <div class="fast-badge" id="fastBadge">⚡</div>
+    </div>
+    <div class="tries" id="tries"></div>
+    <div class="opts" id="opts"></div>
+    <div id="fastBanner">⚡ SUPER FAST! +2 ⭐</div>
+    <button class="btn btn-gold" id="revealBtn">📣 Reveal the sentence</button>
+    <div id="sentCard">
+      <div class="tag">📣 SAY IT TOGETHER!</div>
+      <div class="sen" id="sentText"></div>
+      <div class="hint">Nice and clear — everyone out loud!</div>
+      <button class="btn btn-purple" id="nextBtn">Next student →</button>
+    </div>
+  </div>
+</div>
+
+<div id="redFlash"></div>
+
+<!-- SUMMARY -->
+<div id="sumOverlay">
+  <div class="trophy">🏆</div>
+  <div class="big" id="sumText"></div>
+  <button class="btn btn-purple" id="sumAgain">↻ Play again</button>
+</div>
+
+<canvas class="confetti" id="confettiCanvas"></canvas>
+
+<script>
+/* ================= DATA ================= */
+const HOUR_WORDS = ['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve'];
+const MINUTES = [0,5,15,30,45,55];
+const FAST_MS = 5000;
+
+function timeSentence(h, m){
+  const nh = h === 12 ? 1 : h + 1;
+  if(m === 0)  return `It's ${HOUR_WORDS[h]} o'clock.`;
+  if(m === 5)  return `It's five past ${HOUR_WORDS[h]}.`;
+  if(m === 15) return `It's quarter past ${HOUR_WORDS[h]}.`;
+  if(m === 30) return `It's half past ${HOUR_WORDS[h]}.`;
+  if(m === 45) return `It's quarter to ${HOUR_WORDS[nh]}.`;
+  if(m === 55) return `It's five to ${HOUR_WORDS[nh]}.`;
+}
+function digital(h, m){ return `${h}:${String(m).padStart(2,'0')}`; }
+
+function clockSVG(h, m, size){
+  const hourAngle = (h % 12) * 30 + m * 0.5;
+  const minAngle = m * 6;
+  let ticks = '';
+  for(let i=0;i<12;i++){
+    const a = i*30*Math.PI/180;
+    const x1 = 100+82*Math.sin(a), y1 = 100-82*Math.cos(a);
+    const x2 = 100+72*Math.sin(a), y2 = 100-72*Math.cos(a);
+    ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#fff" stroke-width="${i%3===0?4:2}" opacity=".8"/>`;
+  }
+  return `<svg class="clock-svg" width="${size}" height="${size}" viewBox="0 0 200 200">
+    <circle cx="100" cy="100" r="95" fill="#1a1a3e" stroke="#ffd93d" stroke-width="6"/>
+    ${ticks}
+    <line x1="100" y1="100" x2="100" y2="58" stroke="#fff" stroke-width="8" stroke-linecap="round"
+      transform="rotate(${hourAngle} 100 100)"/>
+    <line x1="100" y1="106" x2="100" y2="34" stroke="#4ecdc4" stroke-width="5" stroke-linecap="round"
+      transform="rotate(${minAngle} 100 100)"/>
+    <circle cx="100" cy="100" r="6" fill="#ffd93d"/>
+  </svg>`;
+}
+
+/* review cards on intro */
+(function(){
+  const demos = [
+    [9,0,'o\'clock'], [9,5,'five past'], [9,15,'quarter past'],
+    [9,30,'half past'], [9,45,'quarter to'], [9,55,'five to']
+  ];
+  document.getElementById('revGrid').innerHTML = demos.map(([h,m,lab])=>`
+    <div class="rev-card">
+      <div>${clockSVG(h,m,86)}</div>
+      <div class="lab">${lab}</div>
+      <div class="sen">${timeSentence(h,m)}</div>
+    </div>`).join('');
+})();
+
+/* ================= AUDIO ================= */
+let AC = null;
+function audio(){ if(!AC) AC = new (window.AudioContext||window.webkitAudioContext)(); return AC; }
+function tone(freq, dur, delay=0, type='sine', vol=0.18){
+  try{
+    const ctx = audio(), o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, ctx.currentTime + delay);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(ctx.currentTime + delay); o.stop(ctx.currentTime + delay + dur + 0.05);
+  }catch(e){}
+}
+const sndCorrect = ()=>{ tone(660,.12); tone(880,.18,.1); };
+const sndWrong   = ()=>{ tone(180,.3,0,'sawtooth',.12); };
+const sndFanfare = ()=>{ tone(523,.1); tone(659,.1,.1); tone(784,.1,.2); tone(1047,.25,.3); tone(1319,.35,.42); };
+const sndReveal  = ()=>{ tone(587,.1); tone(784,.16,.09); };
+
+/* ================= CONFETTI ================= */
+const cvs = document.getElementById('confettiCanvas'), ctx2 = cvs.getContext('2d');
+let parts = [], confettiInt = null;
+function resizeCvs(){ cvs.width = innerWidth; cvs.height = innerHeight; }
+addEventListener('resize', resizeCvs); resizeCvs();
+function burst(n, golden){
+  const colors = golden
+    ? ['#ffd93d','#ffb830','#fff3b0','#ffffff','#ff9f43']
+    : ['#4ecdc4','#ff6b6b','#ffd93d','#a78bfa','#ffffff'];
+  for(let i=0;i<n;i++){
+    parts.push({x:innerWidth/2 + (Math.random()-.5)*220, y:innerHeight*0.4,
+      vx:(Math.random()-.5)*10, vy:Math.random()*-10-3,
+      s:Math.random()*7+4, c:colors[Math.floor(Math.random()*colors.length)],
+      r:Math.random()*Math.PI, vr:(Math.random()-.5)*.3, life:1});
+  }
+  if(!confettiInt) confettiInt = setInterval(drawConfetti, 30);
+}
+function drawConfetti(){
+  ctx2.clearRect(0,0,cvs.width,cvs.height);
+  parts = parts.filter(p => p.life > 0);
+  if(!parts.length){ clearInterval(confettiInt); confettiInt = null; return; }
+  parts.forEach(p=>{
+    p.x += p.vx; p.y += p.vy; p.vy += 0.35; p.r += p.vr; p.life -= 0.012;
+    ctx2.save(); ctx2.globalAlpha = Math.max(p.life,0);
+    ctx2.translate(p.x,p.y); ctx2.rotate(p.r);
+    ctx2.fillStyle = p.c; ctx2.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.6);
+    ctx2.restore();
+  });
+}
+
+/* ================= GAME ================= */
+let round = 1, pts = 0, fastCount = 0;
+let cur = null, triesLeft = 2, startTime = 0, fastOn = false, fastTimer = null, locked = false;
+let lastTime = null;
+
+const $ = id => document.getElementById(id);
+
+function startGame(){
+  round = 1; pts = 0; fastCount = 0; lastTime = null;
+  $('statPts').textContent = '⭐ 0';
+  $('statFast').textContent = '⚡ 0';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  $('game').classList.add('active');
+  newRound();
+}
+
+function newRound(){
+  /* random time, no immediate repeat */
+  let h, m, key;
+  do {
+    h = 1 + Math.floor(Math.random()*12);
+    m = MINUTES[Math.floor(Math.random()*MINUTES.length)];
+    key = h + ':' + m;
+  } while(key === lastTime);
+  lastTime = key;
+  cur = {h, m};
+
+  /* build 4 digital options: correct + 3 plausible distractors */
+  const correct = digital(h, m);
+  const set = new Set([correct]);
+  const otherMins = MINUTES.filter(x => x !== m);
+  set.add(digital(h, otherMins[Math.floor(Math.random()*otherMins.length)]));           // same hour, diff minute
+  let nh = h === 12 ? 1 : h + 1, ph = h === 1 ? 12 : h - 1;
+  set.add(digital(Math.random() < .5 ? nh : ph, m));                                     // diff hour, same minute
+  while(set.size < 4){
+    set.add(digital(1 + Math.floor(Math.random()*12), MINUTES[Math.floor(Math.random()*MINUTES.length)]));
+  }
+  const options = [...set].sort(()=>Math.random()-.5);
+
+  /* render */
+  $('statRound').textContent = 'Student ' + round;
+  $('clockWrap').innerHTML = '<div class="fast-badge" id="fastBadge">⚡</div>' + clockSVG(h, m, 230);
+  $('sentCard').classList.remove('show');
+  $('revealBtn').classList.remove('show');
+  $('fastBanner').classList.remove('show');
+  $('opts').style.display = 'grid';
+  $('opts').innerHTML = options.map(o=>`<button class="opt" data-t="${o}">${o}</button>`).join('');
+  $('opts').querySelectorAll('.opt').forEach(b => b.onclick = () => pick(b));
+  triesLeft = 2; locked = false;
+  renderTries();
+
+  /* fast window */
+  startTime = Date.now();
+  fastOn = true;
+  const badge = $('fastBadge');
+  badge.classList.remove('off');
+  clearTimeout(fastTimer);
+  fastTimer = setTimeout(()=>{ fastOn = false; badge.classList.add('off'); }, FAST_MS);
+}
+
+function renderTries(){
+  $('tries').innerHTML = 'Tries: ' +
+    (triesLeft === 2 ? '<span class="dot">● ●</span>' : '<span class="dot">●</span> ○');
+}
+
+function pick(btn){
+  if(locked) return;
+  const correct = digital(cur.h, cur.m);
+  if(btn.dataset.t === correct){
+    locked = true;
+    clearTimeout(fastTimer);
+    btn.classList.add('correct');
+    $('opts').querySelectorAll('.opt').forEach(b => b.disabled = true);
+    const wasFast = fastOn && (Date.now() - startTime) < FAST_MS;
+    if(wasFast){
+      pts += 2; fastCount++;
+      $('statFast').textContent = '⚡ ' + fastCount;
+      $('fastBanner').classList.add('show');
+      sndFanfare(); burst(110, true);
+    } else {
+      pts += 1;
+      sndCorrect(); burst(45, false);
+    }
+    $('statPts').textContent = '⭐ ' + pts;
+    setTimeout(()=>$('revealBtn').classList.add('show'), 450);
+  } else {
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    triesLeft--;
+    renderTries();
+    sndWrong();
+    $('redFlash').classList.remove('on');
+    void $('redFlash').offsetWidth;
+    $('redFlash').classList.add('on');
+    $('opts').classList.add('shake');
+    setTimeout(()=>$('opts').classList.remove('shake'), 450);
+    if(triesLeft === 0){
+      locked = true;
+      clearTimeout(fastTimer);
+      /* show the correct one, then reveal */
+      $('opts').querySelectorAll('.opt').forEach(b => {
+        b.disabled = true;
+        if(b.dataset.t === digital(cur.h, cur.m)) b.classList.add('correct');
+      });
+      setTimeout(()=>$('revealBtn').classList.add('show'), 700);
+    }
+  }
+}
+
+$('revealBtn').onclick = ()=>{
+  $('opts').style.display = 'none';
+  $('revealBtn').classList.remove('show');
+  $('sentText').textContent = timeSentence(cur.h, cur.m);
+  $('sentCard').classList.add('show');
+  sndReveal();
+};
+
+$('nextBtn').onclick = ()=>{ round++; newRound(); };
+
+$('endBtn').onclick = ()=>{
+  $('sumText').innerHTML =
+    `${round - 1} student${round - 1 === 1 ? '' : 's'} played!<br>` +
+    `<b>⭐ ${pts}</b> points &nbsp;·&nbsp; <b style="color:#4ecdc4">⚡ ${fastCount}</b> super-fast answers`;
+  $('sumOverlay').classList.add('show');
+  burst(60, true);
+};
+$('sumAgain').onclick = ()=>{
+  $('sumOverlay').classList.remove('show');
+  startGame();
+};
+
+$('startBtn').onclick = startGame;
+</script>
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body>
+</html>

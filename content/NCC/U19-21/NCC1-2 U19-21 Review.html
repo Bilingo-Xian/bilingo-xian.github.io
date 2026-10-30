@@ -1,0 +1,910 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocab Challenge — Units 19–21</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--teal:#0d9488;--emerald:#059669;--gold:#d97706;--amber:#f59e0b;--coral:#f97316;--rose:#e11d48;--dark:#0c2628;--cyan:#06b6d4;--lime:#65a30d;--green:#10b981;--red:#ef4444;--deep:#134e4a;--mint:#5eead4}
+body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#1a0533 0%,#2d1b69 40%,#1a1a4e 100%);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;color:#333;user-select:none;-webkit-user-select:none;touch-action:manipulation;overflow-x:hidden}
+#app{width:100%;max-width:620px;padding:16px;position:relative;z-index:1;min-height:100vh}
+
+.screen{display:none;animation:fadeIn .5s ease}.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(139,92,246,.3)}50%{box-shadow:0 0 40px rgba(139,92,246,.6)}}
+@keyframes confettiFall{to{top:110vh;transform:rotate(720deg)}}
+@keyframes floatUp{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-80px) scale(1.5)}}
+@keyframes starPop{from{transform:scale(0) rotate(-180deg)}to{transform:scale(1) rotate(0)}}
+@keyframes levelGlow{0%,100%{text-shadow:0 0 10px rgba(139,92,246,.5)}50%{text-shadow:0 0 30px rgba(249,115,22,.8)}}
+@keyframes blazeIn{0%{transform:scale(0) rotate(-20deg);opacity:0}50%{transform:scale(1.3) rotate(5deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes blazeOut{from{transform:scale(1);opacity:1}to{transform:scale(1.5);opacity:0}}
+@keyframes swoosh{0%{transform:translate(-50px,60px) scale(.4);opacity:0}40%{transform:translate(0,0) scale(1);opacity:1}60%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(30px,-60px) scale(.3);opacity:0}}
+@keyframes netBounce{0%,100%{transform:scaleY(1)}30%{transform:scaleY(.7)}60%{transform:scaleY(1.1)}}
+@keyframes rocketLaunch{0%{transform:translateY(0);opacity:1}50%{transform:translateY(-40px);opacity:1}100%{transform:translateY(-200px);opacity:0}}
+@keyframes flameFlicker{0%,100%{transform:scaleY(1) scaleX(1)}50%{transform:scaleY(1.3) scaleX(.8)}}
+@keyframes lightningFlash{0%{opacity:0;transform:scale(.5)}20%{opacity:1;transform:scale(1.2)}40%{opacity:0}60%{opacity:1;transform:scale(1)}100%{opacity:1;transform:scale(1)}}
+@keyframes ringExpand{from{transform:scale(0);opacity:1}to{transform:scale(3);opacity:0}}
+@keyframes blazeText{0%{transform:scale(0) rotate(-10deg);letter-spacing:0}50%{transform:scale(1.2) rotate(3deg);letter-spacing:4px}100%{transform:scale(1) rotate(0);letter-spacing:2px}}
+
+.blaze-overlay{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:2000;pointer-events:none;animation:fadeIn .1s ease}
+.blaze-scene{position:relative;width:280px;height:280px;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.blaze-ring{position:absolute;width:120px;height:120px;border:6px solid var(--amber);border-radius:50%;animation:ringExpand .8s ease forwards}
+.blaze-ring:nth-child(2){animation-delay:.15s;border-color:var(--coral)}
+.blaze-ring:nth-child(3){animation-delay:.3s;border-color:var(--rose)}
+.blaze-label{font-family:'Fredoka One',cursive;font-size:1.6em;color:#fff;text-shadow:0 0 20px rgba(249,115,22,.8),0 0 40px rgba(249,115,22,.4);animation:blazeText .5s ease .2s backwards;margin-top:8px;white-space:nowrap}
+.blaze-emoji{font-size:3.5em;animation:blazeIn .4s cubic-bezier(.34,1.56,.64,1) backwards}
+.blaze-bonus{font-family:'Fredoka One',cursive;font-size:1.3em;color:var(--amber);animation:blazeIn .5s ease .4s backwards;margin-top:4px}
+
+.blaze-basketball{animation:swoosh .9s ease forwards}
+.blaze-hoop{position:absolute;bottom:60px;font-size:3em;animation:netBounce .5s ease .35s backwards}
+.blaze-rocket{font-size:3.5em;animation:rocketLaunch 1.2s ease .3s forwards}
+.blaze-flame{font-size:2em;animation:flameFlicker .2s ease infinite;margin-top:-10px}
+.blaze-lightning{font-size:3.5em;animation:lightningFlash .6s ease}
+
+.top-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:rgba(255,255,255,.08);border-radius:16px;margin-bottom:14px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1)}
+.stage-badge{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;padding:5px 14px;border-radius:20px;font-weight:800;font-size:.78em;letter-spacing:.5px}
+.stage-badge.easy{background:linear-gradient(135deg,#10b981,#06b6d4)}
+.stage-badge.medium{background:linear-gradient(135deg,var(--gold),var(--coral))}
+.stage-badge.hard{background:linear-gradient(135deg,var(--rose),#be123c)}
+.class-score{color:#fff;font-family:'Fredoka One',cursive;font-size:1.3em}
+.q-counter{color:rgba(255,255,255,.6);font-weight:700;font-size:.88em}
+.streak-badge{display:none;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;padding:3px 10px;border-radius:12px;font-size:.72em;font-weight:800;animation:pulse .6s ease infinite}
+.streak-badge.show{display:inline-block}
+
+.progress-wrap{background:rgba(255,255,255,.1);border-radius:10px;height:8px;margin-bottom:16px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,#8b5cf6,#06b6d4,var(--gold),var(--coral));border-radius:10px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+
+.timer-wrap{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.timer-circle{width:48px;height:48px;border-radius:50%;border:4px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:1.1em;color:#fff;flex-shrink:0;transition:border-color .3s}
+.timer-circle.warning{border-color:var(--amber);color:var(--amber);animation:pulse .5s ease infinite}
+.timer-circle.danger{border-color:var(--red);color:var(--red);animation:pulse .3s ease infinite}
+.timer-bar-bg{flex:1;height:8px;background:rgba(255,255,255,.12);border-radius:8px;overflow:hidden}
+.timer-bar{height:100%;border-radius:8px;transition:width .1s linear,background .3s}
+.timer-bar.full{background:var(--green)}.timer-bar.mid{background:var(--amber)}.timer-bar.low{background:var(--red)}
+
+.q-card{background:#fff;border-radius:24px;padding:28px 24px;margin-bottom:16px;box-shadow:0 8px 30px rgba(0,0,0,.15);position:relative;overflow:hidden}
+.q-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#8b5cf6,#06b6d4,var(--gold))}
+.q-type-label{font-size:.75em;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#7c3aed;margin-bottom:8px}
+.q-prompt{font-size:1.15em;font-weight:700;line-height:1.5;color:#222}
+.q-context{font-size:.88em;color:#888;margin-top:8px;font-style:italic}
+
+.options-grid{display:grid;gap:10px;margin-bottom:10px}
+.options-grid.cols-2{grid-template-columns:1fr 1fr}
+.options-grid.cols-1{grid-template-columns:1fr}
+.opt-btn{background:#fff;border:3px solid #e8e8ef;border-radius:16px;padding:16px 18px;font-size:1.02em;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .2s;color:#333;text-align:center;position:relative;overflow:hidden}
+.opt-btn:hover{border-color:#8b5cf6;background:#f5f3ff;transform:translateY(-2px)}
+.opt-btn:active{transform:scale(.97)}
+.opt-btn.correct{background:#d1fae5!important;border-color:var(--green)!important;color:#047857!important;animation:popIn .3s ease}
+.opt-btn.wrong{background:#fee2e2!important;border-color:var(--red)!important;color:var(--red)!important;animation:shake .4s ease}
+.opt-btn.disabled{pointer-events:none;opacity:.45}
+.opt-btn.correct.disabled{opacity:1}.opt-btn.wrong.disabled{opacity:1}
+
+.tf-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px}
+.tf-btn{padding:22px;border-radius:20px;font-family:'Fredoka One',cursive;font-size:1.3em;border:4px solid #e8e8ef;cursor:pointer;transition:all .2s;text-align:center;background:#fff}
+.tf-btn.tf-true{color:var(--green)}.tf-btn.tf-false{color:var(--red)}
+.tf-btn:hover{transform:scale(1.05)}
+.tf-btn:active{transform:scale(.95)}
+.tf-btn.correct{border-color:var(--green)!important;animation:popIn .3s ease;transform:scale(1.08);background:#d1fae5!important}
+.tf-btn.wrong{border-color:var(--red)!important;animation:shake .4s ease;opacity:.5;background:#fee2e2!important}
+.tf-btn.disabled{pointer-events:none}
+
+.drag-area{margin-bottom:10px}
+.drag-sentence{background:#f5f3ff;border:2px solid #c4b5fd;border-radius:16px;padding:18px 16px;font-size:1.05em;font-weight:700;line-height:2.2;margin-bottom:14px;color:#333;text-align:center}
+.drag-blank{display:inline-block;min-width:70px;padding:4px 12px;margin:2px 4px;border-radius:10px;border:2px dashed #8b5cf6;background:#fff;color:#7c3aed;font-weight:800;cursor:pointer;transition:all .2s;vertical-align:middle;text-align:center}
+.drag-blank.filled{border-style:solid;background:#ede9fe;border-color:#8b5cf6}
+.drag-blank.correct-slot{border-color:var(--green)!important;background:#d1fae5!important;color:#047857!important}
+.drag-blank.wrong-slot{border-color:var(--red)!important;background:#fee2e2!important;color:var(--red)!important;animation:shake .4s ease}
+.drag-tiles{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:14px}
+.drag-tile{background:#fff;border:3px solid #e8e8ef;border-radius:14px;padding:12px 18px;font-weight:800;font-family:'Nunito',sans-serif;font-size:.95em;cursor:pointer;transition:all .2s;color:#333}
+.drag-tile:hover{border-color:#8b5cf6;transform:translateY(-2px)}
+.drag-tile:active{transform:scale(.93)}
+.drag-tile.used{opacity:.3;pointer-events:none;border-style:dashed}
+.drag-tile.disabled{pointer-events:none}
+.drag-check-btn{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;padding:14px 32px;border:none;border-radius:16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1em;cursor:pointer;width:100%;transition:all .2s;display:none;box-shadow:0 4px 16px rgba(139,92,246,.3)}
+.drag-check-btn.show{display:block!important}
+.drag-check-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(139,92,246,.4)}
+.drag-check-btn:active{transform:scale(.97)}
+
+.feedback{border-radius:16px;padding:16px 20px;margin:12px 0;display:none;animation:slideUp .3s ease}
+.feedback.show{display:block}
+.feedback.fb-correct{background:#ecfdf5;border:2px solid #a7f3d0}
+.feedback.fb-wrong{background:#fef2f2;border:2px solid #fecaca}
+.feedback.fb-blaze{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;box-shadow:0 0 20px rgba(251,191,36,.2)}
+.feedback-icon{font-size:1.5em;margin-right:8px}
+.feedback-text{font-weight:700;display:inline}
+.feedback-explain{font-size:.88em;color:#666;margin-top:6px}
+
+.reveal-wrap{margin-top:10px;display:none;animation:slideUp .3s ease}
+.reveal-wrap.show{display:block}
+.reveal-btn{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#78350f;border:none;padding:12px 22px;border-radius:14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.92em;cursor:pointer;transition:all .2s;width:100%}
+.reveal-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(245,158,11,.3)}
+.reveal-btn:active{transform:scale(.95)}
+.reveal-content{background:#fffbeb;border:2px solid #fde68a;border-radius:12px;padding:14px 18px;margin-top:10px;font-size:.92em;color:#78350f;font-weight:600;display:none;animation:slideUp .3s ease}
+.reveal-content.show{display:block}
+
+.discussion-card{background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:20px;padding:20px;margin:14px 0;border:3px solid #8b5cf6;display:none;animation:slideUp .4s ease}
+.discussion-card.show{display:block}
+.discussion-label{font-family:'Fredoka One',cursive;color:#5b21b6;font-size:.92em;margin-bottom:6px}
+.discussion-text{font-size:1.05em;font-weight:700;color:#3b0764;line-height:1.5}
+
+.next-wrap{text-align:center;margin-top:16px;display:none;animation:slideUp .3s ease .1s backwards}
+.next-wrap.show{display:block}
+.next-btn{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;padding:16px 40px;border:none;border-radius:18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1.1em;cursor:pointer;box-shadow:0 6px 20px rgba(139,92,246,.4);transition:all .2s;animation:glow 2s ease infinite}
+.next-btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(139,92,246,.5)}
+.next-btn:active{transform:scale(.95)}
+
+.levelup-screen{text-align:center;padding:12vh 20px 0}
+.levelup-icon{font-size:4em;margin-bottom:16px;animation:bounce 1s ease infinite}
+.levelup-title{font-family:'Fredoka One',cursive;font-size:2.2em;color:#fff;margin-bottom:8px;animation:levelGlow 2s ease infinite}
+.levelup-msg{color:rgba(255,255,255,.7);font-size:1.05em;margin-bottom:12px}
+.levelup-score{font-family:'Fredoka One',cursive;font-size:1.4em;color:var(--amber);margin-bottom:28px}
+.levelup-btn{background:#fff;color:#7c3aed;padding:18px 44px;border:none;border-radius:20px;font-family:'Fredoka One',cursive;font-size:1.3em;cursor:pointer;transition:all .2s;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.levelup-btn:hover{transform:translateY(-3px) scale(1.05)}
+.levelup-btn:active{transform:scale(.95)}
+.levelup-next-stage{color:rgba(255,255,255,.5);font-size:.9em;margin-top:16px;font-weight:700}
+
+.start-screen{text-align:center;padding-top:12vh}
+.start-title{font-family:'Fredoka One',cursive;font-size:2.8em;color:#fff;margin-bottom:4px;text-shadow:0 4px 20px rgba(0,0,0,.3)}
+.start-sub{color:rgba(255,255,255,.5);font-size:1em;margin-bottom:6px}
+.start-units{color:rgba(255,255,255,.7);font-size:1.1em;margin-bottom:36px;font-weight:700}
+.start-btn{background:linear-gradient(135deg,#8b5cf6,var(--coral));color:#fff;padding:20px 50px;border:none;border-radius:22px;font-family:'Fredoka One',cursive;font-size:1.4em;cursor:pointer;box-shadow:0 8px 30px rgba(139,92,246,.4);transition:all .2s;animation:pulse 2s ease infinite}
+.start-btn:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(139,92,246,.5)}
+.start-btn:active{transform:scale(.95)}
+.start-words{color:rgba(255,255,255,.35);font-size:.8em;margin-top:30px;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.6}
+
+.final-card{background:#fff;border-radius:28px;padding:40px 28px;text-align:center;box-shadow:0 12px 50px rgba(0,0,0,.25);margin-top:6vh}
+.final-title{font-family:'Fredoka One',cursive;font-size:2em;color:#7c3aed;margin-bottom:4px}
+.final-score{font-family:'Fredoka One',cursive;font-size:3.5em;background:linear-gradient(135deg,#8b5cf6,var(--coral));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.final-label{color:#888;font-size:.9em;margin-bottom:16px}
+.final-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:16px 0}
+.fstat{background:#f5f3ff;border-radius:14px;padding:12px 8px}
+.fstat-val{font-family:'Fredoka One',cursive;font-size:1.4em;color:#7c3aed}
+.fstat-lbl{font-size:.72em;color:#888;text-transform:uppercase;font-weight:700}
+.final-stars{font-size:3em;margin:12px 0}
+.final-stars .star{display:inline-block;opacity:.12;transition:all .4s}
+.final-stars .star.on{opacity:1;animation:starPop .5s ease backwards}
+.final-stars .star:nth-child(2){animation-delay:.2s}.final-stars .star:nth-child(3){animation-delay:.4s}
+.final-msg{font-size:1.1em;color:#555;margin:14px 0 24px;line-height:1.5}
+.final-btn{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;padding:16px 40px;border:none;border-radius:18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1.1em;cursor:pointer;box-shadow:0 6px 20px rgba(139,92,246,.4);transition:all .2s}
+.final-btn:hover{transform:translateY(-3px)}
+.final-btn:active{transform:scale(.95)}
+
+.review-card{background:#fff;border-radius:28px;padding:32px 24px;margin-top:20px;box-shadow:0 12px 50px rgba(0,0,0,.25);text-align:left}
+.review-title{font-family:'Fredoka One',cursive;font-size:1.5em;color:#7c3aed;text-align:center;margin-bottom:6px}
+.review-prompt{text-align:center;color:#555;font-weight:700;font-size:1.05em;margin-bottom:20px;line-height:1.5}
+.review-section-label{font-family:'Fredoka One',cursive;font-size:1em;color:#3b0764;margin-bottom:10px;margin-top:18px;padding-bottom:6px;border-bottom:3px solid #ede9fe}
+.review-section-label:first-of-type{margin-top:0}
+.structure-list{list-style:none;padding:0;margin:0 0 10px 0}
+.structure-list li{background:#f5f3ff;border:2px solid #c4b5fd;border-radius:12px;padding:12px 16px;margin-bottom:8px;font-weight:700;font-size:.95em;color:#5b21b6;line-height:1.4}
+.structure-list li .struct-example{display:block;font-weight:600;color:#555;font-size:.88em;margin-top:4px;font-style:italic}
+.word-cloud{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
+.word-tag{background:#fffbeb;border:2px solid #fde68a;border-radius:10px;padding:6px 14px;font-weight:700;font-size:.85em;color:#92400e}
+
+.pts-badge{display:inline-block;background:#ecfdf5;color:var(--green);padding:2px 10px;border-radius:10px;font-size:.82em;font-weight:800;margin-left:6px}
+.pts-badge.zero{background:#fef2f2;color:var(--red)}
+.pts-badge.blaze{background:linear-gradient(135deg,#fbbf24,#f97316);color:#fff}
+
+.confetti-piece{position:fixed;top:-20px;z-index:1000;pointer-events:none;animation:confettiFall linear forwards}
+.float-points{position:fixed;font-family:'Fredoka One',cursive;pointer-events:none;z-index:999;animation:floatUp 1.2s ease forwards;text-shadow:0 2px 10px rgba(0,0,0,.2)}
+
+@media(max-width:420px){
+.start-title{font-size:2.1em}
+.q-prompt{font-size:1em}
+.options-grid.cols-2{grid-template-columns:1fr}
+.final-score{font-size:2.8em}
+.tf-grid{gap:8px}
+.tf-btn{padding:16px;font-size:1.1em}
+.top-bar{padding:8px 12px}
+.stage-badge{font-size:.7em;padding:4px 10px}
+.drag-blank{min-width:55px;padding:3px 8px;font-size:.85em}
+.drag-tile{padding:10px 14px;font-size:.88em}
+.review-title{font-size:1.2em}
+.levelup-title{font-size:1.7em}
+.blaze-scene{width:220px;height:220px}
+.blaze-label{font-size:1.2em}
+.blaze-emoji{font-size:2.8em}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="start-screen" class="screen active">
+<div class="start-screen">
+    <div style="font-size:3.5em;margin-bottom:10px;animation:bounce 1.5s ease infinite">🏠</div>
+    <div class="start-title">Vocab Challenge!</div>
+    <div class="start-sub">Class Edition</div>
+    <div class="start-units">Units 19 – 21</div>
+    <button class="start-btn" onclick="beginGame()">Let's Go!</button>
+    <div class="start-words">bookcase · favourite · hammer · hard · make · paint · pink · work · dish · homework · listen · idea · nail · need · careful · drop · flower · front · in front of · vase · send · show · take · birthday · card · happy · bread · cheese · chocolate · coffee · soap · sugar · tea · tobacco · any · bird · some · bar · butter · cake · loaf · piece · pound · smoke</div>
+</div>
+</div>
+
+<div id="levelup-screen" class="screen">
+<div class="levelup-screen">
+    <div class="levelup-icon" id="lu-icon">⬆️</div>
+    <div class="levelup-title" id="lu-title">LEVEL UP!</div>
+    <div class="levelup-msg" id="lu-msg">Great work so far!</div>
+    <div class="levelup-score" id="lu-score">🏆 Score: 0</div>
+    <button class="levelup-btn" id="lu-btn" onclick="startNextStage()">Continue →</button>
+    <div class="levelup-next-stage" id="lu-next">Next: MEDIUM</div>
+</div>
+</div>
+
+<div id="game-screen" class="screen">
+<div class="top-bar">
+    <span class="stage-badge" id="g-stage">EASY</span>
+    <span class="streak-badge" id="g-streak">🔥 3</span>
+    <span class="class-score">🏆 <span id="g-score">0</span></span>
+    <span class="q-counter" id="g-counter">1 / 10</span>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="g-progress"></div></div>
+<div class="timer-wrap" id="timer-area">
+    <div class="timer-circle" id="timer-num">15</div>
+    <div class="timer-bar-bg"><div class="timer-bar full" id="timer-bar"></div></div>
+</div>
+<div class="q-card">
+    <div class="q-type-label" id="q-label">EASY</div>
+    <div class="q-prompt" id="q-prompt"></div>
+    <div class="q-context" id="q-context"></div>
+</div>
+<div class="options-grid cols-2" id="opts-area"></div>
+<div class="tf-grid" id="tf-area" style="display:none"></div>
+<div class="drag-area" id="drag-area" style="display:none">
+    <div class="drag-sentence" id="drag-sentence"></div>
+    <div class="drag-tiles" id="drag-tiles"></div>
+    <button class="drag-check-btn" id="drag-check" onclick="checkDrag()">Check Answer ✓</button>
+</div>
+<div class="feedback" id="feedback">
+    <span class="feedback-icon" id="fb-icon">✅</span>
+    <span class="feedback-text" id="fb-text"></span>
+    <span class="pts-badge" id="fb-pts"></span>
+    <div class="feedback-explain" id="fb-explain"></div>
+</div>
+<div class="reveal-wrap" id="reveal-wrap">
+    <button class="reveal-btn" id="reveal-btn" onclick="revealAnswer()">Tap to see the correct answer →</button>
+    <div class="reveal-content" id="reveal-content"></div>
+</div>
+<div class="discussion-card" id="discuss-card">
+    <div class="discussion-label">💬 BONUS — Let's Talk!</div>
+    <div class="discussion-text" id="discuss-text"></div>
+</div>
+<div class="next-wrap" id="next-wrap"><button class="next-btn" id="next-btn" onclick="nextQuestion()">Next →</button></div>
+</div>
+
+<div id="final-screen" class="screen">
+<div class="final-card">
+    <div class="final-title">Game Over!</div>
+    <div class="final-score" id="f-score">0</div>
+    <div class="final-label">Class Points</div>
+    <div class="final-stats">
+        <div class="fstat"><div class="fstat-val" id="f-correct">0</div><div class="fstat-lbl">Correct</div></div>
+        <div class="fstat"><div class="fstat-val" id="f-total">0</div><div class="fstat-lbl">Questions</div></div>
+        <div class="fstat"><div class="fstat-val" id="f-pct">0%</div><div class="fstat-lbl">Accuracy</div></div>
+    </div>
+    <div class="final-stars"><span class="star" id="fs1">⭐</span><span class="star" id="fs2">⭐</span><span class="star" id="fs3">⭐</span></div>
+    <div class="final-msg" id="f-msg"></div>
+    <button class="final-btn" onclick="location.reload()">Play Again</button>
+</div>
+
+<div class="review-card">
+    <div class="review-title">📚 Review Time!</div>
+    <div class="review-prompt">Can you make your own sentences with these?</div>
+
+    <div class="review-section-label">✏️ Key Structures</div>
+    <ul class="structure-list">
+        <li>paint sth. + colour<span class="struct-example">I'm going to paint it pink. (把……漆成……颜色)</span></li>
+        <li>sth. is/are for sb.<span class="struct-example">The bookcase is for me. (某物是给某人的)</span></li>
+        <li>be going to + verb<span class="struct-example">She's going to paint the bookcase. (打算做某事)</span></li>
+        <li>in front of …<span class="struct-example">The vase is in front of the window. (在……前面——外部)</span></li>
+        <li>in the front of …<span class="struct-example">The teacher is in the front of the classroom. (在……前面——内部)</span></li>
+        <li>be careful / Don't …!<span class="struct-example">Be careful! Don't drop the vase! (当心！不要……！)</span></li>
+        <li>send/show/take sb. sth. (双宾语)<span class="struct-example">Send her a birthday card. / Show me the flowers.</span></li>
+        <li>a pound/piece/loaf/bar of …<span class="struct-example">A loaf of bread. A bar of chocolate. (量词)</span></li>
+        <li>Is there any …? / There is some …<span class="struct-example">Is there any sugar? — Yes, there's some. (there be 疑问句)</span></li>
+    </ul>
+
+    <div class="review-section-label">📖 Words — Unit 19 (Kate's New Bookcase)</div>
+    <div class="word-cloud">
+        <span class="word-tag">bookcase</span><span class="word-tag">favourite</span><span class="word-tag">hammer</span>
+        <span class="word-tag">hard</span><span class="word-tag">make</span><span class="word-tag">paint</span>
+        <span class="word-tag">pink</span><span class="word-tag">work</span><span class="word-tag">dish</span>
+        <span class="word-tag">homework</span><span class="word-tag">listen</span><span class="word-tag">idea</span>
+        <span class="word-tag">nail</span><span class="word-tag">need</span>
+    </div>
+
+    <div class="review-section-label">📖 Words — Unit 20 (Anna's Flowers)</div>
+    <div class="word-cloud">
+        <span class="word-tag">careful</span><span class="word-tag">drop</span><span class="word-tag">flower</span>
+        <span class="word-tag">front</span><span class="word-tag">in front of</span><span class="word-tag">vase</span>
+        <span class="word-tag">send</span><span class="word-tag">show</span><span class="word-tag">take</span>
+        <span class="word-tag">birthday</span><span class="word-tag">card</span><span class="word-tag">happy</span>
+    </div>
+
+    <div class="review-section-label">📖 Words — Unit 21 (Jason's Empty Kitchen)</div>
+    <div class="word-cloud">
+        <span class="word-tag">bread</span><span class="word-tag">cheese</span><span class="word-tag">chocolate</span>
+        <span class="word-tag">coffee</span><span class="word-tag">soap</span><span class="word-tag">sugar</span>
+        <span class="word-tag">tea</span><span class="word-tag">tobacco</span><span class="word-tag">any</span>
+        <span class="word-tag">bird</span><span class="word-tag">some</span><span class="word-tag">bar</span>
+        <span class="word-tag">butter</span><span class="word-tag">cake</span><span class="word-tag">loaf</span>
+        <span class="word-tag">piece</span><span class="word-tag">pound</span><span class="word-tag">smoke</span>
+    </div>
+</div>
+</div>
+
+</div>
+
+<!-- Blaze overlay container -->
+<div id="blaze-container"></div>
+
+<script>
+let ac;
+function initAC(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}
+function snd(t){try{initAC();const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.08,ac.currentTime);
+if(t==='ok'){o.type='sine';o.frequency.setValueAtTime(523,ac.currentTime);o.frequency.setValueAtTime(659,ac.currentTime+.07);o.frequency.setValueAtTime(784,ac.currentTime+.14);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.4);o.start();o.stop(ac.currentTime+.4)}
+else if(t==='no'){o.type='sawtooth';o.frequency.setValueAtTime(200,ac.currentTime);o.frequency.setValueAtTime(140,ac.currentTime+.2);g.gain.setValueAtTime(.04,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.3);o.start();o.stop(ac.currentTime+.3)}
+else if(t==='cl'){o.type='sine';o.frequency.setValueAtTime(700,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.05);o.start();o.stop(ac.currentTime+.05)}
+else if(t==='win'){[523,659,784,1047].forEach((f,i)=>{const o2=ac.createOscillator(),g2=ac.createGain();o2.connect(g2);g2.connect(ac.destination);o2.type='sine';o2.frequency.setValueAtTime(f,ac.currentTime+i*.12);g2.gain.setValueAtTime(.06,ac.currentTime+i*.12);g2.gain.exponentialRampToValueAtTime(.001,ac.currentTime+i*.12+.3);o2.start(ac.currentTime+i*.12);o2.stop(ac.currentTime+i*.12+.3)});return}
+else if(t==='blaze'){const notes=[784,988,1175,1319,1568];notes.forEach((f,i)=>{const o2=ac.createOscillator(),g2=ac.createGain();o2.connect(g2);g2.connect(ac.destination);o2.type='triangle';o2.frequency.setValueAtTime(f,ac.currentTime+i*.08);g2.gain.setValueAtTime(.07,ac.currentTime+i*.08);g2.gain.exponentialRampToValueAtTime(.001,ac.currentTime+i*.08+.25);o2.start(ac.currentTime+i*.08);o2.stop(ac.currentTime+i*.08+.25)});return}
+}catch(e){}}
+
+function confetti(n=20){const cols=['#8b5cf6','#f59e0b','#06b6d4','#10b981','#f97316','#ec4899','#6366f1'];for(let i=0;i<n;i++){const p=document.createElement('div');p.className='confetti-piece';p.style.left=Math.random()*100+'vw';p.style.background=cols[~~(Math.random()*cols.length)];p.style.width=(Math.random()*8+4)+'px';p.style.height=(Math.random()*8+4)+'px';p.style.borderRadius=Math.random()>.5?'50%':'2px';p.style.animationDuration=(Math.random()*2+1.5)+'s';p.style.animationDelay=Math.random()*.4+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),4000)}}
+function floatPts(x,y,txt,col='#10b981'){const e=document.createElement('div');e.className='float-points';e.textContent=txt;e.style.left=x+'px';e.style.top=y+'px';e.style.color=col;e.style.fontSize='1.5em';document.body.appendChild(e);setTimeout(()=>e.remove(),1200)}
+
+/* ====== BLAZE CELEBRATION ====== */
+const blazeScenes=[
+    function(){return `<div class="blaze-scene">
+        <div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-ring"></div>
+        <div class="blaze-emoji blaze-basketball" style="position:absolute;top:30px;">🏀</div>
+        <div class="blaze-hoop">🏀➡️🥅</div>
+        <div class="blaze-label">SWISH!</div>
+        <div class="blaze-bonus">⚡ SPEED BONUS +2 ⚡</div>
+    </div>`},
+    function(){return `<div class="blaze-scene">
+        <div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-ring"></div>
+        <div class="blaze-emoji blaze-rocket">🚀</div>
+        <div class="blaze-flame" style="margin-top:-20px">🔥</div>
+        <div class="blaze-label">BLAZING FAST!</div>
+        <div class="blaze-bonus">⚡ SPEED BONUS +2 ⚡</div>
+    </div>`},
+    function(){return `<div class="blaze-scene">
+        <div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-ring"></div>
+        <div class="blaze-emoji blaze-lightning">⚡</div>
+        <div class="blaze-label">LIGHTNING BRAIN!</div>
+        <div class="blaze-bonus">⚡ SPEED BONUS +2 ⚡</div>
+    </div>`},
+    function(){return `<div class="blaze-scene">
+        <div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-ring"></div>
+        <div class="blaze-emoji" style="animation:blazeIn .4s cubic-bezier(.34,1.56,.64,1)">🎯</div>
+        <div class="blaze-label">BULLSEYE!</div>
+        <div class="blaze-bonus">⚡ SPEED BONUS +2 ⚡</div>
+    </div>`},
+    function(){return `<div class="blaze-scene">
+        <div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-ring"></div>
+        <div class="blaze-emoji" style="animation:blazeIn .4s cubic-bezier(.34,1.56,.64,1)">💎</div>
+        <div class="blaze-label">DIAMOND MIND!</div>
+        <div class="blaze-bonus">⚡ SPEED BONUS +2 ⚡</div>
+    </div>`}
+];
+
+function showBlazeAnimation(){
+    const container=document.getElementById('blaze-container');
+    const scene=blazeScenes[~~(Math.random()*blazeScenes.length)];
+    const overlay=document.createElement('div');
+    overlay.className='blaze-overlay';
+    overlay.innerHTML=scene();
+    container.appendChild(overlay);
+    snd('blaze');
+    confetti(40);
+    setTimeout(()=>{
+        overlay.style.animation='blazeOut .4s ease forwards';
+        setTimeout(()=>overlay.remove(),400);
+    },1600);
+}
+
+function showScr(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+
+/* ====== GAME DATA ====== */
+const BLAZE_THRESHOLD=5; // seconds — answer within this for bonus
+
+const stages = [
+{
+  name:"EASY", badgeClass:"easy", icon:"🌟", timer:15,
+  desc:"Match words to their meanings!",
+  nextMsg:"Next: MEDIUM — structures time!",
+  questions:[
+    {qlabel:"🔨 What's this?",prompt:"You use this tool to hit nails into wood. 🔨",opts:["vase","hammer","bookcase","dish"],ans:1,discuss:"Do you have a hammer at home? Who uses it?"},
+    {qlabel:"🌸 What's this?",prompt:"Something beautiful from the garden. You put it in a vase. 🌷",opts:["flower","nail","soap","bird"],ans:0,discuss:"What's your favourite flower?"},
+    {qlabel:"🍞 What's this?",prompt:"You eat this every day. It's made from flour and you can buy a loaf of it.",opts:["cheese","tobacco","bread","soap"],ans:2,discuss:"Do you like to ear bread?"},
+    {qlabel:"True or False?",prompt:"'A vase' is something you put flowers in. 🏺",type:"tf",correct:true,explain:"Yes! A vase is a container for flowers. You put flowers in a vase.",discuss:"Is there a vase in your home? Which room is it in"},
+    {qlabel:"True or False?",prompt:"'Homework' means 'work you do at school in class'. 📖",type:"tf",correct:false,explain:"No! 'Homework' is work you do at HOME after school, not in the classroom.",discuss:"Do you like doing homework? What homework do you have today?"},
+    {qlabel:"🔍 Odd One Out",prompt:"Which one is NOT food or drink?",opts:["bread","cheese","coffee","hammer"],ans:3,discuss:"What's your favourite food?"},
+    {qlabel:"🍫 What's this?",prompt:"A sweet brown food made from cocoa. Children love it! 🍫",opts:["chocolate","butter","soap","tobacco"],ans:0,discuss:"Do you like chocolate? What's your favourite kind?"},
+    {qlabel:"What's this word?",prompt:"You use it to wash your hands. It smells nice. 🧼",opts:["sugar","soap","tobacco","tea"],ans:1},
+    {qlabel:"True or False?",prompt:"'In front of' means 'after something'.",type:"tf",correct:false,explain:"No! 'In front of' means BEFORE something, on the other side from 'behind'. The opposite!",discuss:"What is in front of you right now?"},
+    {qlabel:"🐦 What's this?",prompt:"An animal with wings and feathers that can fly. 🐦",opts:["bird","cake","loaf","card"],ans:0,discuss:"Can you see birds from your window? What colour are they?"},
+  ]
+},
+{
+  name:"MEDIUM", badgeClass:"medium", icon:"🔥", timer:15,
+  desc:"Fill the gaps with the right words!",
+  nextMsg:"Next: HARD — the final challenge!",
+  questions:[
+    {qlabel:"Fill the gap",prompt:"She's ___ paint the bookcase pink.",opts:["going to","going","go to","goes to"],ans:0,explain:"'Be going to + verb' = 打算做某事. She IS GOING TO paint it. (future plan)",discuss:"What are you going to do after school today?"},
+    {qlabel:"Fill the gap",prompt:"Be ___! Don't drop the vase!",opts:["happy","hard","careful","favourite"],ans:2,explain:"'Be careful!' = 当心！ We say it when there's danger or something might break.",discuss:"Are you usually careful?"},
+    {qlabel:"Fill the gap",prompt:"The flowers are in ___ of the window.",opts:["front","the fronts","a front","fronts"],ans:0,explain:"'In front of' (no 'the') = 在……前面 (outside/external position). The vase is in front of the window.",discuss:"Make a sentence with 'in front of'."},
+    {qlabel:"Fill the gap",prompt:"___ drop the vase! It's very expensive!",opts:["Not","No","Don't","Doesn't"],ans:2,explain:"Negative imperative: DON'T + verb = 不要……！Don't drop it! Don't run!",discuss:"What is the most expensive thing you have?"},
+    {qlabel:"Fill the gap",prompt:"Send ___ a birthday card!",opts:["she","her","hers","she's"],ans:1,explain:"Double object: Send + PERSON (object pronoun) + THING. Send HER a card. (Give me, show him, take her…)"},
+    {qlabel:"Fill the gap",prompt:"I need a ___ of bread from the shop.",opts:["bar","some","loaf","pound"],ans:2,explain:"A LOAF of bread (一条面包). A loaf is the whole bread in one piece from the baker.",discuss:"How often does your family buy bread?"},
+    {qlabel:"Fill the gap",prompt:"Give me a ___ of chocolate, please.",opts:["loaf","pound","bottle","bar"],ans:3,explain:"A BAR of chocolate (一条巧克力). Chocolate comes in bars! Also: a bar of soap.",discuss:"Do you want a bar of chocolate right now? 🍫"},
+    {qlabel:"Fill the gap",prompt:"Is there ___ sugar in the kitchen?",opts:["some","any","a","the"],ans:1,explain:"In questions, we use ANY: 'Is there ANY sugar?' In positive sentences: 'There is SOME sugar.'",discuss:"Make a sentence with 'some' and then change it to 'any'."},
+    {qlabel:"True or False?",prompt:"'Show me the flowers' and 'Show the flowers to me' have the same meaning.",type:"tf",correct:true,explain:"Yes! Both are correct. Double object verbs: show/send/give + person + thing = show/send/give + thing + TO + person.",discuss:"Describe something in your backpack, let other guess what it is. Then show it to everyone."},
+    {qlabel:"Fill the gap",prompt:"There ___ some coffee in the kitchen.",opts:["is","are","be","have"],ans:0,explain:"Coffee is uncountable, so we use 'There IS some coffee.' (not 'are')",discuss:"Does anyone in your family drink coffee?"},
+  ]
+},
+{
+  name:"HARD", badgeClass:"hard", icon:"🏆", timer:20,
+  desc:"Build sentences and tricky choices!",
+  nextMsg:"",
+  questions:[
+    {qtype:"drag",qlabel:"Build the sentence",prompt:"Put the words in the correct order:",sentence:"She's ___ ___ paint the ___.",words:["to","bookcase","going"],correct:["going","to","bookcase"],qTimer:18,discuss:"What colour do you want to paint your room?"},
+    {qlabel:"Choose correctly",prompt:"Which sentence is correct?",opts:["Don't dropping the vase!","Not drop the vase!","Don't drop the vase!","Doesn't drop the vase!"],ans:2,explain:"Negative imperative = DON'T + base verb. Don't drop! Don't run! Don't eat!"},
+    {qtype:"drag",qlabel:"Build the sentence",prompt:"Put the words in the correct places:",sentence:"The vase is ___ ___ ___ the table.",words:["of","in","front"],correct:["in","front","of"],qTimer:20,discuss:"What's in front of your school?"},
+    {qlabel:"⚡ Tricky!",prompt:"'a pound of cheese' — What does 'a pound' measure?",opts:["colour","weight","height","speed"],ans:1,explain:"A pound is a unit of WEIGHT (重量). One pound ≈ 450 grams. 'A pound of cheese' = about 450g of cheese.",discuss:"How much does your schoolbag weigh?"},
+    {qtype:"drag",qlabel:"Build the sentence",prompt:"Put the words in the correct places:",sentence:"___ there ___ bread in the ___?",words:["kitchen","Is","any"],correct:["Is","any","kitchen"],qTimer:18},
+    {qlabel:"Choose correctly",prompt:"Which sentence uses 'some' and 'any' correctly?",opts:["Is there some milk?","There isn't any milk.","There aren't some bread.","Is there any milks?"],ans:1,explain:"Negative sentences use ANY: There ISN'T ANY milk. ✓ Questions also use 'any'. Positive sentences use 'some'.",discuss:"Is there any milk in your kitchen now?"},
+    {qtype:"drag",qlabel:"Build the sentence",prompt:"Put the words in the correct places:",sentence:"Don't forget to ___ him a ___ ___!",words:["card","send","birthday"],correct:["send","birthday","card"],qTimer:18,discuss:"When is your birthday? What do you want for your birthday?"},
+    {qlabel:"⚡ Tricky!",prompt:"Choose a correct option.",opts:["a loaf of sugar","a piece of bread","a bar of tea","a pound of flowers"],ans:1,explain:"A PIECE of bread ✓ (一片面包). A loaf of BREAD, a bar of CHOCOLATE/SOAP, a pound of SUGAR/CHEESE.",discuss:"Can you use 'a piece of' in a sentence?"},
+    {qtype:"drag",qlabel:"Build the sentence",prompt:"Put the words in the correct places:",sentence:"I'm ___ to ___ it ___.",words:["pink","paint","going"],correct:["going","paint","pink"],qTimer:18,explain:"'paint sth + colour' = 把某物漆成某颜色. I'm going to paint it pink!"},
+    {qlabel:"⚡ Final Boss!",prompt:"'The teacher is at the front of the classroom.' Where is the teacher?",opts:["Outside, in front of the building","Inside, in the front area","Under the table","On top of the classroom"],ans:1,explain:"'In/At THE front of' (with 'the') = INSIDE, at the front part (内部前面). 'In front of' (no 'the') = OUTSIDE, before something (外部前面).",discuss:"Use 'at the front of' in a sentence."},
+  ]
+}
+];
+
+/* ====== STATE ====== */
+let G={currentStage:0,currentQ:0,score:0,correct:0,total:0,timerInterval:null,timeLeft:0,answered:false,timerMax:0,streak:0,qStartTime:0};
+let dragState={blanks:[],words:[],correct:[],placed:[]};
+
+function beginGame(){
+    initAC();snd('cl');
+    G={currentStage:0,currentQ:0,score:0,correct:0,total:0,timerInterval:null,timeLeft:0,answered:false,timerMax:0,streak:0,qStartTime:0};
+    showScr('game-screen');
+    showQuestion();
+}
+
+function showLevelUp(){
+    const stage=stages[G.currentStage];
+    const nextStage=stages[G.currentStage+1];
+    document.getElementById('lu-icon').textContent=nextStage?'⬆️':'🏆';
+    document.getElementById('lu-title').textContent=stage.name+' COMPLETE!';
+    document.getElementById('lu-msg').textContent='Great work so far!';
+    document.getElementById('lu-score').textContent='🏆 Score: '+G.score;
+    document.getElementById('lu-next').textContent=nextStage?'Next: '+nextStage.name+' '+nextStage.icon:'';
+    document.getElementById('lu-btn').textContent=nextStage?'Level Up! →':'See Results!';
+    showScr('levelup-screen');
+    snd('win');confetti(25);
+}
+
+function startNextStage(){
+    snd('cl');
+    G.currentStage++;
+    if(G.currentStage>=stages.length){showFinalResults();return}
+    G.currentQ=0;
+    showScr('game-screen');
+    showQuestion();
+}
+
+function calcPoints(timeLeft,timerMax){
+    const pct=timeLeft/timerMax;
+    if(pct>0.66)return 3;if(pct>0.33)return 2;return 1;
+}
+
+function isBlaze(){
+    const elapsed=(Date.now()-G.qStartTime)/1000;
+    return elapsed<=BLAZE_THRESHOLD;
+}
+
+function updateStreak(correct){
+    if(correct){G.streak++;} else {G.streak=0;}
+    const badge=document.getElementById('g-streak');
+    if(G.streak>=3){badge.textContent='🔥 '+G.streak;badge.className='streak-badge show';}
+    else{badge.className='streak-badge';}
+}
+
+function showQuestion(){
+    G.answered=false;
+    clearInterval(G.timerInterval);
+    G.qStartTime=Date.now();
+    const stage=stages[G.currentStage];
+    const q=stage.questions[G.currentQ];
+    const qTime=q.qTimer||stage.timer;
+
+    const badge=document.getElementById('g-stage');
+    badge.textContent=stage.name;
+    badge.className='stage-badge '+stage.badgeClass;
+    document.getElementById('g-score').textContent=G.score;
+    document.getElementById('g-counter').textContent=(G.currentQ+1)+' / '+stage.questions.length;
+
+    const totalQs=stages.reduce((s,st)=>s+st.questions.length,0);
+    const doneQs=stages.slice(0,G.currentStage).reduce((s,st)=>s+st.questions.length,0)+G.currentQ;
+    document.getElementById('g-progress').style.width=(doneQs/totalQs*100)+'%';
+
+    document.getElementById('q-label').textContent=q.qlabel||stage.name;
+    document.getElementById('q-prompt').innerHTML=q.prompt;
+    document.getElementById('q-context').textContent=q.qcontext||'';
+
+    document.getElementById('feedback').className='feedback';
+    document.getElementById('discuss-card').className='discussion-card';
+    document.getElementById('next-wrap').className='next-wrap';
+    document.getElementById('reveal-wrap').className='reveal-wrap';
+    document.getElementById('reveal-wrap').style.display='none';
+    document.getElementById('reveal-content').className='reveal-content';
+    document.getElementById('reveal-btn').style.display='';
+    document.getElementById('fb-pts').textContent='';
+    document.getElementById('fb-pts').className='pts-badge';
+
+    G.timerMax=qTime;G.timeLeft=qTime;
+    const timerNum=document.getElementById('timer-num');
+    const timerBar=document.getElementById('timer-bar');
+    timerNum.textContent=G.timeLeft;
+    timerNum.className='timer-circle';
+    timerBar.style.width='100%';
+    timerBar.className='timer-bar full';
+    document.getElementById('timer-area').style.display='flex';
+
+    G.timerInterval=setInterval(()=>{
+        G.timeLeft--;
+        timerNum.textContent=G.timeLeft;
+        const pct=G.timeLeft/qTime*100;
+        timerBar.style.width=pct+'%';
+        if(G.timeLeft<=4){timerNum.className='timer-circle danger';timerBar.className='timer-bar low'}
+        else if(G.timeLeft<=7){timerNum.className='timer-circle warning';timerBar.className='timer-bar mid'}
+        if(G.timeLeft<=0){clearInterval(G.timerInterval);timeUp()}
+    },1000);
+
+    const optsArea=document.getElementById('opts-area');
+    const tfArea=document.getElementById('tf-area');
+    const dragArea=document.getElementById('drag-area');
+    optsArea.innerHTML='';tfArea.innerHTML='';
+    optsArea.style.display='none';tfArea.style.display='none';dragArea.style.display='none';
+
+    const dragCheckBtn=document.getElementById('drag-check');
+    dragCheckBtn.style.display='';dragCheckBtn.className='drag-check-btn';
+
+    if(q.qtype==='drag'){
+        dragArea.style.display='block';setupDrag(q);
+    } else if(q.type==='tf'){
+        tfArea.style.display='grid';
+        const btnT=document.createElement('button');
+        btnT.className='tf-btn tf-true';btnT.innerHTML='✓ True';
+        btnT.onclick=(e)=>answerTF(true,e);
+        const btnF=document.createElement('button');
+        btnF.className='tf-btn tf-false';btnF.innerHTML='✗ False';
+        btnF.onclick=(e)=>answerTF(false,e);
+        tfArea.appendChild(btnT);tfArea.appendChild(btnF);
+    } else {
+        optsArea.style.display='grid';
+        optsArea.className='options-grid '+(q.opts.some(o=>o.length>20)?'cols-1':'cols-2');
+        q.opts.forEach((opt,i)=>{
+            const btn=document.createElement('button');
+            btn.className='opt-btn';btn.textContent=opt;
+            btn.onclick=(e)=>answerMC(i,e);
+            optsArea.appendChild(btn);
+        });
+    }
+}
+
+function setupDrag(q){
+    dragState={blanks:[],words:[...q.words],correct:[...q.correct],placed:new Array(q.correct.length).fill(null)};
+    const sentenceEl=document.getElementById('drag-sentence');
+    const tilesEl=document.getElementById('drag-tiles');
+    const checkBtn=document.getElementById('drag-check');
+    checkBtn.className='drag-check-btn';checkBtn.style.display='';
+    tilesEl.innerHTML='';
+
+    const parts=q.sentence.split('___');
+    let html='';
+    for(let i=0;i<parts.length;i++){
+        html+=parts[i];
+        if(i<parts.length-1) html+=`<span class="drag-blank" data-idx="${i}" onclick="removeFromBlank(${i})">(${i+1})</span>`;
+    }
+    sentenceEl.innerHTML=html;
+
+    const shuffled=[...q.words].sort(()=>Math.random()-.5);
+    shuffled.forEach(word=>{
+        const tile=document.createElement('button');
+        tile.className='drag-tile';tile.textContent=word;
+        tile.setAttribute('data-word',word);
+        tile.onclick=()=>placeWord(word);
+        tilesEl.appendChild(tile);
+    });
+}
+
+function placeWord(word){
+    if(G.answered)return;
+    const idx=dragState.placed.indexOf(null);
+    if(idx===-1)return;
+    dragState.placed[idx]=word;snd('cl');
+
+    const blank=document.querySelector(`.drag-blank[data-idx="${idx}"]`);
+    blank.textContent=word;blank.classList.add('filled');
+
+    const tiles=document.querySelectorAll('#drag-tiles .drag-tile');
+    for(const tile of tiles){
+        if(tile.getAttribute('data-word')===word&&!tile.classList.contains('used')){tile.classList.add('used');break}
+    }
+    if(!dragState.placed.includes(null)) document.getElementById('drag-check').className='drag-check-btn show';
+}
+
+function removeFromBlank(idx){
+    if(G.answered)return;
+    const word=dragState.placed[idx];if(!word)return;
+    dragState.placed[idx]=null;snd('cl');
+
+    const blank=document.querySelector(`.drag-blank[data-idx="${idx}"]`);
+    blank.textContent=`(${idx+1})`;blank.classList.remove('filled');
+
+    const tiles=document.querySelectorAll('#drag-tiles .drag-tile');
+    for(const tile of tiles){
+        if(tile.getAttribute('data-word')===word&&tile.classList.contains('used')){tile.classList.remove('used');break}
+    }
+    document.getElementById('drag-check').className='drag-check-btn';
+}
+
+function checkDrag(){
+    if(G.answered)return;G.answered=true;
+    clearInterval(G.timerInterval);G.total++;
+
+    const stage=stages[G.currentStage];const q=stage.questions[G.currentQ];
+    let allCorrect=true;
+    dragState.placed.forEach((word,i)=>{
+        const blank=document.querySelector(`.drag-blank[data-idx="${i}"]`);
+        if(word===dragState.correct[i]) blank.classList.add('correct-slot');
+        else{blank.classList.add('wrong-slot');allCorrect=false}
+    });
+    document.querySelectorAll('#drag-tiles .drag-tile').forEach(t=>t.classList.add('disabled'));
+    document.getElementById('drag-check').style.display='none';
+
+    if(allCorrect){
+        let pts=calcPoints(G.timeLeft,G.timerMax);
+        const blazed=isBlaze();
+        if(blazed){pts+=2;showBlazeAnimation();}
+        else{snd('ok');confetti(12);}
+        G.score+=pts;G.correct++;
+        updateStreak(true);
+        floatPts(window.innerWidth/2,window.innerHeight/2-50,'+'+ pts,blazed?'#f59e0b':'#10b981');
+        showFeedback(true,blazed?'⚡ BLAZING FAST!':'Correct!',q.explain||'',pts,blazed);
+    } else {
+        snd('no');updateStreak(false);
+        showFeedback(false,'Not quite!','Correct: '+dragState.correct.join(' → '),0);
+        setTimeout(()=>{
+            document.querySelectorAll('.drag-blank').forEach((b,i)=>{
+                b.textContent=dragState.correct[i];
+                b.className='drag-blank filled correct-slot';
+            });
+        },1200);
+    }
+    document.getElementById('g-score').textContent=G.score;
+    showDiscussionAndNext(q);
+}
+
+function answerMC(idx,ev){
+    if(G.answered)return;G.answered=true;
+    clearInterval(G.timerInterval);snd('cl');
+
+    const stage=stages[G.currentStage];const q=stage.questions[G.currentQ];
+    const btns=document.querySelectorAll('#opts-area .opt-btn');
+    const isCorrect=idx===q.ans;G.total++;
+
+    btns.forEach((b,i)=>{
+        b.classList.add('disabled');
+        if(i===q.ans)b.classList.add('correct');
+        if(i===idx&&!isCorrect)b.classList.add('wrong');
+    });
+
+    if(isCorrect){
+        let pts=calcPoints(G.timeLeft,G.timerMax);
+        const blazed=isBlaze();
+        if(blazed){pts+=2;showBlazeAnimation();}
+        else{snd('ok');confetti(12);}
+        G.score+=pts;G.correct++;
+        updateStreak(true);
+        if(ev&&ev.clientX)floatPts(ev.clientX,ev.clientY-20,'+'+pts,blazed?'#f59e0b':'#10b981');
+        showFeedback(true,blazed?'⚡ BLAZING FAST!':'Correct!',q.explain||'',pts,blazed);
+    } else {
+        snd('no');updateStreak(false);
+        showFeedback(false,'Not quite!','The correct answer is: '+q.opts[q.ans]+(q.explain?' — '+q.explain:''),0);
+    }
+    document.getElementById('g-score').textContent=G.score;
+    showDiscussionAndNext(q);
+}
+
+function answerTF(val,ev){
+    if(G.answered)return;G.answered=true;
+    clearInterval(G.timerInterval);snd('cl');
+
+    const stage=stages[G.currentStage];const q=stage.questions[G.currentQ];
+    const isCorrect=val===q.correct;
+    const btns=document.querySelectorAll('#tf-area .tf-btn');G.total++;
+    btns.forEach(b=>b.classList.add('disabled'));
+
+    if(isCorrect){
+        (val?btns[0]:btns[1]).classList.add('correct');
+        let pts=calcPoints(G.timeLeft,G.timerMax);
+        const blazed=isBlaze();
+        if(blazed){pts+=2;showBlazeAnimation();}
+        else{snd('ok');confetti(12);}
+        G.score+=pts;G.correct++;
+        updateStreak(true);
+        if(ev&&ev.clientX)floatPts(ev.clientX,ev.clientY-20,'+'+pts,blazed?'#f59e0b':'#10b981');
+        showFeedback(true,blazed?'⚡ BLAZING FAST!':'Correct!',q.explain||'',pts,blazed);
+    } else {
+        (val?btns[0]:btns[1]).classList.add('wrong');
+        (!val?btns[0]:btns[1]).classList.add('correct');
+        snd('no');updateStreak(false);
+        showFeedback(false,'Not quite!',q.explain||'',0);
+    }
+    document.getElementById('g-score').textContent=G.score;
+    showDiscussionAndNext(q);
+}
+
+function timeUp(){
+    if(G.answered)return;G.answered=true;G.total++;snd('no');updateStreak(false);
+    const stage=stages[G.currentStage];const q=stage.questions[G.currentQ];
+
+    if(q.qtype==='drag'){
+        document.querySelectorAll('#drag-tiles .drag-tile').forEach(t=>t.classList.add('disabled'));
+        document.getElementById('drag-check').style.display='none';
+        showFeedback(false,"Time's up!",'Correct: '+dragState.correct.join(' → '),0);
+        document.querySelectorAll('.drag-blank').forEach((b,i)=>{
+            b.textContent=dragState.correct[i];b.className='drag-blank filled correct-slot';
+        });
+    } else if(q.type==='tf'){
+        document.querySelectorAll('#tf-area .tf-btn').forEach(b=>b.classList.add('disabled'));
+        showFeedback(false,"Time's up!",q.explain||'',0);
+    } else {
+        const btns=document.querySelectorAll('#opts-area .opt-btn');
+        btns.forEach((b,i)=>{b.classList.add('disabled');if(i===q.ans)b.classList.add('correct')});
+        showFeedback(false,"Time's up!",'The correct answer is: '+q.opts[q.ans],0);
+    }
+    showDiscussionAndNext(q);
+}
+
+function showFeedback(ok,text,explain,pts,blazed=false){
+    const fb=document.getElementById('feedback');
+    fb.className='feedback show '+(blazed?'fb-blaze':ok?'fb-correct':'fb-wrong');
+    document.getElementById('fb-icon').textContent=blazed?'⚡':ok?'✅':'❌';
+    document.getElementById('fb-text').textContent=text;
+    document.getElementById('fb-explain').textContent=explain||'';
+    const ptsBadge=document.getElementById('fb-pts');
+    if(pts>0&&blazed){ptsBadge.textContent='+'+pts+' 🔥';ptsBadge.className='pts-badge blaze'}
+    else if(pts>0){ptsBadge.textContent='+'+pts;ptsBadge.className='pts-badge'}
+    else if(pts===0&&!ok){ptsBadge.textContent='+0';ptsBadge.className='pts-badge zero'}
+    else ptsBadge.textContent='';
+}
+
+function revealAnswer(){
+    document.getElementById('reveal-content').className='reveal-content show';
+    document.getElementById('reveal-btn').style.display='none';
+}
+
+function showDiscussionAndNext(q){
+    if(q.discuss){
+        const dc=document.getElementById('discuss-card');
+        dc.className='discussion-card show';
+        document.getElementById('discuss-text').textContent=q.discuss;
+    }
+    const nw=document.getElementById('next-wrap');nw.className='next-wrap show';
+    const stage=stages[G.currentStage];
+    const isLastQ=G.currentQ>=stage.questions.length-1;
+    const isLastStage=G.currentStage>=stages.length-1;
+    const btn=document.getElementById('next-btn');
+    if(isLastQ&&isLastStage)btn.textContent='See Results! 🎉';
+    else if(isLastQ)btn.textContent='Level Up! ⬆️';
+    else btn.textContent='Next →';
+}
+
+function nextQuestion(){
+    snd('cl');const stage=stages[G.currentStage];G.currentQ++;
+    if(G.currentQ>=stage.questions.length){
+        const isLastStage=G.currentStage>=stages.length-1;
+        if(isLastStage){showFinalResults()}
+        else{showLevelUp()}
+    } else showQuestion();
+}
+
+function showFinalResults(){
+    showScr('final-screen');snd('win');
+    setTimeout(()=>confetti(50),300);
+    setTimeout(()=>confetti(30),900);
+    document.getElementById('f-score').textContent=G.score;
+    document.getElementById('f-correct').textContent=G.correct;
+    document.getElementById('f-total').textContent=G.total;
+    const pct=Math.round(G.correct/G.total*100);
+    document.getElementById('f-pct').textContent=pct+'%';
+    const maxPossible=G.total*5; // max is 3+2 bonus per question
+    const scorePct=G.score/maxPossible*100;
+    const stars=scorePct>=60?3:scorePct>=40?2:scorePct>=20?1:0;
+    for(let i=1;i<=3;i++)document.getElementById('fs'+i).className=i<=stars?'star on':'star';
+    const msgs=["Keep practising — you'll get there! 💪","Good work! A bit more practice and you'll be perfect! 👍","Great job, class! You know these words well! 🎉","AMAZING! You're vocabulary superstars! 🌟"];
+    document.getElementById('f-msg').textContent=msgs[stars];
+}
+</script>
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>
