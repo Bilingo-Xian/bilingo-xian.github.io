@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GE8 U2C8 — This or That? (preferences)</title>
+<style>
+  :root{
+    --ink:#2b2140;
+    --cream:#fff8ee;
+    --pink:#ff5d8f;
+    --teal:#19b5a6;
+    --yellow:#ffc93c;
+    --purple:#7c5cbf;
+    --card:#ffffff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    font-family:"Trebuchet MS","Comic Sans MS","Segoe UI",Verdana,sans-serif;
+    background:#1d1630;
+    color:var(--ink);
+    overflow:hidden;
+  }
+
+  /* ---------- slide framework ---------- */
+  .slide{
+    position:fixed;inset:0;
+    display:none;
+    flex-direction:column;
+    background:var(--cream);
+  }
+  .slide.active{display:flex;}
+
+  /* ---------- title slide ---------- */
+  .slide.title{
+    align-items:center;justify-content:center;text-align:center;
+    background:
+      radial-gradient(circle at 15% 20%, #ffe3ec 0 12%, transparent 13%),
+      radial-gradient(circle at 85% 15%, #dff7f3 0 10%, transparent 11%),
+      radial-gradient(circle at 80% 85%, #fff3cf 0 14%, transparent 15%),
+      radial-gradient(circle at 10% 80%, #e9e1fb 0 11%, transparent 12%),
+      var(--cream);
+  }
+  .badge{
+    display:inline-block;background:var(--purple);color:#fff;
+    padding:.5em 1.2em;border-radius:999px;font-size:clamp(14px,2vw,22px);
+    letter-spacing:.06em;margin-bottom:1.2em;
+  }
+  .title h1{
+    font-size:clamp(48px,9vw,120px);
+    line-height:1.05;
+    color:var(--pink);
+    text-shadow:4px 4px 0 var(--yellow);
+    margin-bottom:.15em;
+  }
+  .title h1 .or{
+    display:inline-block;background:var(--teal);color:#fff;border-radius:50%;
+    font-size:.45em;padding:.35em .5em;vertical-align:middle;
+    transform:rotate(-8deg);margin:0 .2em;
+    box-shadow:3px 3px 0 rgba(0,0,0,.15);
+  }
+  .title .sub{font-size:clamp(18px,2.6vw,32px);color:var(--ink);margin-top:.6em;}
+  .title .target{
+    margin-top:1.4em;display:inline-block;background:#fff;border:4px dashed var(--pink);
+    border-radius:18px;padding:.7em 1.4em;font-size:clamp(18px,2.8vw,34px);font-weight:bold;
+  }
+  .title .hint{margin-top:1.6em;font-size:clamp(13px,1.6vw,19px);opacity:.65;max-width:80vw;}
+
+  /* ---------- how-to slide ---------- */
+  .slide.howto{background:linear-gradient(160deg,#e9fbf7,#fff6e0);}
+  .howto h2{
+    text-align:center;font-size:clamp(30px,5vw,58px);color:var(--teal);
+    padding:3vh 0 1vh;text-shadow:2px 2px 0 #fff;
+  }
+  .steps{
+    flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.6vh;
+    width:min(1000px,92vw);margin:0 auto;padding-bottom:2vh;
+  }
+  .step{
+    display:flex;align-items:center;gap:1em;background:var(--card);
+    border-radius:16px;padding:.8em 1.1em;
+    box-shadow:0 4px 0 rgba(43,33,64,.12);
+    font-size:clamp(15px,2.2vw,26px);
+  }
+  .step .num{
+    flex:0 0 auto;width:1.7em;height:1.7em;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:bold;font-size:1.05em;
+  }
+  .step:nth-child(1) .num{background:var(--pink);}
+  .step:nth-child(2) .num{background:var(--teal);}
+  .step:nth-child(3) .num{background:var(--yellow);color:var(--ink);}
+  .step:nth-child(4) .num{background:var(--purple);}
+  .step:nth-child(5) .num{background:var(--pink);}
+  .step b{color:var(--pink);}
+  .step .say{
+    background:#fff0f5;border-radius:10px;padding:.15em .5em;font-weight:bold;color:#c2185b;
+  }
+
+  /* ---------- pair slides ---------- */
+  .slide.pair{padding:2.5vh 3vw 0;}
+  .pair .prompt{
+    text-align:center;font-size:clamp(20px,3.2vw,40px);font-weight:bold;color:var(--ink);
+  }
+  .pair .prompt .q{color:var(--purple);}
+  .pair .prompt .go{
+    background:var(--yellow);border-radius:12px;padding:.05em .35em;display:inline-block;
+    transform:rotate(-2deg);box-shadow:2px 2px 0 rgba(43,33,64,.18);
+  }
+  .pair .prompt .tip{display:block;font-size:.5em;opacity:.55;font-weight:normal;margin-top:.15em;}
+  .cards{
+    flex:1;display:flex;align-items:stretch;justify-content:center;
+    gap:2.5vw;padding:1.8vh 0;min-height:0;overflow:hidden;
+  }
+  .card{
+    flex:1 1 0;max-width:44vw;background:var(--card);border-radius:24px;
+    box-shadow:0 8px 0 rgba(43,33,64,.14);
+    display:flex;flex-direction:column;overflow:hidden;min-height:0;
+    cursor:pointer;
+  }
+  .card .photo{flex:1;display:flex;align-items:center;justify-content:center;background:#fff;min-height:0;padding:1.2vh;}
+  .card img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;}
+  .card .label{
+    text-align:center;font-weight:bold;color:#fff;
+    font-size:clamp(20px,3vw,38px);padding:.35em .3em .5em;
+    min-height:1.6em;
+  }
+  .card.left .label{background:var(--pink);}
+  .card.right .label{background:var(--teal);}
+  .card .label.covered{
+    background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.14) 0 14px,transparent 14px 28px);
+    letter-spacing:.08em;
+  }
+  .card .label.pop{animation:pop .35s ease;}
+  @keyframes pop{
+    0%{transform:scale(.6);}
+    70%{transform:scale(1.12);}
+    100%{transform:scale(1);}
+  }
+  .side-tag{
+    text-align:center;font-size:clamp(12px,1.5vw,18px);opacity:.55;font-weight:bold;
+    padding:.4em 0 .6em;letter-spacing:.05em;
+  }
+  .or-badge{
+    align-self:center;flex:0 0 auto;cursor:pointer;
+    width:clamp(56px,7vw,96px);height:clamp(56px,7vw,96px);border-radius:50%;
+    background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:clamp(22px,3vw,40px);font-weight:bold;font-style:italic;
+    box-shadow:0 5px 0 rgba(43,33,64,.25);transform:rotate(-6deg);
+  }
+  .sentence{
+    background:var(--ink);color:#fff;text-align:center;cursor:pointer;
+    font-size:clamp(16px,2.4vw,30px);padding:.55em 1em;border-radius:18px 18px 0 0;
+    min-height:2.1em;
+  }
+  .sentence .fill{color:var(--yellow);font-weight:bold;}
+  .sentence .blank{color:var(--yellow);font-weight:bold;letter-spacing:.05em;}
+  .sentence.locked .lock-hint{opacity:.55;font-size:.75em;font-style:italic;}
+  .sentence.pop{animation:pop .35s ease;}
+
+  /* ---------- goodbye slide ---------- */
+  .slide.bye{align-items:center;justify-content:center;text-align:center;
+    background:radial-gradient(circle at 50% 30%, #ffe3ec 0 18%, transparent 19%),var(--cream);}
+  .bye h2{font-size:clamp(40px,6vw,80px);color:var(--teal);text-shadow:3px 3px 0 var(--yellow);}
+  .bye .lead{font-size:clamp(17px,2.4vw,30px);margin:1em 0 1.2em;}
+  .bye .examples{display:flex;flex-direction:column;gap:1.2vh;width:min(880px,90vw);}
+  .bye .ex{
+    display:flex;align-items:center;justify-content:space-between;gap:1em;flex-wrap:wrap;
+    background:#fff;border-radius:16px;padding:.6em 1.2em;text-align:left;
+    box-shadow:0 4px 0 rgba(43,33,64,.12);
+    font-size:clamp(15px,2.2vw,26px);
+  }
+  .bye .ex .q{font-weight:bold;}
+  .bye .ex .a{
+    background:var(--ink);color:#fff;border-radius:10px;padding:.15em .6em;font-weight:bold;
+  }
+  .bye .ex .a b{color:var(--yellow);}
+  .bye .ex:nth-child(1){border-left:10px solid var(--pink);}
+  .bye .ex:nth-child(2){border-left:10px solid var(--teal);}
+  .bye .ex:nth-child(3){border-left:10px solid var(--yellow);}
+
+  /* ---------- nav chrome ---------- */
+  .nav{
+    position:fixed;right:14px;bottom:12px;z-index:10;display:flex;gap:8px;align-items:center;
+    opacity:.35;transition:opacity .2s;
+  }
+  .nav:hover{opacity:1;}
+  .nav button{
+    border:0;border-radius:10px;background:var(--ink);color:#fff;
+    font-size:18px;padding:.35em .7em;cursor:pointer;font-family:inherit;
+  }
+  .nav .count{font-size:14px;color:#fff;background:var(--ink);border-radius:10px;padding:.45em .7em;}
+  .corner{
+    position:fixed;left:14px;bottom:12px;z-index:10;font-size:13px;color:var(--ink);
+    background:rgba(255,255,255,.75);padding:.3em .8em;border-radius:999px;opacity:.7;
+  }
+</style>
+</head>
+<body>
+
+<!-- 1 · TITLE -->
+<section class="slide title active">
+  <span class="badge">GE8 · Unit 2 Food and Drinks · Class 8 — Dessert Time</span>
+  <h1>This <span class="or">or</span> That?</h1>
+  <p class="sub">A fast-and-fun preference game 🍦 ⚽ 🐱</p>
+  <div><span class="target">“I prefer ___ to ___.”</span></div>
+  <p class="hint">Tap a picture to reveal its word · tap the dark bar for the sentence frame ·<br>← → arrows / space to change slides · press R to reveal everything</p>
+</section>
+
+<!-- 2 · HOW TO PLAY -->
+<section class="slide howto">
+  <h2>How to play 🎉</h2>
+  <div class="steps">
+    <div class="step"><span class="num">1</span><span>Show a pair — the <b>words are hidden</b>! Ask: <b>“This or that? … GO!”</b></span></div>
+    <div class="step"><span class="num">2</span><span>Students <b>walk</b> to the left side (pink) or the right side (teal).</span></div>
+    <div class="step"><span class="num">3</span><span><b>Tap a picture</b> to reveal the word. Each side says the full sentence: <span class="say">“I prefer milkshakes to smoothies!”</span></span></div>
+    <div class="step"><span class="num">4</span><span><b>Tap the dark bar</b> for the frame “I prefer ___ to ___.” — tap again to fill it in.</span></div>
+    <div class="step"><span class="num">5</span><span>Repeat <b>rapidly</b> with new pairs, faster each round. Loudest, clearest side wins! 🏆</span></div>
+  </div>
+</section>
+
+<!-- PAIR SLIDES (generated below) -->
+
+<!-- BYE -->
+<section class="slide bye">
+  <h2>Great job! 🌟</h2>
+  <p class="lead">Now ask a friend — three new ideas:</p>
+  <div class="examples">
+    <div class="ex"><span class="q">“Do you prefer fish or meat?”</span><span class="a">I prefer <b>fish</b> to meat.</span></div>
+    <div class="ex"><span class="q">“Do you prefer English or Chinese?”</span><span class="a">I prefer <b>English</b> to Chinese.</span></div>
+    <div class="ex"><span class="q">“Do you prefer summer or winter?”</span><span class="a">I prefer <b>summer</b> to winter.</span></div>
+  </div>
+</section>
+
+<div class="corner">GE8 U2C8 · This or That?</div>
+<div class="nav">
+  <button id="prev" aria-label="previous">◀</button>
+  <span class="count" id="count">1 / 1</span>
+  <button id="next" aria-label="next">▶</button>
+</div>
+
+<script>
+/* ---------------- pair data ---------------- */
+const PAIRS = [
+  {l:"Milkshakes",      r:"Smoothies",        li:"01_milkshake",   ri:"smoothie",     ls:"milkshakes",      rs:"smoothies"},
+  {l:"Ice-cream cones", r:"Sundaes",          li:"02_cone",        ri:"sundae",       ls:"cones",           rs:"sundaes"},
+  {l:"Vanilla",         r:"Chocolate",        li:"03_vanilla",     ri:"chocolate",    ls:"vanilla",         rs:"chocolate"},
+  {l:"Waffles",         r:"Cake",             li:"04_waffle",      ri:"cake",         ls:"waffles",         rs:"cake"},
+  {l:"Donuts",          r:"Cupcakes",         li:"05_donut",       ri:"cupcake",      ls:"donuts",          rs:"cupcakes"},
+  {l:"Pizza",           r:"Hamburgers",       li:"06_pizza",       ri:"hamburger",    ls:"pizza",           rs:"hamburgers"},
+  {l:"Noodles",         r:"Rice",             li:"07_noodles",     ri:"rice",         ls:"noodles",         rs:"rice"},
+  {l:"Milk",            r:"Orange juice",     li:"08_milk",        ri:"orange_juice", ls:"milk",            rs:"orange juice"},
+  {l:"Strawberries",    r:"Blueberries",      li:"09_strawberries",ri:"blueberries",  ls:"strawberries",    rs:"blueberries"},
+  {l:"Grapes",          r:"Bananas",          li:"10_grapes",      ri:"bananas",      ls:"grapes",          rs:"bananas"},
+  {l:"Apples",          r:"Oranges",          li:"11_apples",      ri:"oranges",      ls:"apples",          rs:"oranges"},
+  {l:"Bikes",           r:"Cars",             li:"12_bike",        ri:"car",          ls:"bikes",           rs:"cars"},
+  {l:"Soccer",          r:"Basketball",       li:"13_soccer",      ri:"basketball",   ls:"soccer",          rs:"basketball"},
+  {l:"Cats",            r:"Dogs",             li:"14_cat",         ri:"dog",          ls:"cats",            rs:"dogs"},
+  {l:"Books",           r:"Video games",      li:"15_books",       ri:"video_games",  ls:"books",           rs:"video games"},
+  {l:"Trains",          r:"Planes",           li:"16_train",       ri:"plane",        ls:"trains",          rs:"planes"},
+];
+
+/* ---------------- build slides ---------------- */
+// inject generated pair slides before the bye slide
+const byeSlide = document.querySelector(".slide.bye");
+PAIRS.forEach((p,i)=>{
+  const sec = document.createElement("section");
+  sec.className = "slide pair";
+  sec.dataset.ls = p.ls;
+  sec.dataset.rs = p.rs;
+  sec.innerHTML = `
+    <p class="prompt"><span class="q">This</span> or <span class="q">that</span>? <span class="go">GO! 🏃</span>
+      <span class="tip">words are hidden — tap a picture to reveal!</span></p>
+    <div class="cards">
+      <div style="flex:1 1 0;max-width:44vw;display:flex;flex-direction:column;min-height:0;">
+        <div class="card left" style="flex:1;max-width:none;">
+          <div class="photo"><img src="images/${p.li}.jpg" alt="${p.l}"></div>
+          <div class="label covered" data-word="${p.l}">? ? ?</div>
+        </div>
+        <div class="side-tag">← LEFT SIDE</div>
+      </div>
+      <div class="or-badge" title="reveal everything">or</div>
+      <div style="flex:1 1 0;max-width:44vw;display:flex;flex-direction:column;min-height:0;">
+        <div class="card right" style="flex:1;max-width:none;">
+          <div class="photo"><img src="images/${p.ri}.jpg" alt="${p.r}"></div>
+          <div class="label covered" data-word="${p.r}">? ? ?</div>
+        </div>
+        <div class="side-tag">RIGHT SIDE →</div>
+      </div>
+    </div>
+    <p class="sentence locked" data-stage="0"><span class="lock-hint">🤫 tap for the sentence…</span></p>`;
+  document.body.insertBefore(sec, byeSlide);
+});
+// refresh slide list after injection
+const allSlides = Array.from(document.querySelectorAll(".slide"));
+
+/* ---------------- reveal logic ---------------- */
+/* === Bilingo sound kit (added Oct 2026) === */
+let AC=null, soundOn=true;
+function initAudio(){if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}
+function tone(f,type,dur,vol=.25,del=0){if(!AC||!soundOn)return;const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(vol,AC.currentTime+del);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+del+dur);o.connect(g);g.connect(AC.destination);o.start(AC.currentTime+del);o.stop(AC.currentTime+del+dur)}
+function sndPop(){initAudio();tone(600,'sine',.12,.13);tone(900,'sine',.1,.1,.06)}
+function sndReveal(){initAudio();tone(660,'triangle',.12,.15,0);tone(880,'triangle',.14,.15,.08);tone(1100,'triangle',.18,.13,.16)}
+function sndCheer(){initAudio();[523,659,784,1047].forEach((f,i)=>tone(f,'triangle',.28,.22,i*.14))}
+function sndNext(){initAudio();tone(350,'triangle',.12,.1);tone(700,'triangle',.14,.09,.09)}
+
+function revealLabel(card){
+  const lab = card.querySelector(".label");
+  if(!lab || !lab.classList.contains("covered")) return false;
+  lab.textContent = lab.dataset.word;
+  lab.classList.remove("covered");
+  lab.classList.add("pop");
+  sndPop();
+  return true;
+}
+function sentenceStage(sec){
+  sndReveal();
+  const bar = sec.querySelector(".sentence");
+  const stage = +bar.dataset.stage;
+  if(stage === 0){
+    bar.dataset.stage = 1;
+    bar.classList.remove("locked");
+    bar.classList.add("pop");
+    bar.innerHTML = `“I prefer <span class="blank">_____</span> to <span class="blank">_____</span>!”`;
+  }else if(stage === 1){
+    bar.dataset.stage = 2;
+    bar.classList.add("pop");
+    bar.innerHTML = `“I prefer <span class="fill">${sec.dataset.ls}</span> to <span class="fill">${sec.dataset.rs}</span>!”`;
+  }
+  return true;
+}
+function revealAll(sec){
+  sndCheer();
+  sec.querySelectorAll(".card").forEach(revealLabel);
+  const bar = sec.querySelector(".sentence");
+  if(bar && +bar.dataset.stage === 0) sentenceStage(sec);
+}
+function isFullyRevealed(sec){
+  const labelsDone = Array.from(sec.querySelectorAll(".label")).every(l=>!l.classList.contains("covered"));
+  const bar = sec.querySelector(".sentence");
+  const barDone = bar ? +bar.dataset.stage >= 1 : true;
+  return labelsDone && barDone;
+}
+
+/* ---------------- navigation ---------------- */
+let cur = 0;
+const count = document.getElementById("count");
+function show(n){
+  const moved = n!==cur;
+  cur = Math.max(0, Math.min(allSlides.length-1, n));
+  if(moved) sndNext();
+  allSlides.forEach((s,i)=>s.classList.toggle("active", i===cur));
+  count.textContent = (cur+1) + " / " + allSlides.length;
+}
+document.getElementById("next").addEventListener("click", ()=>show(cur+1));
+document.getElementById("prev").addEventListener("click", ()=>show(cur-1));
+document.addEventListener("keydown", e=>{
+  if(["ArrowRight","ArrowDown"," ","PageDown"].includes(e.key)){e.preventDefault();show(cur+1);}
+  if(["ArrowLeft","ArrowUp","PageUp"].includes(e.key)){e.preventDefault();show(cur-1);}
+  if(e.key==="Home")show(0);
+  if(e.key==="End")show(allSlides.length-1);
+  if(e.key==="r" || e.key==="R"){
+    const s = allSlides[cur];
+    if(s.classList.contains("pair")) revealAll(s);
+  }
+});
+// pointer interaction:
+//  - pair slides: tap a card = reveal its word, tap the bar = sentence frame,
+//    tap "or" = reveal all, tap elsewhere advances only if everything is revealed
+//  - other slides: tap right half = next, left half = prev
+document.addEventListener("click", e=>{
+  if(e.target.closest(".nav")) return;
+  const s = allSlides[cur];
+  if(s.classList.contains("pair")){
+    if(e.target.closest(".sentence")){ sentenceStage(s); return; }
+    const card = e.target.closest(".card");
+    if(card){ revealLabel(card); return; }
+    if(e.target.closest(".or-badge")){ revealAll(s); return; }
+    if(isFullyRevealed(s)) show(cur+1);
+    return;
+  }
+  const x = e.clientX / window.innerWidth;
+  show(x > 0.5 ? cur+1 : cur-1);
+});
+show(0);
+</script>
+<!-- Bilingo game controls: zoom + fullscreen toggle (auto-collapsing) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .85; }
+  .bilingo-ui .b-handle { display: none; }
+  .bilingo-ui.mini > *:not(.b-handle) { display: none; }
+  .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-handle" title="Show controls" aria-label="Show controls">&#9881;&#65039;</button>
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">&minus;</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">&#9966;</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom';
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() {
+    z = Math.max(MIN, Math.round((z - STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function grow() {
+    z = Math.min(MAX, Math.round((z + STEP) * 100) / 100);
+    localStorage.setItem(KEY, z); apply();
+  }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+  }
+
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.remove('mini');
+    poke();
+  });
+
+  // Collapse to just the handle after 5s without interaction, so the bar
+  // never sits on top of the game's own buttons.
+  var idleTimer = null;
+  function poke() {
+    bar.classList.remove('mini');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.add('mini'); }, 5000);
+  }
+  bar.addEventListener('pointerdown', poke);
+  poke();
+  apply();
+})();
+</script>
+
+</body>
+</html>
