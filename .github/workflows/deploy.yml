@@ -24,7 +24,7 @@ jobs:
         # which must NEVER be published. Only these files go online:
         run: |
           mkdir _site
-          cp index.html GE3.html GE4.html GE7.html GE8.html _site/
+          cp index.html GE3.html GE4.html GE7.html GE8.html ncc.html _site/
           cp -r assets content tests _site/
       - uses: actions/upload-pages-artifact@v3
         with:
