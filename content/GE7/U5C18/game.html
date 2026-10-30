@@ -318,23 +318,23 @@ const ADJ=[
  {id:'loud',    sup:'loudest',    e:'🔊', axis:'noise',   pole:1,
   win:{t:'LA LA LAAA!!! 🎵🎵🎵',a:'dance'}, mid:{t:'La la la~ 🎵',a:'sway'}, low:{t:'la… la… 😳',a:'sleep'}},
  {id:'noisy',   sup:'noisiest',   e:'🙉', axis:'noise',   pole:1,
-  win:{t:'BANG! CRASH! WOOO! 🔥',a:'shake'}, mid:{t:'TAP TAP TAP! 🥁',a:'bounce'}, low:{t:'(total silence…) 🤫',a:'sleep'}},
+  win:{t:'BANG! CRASH! WOOO! 🔥',a:'shake'}, mid:{t:'Tap tap tap! 🥁',a:'bounce'}, low:{t:'(total silence…) 🤫',a:'sleep'}},
  {id:'fast',    sup:'fastest',    e:'⚡', axis:'speed',   pole:1,
-  win:{t:'ZOOM! Too fast to see! 🚀',a:'zoom'}, mid:{t:"I'm pretty quick! 😄",a:'bounce'}, low:{t:'Wait… wait for me… 🐢',a:'sleep'}},
+  win:{t:'ZOOM! Too fast to see! 🚀',a:'zoom'}, mid:{t:"I'm quick! 😄",a:'bounce'}, low:{t:'Wait… wait for me… 🐢',a:'sleep'}},
  {id:'slow',    sup:'slowest',    e:'🐌', axis:'speed',   pole:-1,
-  win:{t:'Nice… and… slow… 🧘',a:'sway'}, mid:{t:'I take my time 🙂',a:'idle'}, low:{t:"*can't even start* 😵",a:'sleep'}},
+  win:{t:'Nice… and… slow… 🧘',a:'sway'}, mid:{t:'I take my time 🙂',a:'idle'}, low:{t:"Catch me if you can!",a:'bounce'}},
  {id:'tall',    sup:'tallest',    e:'📏', axis:'height',  pole:1,
-  win:{t:'Look how HIGH I am! 📏✨',a:'bounce'}, mid:{t:"I'm quite tall 🙂",a:'sway'}, low:{t:"I can't see anything! 😅",a:'tremble'}},
+  win:{t:'Look how HIGH I am! 📏',a:'bounce'}, mid:{t:"I'm pretty tall 🙂",a:'sway'}, low:{t:"I can't see anything! 😅",a:'tremble'}},
  {id:'short',   sup:'shortest',   e:'🐭', axis:'height',  pole:-1,
-  win:{t:'Small but MIGHTY! 💪',a:'dance'}, mid:{t:"I'm a little small 🙂",a:'idle'}, low:{t:'*tiny squeak* 🐜',a:'sleep'}},
+  win:{t:'*tiny squeak* 🐜',a:'sleep'}, mid:{t:"I'm not a baby! 🙂",a:'idle'}, low:{t:'Big and MIGHTY! 💪',a:'dance'}},
  {id:'old',     sup:'oldest',     e:'🎩', axis:'age',     pole:1,
-  win:{t:'Back in MY day… ☝️😌',a:'sway'}, mid:{t:'I know many things 🙂',a:'idle'}, low:{t:'Uh… what year is it? 😵',a:'tremble'}},
+  win:{t:'I was born in 1926… ☝️😌',a:'sway'}, mid:{t:'I know many things 🙂',a:'idle'}, low:{t:'I am not old! 😌',a:'idle'}},
  {id:'young',   sup:'youngest',   e:'🍼', axis:'age',     pole:-1,
-  win:{t:"I'm the baby of the class! 👶",a:'bounce'}, mid:{t:"I'm little 🙂",a:'idle'}, low:{t:'*crying* WAAAH! 😭',a:'jitter'}},
+  win:{t:"*crying* WAAAH! 😭! 👶",a:'bounce'}, mid:{t:"I'm little 🙂",a:'idle'}, low:{t:'Hey, what is up?',a:'jitter'}},
  {id:'smart',   sup:'smartest',   e:'🧠', axis:'smart',   pole:1,
   win:{t:'E=mc²! EASY! 🤓✨',a:'shine'}, mid:{t:'Ooh! I know this one! 🙂',a:'bounce'}, low:{t:'2+2 is… fish? 🐟',a:'tremble'}},
  {id:'strong',  sup:'strongest',  e:'💪', axis:'strong',  pole:1,
-  win:{t:'*lifts a car* EASY! 🚗💪',a:'flex'}, mid:{t:'I can lift this box! 📦',a:'bounce'}, low:{t:'*drops a pencil* 😖',a:'tremble'}},
+  win:{t:'*pick up a car* EASY! 🚗💪',a:'flex'}, mid:{t:'I can lift this box! 📦',a:'bounce'}, low:{t:'Oh no, I dropped a pencil! 😖',a:'tremble'}},
  {id:'brave',   sup:'bravest',    e:'🦁', axis:'brave',   pole:1,
   win:{t:'A DRAGON? NO PROBLEM! 🐉',a:'dance'}, mid:{t:"I'm not scared! 🙂",a:'sway'}, low:{t:'*hides behind a chair* 😨',a:'jitter'}},
  {id:'kind',    sup:'kindest',    e:'💝', axis:'manners', pole:1,
@@ -344,17 +344,17 @@ const ADJ=[
  {id:'mean',    sup:'meanest',    e:'😠', axis:'manners', pole:-1,
   win:{t:'NO! MINE! ALL MINE! 😤',a:'shake'}, mid:{t:'Go away! 😒',a:'idle'}, low:{t:'…sorry 🙂',a:'sleep'}},
  {id:'rude',    sup:'rudest',     e:'🤨', axis:'manners', pole:-1,
-  win:{t:'*BURP* …WHAT?! 😝',a:'wobble'}, mid:{t:'Boring! 😒',a:'idle'}, low:{t:'…excuse me 🙇',a:'sleep'}},
+  win:{t:'Who is stupid? You are! 😝',a:'wobble'}, mid:{t:'Thank you! 🙂',a:'idle'}, low:{t:'…excuse me 🙇',a:'sleep'}},
  {id:'grumpy',  sup:'grumpiest',  e:'😾', axis:'grumpy',  pole:1,
   win:{t:'EVERYTHING IS TERRIBLE! 😾',a:'shake'}, mid:{t:'Hmph. 😒',a:'sway'}, low:{t:'…fine. 🙂',a:'idle'}},
  {id:'lazy',    sup:'laziest',    e:'😴', axis:'lazy',    pole:1,
-  win:{t:'Why walk? I have wheels… 🛋️',a:'sleep'}, mid:{t:'Five more minutes… 😪',a:'sway'}, low:{t:"OK OK I'm up! 😫",a:'jitter'}},
+  win:{t:'I do not want to open my eyes...',a:'sleep'}, mid:{t:'I do not want to get up! 😪',a:'sway'}, low:{t:"OK OK I'm up! 😫",a:'jitter'}},
  {id:'clumsy',  sup:'clumsiest',  e:'🫠', axis:'clumsy',  pole:1,
-  win:{t:'OOPS! CRASH! BANG! 😵',a:'jitter'}, mid:{t:'oops! hehe 🙂',a:'wobble'}, low:{t:'*perfect balance* 🧘',a:'idle'}},
+  win:{t:'OOPS! CRASH! BANG! 😵',a:'jitter'}, mid:{t:'oops! hehe 🙂',a:'wobble'}, low:{t:'What are you two doing? 🧘',a:'idle'}},
  {id:'cool',    sup:'coolest',    e:'😎', axis:'cool',    pole:1,
-  win:{t:'*walks in slow motion* 😎✨',a:'dance'}, mid:{t:'check out my hat 🧢',a:'sway'}, low:{t:'*trips on nothing* 😅',a:'tremble'}},
+  win:{t:'😎',a:'dance'}, mid:{t:'I can eat a table.',a:'sway'}, low:{t:'Oops *falls down* 😅',a:'tremble'}},
  {id:'cute',    sup:'cutest',     e:'🥺', axis:'cute',    pole:1,
-  win:{t:'*big sparkly eyes* 🥺✨',a:'sparkle'}, mid:{t:'do you like my bow? 🎀',a:'bounce'}, low:{t:'*sneezes* 😤',a:'tremble'}}
+  win:{t:'🥺✨',a:'sparkle'}, mid:{t:'Look at my bow? 🎀',a:'bounce'}, low:{t:'ACHOO! 😤',a:'tremble'}}
 ];
 const SIDES=['A','B','C'];
 
@@ -414,8 +414,6 @@ function chipBanner(){
   banner.innerHTML=
     `<div class="say">🎤 Make a question!</div>`+
     `<div class="row"><div class="chips">`+
-    `<span class="chip">the ${curAdj.sup}</span>`+
-    `<span class="plus">+</span>`+
     `<span class="chip act">${curAdj.e} ${curAdj.id}</span>`+
     `</div></div>`;
 }
@@ -454,7 +452,7 @@ function newRound(){
   const winner=ok[~~(Math.random()*ok.length)];
   winSide=SIDES[curCh.indexOf(winner)];
   $('rc').textContent='Round '+roundN;
-  $('badge').textContent=curAdj.e+' the '+curAdj.sup;
+  $('badge').textContent=curAdj.e+curAdj.id;
   $('judges').className='judges';$('judges').innerHTML='';
   nameCards();
   SIDES.forEach(s=>setCard(s,'idle','Who, me? 🙂',false));
@@ -605,7 +603,6 @@ $('finishBtn').onclick=finishGame;
 buildRecord();
 newRound();
 </script>
-
 <!-- Bilingo game controls: zoom + fullscreen toggle (auto-collapsing) -->
 <style>
   .bilingo-ui {
@@ -627,11 +624,11 @@ newRound();
   .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
 </style>
 <div id="bilingo-ui" class="bilingo-ui">
-  <button type="button" class="b-handle" title="Show controls" aria-label="Show controls">⚙️</button>
+  <button type="button" class="b-handle" title="Show controls" aria-label="Show controls">&#9881;&#65039;</button>
   <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
   <div class="b-pct">100%</div>
-  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
-  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">&minus;</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">&#9966;</button>
 </div>
 <script>
 (function () {
