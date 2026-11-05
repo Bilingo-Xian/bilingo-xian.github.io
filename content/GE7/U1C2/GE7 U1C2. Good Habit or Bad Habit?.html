@@ -1,0 +1,998 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Good Habit or Bad Habit?</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .progress {
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .phase-label {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .emoji-clue {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .emoji-person {
+            font-size: 2.5rem;
+        }
+        .emoji-action {
+            font-size: 2.5rem;
+        }
+
+        /* Battery Scale */
+        .battery-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .battery-emoji {
+            font-size: 1.3rem;
+        }
+        .battery {
+            width: 100px;
+            height: 30px;
+            border: 3px solid #333;
+            border-radius: 5px;
+            position: relative;
+            background: #f1f1f1;
+            overflow: hidden;
+        }
+        .battery::after {
+            content: '';
+            position: absolute;
+            right: -7px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 14px;
+            background: #333;
+            border-radius: 0 2px 2px 0;
+        }
+        .battery-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 2px;
+        }
+        .battery-fill.fill-0 { width: 0%; background: transparent; }
+        .battery-fill.fill-10 { width: 10%; background: #f44336; }
+        .battery-fill.fill-50 { width: 50%; background: #ff9800; }
+        .battery-fill.fill-90 { width: 90%; background: #8bc34a; }
+        .battery-fill.fill-100 { width: 100%; background: #4caf50; }
+        .battery-percent {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #333;
+            min-width: 35px;
+        }
+
+        .sentence-area {
+            min-height: 55px;
+            border: 3px dashed #ccc;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            transition: all 0.3s;
+        }
+        .sentence-area.drag-over {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .sentence-area.correct {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+        .sentence-area.wrong {
+            border-color: #f44336;
+            background: #ffebee;
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .word-bank-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+        .word {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .word:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+        }
+        .word.subject {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-color: #90caf9;
+        }
+        .word.frequency {
+            background: #fff3e0;
+            color: #e65100;
+            border-color: #ffcc80;
+        }
+        .word.verb {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-color: #a5d6a7;
+        }
+        .word.placed {
+            opacity: 0.3;
+            cursor: default;
+        }
+        .word.in-sentence {
+            cursor: pointer;
+        }
+        .check-btn {
+            display: block;
+            margin: 0 auto 15px;
+            padding: 10px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .check-btn:hover {
+            background: #5a6fd6;
+            transform: translateY(-2px);
+        }
+        .check-btn:disabled {
+            background: #ccc;
+            cursor: default;
+            transform: none;
+        }
+        .habit-question {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .habit-question.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .categories {
+            display: none;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .categories.show {
+            display: flex;
+            animation: fadeIn 0.5s;
+        }
+        .category-box {
+            flex: 1;
+            padding: 15px 8px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border: 3px dashed;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .category-box.drag-over {
+            transform: scale(1.05);
+        }
+        .cat-good {
+            background: #e8f5e9;
+            border-color: #4CAF50;
+            color: #2e7d32;
+        }
+        .cat-okay {
+            background: #fff3e0;
+            border-color: #FF9800;
+            color: #e65100;
+        }
+        .cat-bad {
+            background: #ffebee;
+            border-color: #f44336;
+            color: #c62828;
+        }
+        .category-box .cat-emoji {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+        .feedback {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .feedback.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        .feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .feedback.wrong {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .next-btn {
+            display: none;
+            margin: 0 auto;
+            padding: 12px 35px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .next-btn.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        .next-btn:hover {
+            background: #43a047;
+            transform: translateY(-2px);
+        }
+        .score-board {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+        .score-board.show {
+            display: block;
+        }
+        .score-board h2 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .score-board .big-emoji {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+        .score-board .score-text {
+            font-size: 1.2rem;
+            color: #666;
+        }
+        .collected-habits {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        .collected-habits.show {
+            display: block;
+        }
+        .collected-habits h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .habit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .habit-item {
+            font-size: 0.85rem;
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
+        .habit-item.good { background: #e8f5e9; color: #2e7d32; }
+        .habit-item.okay { background: #fff3e0; color: #e65100; }
+        .habit-item.bad { background: #ffebee; color: #c62828; }
+        .restart-btn {
+            margin-top: 15px;
+            padding: 12px 35px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .dialogue-bubble {
+            display: none;
+            background: #f0f4ff;
+            border-radius: 15px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            position: relative;
+            font-size: 0.95rem;
+            color: #333;
+        }
+        .dialogue-bubble.show {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.4s;
+        }
+        .dialogue-bubble .speaker {
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+        .dialogue-bubble .speech {
+            flex: 1;
+        }
+        .dialogue-bubble .speech strong {
+            color: #667eea;
+        }
+        @media (max-width: 480px) {
+            .game-container { padding: 15px; }
+            .word { padding: 6px 12px; font-size: 0.9rem; }
+            .emoji-person, .emoji-action { font-size: 2rem; }
+            .category-box { padding: 10px 5px; font-size: 0.75rem; }
+            .battery { width: 80px; height: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <h1>🧹 Good Habit or Bad Habit? 🧹</h1>
+    <div class="progress" id="progress">Round 1 / 10</div>
+    <div class="game-container" id="gameContainer">
+        <div class="dialogue-bubble show" id="dialogue1">
+            <span class="speaker">🅰️</span>
+            <span class="speech">Look at the picture. <strong>Build the sentence!</strong></span>
+        </div>
+
+        <div class="emoji-clue" id="emojiClue"></div>
+
+        <div class="phase-label" id="buildLabel">👇 Drag words here to build the sentence</div>
+        <div class="sentence-area" id="sentenceArea"></div>
+
+        <div id="wordBankContainer">
+            <div class="word-bank-section" id="subjectBank"></div>
+            <div class="word-bank-section" id="freqBank"></div>
+            <div class="word-bank-section" id="verbBank"></div>
+        </div>
+
+        <button class="check-btn" id="checkBtn" onclick="checkSentence()" disabled="">Check ✓</button>
+
+        <div class="dialogue-bubble" id="dialogue2">
+            <span class="speaker">🅱️</span>
+            <span class="speech">Hmm... <strong>Is it a good habit?</strong> Put it in the right box!</span>
+        </div>
+
+        <div class="categories" id="categories">
+            <div class="category-box cat-good" id="catGood" data-cat="good">
+                <span class="cat-emoji">👍</span>
+                Good Habit
+            </div>
+            <div class="category-box cat-okay" id="catOkay" data-cat="okay">
+                <span class="cat-emoji">🤷</span>
+                Okay Habit
+            </div>
+            <div class="category-box cat-bad" id="catBad" data-cat="bad">
+                <span class="cat-emoji">👎</span>
+                Bad Habit
+            </div>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+        <button class="next-btn" id="nextBtn" onclick="nextRound()">Next →</button>
+
+        <div class="score-board" id="scoreBoard">
+            <div class="big-emoji" id="finalEmoji">🎉</div>
+            <h2 id="finalTitle">Great Job!</h2>
+            <div class="score-text" id="finalScore"></div>
+            <div class="collected-habits show" id="collectedHabits">
+                <h3>Your sorted habits:</h3>
+                <div class="habit-list" id="habitList"></div>
+            </div>
+            <button class="restart-btn" onclick="restartGame()">Play Again 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        /* === SOUND KIT (added Oct 2026) === */
+        let _AC=null;
+        function _ac(){if(!_AC)_AC=new(window.AudioContext||window.webkitAudioContext)();if(_AC.state==='suspended')_AC.resume();return _AC}
+        function _t(f,type,dur,vol,del){const c=_ac(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(vol,c.currentTime+del);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+del+dur);o.connect(g);g.connect(c.destination);o.start(c.currentTime+del);o.stop(c.currentTime+del+dur)}
+        function tone(f,type,dur,vol=.2,del=0){try{_t(f,type,dur,vol,del)}catch(e){}}
+        function sndOK(){tone(523,'sine',.18,.22);tone(659,'sine',.18,.22,.09);tone(784,'sine',.25,.28,.18);tone(1047,'sine',.35,.18,.3)}
+        function sndNo(){tone(160,'square',.35,.18);tone(120,'sawtooth',.25,.12,.12)}
+        function sndPop(){try{const c=_ac(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(600,c.currentTime);o.frequency.exponentialRampToValueAtTime(1300,c.currentTime+.07);g.gain.setValueAtTime(.13,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.12);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.12)}catch(e){}}
+        function sndNext(){try{const c=_ac(),o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.setValueAtTime(350,c.currentTime);o.frequency.exponentialRampToValueAtTime(900,c.currentTime+.12);g.gain.setValueAtTime(.1,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.18);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.18)}catch(e){}}
+        const rounds = [
+            {
+                person: '👧', personEmoji: '👧',
+                subject: 'She',
+                freqPercent: 100, freqWord: 'always',
+                actionEmoji: '🏫🎒', verb: 'goes to school',
+                distractorVerbs: ['does yoga', 'cries'],
+                correctCategory: 'good',
+                sentence: 'She always goes to school.'
+            },
+            {
+                person: '👦', personEmoji: '👦',
+                subject: 'He',
+                freqPercent: 0, freqWord: 'never',
+                actionEmoji: '💪🏋️', verb: 'exercises',
+                distractorVerbs: ['practices kung fu', 'jogs in the park'],
+                correctCategory: 'bad',
+                sentence: 'He never exercises.'
+            },
+            {
+                person: '👦👧', personEmoji: '👫',
+                subject: 'They',
+                freqPercent: 50, freqWord: 'often',
+                actionEmoji: '🥋👊', verb: 'practice kung fu',
+                distractorVerbs: ['copy Chinese characters', 'cry'],
+                correctCategory: 'good',
+                sentence: 'They often practice kung fu.'
+            },
+            {
+                person: '👦', personEmoji: '👦',
+                subject: 'He',
+                freqPercent: 10, freqWord: 'rarely',
+                actionEmoji: '📖👀', verb: 'reads a book',
+                distractorVerbs: ['works hard', 'goes to school'],
+                correctCategory: 'bad',
+                sentence: 'He rarely reads a book.'
+            },
+            {
+                person: '👧', personEmoji: '👧',
+                subject: 'She',
+                freqPercent: 90, freqWord: 'usually',
+                actionEmoji: '🧘‍♀️🕉️', verb: 'does yoga',
+                distractorVerbs: ['cries', 'watches a film at the cinema'],
+                correctCategory: 'good',
+                sentence: 'She usually does yoga.'
+            },
+            {
+                person: '👦👧', personEmoji: '👫',
+                subject: 'They',
+                freqPercent: 100, freqWord: 'always',
+                actionEmoji: '😤📚', verb: 'work hard',
+                distractorVerbs: ['have dinner at a restaurant', 'cry'],
+                correctCategory: 'good',
+                sentence: 'They always work hard.'
+            },
+            {
+                person: '👦', personEmoji: '👦',
+                subject: 'He',
+                freqPercent: 50, freqWord: 'often',
+                actionEmoji: '🍽️🏨', verb: 'has dinner at a restaurant',
+                distractorVerbs: ['copies Chinese characters', 'exercises'],
+                correctCategory: 'okay',
+                sentence: 'He often has dinner at a restaurant.'
+            },
+            {
+                person: '👧', personEmoji: '👧',
+                subject: 'She',
+                freqPercent: 0, freqWord: 'never',
+                actionEmoji: '✍️🈲', verb: 'copies Chinese characters',
+                distractorVerbs: ['exercises', 'goes to school'],
+                correctCategory: 'bad',
+                sentence: 'She never copies Chinese characters.'
+            },
+            {
+                person: '👦👧', personEmoji: '👫',
+                subject: 'They',
+                freqPercent: 90, freqWord: 'usually',
+                actionEmoji: '🏃‍♂️🌳', verb: 'jog in the park',
+                distractorVerbs: ['watch a film at the cinema', 'babysit'],
+                correctCategory: 'good',
+                sentence: 'They usually jog in the park.'
+            },
+            {
+                person: '👦', personEmoji: '👦',
+                subject: 'He',
+                freqPercent: 50, freqWord: 'often',
+                actionEmoji: '😢💧', verb: 'cries',
+                distractorVerbs: ['babysits', 'works hard'],
+                correctCategory: 'okay',
+                sentence: 'He often cries.'
+            }
+        ];
+
+        let currentRound = 0;
+        let score = 0;
+        let phase = 'build';
+        let sentenceWords = [];
+        let sortedHabits = [];
+        let draggedWord = null;
+
+        function shuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function getPercentClass(pct) {
+            if (pct === 0) return 'fill-0';
+            if (pct === 10) return 'fill-10';
+            if (pct === 50) return 'fill-50';
+            if (pct === 90) return 'fill-90';
+            return 'fill-100';
+        }
+
+        function initRound() {
+            const r = rounds[currentRound];
+            phase = 'build';
+            sentenceWords = [];
+
+            document.getElementById('progress').textContent = `Round ${currentRound + 1} / ${rounds.length}`;
+            document.getElementById('dialogue1').classList.add('show');
+            document.getElementById('dialogue2').classList.remove('show');
+            document.getElementById('categories').classList.remove('show');
+            document.getElementById('feedback').classList.remove('show');
+            document.getElementById('nextBtn').classList.remove('show');
+            document.getElementById('checkBtn').style.display = 'block';
+            document.getElementById('checkBtn').disabled = true;
+            document.getElementById('buildLabel').style.display = 'block';
+            document.getElementById('wordBankContainer').style.display = 'block';
+            document.getElementById('scoreBoard').classList.remove('show');
+
+            // Emoji clue with battery
+            const emojiClue = document.getElementById('emojiClue');
+            const fillClass = getPercentClass(r.freqPercent);
+            emojiClue.innerHTML = `
+                <span class="emoji-person">${r.personEmoji}</span>
+                <div class="battery-container">
+                    <span class="battery-emoji">😴</span>
+                    <div class="battery">
+                        <div class="battery-fill ${fillClass}"></div>
+                    </div>
+                    <span class="battery-emoji">⚡</span>
+                    <span class="battery-percent">${r.freqPercent}%</span>
+                </div>
+                <span class="emoji-action">${r.actionEmoji}</span>
+            `;
+
+            // Sentence area
+            const sentenceArea = document.getElementById('sentenceArea');
+            sentenceArea.innerHTML = '';
+            sentenceArea.className = 'sentence-area';
+
+            // Subject bank
+            const subjects = r.subject === 'They' ? shuffle(['He', 'She', 'They']) : shuffle(['He', 'She']);
+            const subjectBank = document.getElementById('subjectBank');
+            subjectBank.innerHTML = '';
+            subjects.forEach(s => {
+                subjectBank.appendChild(createWordEl(s, 'subject'));
+            });
+
+            // Frequency bank - ALWAYS in order, never shuffled
+            const freqs = ['never', 'rarely', 'often', 'usually', 'always'];
+            const freqBank = document.getElementById('freqBank');
+            freqBank.innerHTML = '';
+            freqs.forEach(f => {
+                freqBank.appendChild(createWordEl(f, 'frequency'));
+            });
+
+            // Verb bank
+            const verbs = shuffle([r.verb, ...r.distractorVerbs]);
+            const verbBank = document.getElementById('verbBank');
+            verbBank.innerHTML = '';
+            verbs.forEach(v => {
+                verbBank.appendChild(createWordEl(v, 'verb'));
+            });
+        }
+
+        function createWordEl(text, type) {
+            const el = document.createElement('div');
+            el.className = `word ${type}`;
+            el.textContent = text;
+            el.draggable = true;
+            el.dataset.text = text;
+            el.dataset.type = type;
+
+            el.addEventListener('dragstart', (e) => {
+                if (el.classList.contains('placed')) return e.preventDefault();
+                draggedWord = el;
+                e.dataTransfer.setData('text/plain', text);
+                setTimeout(() => el.style.opacity = '0.5', 0);
+            });
+            el.addEventListener('dragend', () => {
+                el.style.opacity = '';
+                draggedWord = null;
+            });
+
+            el.addEventListener('touchstart', handleTouchStart, {passive: false});
+            el.addEventListener('touchmove', handleTouchMove, {passive: false});
+            el.addEventListener('touchend', handleTouchEnd, {passive: false});
+
+            el.addEventListener('click', () => {
+                if (el.classList.contains('placed') && !el.classList.contains('in-sentence')) return;
+                if (el.classList.contains('in-sentence')) {
+                    removeFromSentence(el);
+                } else if (!el.classList.contains('placed')) {
+                    addToSentence(el);
+                }
+            });
+
+            return el;
+        }
+
+        let touchSource = null;
+
+        function handleTouchStart(e) {
+            const el = e.currentTarget;
+            if (el.classList.contains('placed') && !el.classList.contains('in-sentence')) return;
+            if (el.classList.contains('in-sentence')) {
+                removeFromSentence(el);
+                return;
+            }
+            touchSource = el;
+            e.preventDefault();
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+        }
+
+        function handleTouchEnd(e) {
+            if (touchSource && !touchSource.classList.contains('placed')) {
+                addToSentence(touchSource);
+            }
+            touchSource = null;
+        }
+
+        function addToSentence(el) {
+            if (phase !== 'build') return;
+            const type = el.dataset.type;
+            const existing = sentenceWords.find(w => w.type === type);
+            if (existing) {
+                removeFromSentence(existing.el);
+            }
+
+            el.classList.add('placed');
+            const clone = document.createElement('div');
+            clone.className = `word ${type} in-sentence`;
+            clone.textContent = el.dataset.text;
+            clone.dataset.text = el.dataset.text;
+            clone.dataset.type = type;
+            clone.addEventListener('click', () => removeFromSentence(clone));
+
+            const sentenceArea = document.getElementById('sentenceArea');
+
+            sentenceWords.push({text: el.dataset.text, type: type, el: clone, source: el});
+
+            sentenceWords.sort((a, b) => {
+                const order = {subject: 0, frequency: 1, verb: 2};
+                return order[a.type] - order[b.type];
+            });
+
+            sentenceArea.innerHTML = '';
+            sentenceWords.forEach(w => sentenceArea.appendChild(w.el));
+
+            updateCheckBtn();
+        }
+
+        function removeFromSentence(cloneEl) {
+            if (phase !== 'build') return;
+            const idx = sentenceWords.findIndex(w => w.el === cloneEl);
+            if (idx > -1) {
+                sentenceWords[idx].source.classList.remove('placed');
+                sentenceWords.splice(idx, 1);
+            }
+            const sentenceArea = document.getElementById('sentenceArea');
+            sentenceArea.innerHTML = '';
+            sentenceWords.forEach(w => sentenceArea.appendChild(w.el));
+            updateCheckBtn();
+        }
+
+        function updateCheckBtn() {
+            const hasAll = sentenceWords.length === 3;
+            document.getElementById('checkBtn').disabled = !hasAll;
+        }
+
+        const sentenceArea = document.getElementById('sentenceArea');
+        sentenceArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            sentenceArea.classList.add('drag-over');
+        });
+        sentenceArea.addEventListener('dragleave', () => {
+            sentenceArea.classList.remove('drag-over');
+        });
+        sentenceArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            sentenceArea.classList.remove('drag-over');
+            if (draggedWord) {
+                addToSentence(draggedWord);
+            }
+        });
+
+        function checkSentence() {
+            const r = rounds[currentRound];
+            const builtSentence = sentenceWords.map(w => w.text).join(' ');
+            const correct = `${r.subject} ${r.freqWord} ${r.verb}`;
+
+            const sentenceArea = document.getElementById('sentenceArea');
+
+            if (builtSentence === correct) {
+                sndOK();
+                sentenceArea.classList.add('correct');
+                phase = 'categorize';
+                document.getElementById('checkBtn').style.display = 'none';
+                document.getElementById('buildLabel').style.display = 'none';
+                document.getElementById('wordBankContainer').style.display = 'none';
+                document.getElementById('dialogue1').classList.remove('show');
+                document.getElementById('dialogue2').classList.add('show');
+                document.getElementById('categories').classList.add('show');
+                setupCategoryDrop();
+            } else {
+                sndNo();
+                sentenceArea.classList.add('wrong');
+                setTimeout(() => sentenceArea.classList.remove('wrong'), 600);
+            }
+        }
+
+        function setupCategoryDrop() {
+            const cats = document.querySelectorAll('.category-box');
+            cats.forEach(cat => {
+                cat.onclick = () => categorize(cat.dataset.cat);
+                cat.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    cat.classList.add('drag-over');
+                });
+                cat.addEventListener('dragleave', () => {
+                    cat.classList.remove('drag-over');
+                });
+                cat.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    cat.classList.remove('drag-over');
+                    categorize(cat.dataset.cat);
+                });
+            });
+
+            const sa = document.getElementById('sentenceArea');
+            sa.draggable = true;
+            sa.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', 'sentence');
+            });
+        }
+
+        function categorize(chosenCat) {
+            const r = rounds[currentRound];
+            const feedback = document.getElementById('feedback');
+            feedback.classList.add('show');
+
+            if (chosenCat === r.correctCategory) {
+                score++;
+                sndOK();
+                feedback.className = 'feedback show correct';
+                feedback.textContent = '✅ Correct! ' + (r.correctCategory === 'good' ? 'That IS a good habit!' : r.correctCategory === 'bad' ? 'Yeah, that\'s a bad habit!' : 'Right, it\'s just okay!');
+            } else {
+                sndNo();
+                feedback.className = 'feedback show wrong';
+                const catName = r.correctCategory === 'good' ? 'a good habit' : r.correctCategory === 'bad' ? 'a bad habit' : 'an okay habit';
+                feedback.textContent = `❌ Hmm, actually it's ${catName}! That's okay, keep going!`;
+            }
+
+            sortedHabits.push({
+                sentence: r.sentence,
+                category: r.correctCategory
+            });
+
+            document.getElementById('categories').classList.remove('show');
+            document.getElementById('dialogue2').classList.remove('show');
+            document.getElementById('nextBtn').classList.add('show');
+
+            document.querySelectorAll('.category-box').forEach(c => c.onclick = null);
+        }
+
+        function nextRound() {
+            sndNext();
+            currentRound++;
+            if (currentRound >= rounds.length) {
+                showFinalScore();
+            } else {
+                initRound();
+            }
+        }
+
+        function showFinalScore() {
+            sndOK();
+            document.getElementById('progress').style.display = 'none';
+            document.getElementById('emojiClue').style.display = 'none';
+            document.getElementById('buildLabel').style.display = 'none';
+            document.getElementById('sentenceArea').style.display = 'none';
+            document.getElementById('wordBankContainer').style.display = 'none';
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('dialogue1').classList.remove('show');
+            document.getElementById('dialogue2').classList.remove('show');
+            document.getElementById('categories').classList.remove('show');
+            document.getElementById('feedback').classList.remove('show');
+            document.getElementById('nextBtn').classList.remove('show');
+
+            const board = document.getElementById('scoreBoard');
+            board.classList.add('show');
+
+            const pct = score / rounds.length;
+            if (pct >= 0.8) {
+                document.getElementById('finalEmoji').textContent = '🎉🌟';
+                document.getElementById('finalTitle').textContent = 'Amazing!';
+            } else if (pct >= 0.5) {
+                document.getElementById('finalEmoji').textContent = '👏';
+                document.getElementById('finalTitle').textContent = 'Good Job!';
+            } else {
+                document.getElementById('finalEmoji').textContent = '💪';
+                document.getElementById('finalTitle').textContent = 'Keep Trying!';
+            }
+            document.getElementById('finalScore').textContent = `You got ${score} out of ${rounds.length} correct!`;
+
+            const habitList = document.getElementById('habitList');
+            habitList.innerHTML = '';
+            sortedHabits.forEach(h => {
+                const div = document.createElement('div');
+                div.className = `habit-item ${h.category}`;
+                const emoji = h.category === 'good' ? '👍' : h.category === 'bad' ? '👎' : '🤷';
+                div.textContent = `${emoji} ${h.sentence}`;
+                habitList.appendChild(div);
+            });
+        }
+
+        function restartGame() {
+            currentRound = 0;
+            score = 0;
+            sortedHabits = [];
+            document.getElementById('progress').style.display = '';
+            document.getElementById('emojiClue').style.display = '';
+            document.getElementById('sentenceArea').style.display = '';
+            initRound();
+        }
+
+        initRound();
+    </script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>
