@@ -1245,6 +1245,8 @@ h1 { margin: 0; font-size: 30px; letter-spacing: -1px; }
     text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
   /* the gear always stays; everything else only shows while open */
   .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+  /* never let the buttons leak into a paper printout */
+  @media print { .bilingo-ui { display: none !important; } }
 </style>
 <div id="bilingo-ui" class="bilingo-ui">
   <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
