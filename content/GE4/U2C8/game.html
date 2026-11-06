@@ -112,6 +112,13 @@ h1{font-size:clamp(1.1em,3.4vw,1.8em);text-shadow:2px 2px 8px rgba(0,0,0,.3)}
 @keyframes wrongShake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-12px)}20%,40%,60%,80%{transform:translateX(12px)}}
 .box.nope{animation:wrongShake .5s ease}
 
+/* physical drop: the picture drops into the won box and can be shaken */
+.slot.pile{position:relative}
+.slot.pile img{position:absolute;width:58px;bottom:6px;left:50%;margin-left:-29px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.4));--r:-4deg;transform:rotate(var(--r));animation:dropBounce .55s ease-out}
+@keyframes dropBounce{0%{transform:rotate(var(--r)) translateY(-70px) scale(1.15)}55%{transform:rotate(var(--r)) translateY(2px) scale(1)}75%{transform:rotate(var(--r)) translateY(-14px)}100%{transform:rotate(var(--r)) translateY(0)}}
+.slot.pile img.rattle{animation:rattle .45s ease}
+@keyframes rattle{0%,100%{transform:rotate(var(--r)) translateY(0)}20%{transform:rotate(calc(var(--r) - 16deg)) translateY(-3px)}40%{transform:rotate(calc(var(--r) + 13deg))}60%{transform:rotate(calc(var(--r) - 9deg)) translateY(-2px)}80%{transform:rotate(calc(var(--r) + 6deg))}}
+
 /* flying picture clone */
 .flyer{position:fixed;z-index:998;pointer-events:none;width:clamp(80px,16vw,130px);transition:all .45s ease-in;transform:translate(-50%,-50%)}
 
@@ -148,7 +155,6 @@ h1{font-size:clamp(1.1em,3.4vw,1.8em);text-shadow:2px 2px 8px rgba(0,0,0,.3)}
   <div class="togs">
     <div class="rc" id="rc">Picture 1 / 14</div>
     <div class="tg" id="tgReview" title="Review mode: vehicle nouns from U2C7 (Is it a car? — Yes, it's a car. / No, it's a boat!)">🔁 review</div>
-    <div class="tg" id="tgShuffle" title="Shuffle the picture order">🔀 shuffle</div>
     <div class="tg on" id="tgS" title="Sound on/off">🔊</div>
   </div>
 </div>
@@ -254,6 +260,7 @@ function sndNext(){initAudio();
   o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.18);
 }
 function sndFanfare(){initAudio();[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,'triangle',.18,.2,i*.12))}
+function sndRattle(){initAudio();for(let i=0;i<4;i++)tone(320-i*45+Math.random()*70,'square',.05,.07,i*.06)}
 
 /* ============ CONFETTI ============ */
 const cvs=document.getElementById('confetti'),cx=cvs.getContext('2d');
@@ -284,7 +291,7 @@ function aLoop(){cx.clearRect(0,0,cvs.width,cvs.height);
 
 /* ============ STATE ============ */
 let order=[],round=0,phase='',cur=null,flip=false,locked=false,q='';
-const reviewOn={v:false},shuffleOn={v:false};
+const reviewOn={v:false};
 
 const $=id=>document.getElementById(id);
 const banner=$('banner'),prompt=$('prompt'),mainBtn=$('mainBtn'),pic=$('pic'),card=$('card'),
@@ -294,7 +301,7 @@ function rounds(){return reviewOn.v?NOUN_ROUNDS:ADJ_ROUNDS}
 function roundLabel(){return reviewOn.v?'Word':'Picture'}
 function buildOrder(){
   order=rounds().slice();
-  if(shuffleOn.v)order.sort(()=>Math.random()-.5);
+  order.sort(()=>Math.random()-.5);   // random order every game — no shuffle button needed
 }
 /* question / answer wording — nouns take "a" */
 function qText(w){return reviewOn.v?`Is it a ${w}?`:`Is it ${w}?`}
@@ -354,8 +361,10 @@ function phaseQuestion(){
 }
 function tapBox(box){
   initAudio();
-  if(phase!=='question'||locked)return;
   const el=box==='A'?boxA:boxB;
+  /* the won box holds the objects — tapping it shakes them like a rattle */
+  if(locked){if(el.classList.contains('won'))rattle(box);return}
+  if(phase!=='question')return;
   if(wordOf(box)===cur.a){
     locked=true;phase='tapped';
     sndCorrect();sndCheer();
@@ -363,13 +372,7 @@ function tapBox(box){
     const r=el.getBoundingClientRect();
     boom(r.left+r.width/2,r.top+r.height/2,130);
     popup(['🎉 YES!','⭐ That\'s it!','👍 Right!','💚 Great!'][~~(Math.random()*4)]);
-    flyToBox(el);
-    setTimeout(()=>{
-      const slot=box==='A'?slotA:slotB;
-      slot.innerHTML=`<img src="${cur.img}" alt="${cur.id}">`;
-      sndPop();
-      card.classList.add('done');card.classList.remove('sway');
-    },430);
+    flyToBox(box);
     setTimeout(()=>{
       setPrompt('🗣️ Everyone answer! Then reveal!');
       setBtn('Reveal the Answer 👀',phaseAnswer);
@@ -404,19 +407,37 @@ function resetGame(){
   sndNext();newRound();
 }
 function flyToBox(box){
-  const fr=card.getBoundingClientRect(),br=box.getBoundingClientRect();
+  const bx=box==='A'?boxA:boxB;
+  const fr=card.getBoundingClientRect(),br=bx.getBoundingClientRect();
   const fl=document.createElement('img');
   fl.src=cur.img;fl.className='flyer';
   fl.style.left=(fr.left+fr.width/2)+'px';
   fl.style.top=(fr.top+fr.height/2)+'px';
+  fl.style.width='120px';
   document.body.appendChild(fl);
-  requestAnimationFrame(()=>{
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
     fl.style.left=(br.left+br.width/2)+'px';
-    fl.style.top=(br.top+br.height/2)+'px';
-    fl.style.width='46px';
-    fl.style.opacity='.35';
+    fl.style.top=(br.top+br.height-52)+'px';
+    fl.style.width='56px';
+    fl.style.opacity='.95';
+  }));
+  /* drop into the box with a physical bounce, land in a little pile */
+  setTimeout(()=>{
+    fl.remove();
+    const slot=box==='A'?slotA:slotB;
+    slot.classList.add('pile');
+    slot.innerHTML=`<img src="${cur.img}" alt="${cur.id}">`;
+    sndPop();
+    card.classList.add('done');card.classList.remove('sway');
+  },500);
+}
+function rattle(box){
+  const slot=box==='A'?slotA:slotB;
+  if(!slot.classList.contains('pile'))return;
+  sndRattle();
+  slot.querySelectorAll('img').forEach((im,i)=>{
+    setTimeout(()=>{im.classList.remove('rattle');void im.offsetWidth;im.classList.add('rattle')},i*70);
   });
-  setTimeout(()=>fl.remove(),500);
 }
 
 /* ============ WIRING ============ */
@@ -429,7 +450,6 @@ function bindToggle(id,obj,after){
   el.onclick=()=>{obj.v=!obj.v;el.classList.toggle('on',obj.v);sndPop();if(after)after()};
 }
 bindToggle('tgReview',reviewOn,()=>{buildOrder();round=0;sndNext();newRound()});
-bindToggle('tgShuffle',shuffleOn,()=>{if(phase!=='finale'){buildOrder();round=0;sndNext();newRound()}});
 bindToggle('tgS',{get v(){return soundOn},set v(x){soundOn=x}},()=>{
   $('tgS').textContent=soundOn?'🔊':'🔇';
 });

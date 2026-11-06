@@ -1,0 +1,300 @@
+<!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta http-equiv="x-dns-prefetch-control" content="off"><script src="https://puc.poecdn.net/authenticated_preview_page/standard.3ef2c256959faf5a756d.js"></script>
+    <meta charset="utf-8">
+    <title>Poe</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://puc.poecdn.net/authenticated_preview_page/disableWebRTC.9710cebe07429a9e8e06.js"></script><meta name="x-poe-allow-downloads" content="true"><meta name="x-poe-datastore-behavior" content="disabled"><script src="https://puc.poecdn.net/authenticated_preview_page/tw.50ec1b0612bf5b0c30a5.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/deps.faccd16000d314dc16d5.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/exports.b0f0f482cdeb5302b0b9.js"></script><script src="https://puc.poecdn.net/authenticated_preview_page/renderer.75c73ae6b4235f62945a.js"></script><script>Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }var _react = require('react'); var _react2 = _interopRequireDefault(_react);
+var _framermotion = require('framer-motion');
+
+const TIMES = [
+  { emoji: '💡 📅', text: 'tomorrow' },
+  { emoji: '➡️ 1️⃣', text: 'next Monday' },
+  { emoji: '➡️ 2️⃣', text: 'next Tuesday' },
+  { emoji: '➡️ 3️⃣', text: 'next Wednesday' },
+  { emoji: '➡️ 4️⃣', text: 'next Thursday' },
+  { emoji: '➡️ 5️⃣', text: 'next Friday' },
+  { emoji: '➡️ 6️⃣', text: 'next Saturday' },
+  { emoji: '➡️ 7️⃣', text: 'next Sunday' },
+  { emoji: '🐉 🛶', text: 'on Dragon Boat Festival' },
+  { emoji: '🧧 🎆', text: 'on Spring Festival' },
+  { emoji: '🌕 🍂', text: 'on Mid-Autumn Festival' },
+  { emoji: '🌙 ⭐', text: 'tonight' },
+];
+
+const ACTS = [
+  { emoji: '👐 🍚 ', text: 'prepare sticky rice snacks' },
+  { emoji: '👀 🐉 🛶', text: 'watch a Dragon Boat race' },
+  { emoji: '💪 🐉 🛶', text: 'row in a dragon boat race' },
+  { emoji: '👀 🌕', text: 'look at the moon' },
+  { emoji: '😋 🥮', text: 'eat mooncakes' },
+  { emoji: '✂️ 💇', text: 'get a haircut' },
+  { emoji: '🤲 🧧', text: 'get red envelopes' },
+  { emoji: '😴 🏠', text: 'have a rest' },
+  { emoji: '🎊 👨‍👩‍👧', text: 'celebrate with family' },
+  { emoji: '🛒 🏮 ', text: 'buy lanterns' },
+  { emoji: '📺 🍿', text: 'watch a movie' },
+  { emoji: '🚗 👴 👵', text: 'visit my grandparents' },
+];
+
+const Star = ({ i }) => (
+  _react2.default.createElement(_framermotion.motion.div, {
+    className: "absolute rounded-full bg-white"  ,
+    style: {
+      width: i % 4 === 0 ? 2 : 1,
+      height: i % 4 === 0 ? 2 : 1,
+      top: `${(i * 41 + 11) % 93}%`,
+      left: `${(i * 59 + 7) % 95}%`,
+    },
+    animate: { opacity: [0.05, 0.6, 0.05] },
+    transition: { duration: 2 + (i % 4), repeat: Infinity, delay: i * 0.2 },}
+  )
+);
+
+ function FestivalTalk() {
+  const [tIdx, setTIdx] = _react.useState.call(void 0, null);
+  const [aIdx, setAIdx] = _react.useState.call(void 0, null);
+  const [showT, setShowT] = _react.useState.call(void 0, false);
+  const [showA, setShowA] = _react.useState.call(void 0, false);
+  const [spinning, setSpinning] = _react.useState.call(void 0, false);
+  const [round, setRound] = _react.useState.call(void 0, 0);
+  const [useWill, setUseWill] = _react.useState.call(void 0, false);
+  const refs = _react.useRef.call(void 0, []);
+
+  const go = _react.useCallback.call(void 0, () => {
+    refs.current.forEach(clearTimeout);
+    refs.current = [];
+    setSpinning(true);
+    setShowT(false);
+    setShowA(false);
+
+    const fT = Math.floor(Math.random() * TIMES.length);
+    const fA = Math.floor(Math.random() * ACTS.length);
+    const w = Math.random() > 0.5;
+    let d = 0;
+
+    for (let i = 0; i < 13; i++) {
+      d += 45 + i * i * 2;
+      const last = i === 12;
+      refs.current.push(
+        setTimeout(() => {
+          setTIdx(last ? fT : Math.floor(Math.random() * TIMES.length));
+          setAIdx(last ? fA : Math.floor(Math.random() * ACTS.length));
+          if (last) {
+            setUseWill(w);
+            setSpinning(false);
+            setRound((r) => r + 1);
+          }
+        }, d)
+      );
+    }
+  }, []);
+
+  const t = tIdx !== null ? TIMES[tIdx] : null;
+  const a = aIdx !== null ? ACTS[aIdx] : null;
+
+  return (
+    _react2.default.createElement('div', { className: "min-h-screen bg-gradient-to-b from-red-700 via-indigo-600 to-slate-800 flex flex-col items-center justify-center p-4 relative overflow-hidden"           ,}
+      , Array.from({ length: 18 }).map((_, i) => (
+        _react2.default.createElement(Star, { key: i, i: i,} )
+      ))
+
+      , _react2.default.createElement('h1', { className: "text-3xl font-extrabold text-amber-400 mb-1 relative z-10 text-center"      ,}, "🏮 Festival Talk 🏮"
+
+      )
+
+      , round > 0 && (
+        _react2.default.createElement('div', { className: "flex gap-0.5 mb-2 relative z-10"    ,}
+          , Array.from({ length: Math.min(round, 12) }).map((_, i) => (
+            _react2.default.createElement(_framermotion.motion.span, {
+              key: i,
+              initial: { scale: 0 },
+              animate: { scale: 1 },
+              transition: { delay: i * 0.03 },
+              className: "text-xs",}
+, "⭐"
+
+            )
+          ))
+        )
+      )
+
+      , _react2.default.createElement('div', { className: "bg-white/5 backdrop-blur-sm rounded-xl p-4 mb-4 w-full max-w-lg border border-amber-400/20 relative z-10"          ,}
+        , _react2.default.createElement('p', { className: "text-amber-100 text-lg leading-relaxed"  ,}
+          , _react2.default.createElement('span', { className: "text-rose-400 font-bold" ,}, "A: " )
+          , useWill ? 'What will you do ' : 'What are you going to do '
+          , _react2.default.createElement('span', {
+            className: "inline-block border-b-2 border-dashed border-amber-400/40 px-2 text-amber-300 text-base"      ,
+            style: { minWidth: '4rem' },}
+
+            , showT && t ? t.text : '\u00A0'
+          )
+          , ' ?'
+        )
+        , _react2.default.createElement('p', { className: "text-amber-100 text-lg leading-relaxed mt-2"   ,}
+          , _react2.default.createElement('span', { className: "text-sky-400 font-bold" ,}, "B: " )
+          , useWill ? 'I will ' : "I'm going to "
+          , _react2.default.createElement('span', {
+            className: "inline-block border-b-2 border-dashed border-amber-400/40 px-2 text-amber-300 text-base"      ,
+            style: { minWidth: '4rem' },}
+
+            , showA && a ? a.text : '\u00A0'
+          )
+          , ' .'
+        )
+      )
+
+      , _react2.default.createElement('div', { className: "flex gap-3 w-full max-w-lg mb-6 relative z-10"      ,}
+        , _react2.default.createElement(_framermotion.motion.div, {
+          className: "flex-1 bg-gradient-to-br from-rose-800 to-rose-900 rounded-2xl p-4 text-center border-2 border-rose-400/30 cursor-pointer shadow-lg flex flex-col items-center justify-center"              ,
+          style: { minHeight: '11rem' },
+          animate: spinning ? { rotate: [0, -3, 3, -3, 3, 0] } : {},
+          transition: { duration: 0.2, repeat: spinning ? Infinity : 0 },
+          whileTap: !spinning ? { scale: 0.96 } : undefined,
+          onClick: () => t && !spinning && setShowT((v) => !v),}
+
+          , _react2.default.createElement('p', { className: "text-rose-300 font-bold text-xs uppercase tracking-wider mb-2"     ,}, "⏰ When?"
+
+          )
+          , t ? (
+            _react2.default.createElement(_framermotion.motion.p, {
+              key: `t${tIdx}${round}`,
+              className: "text-4xl my-2" ,
+              initial: { y: -8, opacity: 0.3 },
+              animate: { y: 0, opacity: 1 },
+              transition: { type: 'spring', stiffness: 500, damping: 25 },}
+
+              , t.emoji
+            )
+          ) : (
+            _react2.default.createElement('p', { className: "text-4xl my-2 opacity-20"  ,}, "❓")
+          )
+          , t && !spinning && (
+            _react2.default.createElement('p', { className: "text-rose-300/40 text-xs mt-1"  ,}
+              , showT ? '🔓 hide' : '🔒 peek'
+            )
+          )
+        )
+
+        , _react2.default.createElement(_framermotion.motion.div, {
+          className: "flex-1 bg-gradient-to-br from-amber-700 to-amber-900 rounded-2xl p-4 text-center border-2 border-amber-400/30 cursor-pointer shadow-lg flex flex-col items-center justify-center"              ,
+          style: { minHeight: '11rem' },
+          animate: spinning ? { rotate: [0, 3, -3, 3, -3, 0] } : {},
+          transition: { duration: 0.2, repeat: spinning ? Infinity : 0 },
+          whileTap: !spinning ? { scale: 0.96 } : undefined,
+          onClick: () => a && !spinning && setShowA((v) => !v),}
+
+          , _react2.default.createElement('p', { className: "text-amber-300 font-bold text-xs uppercase tracking-wider mb-2"     ,}, "🎯 What?"
+
+          )
+          , a ? (
+            _react2.default.createElement(_framermotion.motion.p, {
+              key: `a${aIdx}${round}`,
+              className: "text-4xl my-2" ,
+              initial: { y: -8, opacity: 0.3 },
+              animate: { y: 0, opacity: 1 },
+              transition: { type: 'spring', stiffness: 500, damping: 25 },}
+
+              , a.emoji
+            )
+          ) : (
+            _react2.default.createElement('p', { className: "text-4xl my-2 opacity-20"  ,}, "❓")
+          )
+          , a && !spinning && (
+            _react2.default.createElement('p', { className: "text-amber-300/40 text-xs mt-1"  ,}
+              , showA ? '🔓 hide' : '🔒 peek'
+            )
+          )
+        )
+      )
+
+      , _react2.default.createElement(_framermotion.motion.button, {
+        className: "bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-900 font-extrabold text-xl px-10 py-4 rounded-full shadow-lg relative z-10 disabled:opacity-50"            ,
+        whileHover: { scale: 1.05 },
+        whileTap: { scale: 0.9 },
+        onClick: go,
+        disabled: spinning,}
+
+        , spinning
+          ? '✨ Mixing... ✨'
+          : round === 0
+          ? "🎲 Let's go!"
+          : '🎲 Mix again!'
+      )
+    )
+  );
+} exports.default = FestivalTalk;
+</script></head>
+  <body>
+  
+
+<div id="preview-app"></div><!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

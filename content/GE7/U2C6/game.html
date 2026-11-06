@@ -1,0 +1,1097 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Good At / Bad At - Dialogue Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffecd2, #fcb69f, #ffecd2);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .instruction {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 14px;
+            text-align: center;
+            min-height: 30px;
+            font-weight: 600;
+            padding: 0 10px;
+        }
+
+        .instruction .highlight-good {
+            color: #2e7d32;
+            background: #e8f5e9;
+            padding: 2px 8px;
+            border-radius: 8px;
+        }
+
+        .instruction .highlight-bad {
+            color: #c62828;
+            background: #ffebee;
+            padding: 2px 8px;
+            border-radius: 8px;
+        }
+
+        /* Step Indicator */
+        .step-indicator {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            align-items: center;
+        }
+
+        .step-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.6);
+            border: 2.5px solid #ccc;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .step-dot.active {
+            background: #ff6f00;
+            border-color: #e65100;
+            transform: scale(1.4);
+            box-shadow: 0 0 12px rgba(255, 111, 0, 0.4);
+        }
+
+        .step-dot.done {
+            background: #66bb6a;
+            border-color: #43a047;
+        }
+
+        .step-connector {
+            width: 20px;
+            height: 3px;
+            background: #ddd;
+            border-radius: 2px;
+            transition: background 0.3s;
+        }
+
+        .step-connector.done {
+            background: #66bb6a;
+        }
+
+        /* Player Badge */
+        .player-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            animation: badgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .player-badge.player-a {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #64b5f6;
+            color: #1565c0;
+        }
+
+        .player-badge.player-b {
+            background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+            border: 2px solid #f06292;
+            color: #c62828;
+        }
+
+        @keyframes badgePop {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Activity Grid */
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            max-width: 520px;
+            width: 100%;
+            margin-bottom: 14px;
+        }
+
+        @media (max-width: 450px) {
+            .activity-grid {
+                gap: 7px;
+                max-width: 100%;
+            }
+        }
+
+        .activity-card {
+            background: rgba(255,255,255,0.92);
+            border: 3px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 12px 6px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            user-select: none;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 90px;
+            overflow: hidden;
+        }
+
+        .activity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 13px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .activity-card:hover {
+            transform: scale(1.07) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        .activity-card:active {
+            transform: scale(0.95);
+        }
+
+        .activity-card.selected-good {
+            border-color: #4caf50;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3), 0 4px 15px rgba(76, 175, 80, 0.2);
+        }
+
+        .activity-card.selected-good::after {
+            content: '👍';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            font-size: 0.9rem;
+            animation: thumbPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .activity-card.selected-bad {
+            border-color: #ef5350;
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            box-shadow: 0 0 0 3px rgba(239, 83, 80, 0.3), 0 4px 15px rgba(239, 83, 80, 0.2);
+        }
+
+        .activity-card.selected-bad::after {
+            content: '👎';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            font-size: 0.9rem;
+            animation: thumbPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .activity-card.disabled-card {
+            opacity: 0.35;
+            pointer-events: none;
+            filter: grayscale(0.6);
+        }
+
+        @keyframes thumbPop {
+            0% { transform: scale(0) rotate(-20deg); }
+            60% { transform: scale(1.4) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .activity-card .emoji {
+            font-size: 2.2rem;
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        .activity-card:hover .emoji {
+            animation: wiggle 0.5s ease;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-12deg); }
+            75% { transform: rotate(12deg); }
+        }
+
+        .activity-card .name {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #444;
+            margin-top: 5px;
+            line-height: 1.2;
+        }
+
+        /* Sentence Preview */
+        .sentence-preview {
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            padding: 14px 24px;
+            margin: 0 auto 12px;
+            font-size: 1.15rem;
+            color: #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2.5px dashed #bbb;
+            max-width: 520px;
+            width: 100%;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .sentence-preview.good-mode {
+            border-color: #66bb6a;
+            background: linear-gradient(135deg, #f1f8e9, #ffffff);
+        }
+
+        .sentence-preview.bad-mode {
+            border-color: #ef5350;
+            background: linear-gradient(135deg, #fff8f8, #ffffff);
+        }
+
+        /* Buttons */
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 13px 28px;
+            border: none;
+            border-radius: 28px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transition: width 0.3s, height 0.3s, top 0.3s, left 0.3s;
+        }
+
+        .btn:active::after {
+            width: 200px;
+            height: 200px;
+            top: calc(50% - 100px);
+            left: calc(50% - 100px);
+        }
+
+        .btn:hover {
+            transform: scale(1.06) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-orange { background: linear-gradient(135deg, #ff9800, #f57c00); color: white; }
+        .btn-grey { background: linear-gradient(135deg, #78909c, #546e7a); color: white; }
+
+        .hidden { display: none !important; }
+
+        /* === FINAL PAGE === */
+        .final-page {
+            display: none;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .final-page.visible {
+            display: block;
+            animation: fadeUp 0.5s ease;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Final summary boxes */
+        .summary-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .summary-box {
+            flex: 1;
+            border-radius: 20px;
+            padding: 14px 10px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-box.box-a {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 3px solid #64b5f6;
+        }
+
+        .summary-box.box-b {
+            background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+            border: 3px solid #f06292;
+        }
+
+        .summary-box .box-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            opacity: 0.7;
+        }
+
+        .summary-box .box-items {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .summary-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .summary-item.good {
+            background: rgba(76, 175, 80, 0.15);
+            border: 1.5px solid #81c784;
+            color: #2e7d32;
+        }
+
+        .summary-item.bad {
+            background: rgba(239, 83, 80, 0.15);
+            border: 1.5px solid #ef9a9a;
+            color: #c62828;
+        }
+
+        .summary-item .item-emoji {
+            font-size: 1.1rem;
+        }
+
+        /* Dialogue */
+        .dialogue-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 20px;
+            border: 2px solid rgba(0,0,0,0.06);
+        }
+
+        .dialogue-row {
+            display: flex;
+            width: 100%;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: bubbleIn 0.4s ease forwards;
+        }
+
+        .dialogue-row.left {
+            justify-content: flex-start;
+        }
+
+        .dialogue-row.right {
+            justify-content: flex-end;
+        }
+
+        @keyframes bubbleIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bubble-wrapper {
+            max-width: 78%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .bubble-wrapper:hover {
+            transform: scale(1.02);
+        }
+
+        .bubble-wrapper:active {
+            transform: scale(0.97);
+        }
+
+        .bubble {
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 1.05rem;
+            line-height: 1.4;
+            position: relative;
+            min-height: 46px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .dialogue-row.left .bubble {
+            background: linear-gradient(135deg, #e3f2fd, #e1f5fe);
+            border: 2.5px solid #64b5f6;
+            border-bottom-left-radius: 6px;
+            color: #1565c0;
+        }
+
+        .dialogue-row.right .bubble {
+            background: linear-gradient(135deg, #fce4ec, #ffeef5);
+            border: 2.5px solid #f06292;
+            border-bottom-right-radius: 6px;
+            color: #c62828;
+        }
+
+        .bubble-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+            padding-left: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .dialogue-row.left .bubble-label {
+            color: #1976d2;
+        }
+
+        .dialogue-row.right .bubble-label {
+            color: #e91e63;
+            text-align: right;
+            padding-right: 6px;
+        }
+
+        .bubble .hidden-text {
+            display: none;
+            font-weight: 600;
+        }
+
+        .bubble .tap-hint {
+            font-size: 1.5rem;
+            opacity: 0.7;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .bubble.revealed .hidden-text {
+            display: inline;
+        }
+
+        .bubble.revealed .tap-hint {
+            display: none;
+        }
+
+        .bubble.revealed {
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        /* Sparkle effect */
+        .sparkle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 1.5rem;
+            animation: sparkleAnim 0.8s ease forwards;
+            z-index: 999;
+        }
+
+        @keyframes sparkleAnim {
+            0% { opacity: 1; transform: scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+            100% { opacity: 0; transform: scale(0.5) rotate(360deg) translateY(-40px); }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            border-radius: 50%;
+            animation: floatUp 1.5s ease forwards;
+            z-index: 998;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(0.3); }
+        }
+
+        @media (max-width: 500px) {
+            .activity-card {
+                min-height: 80px;
+                padding: 10px 4px 8px;
+                border-radius: 12px;
+            }
+            .activity-card .emoji {
+                font-size: 1.8rem;
+            }
+            .activity-card .name {
+                font-size: 0.7rem;
+            }
+            .summary-row {
+                gap: 8px;
+            }
+            .bubble {
+                font-size: 0.95rem;
+                padding: 10px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>👍 Good At / Bad At 👎</h1>
+   
+
+    <div class="step-indicator" id="stepIndicator">
+        <div class="step-dot active" id="dot1"></div>
+        <div class="step-connector" id="conn1"></div>
+        <div class="step-dot" id="dot2"></div>
+        <div class="step-connector" id="conn2"></div>
+        <div class="step-dot" id="dot3"></div>
+        <div class="step-connector" id="conn3"></div>
+        <div class="step-dot" id="dot4"></div>
+        <div class="step-connector" id="conn4"></div>
+        <div class="step-dot" id="dot5"></div>
+    </div>
+
+    <div class="player-badge player-a" id="playerBadge">🙋‍♂️ Student A</div>
+
+    <div class="instruction" id="instruction">Pick what you are <span class="highlight-good">good at</span>!</div>
+
+    <div class="sentence-preview good-mode" id="sentencePreview">I am good at ___.</div>
+
+    <div class="activity-grid" id="activityGrid"></div>
+
+    <!-- Final Page -->
+    <div class="final-page" id="finalPage">
+        <div class="summary-row" id="summaryRow"></div>
+        <div class="dialogue-container" id="dialogueContainer"></div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="btn-row" id="btnRow">
+        <button class="btn btn-orange hidden" id="btnNext">Next →</button>
+        <button class="btn btn-grey hidden" id="btnReset">↺ Start Over</button>
+    </div>
+
+    <script>
+        // === DATA ===
+        const activities = [
+            { name: "science", emoji: "🔬" },
+            { name: "calligraphy", emoji: "✒️" },
+            { name: "fishing", emoji: "🎣" },
+            { name: "English", emoji: "🇬🇧" },
+            { name: "sailing", emoji: "⛵" },
+            { name: "sports", emoji: "🏃" },
+            { name: "cooking", emoji: "👨‍🍳" },
+            { name: "riding a bike", emoji: "🚴" },
+            { name: "swimming", emoji: "🏊" },
+            { name: "drawing", emoji: "🎨" },
+            { name: "Chinese", emoji: "🇨🇳" },
+            { name: "reading", emoji: "📖" },
+            { name: "math", emoji: "🔢" },
+            { name: "video games", emoji: "🎮" },
+            { name: "eating", emoji: "🍗" },
+            { name: "music", emoji: "🎹" },
+        ];
+
+        // === AUDIO ===
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioCtx();
+        }
+
+        function playTone(freq, duration, type, vol) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type || 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol || 0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playSelectSound() {
+            playTone(520, 0.12, 'sine', 0.2);
+            setTimeout(() => playTone(700, 0.15, 'sine', 0.15), 80);
+        }
+
+        function playGoodSound() {
+            playTone(440, 0.1, 'sine', 0.15);
+            setTimeout(() => playTone(554, 0.1, 'sine', 0.15), 100);
+            setTimeout(() => playTone(659, 0.15, 'sine', 0.18), 200);
+        }
+
+        function playBadSound() {
+            playTone(330, 0.15, 'triangle', 0.12);
+            setTimeout(() => playTone(280, 0.2, 'triangle', 0.1), 120);
+        }
+
+        function playNextSound() {
+            playTone(600, 0.08, 'sine', 0.12);
+            setTimeout(() => playTone(800, 0.08, 'sine', 0.12), 60);
+            setTimeout(() => playTone(1000, 0.12, 'sine', 0.15), 120);
+        }
+
+        function playRevealSound() {
+            playTone(660, 0.08, 'sine', 0.1);
+            setTimeout(() => playTone(880, 0.12, 'sine', 0.12), 70);
+        }
+
+        function playFinishSound() {
+            const notes = [523, 659, 784, 1047];
+            notes.forEach((n, i) => {
+                setTimeout(() => playTone(n, 0.2, 'sine', 0.12), i * 120);
+            });
+        }
+
+        // === EFFECTS ===
+        function spawnSparkles(x, y, count) {
+            const emojis = ['✨', '⭐', '💫', '🌟'];
+            for (let i = 0; i < count; i++) {
+                const spark = document.createElement('div');
+                spark.className = 'sparkle';
+                spark.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                spark.style.left = (x + (Math.random() - 0.5) * 60) + 'px';
+                spark.style.top = (y + (Math.random() - 0.5) * 60) + 'px';
+                spark.style.animationDelay = (Math.random() * 0.2) + 's';
+                document.body.appendChild(spark);
+                setTimeout(() => spark.remove(), 1000);
+            }
+        }
+
+        function spawnParticles(x, y, color) {
+            for (let i = 0; i < 6; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size = 6 + Math.random() * 8;
+                p.style.width = size + 'px';
+                p.style.height = size + 'px';
+                p.style.background = color;
+                p.style.left = (x + (Math.random() - 0.5) * 40) + 'px';
+                p.style.top = (y + (Math.random() - 0.5) * 20) + 'px';
+                p.style.animationDelay = (Math.random() * 0.3) + 's';
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1600);
+            }
+        }
+
+        // === STATE ===
+        let step = 1; // 1: A good, 2: A bad, 3: B good, 4: B bad, 5: dialogue
+        let aGood = null;
+        let aBad = null;
+        let bGood = null;
+        let bBad = null;
+
+        // === ELEMENTS ===
+        const activityGrid = document.getElementById('activityGrid');
+        const instruction = document.getElementById('instruction');
+        const sentencePreview = document.getElementById('sentencePreview');
+        const playerBadge = document.getElementById('playerBadge');
+        const btnNext = document.getElementById('btnNext');
+        const btnReset = document.getElementById('btnReset');
+        const finalPage = document.getElementById('finalPage');
+
+        // === STEP DOTS ===
+        function updateDots(current) {
+            for (let i = 1; i <= 5; i++) {
+                const dot = document.getElementById('dot' + i);
+                dot.classList.remove('active', 'done');
+                if (i < current) dot.classList.add('done');
+                if (i === current) dot.classList.add('active');
+            }
+            for (let i = 1; i <= 4; i++) {
+                const conn = document.getElementById('conn' + i);
+                conn.classList.toggle('done', i < current);
+            }
+        }
+
+        // === BUILD GRID ===
+        function buildGrid() {
+            activityGrid.innerHTML = '';
+            activities.forEach((act, idx) => {
+                const card = document.createElement('div');
+                card.className = 'activity-card';
+                card.dataset.index = idx;
+                card.dataset.name = act.name;
+                card.innerHTML = `
+                    <span class="emoji">${act.emoji}</span>
+                    <span class="name">${act.name}</span>
+                `;
+                card.addEventListener('click', (e) => handleCardClick(card, e));
+                activityGrid.appendChild(card);
+            });
+        }
+
+        function handleCardClick(card, e) {
+            initAudio();
+            const idx = parseInt(card.dataset.index);
+
+            // Don't allow selecting already-selected cards
+            if (card.classList.contains('disabled-card')) return;
+
+            // Deselect others in current step (only one selection)
+            document.querySelectorAll('.activity-card').forEach(c => {
+                if (c !== card) {
+                    if (step === 1 || step === 3) {
+                        c.classList.remove('selected-good');
+                    } else {
+                        c.classList.remove('selected-bad');
+                    }
+                }
+            });
+
+            const rect = card.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+
+            if (step === 1 || step === 3) {
+                card.classList.toggle('selected-good');
+                if (card.classList.contains('selected-good')) {
+                    playGoodSound();
+                    spawnSparkles(cx, cy, 4);
+                    spawnParticles(cx, cy, '#66bb6a');
+                    if (step === 1) aGood = idx;
+                    else bGood = idx;
+                    sentencePreview.textContent = `I am good at ${activities[idx].name}. ${activities[idx].emoji}`;
+                    btnNext.classList.remove('hidden');
+                } else {
+                    if (step === 1) aGood = null;
+                    else bGood = null;
+                    sentencePreview.textContent = 'I am good at ___.';
+                    btnNext.classList.add('hidden');
+                }
+            } else {
+                card.classList.toggle('selected-bad');
+                if (card.classList.contains('selected-bad')) {
+                    playBadSound();
+                    spawnParticles(cx, cy, '#ef5350');
+                    if (step === 2) aBad = idx;
+                    else bBad = idx;
+                    sentencePreview.textContent = `I am bad at ${activities[idx].name}. ${activities[idx].emoji}`;
+                    btnNext.classList.remove('hidden');
+                } else {
+                    if (step === 2) aBad = null;
+                    else bBad = null;
+                    sentencePreview.textContent = 'I am bad at ___.';
+                    btnNext.classList.add('hidden');
+                }
+            }
+        }
+
+        function refreshGrid() {
+            document.querySelectorAll('.activity-card').forEach(c => {
+                c.classList.remove('selected-good', 'selected-bad', 'disabled-card');
+            });
+
+            // Disable previously chosen cards for the same player
+            if (step === 2 && aGood !== null) {
+                const cards = document.querySelectorAll('.activity-card');
+                cards[aGood].classList.add('selected-good', 'disabled-card');
+            }
+            if (step === 4 && bGood !== null) {
+                const cards = document.querySelectorAll('.activity-card');
+                cards[bGood].classList.add('selected-good', 'disabled-card');
+            }
+        }
+
+        // === NAVIGATION ===
+        btnNext.addEventListener('click', () => {
+            initAudio();
+            playNextSound();
+
+            if (step === 1) {
+                step = 2;
+                updateDots(2);
+                playerBadge.className = 'player-badge player-a';
+                playerBadge.innerHTML = '🙋‍♂️ Student A';
+                instruction.innerHTML = 'Pick what you are <span class="highlight-bad">bad at</span>!';
+                sentencePreview.textContent = 'I am bad at ___.';
+                sentencePreview.className = 'sentence-preview bad-mode';
+                btnNext.classList.add('hidden');
+                refreshGrid();
+            } else if (step === 2) {
+                step = 3;
+                updateDots(3);
+                playerBadge.className = 'player-badge player-b';
+                playerBadge.innerHTML = '🙋‍♀️ Student B';
+                instruction.innerHTML = 'Pick what you are <span class="highlight-good">good at</span>!';
+                sentencePreview.textContent = 'I am good at ___.';
+                sentencePreview.className = 'sentence-preview good-mode';
+                btnNext.classList.add('hidden');
+                refreshGrid();
+            } else if (step === 3) {
+                step = 4;
+                updateDots(4);
+                playerBadge.className = 'player-badge player-b';
+                playerBadge.innerHTML = '🙋‍♀️ Student B';
+                instruction.innerHTML = 'Pick what you are <span class="highlight-bad">bad at</span>!';
+                sentencePreview.textContent = 'I am bad at ___.';
+                sentencePreview.className = 'sentence-preview bad-mode';
+                btnNext.classList.add('hidden');
+                refreshGrid();
+            } else if (step === 4) {
+                step = 5;
+                updateDots(5);
+                playFinishSound();
+                showFinalPage();
+            }
+        });
+
+        // === FINAL PAGE ===
+        function showFinalPage() {
+            activityGrid.style.display = 'none';
+            sentencePreview.style.display = 'none';
+            playerBadge.style.display = 'none';
+            instruction.textContent = '🎉 Tap each bubble to reveal the dialogue!';
+            finalPage.classList.add('visible');
+            btnNext.classList.add('hidden');
+            btnReset.classList.remove('hidden');
+
+            buildSummary();
+            buildDialogue();
+        }
+
+        function buildSummary() {
+            const row = document.getElementById('summaryRow');
+            row.innerHTML = '';
+
+            const data = [
+                { label: 'Student A', cls: 'box-a', good: aGood, bad: aBad },
+                { label: 'Student B', cls: 'box-b', good: bGood, bad: bBad },
+            ];
+
+            data.forEach(d => {
+                const box = document.createElement('div');
+                box.className = `summary-box ${d.cls}`;
+                box.innerHTML = `
+                    <div class="box-label">${d.label}</div>
+                    <div class="box-items">
+                        <div class="summary-item good">
+                            <span class="item-emoji">${activities[d.good].emoji}</span>
+                            <span>👍 ${activities[d.good].name}</span>
+                        </div>
+                        <div class="summary-item bad">
+                            <span class="item-emoji">${activities[d.bad].emoji}</span>
+                            <span>👎 ${activities[d.bad].name}</span>
+                        </div>
+                    </div>
+                `;
+                row.appendChild(box);
+            });
+        }
+
+        function buildDialogue() {
+            const container = document.getElementById('dialogueContainer');
+            container.innerHTML = '';
+
+            const lines = [
+                { side: "left", speaker: "Student A", hint: "👍❓", text: `What are you good at?` },
+                { side: "right", speaker: "Student B", hint: "👍💬", text: `I am good at ${activities[bGood].name}. ${activities[bGood].emoji}` },
+                { side: "left", speaker: "Student A", hint: "👎❓", text: `What are you bad at?` },
+                { side: "right", speaker: "Student B", hint: "👎💬", text: `I am bad at ${activities[bBad].name}. ${activities[bBad].emoji}` },
+                { side: "right", speaker: "Student B", hint: "👍❓", text: `What are you good at?` },
+                { side: "left", speaker: "Student A", hint: "👍💬", text: `I am good at ${activities[aGood].name}. ${activities[aGood].emoji}` },
+                { side: "right", speaker: "Student B", hint: "👎❓", text: `What are you bad at?` },
+                { side: "left", speaker: "Student A", hint: "👎💬", text: `I am bad at ${activities[aBad].name}. ${activities[aBad].emoji}` },
+            ];
+
+            lines.forEach((line, i) => {
+                const row = document.createElement('div');
+                row.className = `dialogue-row ${line.side}`;
+                row.style.animationDelay = (i * 0.1) + 's';
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'bubble-wrapper';
+
+                const label = document.createElement('div');
+                label.className = 'bubble-label';
+                label.textContent = line.speaker;
+
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.innerHTML = `<span class="tap-hint">${line.hint}</span><span class="hidden-text">${line.text}</span>`;
+
+                bubble.addEventListener('click', (e) => {
+                    initAudio();
+                    if (!bubble.classList.contains('revealed')) {
+                        bubble.classList.add('revealed');
+                        playRevealSound();
+                        const rect = bubble.getBoundingClientRect();
+                        spawnSparkles(rect.left + rect.width / 2, rect.top + rect.height / 2, 3);
+                    } else {
+                        bubble.classList.remove('revealed');
+                    }
+                });
+
+                wrapper.appendChild(label);
+                wrapper.appendChild(bubble);
+                row.appendChild(wrapper);
+                container.appendChild(row);
+            });
+        }
+
+        // === RESET ===
+        btnReset.addEventListener('click', () => {
+            initAudio();
+            playTone(400, 0.1, 'sine', 0.1);
+
+            step = 1;
+            aGood = null;
+            aBad = null;
+            bGood = null;
+            bBad = null;
+
+            updateDots(1);
+            instruction.innerHTML = 'Pick what you are <span class="highlight-good">good at</span>!';
+            sentencePreview.textContent = 'I am good at ___.';
+            sentencePreview.className = 'sentence-preview good-mode';
+            sentencePreview.style.display = 'flex';
+            activityGrid.style.display = 'grid';
+            playerBadge.style.display = 'inline-flex';
+            playerBadge.className = 'player-badge player-a';
+            playerBadge.innerHTML = '🙋‍♂️ Student A';
+            finalPage.classList.remove('visible');
+            btnNext.classList.add('hidden');
+            btnReset.classList.add('hidden');
+
+            buildGrid();
+        });
+
+        // === INIT ===
+        buildGrid();
+        updateDots(1);
+    </script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

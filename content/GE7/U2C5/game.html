@@ -1,0 +1,838 @@
+<!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's Your Job? - Dialogue Practice</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 26px;
+            margin-bottom: 4px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .main-layout {
+            display: flex;
+            align-items: stretch;
+            gap: 12px;
+            width: 100%;
+            max-width: 700px;
+            justify-content: center;
+        }
+
+        .student-side-label {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px;
+            min-width: 70px;
+        }
+
+        .student-side-label.visible {
+            display: flex;
+        }
+
+        .student-side-label .side-emoji {
+            font-size: 48px;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+            animation: popIn 0.4s ease;
+        }
+
+        .student-side-label .side-name {
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            letter-spacing: 1px;
+        }
+
+        .student-side-label.active-turn .side-emoji {
+            animation: bounce 0.6s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-6px); }
+        }
+
+        .phone-frame {
+            width: 100%;
+            max-width: 460px;
+            background: #e5e5ea;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            min-height: 520px;
+        }
+
+        .chat-header {
+            background: #f8f8f8;
+            border-bottom: 1px solid #ddd;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chat-header-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .chat-area {
+            flex: 1;
+            padding: 12px 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: #e5e5ea;
+        }
+
+        .bubble {
+            max-width: 78%;
+            padding: 9px 14px;
+            border-radius: 18px;
+            font-size: 16px;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+            position: relative;
+            line-height: 1.3;
+        }
+
+        .bubble-left {
+            align-self: flex-start;
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+        }
+
+        .bubble-right {
+            align-self: flex-end;
+            background: #34c759;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bubble .speaker-tag {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+            opacity: 0.6;
+        }
+
+        .bubble-left .speaker-tag { color: #888; }
+        .bubble-right .speaker-tag { color: rgba(255,255,255,0.7); }
+
+        .consecutive-gap {
+            margin-top: -2px;
+        }
+
+        .group-gap {
+            margin-top: 10px;
+        }
+
+        .action-area {
+            background: #f8f8f8;
+            border-top: 1px solid #ddd;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            min-height: 100px;
+            justify-content: center;
+        }
+
+        .slot-section {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .slot-machine {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 14px;
+            padding: 12px 16px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 3px solid #ffd700;
+            flex: 1;
+            max-width: 160px;
+        }
+
+        .slot-label {
+            color: #ffd700;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .slot-window {
+            background: white;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 40px;
+            margin: 6px 0;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .slot-window.spinning {
+            animation: shake 0.1s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateY(-1px); }
+            50% { transform: translateY(1px); }
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+
+        .btn:active { transform: translateY(0); }
+
+        .btn-spin {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #5c3d00;
+            font-size: 16px;
+            padding: 10px 24px;
+        }
+
+        .btn-spin:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-action {
+            padding: 14px 32px;
+            font-size: 17px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .btn-a {
+            background: linear-gradient(135deg, #a8e063, #56ab2f);
+            color: #1a4a0a;
+        }
+
+        .btn-b {
+            background: linear-gradient(135deg, #89f7fe, #4facfe);
+            color: #0a3a6b;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+            50% { box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
+        }
+
+        .btn-action:hover { animation: none; }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+            color: #4a1a6b;
+            margin-top: 12px;
+            padding: 12px 32px;
+        }
+
+        .turn-label {
+            font-size: 13px;
+            color: #888;
+            font-weight: 600;
+        }
+
+        .emoji-hint {
+            font-size: 28px;
+            margin-top: 2px;
+            animation: popIn 0.3s ease;
+        }
+
+        .complete-banner {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            color: #1a5c3a;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            animation: popIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .confetti {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            top: -20px;
+            font-size: 24px;
+            animation: fall 2s ease-in forwards;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        .sound-toggle {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        @media (max-width: 700px) {
+            .main-layout {
+                flex-direction: column;
+                align-items: center;
+            }
+            .student-side-label {
+                flex-direction: row;
+                writing-mode: horizontal-tb;
+                min-width: unset;
+                width: 100%;
+                max-width: 460px;
+                justify-content: center;
+            }
+            .student-side-label .side-name {
+                writing-mode: horizontal-tb;
+                font-size: 14px;
+            }
+            .student-side-label .side-emoji {
+                font-size: 36px;
+            }
+            .student-sides-row {
+                display: flex;
+                gap: 20px;
+                justify-content: center;
+                width: 100%;
+                max-width: 460px;
+            }
+        }
+
+        @media (min-width: 701px) {
+            .student-sides-row {
+                display: contents;
+            }
+        }
+
+        @media (max-width: 550px) {
+            .phone-frame { border-radius: 20px; min-height: 450px; }
+            h1 { font-size: 22px; }
+            .bubble { font-size: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</button>
+    <h1>💼 What's Your Job?</h1>
+    <div class="subtitle" id="subtitle">Roll to get your jobs!</div>
+
+    <div class="main-layout" id="mainLayout">
+        <div class="student-sides-row">
+            <div class="student-side-label" id="sideA">
+                <div class="side-emoji" id="sideAEmoji"></div>
+                <div class="side-name">Student A</div>
+            </div>
+        </div>
+
+        <div class="phone-frame">
+            <div class="chat-header">
+                <div class="chat-header-title">💬 Dialogue</div>
+            </div>
+            <div class="chat-area" id="chatArea"></div>
+            <div class="action-area" id="actionArea"></div>
+        </div>
+
+        <div class="student-sides-row">
+            <div class="student-side-label" id="sideB">
+                <div class="side-emoji" id="sideBEmoji"></div>
+                <div class="side-name">Student B</div>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn btn-reset" id="resetBtn" style="display:none;" onclick="resetGame()">🔄 New Dialogue</button>
+
+    <script>
+        const jobs = [
+            { emoji: '👨‍🍳', name: 'cook', actionEmoji: '🍳🥘', action: 'cook food' },
+            { emoji: '👮', name: 'police officer', actionEmoji: '🚔🛡️', action: 'help people' },
+            { emoji: '✍️', name: 'writer', actionEmoji: '📝📖', action: 'write books' },
+            { emoji: '👨‍⚕️', name: 'doctor', actionEmoji: '💊🩺', action: 'help sick people' },
+            { emoji: '👩‍🏫', name: 'teacher', actionEmoji: '📚✏️', action: 'teach children' },
+            { emoji: '👨‍🚒', name: 'firefighter', actionEmoji: '🔥🚒', action: 'stop fires' },
+            { emoji: '👨‍✈️', name: 'pilot', actionEmoji: '✈️☁️', action: 'fly a plane' },
+            { emoji: '🚌', name: 'bus driver', actionEmoji: '🚌🛣️', action: 'drive a bus' },
+            { emoji: '🎤', name: 'singer', actionEmoji: '🎤🎵', action: 'sing songs' },
+            { emoji: '🎭', name: 'actor', actionEmoji: '🎬⭐', action: 'act in movies' },
+            { emoji: '🧁', name: 'baker', actionEmoji: '🎂🍞', action: 'bake cakes' }
+        ];
+
+        let currentStep = 0;
+        let leftJob = null;
+        let rightJob = null;
+        let soundEnabled = true;
+        let lastBubbleSide = null;
+
+        let audioCtx = null;
+        function getAudioCtx() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            return audioCtx;
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? '🔊' : '🔇';
+        }
+
+        function playTick() {
+            if (!soundEnabled) return;
+            const ctx = getAudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.frequency.value = 800 + Math.random() * 400;
+            osc.type = 'square';
+            gain.gain.setValueAtTime(0.06, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+            osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.04);
+        }
+
+        function playFanfare() {
+            if (!soundEnabled) return;
+            const ctx = getAudioCtx();
+            [523, 659, 784, 1047].forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.frequency.value = freq; osc.type = 'triangle';
+                const t = ctx.currentTime + i * 0.12;
+                gain.gain.setValueAtTime(0.12, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+                osc.start(t); osc.stop(t + 0.3);
+            });
+        }
+
+        function playPop() {
+            if (!soundEnabled) return;
+            const ctx = getAudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.frequency.setValueAtTime(500, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.08);
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.15, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+            osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.12);
+        }
+
+        function getArticle(word) {
+            return /^[aeiou]/i.test(word) ? 'an' : 'a';
+        }
+
+        function addBubble(side, text, speaker) {
+            const area = document.getElementById('chatArea');
+            const bubble = document.createElement('div');
+            const sideClass = side === 'left' ? 'bubble-left' : 'bubble-right';
+            const gapClass = (lastBubbleSide === side) ? 'consecutive-gap' : 'group-gap';
+            bubble.className = `bubble ${sideClass} ${gapClass}`;
+
+            const showTag = (lastBubbleSide !== side);
+            bubble.innerHTML = `${showTag ? `<div class="speaker-tag">${speaker}</div>` : ''}
+                <div>${text}</div>`;
+            area.appendChild(bubble);
+            area.scrollTop = area.scrollHeight;
+            lastBubbleSide = side;
+            playPop();
+        }
+
+        function showConfetti() {
+            const div = document.createElement('div');
+            div.className = 'confetti';
+            const pieces = ['🎉','⭐','✨','🌟','🎊','💫'];
+            for (let i = 0; i < 20; i++) {
+                const p = document.createElement('div');
+                p.className = 'confetti-piece';
+                p.textContent = pieces[Math.floor(Math.random() * pieces.length)];
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDelay = Math.random() * 0.8 + 's';
+                p.style.animationDuration = (1.5 + Math.random()) + 's';
+                div.appendChild(p);
+            }
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        function spinSlot(slotWindow, finalJob, callback) {
+            slotWindow.classList.add('spinning');
+            const totalSpins = 16 + Math.floor(Math.random() * 6);
+            let step = 0;
+
+            function doSpin() {
+                if (step >= totalSpins) {
+                    slotWindow.classList.remove('spinning');
+                    slotWindow.textContent = finalJob.emoji;
+                    slotWindow.style.fontSize = '44px';
+                    playFanfare();
+                    showConfetti();
+                    setTimeout(callback, 800);
+                    return;
+                }
+                slotWindow.textContent = jobs[Math.floor(Math.random() * jobs.length)].emoji;
+                playTick();
+                step++;
+                let delay = 60;
+                if (step > totalSpins - 5) delay = 60 + (step - (totalSpins - 5)) * 90;
+                setTimeout(doSpin, delay);
+            }
+            setTimeout(doSpin, 150);
+        }
+
+        function setActiveTurn(who) {
+            document.getElementById('sideA').classList.toggle('active-turn', who === 'a');
+            document.getElementById('sideB').classList.toggle('active-turn', who === 'b');
+        }
+
+        function renderStep() {
+            const actionArea = document.getElementById('actionArea');
+            const resetBtn = document.getElementById('resetBtn');
+            const subtitle = document.getElementById('subtitle');
+            actionArea.innerHTML = '';
+            resetBtn.style.display = 'none';
+
+            switch(currentStep) {
+                case 0:
+                    subtitle.textContent = '🎰 Roll for your jobs!';
+                    setActiveTurn(null);
+                    actionArea.innerHTML = `
+                        <div class="slot-section">
+                            <div class="slot-machine">
+                                <div class="slot-label">🟢 Student A</div>
+                                <div class="slot-window" id="slotA">❓</div>
+                            </div>
+                            <div class="slot-machine">
+                                <div class="slot-label">🔵 Student B</div>
+                                <div class="slot-window" id="slotB">❓</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-spin" id="spinBtn" onclick="rollJobs()">🎲 ROLL JOBS!</button>`;
+                    break;
+
+                case 1:
+                    subtitle.textContent = '① Student B: Ask!';
+                    setActiveTurn('b');
+                    actionArea.innerHTML = `
+                        <div class="turn-label">🔵 Student B's turn</div>
+                        <button class="btn btn-action btn-b" onclick="doStep1()">🗣️ Speak</button>
+                        <div class="emoji-hint">🤔❓💼</div>`;
+                    break;
+
+                case 2:
+                    subtitle.textContent = '② Student A: Answer!';
+                    setActiveTurn('a');
+                    actionArea.innerHTML = `
+                        <div class="turn-label">🟢 Student A's turn</div>
+                        <button class="btn btn-action btn-a" onclick="doStep2()">💬 Answer</button>
+                        <div class="emoji-hint">👈 ${leftJob.emoji}</div>`;
+                    break;
+
+                case 3:
+                    subtitle.textContent = '③ Student A: Ask!';
+                    setActiveTurn('a');
+                    actionArea.innerHTML = `
+                        <div class="turn-label">🟢 Student A's turn</div>
+                        <button class="btn btn-action btn-a" onclick="doStep3()">🗣️ Speak</button>
+                        <div class="emoji-hint">🤔❓💼</div>`;
+                    break;
+
+                case 4:
+                    subtitle.textContent = '④ Student B: Answer!';
+                    setActiveTurn('b');
+                    actionArea.innerHTML = `
+                        <div class="turn-label">🔵 Student B's turn</div>
+                        <button class="btn btn-action btn-b" onclick="doStep4()">💬 Answer</button>
+                        <div class="emoji-hint">👈 ${rightJob.emoji}</div>`;
+                    break;
+
+                case 5:
+                    subtitle.textContent = '⑤ Student B: Ask!';
+                    setActiveTurn('b');
+                    actionArea.innerHTML = `
+                        <div class="turn-label">🔵 Student B's turn</div>
+                        <button class="btn btn-action btn-b" onclick="doStep5()">🗣️ Speak</button>
+                        <div class="emoji-hint">🤔❓💪</div>`;
+                    break;
+
+                case 6:
+                    subtitle.textContent = '⑥ Student A: Answer!';
+                    setActiveTurn('a');
+                    actionArea.innerHTML = `
+                        <div class="turn-label">🟢 Student A's turn</div>
+                        <button class="btn btn-action btn-a" onclick="doStep6()">💬 Answer</button>
+                        <div class="emoji-hint">${leftJob.actionEmoji}</div>`;
+                    break;
+
+                case 7:
+                    subtitle.textContent = '⑦ Student A: Ask!';
+                    setActiveTurn('a');
+                    actionArea.innerHTML = `
+                        <div class="turn-label">🟢 Student A's turn</div>
+                        <button class="btn btn-action btn-a" onclick="doStep7()">🗣️ Speak</button>
+                        <div class="emoji-hint">🤔❓💪</div>`;
+                    break;
+
+                case 8:
+                    subtitle.textContent = '⑧ Student B: Answer!';
+                    setActiveTurn('b');
+                    actionArea.innerHTML = `
+                        <div class="turn-label">🔵 Student B's turn</div>
+                        <button class="btn btn-action btn-b" onclick="doStep8()">💬 Answer</button>
+                        <div class="emoji-hint">${rightJob.actionEmoji}</div>`;
+                    break;
+
+                case 9:
+                    subtitle.textContent = '✅ Dialogue Complete!';
+                    setActiveTurn(null);
+                    actionArea.innerHTML = `<div class="complete-banner">🎉 Great job! 🎉</div>`;
+                    resetBtn.style.display = 'block';
+                    showConfetti();
+                    playFanfare();
+                    break;
+            }
+        }
+
+        function rollJobs() {
+            const spinBtn = document.getElementById('spinBtn');
+            spinBtn.disabled = true;
+
+            leftJob = jobs[Math.floor(Math.random() * jobs.length)];
+            const filtered = jobs.filter(j => j !== leftJob);
+            rightJob = filtered[Math.floor(Math.random() * filtered.length)];
+
+            const slotA = document.getElementById('slotA');
+            const slotB = document.getElementById('slotB');
+
+            spinSlot(slotA, leftJob, () => {
+                document.getElementById('sideAEmoji').textContent = leftJob.emoji;
+                document.getElementById('sideA').classList.add('visible');
+
+                spinSlot(slotB, rightJob, () => {
+                    document.getElementById('sideBEmoji').textContent = rightJob.emoji;
+                    document.getElementById('sideB').classList.add('visible');
+
+                    currentStep = 1;
+                    renderStep();
+                });
+            });
+        }
+
+        function doStep1() {
+            addBubble('right', 'What is your job? 🤔', 'Student B 🔵');
+            currentStep = 2;
+            renderStep();
+        }
+
+        function doStep2() {
+            addBubble('left', `I'm ${getArticle(leftJob.name)} ${leftJob.name}. ${leftJob.emoji}`, 'Student A 🟢');
+            currentStep = 3;
+            renderStep();
+        }
+
+        function doStep3() {
+            addBubble('left', 'What is your job? 🤔', 'Student A 🟢');
+            currentStep = 4;
+            renderStep();
+        }
+
+        function doStep4() {
+            addBubble('right', `I'm ${getArticle(rightJob.name)} ${rightJob.name}. ${rightJob.emoji}`, 'Student B 🔵');
+            currentStep = 5;
+            renderStep();
+        }
+
+        function doStep5() {
+            addBubble('right', 'What can you do? 💪', 'Student B 🔵');
+            currentStep = 6;
+            renderStep();
+        }
+
+        function doStep6() {
+            addBubble('left', `I can ${leftJob.action}. ${leftJob.actionEmoji}`, 'Student A 🟢');
+            currentStep = 7;
+            renderStep();
+        }
+
+        function doStep7() {
+            addBubble('left', 'What can you do? 💪', 'Student A 🟢');
+            currentStep = 8;
+            renderStep();
+        }
+
+        function doStep8() {
+            addBubble('right', `I can ${rightJob.action}. ${rightJob.actionEmoji}`, 'Student B 🔵');
+            currentStep = 9;
+            renderStep();
+        }
+
+        function resetGame() {
+            currentStep = 0;
+            leftJob = null;
+            rightJob = null;
+            lastBubbleSide = null;
+            document.getElementById('chatArea').innerHTML = '';
+            document.getElementById('sideA').classList.remove('visible', 'active-turn');
+            document.getElementById('sideB').classList.remove('visible', 'active-turn');
+            renderStep();
+        }
+
+        renderStep();
+    </script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

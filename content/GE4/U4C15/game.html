@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veggie Market — a/some (GE4 U4C15)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  color:#fff;padding:10px 12px 30px;overflow-x:hidden;
+  background:linear-gradient(135deg,#14532d,#166534 55%,#052e16);
+}
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+.topbar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:900px;margin-bottom:6px;gap:8px;flex-wrap:wrap}
+h1{font-size:clamp(1.1em,3.4vw,1.8em);text-shadow:2px 2px 8px rgba(0,0,0,.3)}
+.togs{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.rc{background:rgba(255,255,255,.22);padding:4px 14px;border-radius:20px;font-size:.85em;font-weight:700;white-space:nowrap}
+.tg{
+  background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.35);
+  border-radius:20px;padding:4px 12px;font-size:.92em;font-weight:900;cursor:pointer;
+  user-select:none;color:rgba(255,255,255,.55);transition:all .2s;white-space:nowrap;
+}
+.tg.on{color:#fff;border-color:#2ed573;background:rgba(46,213,115,.25);box-shadow:0 0 14px rgba(46,213,115,.45)}
+.tg:hover{transform:scale(1.05)}
+
+.stage{
+  width:100%;max-width:900px;position:relative;overflow:hidden;
+  background:linear-gradient(180deg,#2f3542,#1e272e);
+  border:3px solid #7bed9f;border-radius:24px;
+  padding:14px 14px 34px;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+}
+.awning{height:26px;margin:-14px -14px 12px;
+  background:repeating-linear-gradient(90deg,#ff6b6b 0 34px,#ffecec 34px 68px);
+  border-bottom:3px solid rgba(0,0,0,.2)}
+.counter{position:absolute;left:0;right:0;bottom:0;height:22px;
+  background:linear-gradient(180deg,#a06a3c,#7d4e28);
+  border-top:3px solid #5f3a1c}
+.counter::after{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,rgba(0,0,0,.16) 0 3px,transparent 3px 62px)}
+
+.banner{
+  width:100%;max-width:680px;margin:0 auto 8px;min-height:64px;
+  background:rgba(255,255,255,.1);border:2px dashed rgba(255,255,255,.35);
+  border-radius:18px;padding:10px 16px;text-align:center;
+  display:flex;flex-direction:column;justify-content:center;gap:4px;
+  font-size:clamp(.95em,2.4vw,1.45em);font-weight:900;line-height:1.35;transition:.35s;
+}
+.banner.solid{border-style:solid;border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.16)}
+.banner .row{animation:fadeUp .35s ease-out;line-height:1.5}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.banner.bigquestion{font-size:clamp(1.3em,4vw,2.1em);border-color:#7bed9f;background:rgba(123,237,159,.14)}
+
+.prompt{
+  text-align:center;font-size:clamp(.85em,2.2vw,1.05em);font-weight:700;
+  color:rgba(255,255,255,.92);margin:0 0 8px;min-height:1.7em;
+  text-shadow:1px 1px 4px rgba(0,0,0,.2);
+}
+
+.mainbtn{
+  display:block;margin:2px auto 8px;
+  padding:13px 40px;font-size:clamp(1em,2.6vw,1.2em);font-weight:900;
+  background:linear-gradient(135deg,#7bed9f,#2ed573);color:#052e16;
+  border:none;border-radius:50px;cursor:pointer;font-family:'Nunito',sans-serif;
+  box-shadow:0 8px 26px rgba(46,213,115,.4);transition:all .25s;
+  animation:glow 2s ease-in-out infinite;
+}
+.mainbtn:hover{transform:scale(1.06)}
+.mainbtn:active{transform:scale(.97)}
+.mainbtn.hide{display:none}
+.mainbtn.orange{background:linear-gradient(135deg,#f9ca24,#f0932b);color:#3d2c00;box-shadow:0 8px 26px rgba(249,202,36,.4)}
+@keyframes glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
+
+/* ---------- wooden stall card ---------- */
+.cardwrap{display:flex;justify-content:center;margin:4px auto 8px;min-height:200px;align-items:center}
+.card{
+  background:linear-gradient(180deg,#c08a52,#a06a3c 55%,#8a5527);
+  border-radius:18px;padding:10px 12px 8px;
+  transform:rotate(-2deg);
+  box-shadow:0 14px 34px rgba(0,0,0,.45);
+  transition:opacity .4s, transform .4s;
+  position:relative;
+}
+.card::before{content:'';position:absolute;inset:0;border-radius:18px;
+  background:repeating-linear-gradient(90deg,rgba(0,0,0,.13) 0 3px,transparent 3px 52px);
+  pointer-events:none}
+.card.sway{animation:a-sway 2.6s ease-in-out infinite}
+@keyframes a-sway{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(1deg) translateY(-7px)}}
+.vegbox{width:clamp(150px,28vw,220px);height:clamp(150px,28vw,220px);position:relative;display:block}
+.vegbox img{position:absolute;filter:drop-shadow(0 5px 8px rgba(0,0,0,.3));
+  animation:popInS .4s cubic-bezier(.34,1.56,.64,1)}
+.card .tape{position:absolute;top:-12px;left:50%;transform:translateX(-50%) rotate(-4deg);
+  width:74px;height:22px;background:rgba(46,213,115,.85);border-radius:3px;box-shadow:0 2px 5px rgba(0,0,0,.2);z-index:2}
+.card .taste{position:absolute;right:-16px;bottom:-14px;font-size:clamp(2.2em,7vw,3.2em);
+  transform:rotate(8deg);animation:popInS .4s cubic-bezier(.34,1.56,.64,1);text-shadow:0 4px 10px rgba(0,0,0,.35);z-index:2}
+.card.done{opacity:.35;transform:rotate(-2deg) scale(.92)}
+
+/* ---------- the two choice boxes (BRICKS, not sentences) ---------- */
+.boxes{display:flex;justify-content:center;align-items:stretch;gap:14px;width:100%;max-width:720px;margin:0 auto}
+.box{
+  flex:1;border-radius:20px;padding:10px 8px 12px;text-align:center;
+  border:4px solid;user-select:none;position:relative;
+  display:flex;flex-direction:column;align-items:center;gap:6px;min-height:170px;
+  transition:transform .15s,box-shadow .2s;
+}
+.box.tappable{cursor:pointer}
+.box.tappable:hover{transform:scale(1.02)}
+.box.a{background:rgba(0,216,255,.12);border-color:#00d8d8;color:#e0feff}
+.box.b{background:rgba(255,159,67,.12);border-color:#ff9f43;color:#fff4e0}
+.box .word{
+  font-weight:900;font-size:clamp(1.5em,5vw,2.5em);line-height:1.15;letter-spacing:.5px;
+  min-height:2.4em;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+  text-shadow:1px 2px 6px rgba(0,0,0,.35);padding:0 4px;
+}
+.box .word .hl{background:rgba(249,202,36,.4);border-radius:8px;padding:0 7px}
+.box .face{font-size:clamp(2.6em,8vw,4em);line-height:1.15;animation:popInS .45s cubic-bezier(.34,1.56,.64,1)}
+.box .face .fw{font-size:.42em;display:block;font-weight:900;letter-spacing:1px}
+.box .slot{flex:1;display:flex;align-items:flex-end;justify-content:center;min-height:76px;width:100%}
+.box .slot img{width:clamp(56px,10vw,84px);filter:drop-shadow(0 6px 10px rgba(0,0,0,.4));animation:popInS .45s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popInS{0%{transform:scale(0)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
+.box .slot .q{font-size:clamp(1.4em,4vw,2em);opacity:.55;font-weight:900}
+.box.ready{box-shadow:0 0 0 4px rgba(255,255,255,.22),0 0 30px rgba(123,237,159,.35)}
+.box.won{box-shadow:0 0 0 4px rgba(46,213,115,.4),0 0 38px rgba(46,213,115,.5)}
+@keyframes wrongShake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-12px)}20%,40%,60%,80%{transform:translateX(12px)}}
+.box.nope{animation:wrongShake .5s ease}
+.box.hover{transform:scale(1.06);box-shadow:0 0 0 5px rgba(255,255,255,.35),0 0 40px rgba(123,237,159,.55)}
+
+/* physical pile: objects drop into the won box one by one */
+.slot.pile{position:relative}
+.slot.pile img{position:absolute;width:56px;bottom:6px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.4));--r:0deg;transform:rotate(var(--r));animation:dropBounce .55s ease-out}
+@keyframes dropBounce{0%{transform:rotate(var(--r)) translateY(-70px) scale(1.15)}55%{transform:rotate(var(--r)) translateY(2px) scale(1)}75%{transform:rotate(var(--r)) translateY(-14px)}100%{transform:rotate(var(--r)) translateY(0)}}
+.slot.pile img.rattle{animation:rattle .45s ease}
+@keyframes rattle{0%,100%{transform:rotate(var(--r)) translateY(0)}20%{transform:rotate(calc(var(--r) - 16deg)) translateY(-3px)}40%{transform:rotate(calc(var(--r) + 13deg))}60%{transform:rotate(calc(var(--r) - 9deg)) translateY(-2px)}80%{transform:rotate(calc(var(--r) + 6deg))}}
+
+/* drag & drop: an object can be dragged into a box (tap still works) */
+.dragclone{position:fixed;z-index:1500;pointer-events:none;width:110px;transform:rotate(-7deg) scale(1.06);filter:drop-shadow(0 12px 16px rgba(0,0,0,.45))}
+.vegbox img{touch-action:none;cursor:grab}
+.vegbox img:active{cursor:grabbing}
+
+/* flying picture clone */
+.flyer{position:fixed;z-index:998;pointer-events:none;width:clamp(80px,16vw,130px);transition:all .45s ease-in;transform:translate(-50%,-50%)}
+
+.popup{position:fixed;top:34%;left:50%;transform:translate(-50%,-50%) scale(0);font-size:clamp(1.8em,7vw,3.6em);font-weight:900;z-index:1000;pointer-events:none;text-shadow:3px 3px 12px rgba(0,0,0,.4);opacity:0;white-space:nowrap}
+.popup.show{animation:popInBig 1.2s ease forwards}
+@keyframes popInBig{0%{transform:translate(-50%,-50%) scale(0);opacity:0}20%{transform:translate(-50%,-50%) scale(1.3);opacity:1}40%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+
+.startov{
+  position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;gap:14px;
+  align-items:center;justify-content:center;cursor:pointer;
+  background:linear-gradient(135deg,#14532d,#166534 55%,#052e16);color:#fff;
+  font-weight:900;text-align:center;padding:20px;
+}
+.startov .t{font-size:clamp(1.6em,6vw,3em);text-shadow:2px 2px 10px rgba(0,0,0,.3)}
+.startov .s{font-size:clamp(1em,3vw,1.4em);opacity:.9}
+
+@media(max-width:560px){
+  .boxes{gap:8px}
+  .box{min-height:150px;border-width:3px;padding:8px 4px 10px}
+  .cardwrap{min-height:160px}
+}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<div class="startov" id="startOv">
+  <div class="t">🥕 Veggie Market 🍅</div>
+  <div class="s">👆 Tap anywhere to start!</div>
+</div>
+
+<div class="topbar">
+  <h1>🥕 Veggie Market</h1>
+  <div class="togs">
+    <div class="rc" id="rc">Veggie 1 / 12</div>
+    <div class="tg" id="tgReview" title="Review mode: the same vegetables with the U4C14 like-structure (What vegetable do you like? — I like… / I don't like…!)">🔁 review</div>
+    <div class="tg on" id="tgS" title="Sound on/off">🔊</div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="awning"></div>
+  <div class="banner" id="banner"></div>
+  <div class="prompt" id="prompt">…</div>
+  <button class="mainbtn" id="mainBtn">…</button>
+
+  <div class="cardwrap">
+    <div class="card sway" id="card">
+      <div class="tape"></div>
+      <div class="vegbox" id="vegbox"></div>
+    </div>
+  </div>
+
+  <div class="boxes">
+    <div class="box a" id="boxA">
+      <div class="word" id="wordA"></div>
+      <div class="slot" id="slotA"><span class="q">👆</span></div>
+    </div>
+    <div class="box b" id="boxB">
+      <div class="word" id="wordB"></div>
+      <div class="slot" id="slotB"><span class="q">👆</span></div>
+    </div>
+  </div>
+  <div class="counter"></div>
+</div>
+
+<div class="popup" id="popup"></div>
+
+<script>
+/* ================================================================
+   BRICKS, NOT SENTENCES (the house rule):
+   the boxes give "a carrot" / "some carrots" — never the full
+   sentence. The kids assemble "I have some carrots!" themselves;
+   the full sentence appears ONLY in the reveal dialogue (last
+   resort for the weakest students).
+
+   TWO MODES (toggle 🔁 review up top):
+   - main: 12 rounds — each vegetable once alone (=> "a …") and once
+     as 2–10 runtime copies of the same picture (=> "some …s").
+     The choice is A vs SOME + plural — the noun is a given.
+   - review: the SAME vegetables, old structure from U4C14:
+     "What vegetable do you like?" — boxes are 😋/🤢, the kid's
+     own taste makes "I like carrots!" / "I don't like carrots!"
+
+   Round order is random every game — no shuffle button.
+   ================================================================ */
+const VEG=[
+  {id:'carrot',   s:'carrot',    p:'carrots'},
+  {id:'cabbage',  s:'cabbage',   p:'cabbages'},
+  {id:'bean',     s:'bean',      p:'beans'},
+  {id:'cucumber', s:'cucumber',  p:'cucumbers'},
+  {id:'potato',   s:'potato',    p:'potatoes'},
+  {id:'tomato',   s:'tomato',    p:'tomatoes'}
+];
+const VEG_ROUNDS=VEG.flatMap(v=>[{veg:v,many:false},{veg:v,many:true}]);
+VEG.forEach(v=>{const i=new Image();i.src='assets/'+v.id+'.webp'});   // preload (tiny!)
+
+const qp=new URLSearchParams(location.search);
+const DBG_PIC=qp.get('pic');        // debug: force this vegetable id
+const DBG_PHASE=qp.get('phase');    // debug: 'question' | 'ask' | 'dialogue'
+
+/* ============ AUDIO (synth effects only — no voice) ============ */
+let AC,soundOn=true;
+function initAudio(){if(!soundOn)return;if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}
+function tone(f,type,dur,vol=.25,del=0){
+  if(!AC||!soundOn)return;const o=AC.createOscillator(),g=AC.createGain();
+  o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(vol,AC.currentTime+del);
+  g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+del+dur);
+  o.connect(g);g.connect(AC.destination);
+  o.start(AC.currentTime+del);o.stop(AC.currentTime+del+dur);
+}
+function sndCheer(){
+  initAudio();if(!AC)return;
+  const dur=.9,sr=AC.sampleRate,buf=AC.createBuffer(1,sr*dur,sr),d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.6);
+  const src=AC.createBufferSource();src.buffer=buf;
+  const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=900;bp.Q.value=.8;
+  const g=AC.createGain();g.gain.setValueAtTime(.5,AC.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+dur);
+  src.connect(bp);bp.connect(g);g.connect(AC.destination);src.start();
+  for(let i=0;i<5;i++)tone(500+Math.random()*500,'sine',.18,.1,Math.random()*.5);
+}
+function sndCorrect(){initAudio();tone(523,'sine',.18,.22,0);tone(659,'sine',.18,.22,.09);tone(784,'sine',.25,.28,.18);tone(1047,'sine',.35,.18,.3)}
+function sndWrong(){initAudio();tone(160,'square',.3,.16);tone(120,'sawtooth',.22,.1,.1)}
+function sndReveal(){initAudio();tone(660,'triangle',.12,.15,0);tone(880,'triangle',.14,.15,.08);tone(1100,'triangle',.2,.18,.16)}
+function sndPop(){initAudio();tone(700,'sine',.07,.16);tone(1050,'sine',.08,.14,.05)}
+function sndNext(){initAudio();
+  const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';
+  o.frequency.setValueAtTime(350,AC.currentTime);o.frequency.exponentialRampToValueAtTime(900,AC.currentTime+.12);
+  g.gain.setValueAtTime(.1,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.18);
+  o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.18);
+}
+function sndFanfare(){initAudio();[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,'triangle',.18,.2,i*.12))}
+function sndRattle(){initAudio();for(let i=0;i<4;i++)tone(320-i*45+Math.random()*70,'square',.05,.07,i*.06)}
+
+/* ============ CONFETTI ============ */
+const cvs=document.getElementById('confetti'),cx=cvs.getContext('2d');
+let pts=[],afr=null;
+function rCvs(){cvs.width=innerWidth;cvs.height=innerHeight}
+addEventListener('resize',rCvs);rCvs();
+function boom(x,y,n=120){
+  for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=Math.random()*14+4;
+    pts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-5,
+      col:['#ffe66d','#ff6b6b','#4ecdc4','#45b7d1','#f9ca24','#ff9ff3','#2ed573','#00d2d3','#ff6348','#7bed9f'][~~(Math.random()*10)],
+      sz:Math.random()*7+3,life:1,rot:Math.random()*360,rs:(Math.random()-.5)*15,
+      sh:Math.random()>.4?'r':'c'});}
+  if(!afr)aLoop();
+}
+function fireworks(){
+  boom(innerWidth*.25,innerHeight*.3,90);setTimeout(()=>boom(innerWidth*.75,innerHeight*.25,90),180);
+  setTimeout(()=>boom(innerWidth*.5,innerHeight*.2,110),360);
+}
+function aLoop(){cx.clearRect(0,0,cvs.width,cvs.height);
+  for(let i=pts.length-1;i>=0;i--){const p=pts[i];p.x+=p.vx;p.vy+=.22;p.y+=p.vy;p.vx*=.99;p.life-=.01;p.rot+=p.rs;
+    if(p.life<=0||p.y>cvs.height+30){pts.splice(i,1);continue}
+    cx.save();cx.translate(p.x,p.y);cx.rotate(p.rot*Math.PI*2);cx.globalAlpha=Math.min(1,p.life*2.5);cx.fillStyle=p.col;
+    if(p.sh==='r')cx.fillRect(-p.sz/2,-p.sz/2,p.sz,p.sz*.6);
+    else{cx.beginPath();cx.arc(0,0,p.sz/2,0,Math.PI*2);cx.fill()}
+    cx.restore();}
+  if(pts.length>0)afr=requestAnimationFrame(aLoop);else{afr=null;cx.clearRect(0,0,cvs.width,cvs.height);}
+}
+
+/* ============ STATE ============ */
+let order=[],round=0,phase='',cur=null,flip=false,locked=false;
+const reviewOn={v:false};
+
+const $=id=>document.getElementById(id);
+const banner=$('banner'),prompt=$('prompt'),mainBtn=$('mainBtn'),vegbox=$('vegbox'),card=$('card'),
+      boxA=$('boxA'),boxB=$('boxB'),wordA=$('wordA'),wordB=$('wordB'),slotA=$('slotA'),slotB=$('slotB');
+
+function rounds(){return VEG_ROUNDS}
+function roundLabel(){return reviewOn.v?'Review':'Veggie'}
+function buildOrder(){
+  order=rounds().slice();
+  order.sort(()=>Math.random()-.5);   // random order every game — no shuffle button
+}
+
+/* BRICKS: the boxes show just "a" / "some …s" — the whole sentence
+   ("I have a carrot / some carrots") is the kids' own job; the noun
+   comes from the picture. */
+function brickA(){return `<span class="hl">a</span>`}
+function brickB(){return `<span class="hl">some</span>&thinsp;…s`}
+
+/* review wording — the U4C14 like-structure on the NEW words */
+function qText(){return 'What vegetable do you like?'}
+function yesText(v){return `I like ${v.p}!`}
+function noText(v){return `I don't like ${v.p}!`}
+
+function popup(txt){
+  const p=$('popup');p.textContent=txt;p.className='popup show';
+  setTimeout(()=>p.className='popup',1300);
+}
+function solidBanner(html,cls){banner.className='banner solid'+(cls?' '+cls:'');banner.innerHTML=`<div class="row">${html}</div>`}
+function setPrompt(t){prompt.textContent=t}
+function setBtn(label,fn,cls){
+  mainBtn.className='mainbtn'+(cls?' '+cls:'');
+  mainBtn.textContent=label;mainBtn.onclick=fn;
+  mainBtn.classList.remove('hide');
+}
+function hideBtn(){mainBtn.classList.add('hide')}
+
+function setTappable(on){
+  boxA.classList.toggle('ready',on);boxB.classList.toggle('ready',on);
+  boxA.classList.toggle('tappable',on);boxB.classList.toggle('tappable',on);
+}
+function setWord(box,html,asFace){
+  const w=box==='A'?wordA:wordB;
+  w.className=asFace?'face':'word';
+  w.innerHTML=html;
+}
+
+/* compose the stall picture: ONE vegetable, or 2–10 copies of the
+   SAME picture — no separate plural images needed (keeps it light) */
+function fillVeg(v,many){
+  vegbox.innerHTML='';
+  const n=many?2+~~(Math.random()*9):1;
+  for(let i=0;i<n;i++){
+    const im=document.createElement('img');
+    im.src='assets/'+v.id+'.webp';im.alt=v.id;
+    if(n===1){
+      im.style.width='74%';im.style.left='13%';im.style.top='13%';im.style.zIndex=1;
+    }else{
+      const w=30+Math.random()*16,h=w*1.05;
+      im.style.width=w+'%';
+      im.style.left=(2+Math.random()*(96-w))+'%';
+      im.style.top=(2+Math.random()*(94-h))+'%';
+      im.style.transform=`rotate(${~~(Math.random()*50-25)}deg)`;
+      im.style.zIndex=i+1;
+      im.style.animationDelay=(i*70)+'ms';
+    }
+    vegbox.appendChild(im);
+  }
+  cur.count=n;
+  return n;
+}
+
+/* ============ FLOW ============
+   bricks shown -> reveal question -> tap -> reveal answer -> next   */
+function newRound(){
+  round++;locked=false;
+  cur=order[round-1]||order[0];
+  if(DBG_PIC&&round===1){cur=VEG_ROUNDS.find(r=>r.veg.id===DBG_PIC&&!!r.many===(qp.get('many')==='1'))||cur}
+  $('rc').textContent=roundLabel()+' '+Math.min(round,order.length)+' / '+order.length;
+  flip=Math.random()<.5;
+  const oldTaste=card.querySelector('.taste');if(oldTaste)oldTaste.remove();
+  boxA.classList.remove('won');boxB.classList.remove('won');
+  setTappable(false);
+  slotA.innerHTML='<span class="q">👆</span>';
+  slotB.innerHTML='<span class="q">👆</span>';
+  banner.className='banner';
+  fillVeg(cur.veg,cur.many);
+  card.classList.remove('done');card.classList.add('sway');
+  if(reviewOn.v){
+    setWord('A','😋<span class="fw">Yummy!</span>',true);
+    setWord('B','🤢<span class="fw">Yucky!</span>',true);
+    banner.innerHTML='<div class="row">👀 <b>Look at the stall!</b> Yummy or yucky — for YOU?</div>';
+    setPrompt('🗣️ Say what YOU think! Then show the question!');
+  }else{
+    setWord('A',flip?brickB():brickA(),false);
+    setWord('B',flip?brickA():brickB(),false);
+    banner.innerHTML='<div class="row">👀 <b>Look at the stall!</b> One or many? Say the sentence: "I have …"</div>';
+    setPrompt('🗣️ Make the sentence in your head! Then show the question!');
+  }
+  setBtn('Show the Question ❓',phaseQuestion,'orange');
+}
+function phaseQuestion(){
+  phase='question';sndReveal();hideBtn();
+  setTappable(true);
+  if(reviewOn.v){
+    solidBanner('❓ '+qText()+' ❓','bigquestion');
+    setPrompt('🗣️ Ask your friends! Yummy or yucky? TAP your answer! 👇');
+  }else{
+    solidBanner('❓ What do you have? ❓','bigquestion');
+    setPrompt('🗣️ Answer with the picture! Then TAP a or some! 👇');
+  }
+}
+function tapBox(box){
+  initAudio();
+  const el=box==='A'?boxA:boxB;
+  /* the won box holds the pile — tapping it shakes the vegetables */
+  if(locked){if(el.classList.contains('won'))rattle(box);return}
+  if(phase!=='question')return;
+  if(reviewOn.v){
+    /* both answers are right — the kid's taste IS the answer */
+    locked=true;phase='tapped';
+    const yummy=(box==='A');            /* box A is always 😋 Yummy! */
+    if(yummy){sndCorrect();sndCheer();
+      const r=el.getBoundingClientRect();
+      boom(r.left+r.width/2,r.top+r.height/2,110);
+      popup(['YUMMY! 😋','😋 Tasty!','👍 Me too!','💚 Yummy!'][~~(Math.random()*4)]);
+    }else{sndWrong();
+      popup(['EWW! 🤢','🤢 Yucky!','😝 Blegh!','👎 No way!'][~~(Math.random()*4)]);
+      el.classList.remove('nope');void el.offsetWidth;el.classList.add('nope');
+    }
+    const tb=document.createElement('div');
+    tb.className='taste';tb.textContent=yummy?'😋':'🤢';
+    card.appendChild(tb);
+    card.classList.remove('sway');
+    cur.taste=yummy;
+    setTappable(false);
+    setTimeout(()=>{
+      setPrompt('🗣️ Everyone answer with feeling! Then reveal!');
+      setBtn('Reveal the Answer 👀',phaseAnswer,'orange');
+    },800);
+  }else{
+    /* main mode: box A holds flip?brickB:brickA — tap must match
+       one vs many (the noun is a given; the choice is a/some) */
+    const correctMany=(box==='A')===flip;
+    if(correctMany===cur.many){
+      locked=true;phase='tapped';
+      sndCorrect();sndCheer();
+      el.classList.add('won');setTappable(false);
+      const r=el.getBoundingClientRect();
+      boom(r.left+r.width/2,r.top+r.height/2,130);
+      popup(['🎉 YES!','⭐ That\'s it!','👍 Right!','💚 Great!'][~~(Math.random()*4)]);
+      flyAllToBox(box);
+      setTimeout(()=>{
+        setPrompt('🗣️ Everyone answer! Then reveal!');
+        setBtn('Reveal the Answer 👀',phaseAnswer,'orange');
+      },Math.max(800,650+cur.count*130));
+    }else{
+      /* wrong box = shake, no penalty */
+      sndWrong();
+      el.classList.remove('nope');void el.offsetWidth;el.classList.add('nope');
+      popup(['One or many? 🙅','🙅 Look again!','🤔 Hmm... count!','💪 Try again!'][~~(Math.random()*4)]);
+    }
+  }
+}
+function phaseAnswer(){
+  phase='answer';sndReveal();hideBtn();
+  let lines;
+  if(reviewOn.v){
+    lines=['— '+qText(),cur.taste?yesText(cur.veg):noText(cur.veg)];
+  }else{
+    lines=['— What do you have?','— '+(cur.many?`I have some ${cur.veg.p}!`:`I have a ${cur.veg.s}!`)];
+  }
+  solidBanner(lines.map((l,i)=>`<div class="row" style="animation-delay:${i*.22}s">${l}</div>`).join(''));
+  setPrompt('🔁 Everyone say it — with feeling!');
+  if(round>=order.length){
+    setBtn('Finish 🏆',phaseFinale);
+  }else{
+    setBtn(reviewOn.v?'Next ▶ 🥦':'Next ▶ 🥕',()=>{sndNext();newRound()});
+  }
+}
+function phaseFinale(){
+  phase='finale';
+  solidBanner(reviewOn.v?'🏆 <b>Vegetable Critics!</b> 🏆':'🏆 <b>Market Masters!</b> 🏆','bigquestion');
+  setPrompt(reviewOn.v
+    ?'🗣️ Ask a friend: "What vegetable do you like?" — "I like potatoes!"'
+    :'🗣️ Be a shopper! Ask a friend: "What do you have?" — "I have some beans!"');
+  setBtn('Play Again 🔄',resetGame);
+  fireworks();setTimeout(fireworks,1400);setTimeout(fireworks,2800);
+}
+function resetGame(){
+  buildOrder();round=0;
+  sndNext();newRound();
+}
+/* ALL the objects fly into the won box — one by one, each dropping
+   in with a physical bounce, landing as a little pile */
+function flyAllToBox(box){
+  const bx=box==='A'?boxA:boxB;
+  const br=bx.getBoundingClientRect();
+  const slot=box==='A'?slotA:slotB;
+  const imgs=[...vegbox.querySelectorAll('img')];
+  const n=imgs.length;
+  const w=Math.max(34,Math.min(64,300/n));
+  slot.innerHTML='';slot.classList.remove('pile');void slot.offsetWidth;
+  imgs.forEach((im,i)=>{
+    const r=im.getBoundingClientRect();
+    const fl=document.createElement('img');
+    fl.src=im.src;fl.className='flyer';
+    fl.style.width=r.width+'px';
+    fl.style.left=(r.left+r.width/2)+'px';
+    fl.style.top=(r.top+r.height/2)+'px';
+    fl.style.transitionDelay=(i*130)+'ms';
+    document.body.appendChild(fl);
+    im.style.visibility='hidden';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      fl.style.left=(br.left+br.width/2)+'px';
+      fl.style.top=(br.top+br.height-46)+'px';
+      fl.style.width=w+'px';
+      fl.style.opacity='.95';
+    }));
+    setTimeout(()=>{
+      fl.remove();
+      const p=Math.round(6+((i+0.5)/n)*82+(Math.random()*8-4));
+      const rot=~~(Math.random()*44-22);
+      const s=document.createElement('img');
+      s.src=im.src;s.style.width=w+'px';s.style.left=p+'%';
+      s.style.setProperty('--r',rot+'deg');
+      slot.classList.add('pile');
+      slot.appendChild(s);
+      if(i===n-1)sndPop();
+    },470+i*130);
+  });
+  setTimeout(()=>{card.classList.add('done');card.classList.remove('sway')},470+n*130+200);
+}
+function rattle(box){
+  const slot=box==='A'?slotA:slotB;
+  if(!slot.classList.contains('pile'))return;
+  sndRattle();
+  slot.querySelectorAll('img').forEach((im,i)=>{
+    setTimeout(()=>{im.classList.remove('rattle');void im.offsetWidth;im.classList.add('rattle')},i*60);
+  });
+}
+
+/* drag & drop: an object can be dragged into a box — tapping a box
+   works too, both are first-class answers */
+let drag=null;
+function moveClone(x,y){drag.fl.style.left=(x-55)+'px';drag.fl.style.top=(y-55)+'px'}
+vegbox.addEventListener('pointerdown',e=>{
+  if(phase!=='question'||locked)return;
+  const im=e.target.closest('img');if(!im)return;
+  e.preventDefault();
+  const fl=document.createElement('img');
+  fl.src=im.src;fl.className='dragclone';
+  document.body.appendChild(fl);
+  drag={fl,im,over:null};
+  moveClone(e.clientX,e.clientY);
+  im.style.opacity='.3';
+  card.classList.remove('sway');
+});
+addEventListener('pointermove',e=>{
+  if(!drag)return;
+  moveClone(e.clientX,e.clientY);
+  const t=document.elementFromPoint(e.clientX,e.clientY);
+  const bx=(t&&t.closest&&t.closest('#boxA'))?'A':((t&&t.closest&&t.closest('#boxB'))?'B':null);
+  if(drag.over!==bx){drag.over=bx;
+    boxA.classList.toggle('hover',bx==='A');boxB.classList.toggle('hover',bx==='B');}
+});
+addEventListener('pointerup',()=>{
+  if(!drag)return;
+  const over=drag.over,im=drag.im;
+  drag.fl.remove();drag=null;
+  boxA.classList.remove('hover');boxB.classList.remove('hover');
+  im.style.opacity='';
+  if(over)tapBox(over);
+});
+
+/* ============ WIRING ============ */
+boxA.addEventListener('click',()=>tapBox('A'));
+boxB.addEventListener('click',()=>tapBox('B'));
+
+function bindToggle(id,obj,after){
+  const el=$(id);
+  el.classList.toggle('on',obj.v);
+  el.onclick=()=>{obj.v=!obj.v;el.classList.toggle('on',obj.v);sndPop();if(after)after()};
+}
+bindToggle('tgReview',reviewOn,()=>{buildOrder();round=0;sndNext();newRound()});
+bindToggle('tgS',{get v(){return soundOn},set v(x){soundOn=x}},()=>{
+  $('tgS').textContent=soundOn?'🔊':'🔇';
+});
+
+/* ============ START ============ */
+function startGame(){
+  const ov=$('startOv');if(ov)ov.remove();
+  initAudio();
+  buildOrder();
+  newRound();
+  if(DBG_PHASE==='question'){phaseQuestion()}
+  else if(DBG_PHASE==='ask'){phaseQuestion();tapBox(reviewOn.v?'A':(flip===cur.many?'A':'B'))}
+  else if(DBG_PHASE==='dialogue'){phaseQuestion();tapBox(reviewOn.v?'A':(flip===cur.many?'A':'B'));setTimeout(phaseAnswer,1000)}
+}
+$('startOv').addEventListener('click',startGame,{once:true});
+if(qp.get('rev')==='1'){reviewOn.v=true;$('tgReview').classList.add('on')}   // debug: start in review mode
+if(DBG_PIC||DBG_PHASE)startGame();   // debug/screenshot mode: skip the tap-to-start overlay
+</script>
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body>
+</html>

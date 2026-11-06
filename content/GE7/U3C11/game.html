@@ -1,0 +1,563 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K3074 - Dialogue Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #ff6b6b, #ffa500, #ffe066);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+        .subtitle {
+            color: white;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        .dialogue-container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .step-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #ddd;
+            transition: 0.3s;
+        }
+        .step-dot.active {
+            background: #ff6b6b;
+            transform: scale(1.3);
+        }
+        .step-dot.done {
+            background: #4ecdc4;
+        }
+        .dialogue-box {
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .message {
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 85%;
+            font-size: 1.1rem;
+            animation: popIn 0.3s ease;
+            line-height: 1.4;
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .student-a {
+            background: #e3f2fd;
+            border: 2px solid #90caf9;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        .student-b {
+            background: #fce4ec;
+            border: 2px solid #f48fb1;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .speaker-label {
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .student-a .speaker-label { color: #1565c0; }
+        .student-b .speaker-label { color: #c2185b; }
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            border-bottom: 2px dashed #999;
+            text-align: center;
+            padding: 2px 8px;
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        .blank.filled {
+            border-bottom-color: #4ecdc4;
+            color: #2d9a8f;
+        }
+        .prompt-area {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+        .prompt-text {
+            font-size: 0.95rem;
+            color: #555;
+            margin-bottom: 12px;
+        }
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        .option-btn {
+            padding: 10px 18px;
+            border-radius: 25px;
+            border: 2px solid #ddd;
+            background: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .option-btn:hover {
+            border-color: #ff6b6b;
+            background: #fff5f5;
+            transform: translateY(-2px);
+        }
+        .option-btn:active {
+            transform: translateY(0);
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            gap: 10px;
+        }
+        .nav-btn {
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: none;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .nav-btn:hover { transform: translateY(-2px); }
+        .btn-next {
+            background: #4ecdc4;
+            color: white;
+            margin-left: auto;
+        }
+        .btn-reset {
+            background: #ff6b6b;
+            color: white;
+        }
+        .btn-disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .celebration {
+            text-align: center;
+            font-size: 1.3rem;
+            color: #4ecdc4;
+            font-weight: bold;
+            animation: popIn 0.5s ease;
+        }
+        .celebration .emoji {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .topic-select {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .topic-btn {
+            padding: 8px 16px;
+            margin: 4px;
+            border-radius: 20px;
+            border: 2px solid #ffe066;
+            background: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .topic-btn:hover, .topic-btn.active {
+            background: #ffe066;
+            border-color: #ffa500;
+        }
+        .full-dialogue {
+            background: #f0faf9;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+            border: 2px solid #4ecdc4;
+        }
+        .full-dialogue h3 {
+            color: #2d9a8f;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .shake { animation: shakeAnim .45s ease; }
+        @keyframes shakeAnim {
+            0%,100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-6px); }
+            80% { transform: translateX(6px); }
+        }
+    </style>
+</head>
+<body>
+    <h1>🎉 Dialogue Builder</h1>
+    
+
+    <div class="dialogue-container">
+        <div class="topic-select" id="topicSelect">
+            <p style="font-size:0.9rem; color:#555; margin-bottom:8px;">Choose a topic:</p>
+            <button class="topic-btn active" onclick="setTopic(0)">🇨🇳 National Day</button>
+            <button class="topic-btn" onclick="setTopic(1)">🐉 Dragon Boat Festival</button>
+            <button class="topic-btn" onclick="setTopic(2)">🥮 Mid-Autumn Festival</button>
+            <button class="topic-btn" onclick="setTopic(3)">👧 Children's Day</button>
+        </div>
+
+        <div class="step-indicator" id="stepIndicator"></div>
+        <div class="dialogue-box" id="dialogueBox"></div>
+        <div class="prompt-area" id="promptArea"></div>
+        <div class="nav-buttons">
+            <button class="nav-btn btn-reset" onclick="resetDialogue()">🔄 Reset</button>
+            <button class="nav-btn btn-next btn-disabled" id="nextBtn" onclick="nextStep()">Next ➜</button>
+        </div>
+    </div>
+
+    <script>
+        /* === SOUND KIT (added Oct 2026) === */
+        let _AC=null;
+        function _ac(){if(!_AC)_AC=new(window.AudioContext||window.webkitAudioContext)();if(_AC.state==='suspended')_AC.resume();return _AC}
+        function _t(f,type,dur,vol,del){const c=_ac(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(vol,c.currentTime+del);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+del+dur);o.connect(g);g.connect(c.destination);o.start(c.currentTime+del);o.stop(c.currentTime+del+dur)}
+        function tone(f,type,dur,vol=.2,del=0){try{_t(f,type,dur,vol,del)}catch(e){}}
+        function sndOK(){tone(523,'sine',.18,.22);tone(659,'sine',.18,.22,.09);tone(784,'sine',.25,.28,.18);tone(1047,'sine',.35,.18,.3)}
+        function sndNo(){tone(160,'square',.35,.18);tone(120,'sawtooth',.25,.12,.12)}
+        function sndPop(){try{const c=_ac(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(600,c.currentTime);o.frequency.exponentialRampToValueAtTime(1300,c.currentTime+.07);g.gain.setValueAtTime(.13,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.12);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.12)}catch(e){}}
+        function sndNext(){try{const c=_ac(),o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.setValueAtTime(350,c.currentTime);o.frequency.exponentialRampToValueAtTime(900,c.currentTime+.12);g.gain.setValueAtTime(.1,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.18);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.18)}catch(e){}}
+        function confettiBurst(n=30){const em=['⭐','✨','🌟','🎉','🎊','💫'];for(let i=0;i<n;i++){const e=document.createElement('div');e.textContent=em[~~(Math.random()*em.length)];e.style.cssText='position:fixed;top:-30px;z-index:9999;pointer-events:none;font-size:'+(14+Math.random()*16)+'px;left:'+(Math.random()*100)+'vw;transition:transform '+(1.6+Math.random()*1.4)+'s ease-in,opacity '+(1.6+Math.random()*1.4)+'s;';document.body.appendChild(e);requestAnimationFrame(()=>{e.style.transform='translateY('+(innerHeight+60)+'px) rotate('+(Math.random()*720-360)+'deg)';e.style.opacity='0'});setTimeout(()=>e.remove(),3400)}}
+        const topics = [
+            {
+                name: "National Day",
+                emoji: "🇨🇳",
+                date: "October 1st",
+                planA: "watch fireworks",
+                planB: "receive treats for free"
+            },
+            {
+                name: "Dragon Boat Festival",
+                emoji: "🐉",
+                date: "May 5th",
+                planA: "watch the dragon boat race",
+                planB: "eat sticky rice"
+            },
+            {
+                name: "Mid-Autumn Festival",
+                emoji: "🥮",
+                date: "August 15th",
+                planA: "eat moon cakes",
+                planB: "watch the full moon tonight"
+            },
+            {
+                name: "Children's Day",
+                emoji: "👧",
+                date: "June 1st",
+                planA: "receive treats for free",
+                planB: "watch fireworks"
+            }
+        ];
+
+        let currentTopic = 0;
+        let currentStep = 0;
+        let answers = [];
+
+        const steps = () => {
+            const t = topics[currentTopic];
+            return [
+                {
+                    speaker: "a",
+                    prompt: "Student A asks what the occasion is:",
+                    template: `What is <span class="blank" id="b0">${t.name}</span>?`,
+                    options: ["National Day", "Dragon Boat Festival", "Mid-Autumn Festival", "Children's Day"],
+                    correct: t.name
+                },
+                {
+                    speaker: "b",
+                    prompt: "Student B answers — it's a special occasion!",
+                    template: `<span class="blank" id="b1">${t.name}</span> is a special occasion!`,
+                    options: ["National Day", "Dragon Boat Festival", "Mid-Autumn Festival", "Children's Day"],
+                    correct: t.name
+                },
+                {
+                    speaker: "a",
+                    prompt: "Student A asks WHEN it is:",
+                    template: `When is ${t.name}?`,
+                    options: null,
+                    correct: null
+                },
+                {
+                    speaker: "b",
+                    prompt: "Student B answers with the date:",
+                    template: `${t.name} is <span class="blank" id="b3">${t.date}</span>.`,
+                    options: ["October 1st", "May 5th", "August 15th", "June 1st"],
+                    correct: t.date
+                },
+                {
+                    speaker: "a",
+                    prompt: "Student A asks what B will do:",
+                    template: `What are you going to do for <span class="blank" id="b4">${t.name}</span>?`,
+                    options: ["National Day", "Dragon Boat Festival", "Mid-Autumn Festival", "Children's Day"],
+                    correct: t.name
+                },
+                {
+                    speaker: "b",
+                    prompt: "Student B answers with a plan:",
+                    template: `I am going to <span class="blank" id="b5">${t.planA}</span>!`,
+                    options: ["watch fireworks", "eat moon cakes", "watch the dragon boat race", "eat sticky rice", "receive treats for free", "watch the full moon tonight"],
+                    correct: t.planA
+                },
+                {
+                    speaker: "b",
+                    prompt: "Now Student B asks A the same question:",
+                    template: `What are you going to do for ${t.name}?`,
+                    options: null,
+                    correct: null
+                },
+                {
+                    speaker: "a",
+                    prompt: "Student A answers with their plan:",
+                    template: `I am going to <span class="blank" id="b7">${t.planB}</span>!`,
+                    options: ["watch fireworks", "eat moon cakes", "watch the dragon boat race", "eat sticky rice", "receive treats for free", "watch the full moon tonight"],
+                    correct: t.planB
+                }
+            ];
+        };
+
+        function setTopic(idx) {
+            currentTopic = idx;
+            document.querySelectorAll('.topic-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === idx);
+            });
+            resetDialogue();
+        }
+
+        function renderStepDots() {
+            const indicator = document.getElementById('stepIndicator');
+            const s = steps();
+            indicator.innerHTML = '';
+            for (let i = 0; i < s.length; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'step-dot';
+                if (i < currentStep) dot.classList.add('done');
+                if (i === currentStep) dot.classList.add('active');
+                indicator.appendChild(dot);
+            }
+        }
+
+        function renderDialogue() {
+            const box = document.getElementById('dialogueBox');
+            const s = steps();
+            box.innerHTML = '';
+
+            for (let i = 0; i <= currentStep && i < s.length; i++) {
+                const step = s[i];
+                const msg = document.createElement('div');
+                msg.className = `message student-${step.speaker}`;
+                const label = step.speaker === 'a' ? '🧑 Student A' : '👧 Student B';
+                
+                if (i < currentStep || step.options === null) {
+                    msg.innerHTML = `<div class="speaker-label">${label}</div>${step.template.replace(/<span class="blank"[^>]*>/, '<span class="blank filled">') }`;
+                } else {
+                    const blankTemplate = step.template.replace(/<span class="blank"[^>]*>[^<]*<\/span>/, '<span class="blank">???</span>');
+                    msg.innerHTML = `<div class="speaker-label">${label}</div>${blankTemplate}`;
+                }
+                box.appendChild(msg);
+            }
+        }
+
+        function renderPrompt() {
+            const area = document.getElementById('promptArea');
+            const s = steps();
+            const nextBtn = document.getElementById('nextBtn');
+
+            if (currentStep >= s.length) {
+                area.innerHTML = `<div class="celebration"><span class="emoji">🎉🥳🎊</span>Dialogue complete! Great job!</div>`;
+                nextBtn.classList.add('btn-disabled');
+                sndOK();
+                confettiBurst(45);
+                showFullDialogue();
+                return;
+            }
+
+            const step = s[currentStep];
+
+            if (step.options === null) {
+                area.innerHTML = `<p class="prompt-text">${step.prompt}</p><p style="color:#4ecdc4;font-weight:bold;font-size:1.1rem;">✓ This line is ready! Click Next.</p>`;
+                nextBtn.classList.remove('btn-disabled');
+            } else {
+                let optionsHTML = step.options.map(opt => 
+                    `<button class="option-btn" onclick="selectOption('${opt.replace(/'/g, "\\'")}')">${opt}</button>`
+                ).join('');
+                area.innerHTML = `<p class="prompt-text">${step.prompt}</p><div class="options">${optionsHTML}</div>`;
+                nextBtn.classList.add('btn-disabled');
+            }
+        }
+
+        function selectOption(opt) {
+            const s = steps();
+            const step = s[currentStep];
+            
+            if (opt === step.correct) {
+                sndOK();
+                answers[currentStep] = opt;
+                const box = document.getElementById('dialogueBox');
+                const messages = box.querySelectorAll('.message');
+                const lastMsg = messages[messages.length - 1];
+                const blank = lastMsg.querySelector('.blank');
+                if (blank) {
+                    blank.textContent = opt;
+                    blank.classList.add('filled');
+                }
+                document.getElementById('promptArea').innerHTML = `<p style="color:#4ecdc4;font-weight:bold;font-size:1.1rem;">✅ Correct! Click Next.</p>`;
+                document.getElementById('nextBtn').classList.remove('btn-disabled');
+            } else {
+                sndNo();
+                const promptEl = document.getElementById('promptArea');
+                promptEl.querySelector('.prompt-text').textContent = "Hmm, try again! 🤔";
+                promptEl.classList.add('shake');
+                setTimeout(() => promptEl.classList.remove('shake'), 500);
+            }
+        }
+
+        function nextStep() {
+            sndNext();
+            currentStep++;
+            renderStepDots();
+            renderDialogue();
+            renderPrompt();
+        }
+
+        function showFullDialogue() {
+            const s = steps();
+            const t = topics[currentTopic];
+            const box = document.getElementById('dialogueBox');
+            const fullDiv = document.createElement('div');
+            fullDiv.className = 'full-dialogue';
+            fullDiv.innerHTML = `<h3>${t.emoji} Full Dialogue — ${t.name}</h3>
+                <p><strong>A:</strong> What is ${t.name}?</p>
+                <p><strong>B:</strong> ${t.name} is a special occasion!</p>
+                <p><strong>A:</strong> When is ${t.name}?</p>
+                <p><strong>B:</strong> ${t.name} is ${t.date}.</p>
+                <p><strong>A:</strong> What are you going to do for ${t.name}?</p>
+                <p><strong>B:</strong> I am going to ${t.planA}!</p>
+                <p><strong>B:</strong> What are you going to do for ${t.name}?</p>
+                <p><strong>A:</strong> I am going to ${t.planB}!</p>`;
+            box.appendChild(fullDiv);
+        }
+
+        function resetDialogue() {
+            currentStep = 0;
+            answers = [];
+            renderStepDots();
+            renderDialogue();
+            renderPrompt();
+        }
+
+        // Init
+        resetDialogue();
+    </script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

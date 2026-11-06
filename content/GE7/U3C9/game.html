@@ -1,0 +1,691 @@
+<!DOCTYPE html><html><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧧 Spring Festival Fortune 🏮</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #b71c1c, #c62828, #d32f2f);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 1.9em;
+            color: #ffd700;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+        }
+
+        .counter {
+            position: fixed;
+            top: 10px;
+            right: 12px;
+            background: rgba(0,0,0,0.45);
+            padding: 7px 14px;
+            border-radius: 10px;
+            font-size: 0.85em;
+            color: #ffd700;
+            z-index: 10;
+        }
+
+        .main-card {
+            background: linear-gradient(145deg, #fff8e1, #fff3c4);
+            border: 5px solid #ffd700;
+            border-radius: 18px;
+            padding: 28px 24px;
+            text-align: center;
+            min-width: 300px;
+            max-width: 480px;
+            width: 92%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.35), 0 0 30px rgba(255,215,0,0.25);
+            position: relative;
+            transition: border-color 0.15s;
+        }
+
+        .main-card.spinning {
+            animation: spinBorder 0.2s linear infinite;
+        }
+
+        @keyframes spinBorder {
+            0%   { border-color: #ffd700; }
+            25%  { border-color: #ff5722; }
+            50%  { border-color: #e91e63; }
+            75%  { border-color: #ff9800; }
+            100% { border-color: #ffd700; }
+        }
+
+        .emoji-display {
+            font-size: 80px;
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .emoji-display.land {
+            animation: land 0.4s ease-out;
+        }
+
+        @keyframes land {
+            0%, 100% { transform: scale(1); }
+            40% { transform: scale(1.3); }
+        }
+
+        .phrase-display {
+            font-size: 1.7em;
+            font-weight: bold;
+            color: #c62828;
+            margin: 12px 0 4px;
+            min-height: 38px;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.45s, transform 0.45s;
+        }
+
+        .phrase-display.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .question-display {
+            font-size: 1.35em;
+            font-weight: bold;
+            color: #1a237e;
+            margin: 10px 0 6px;
+            min-height: 36px;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.45s, transform 0.45s;
+        }
+
+        .question-display.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .button-area {
+            margin-top: 12px;
+            min-height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            font-size: 1.15em;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn:hover { transform: scale(1.05); }
+        .btn:active { transform: scale(0.93); }
+
+        .btn-start {
+            background: linear-gradient(145deg, #ffd700, #ff8f00);
+            color: #333;
+            font-size: 1.7em;
+            padding: 22px 54px;
+            animation: glow 1.4s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 12px #ffd700, 0 0 24px rgba(255,215,0,0.5); }
+            to   { box-shadow: 0 0 24px #ff6f00, 0 0 48px rgba(255,111,0,0.5); }
+        }
+
+        .btn-reveal {
+            background: linear-gradient(145deg, #ffd700, #ffab00);
+            color: #333;
+            box-shadow: 0 4px 16px rgba(255,215,0,0.4);
+        }
+
+        .btn-next {
+            background: linear-gradient(145deg, #1e88e5, #1565c0);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(30,136,229,0.45);
+            font-size: 1.25em;
+            padding: 16px 44px;
+        }
+
+        .yes-no-wrap {
+            width: 100%;
+            max-width: 600px;
+            padding: 0 12px;
+            margin-top: 18px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            opacity: 0;
+            transition: opacity 0.45s;
+            pointer-events: none;
+        }
+
+        .yes-no-wrap.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .btn-yes {
+            background: linear-gradient(145deg, #43a047, #2e7d32);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(67,160,71,0.45);
+            font-size: 1.35em;
+            padding: 18px 28px;
+            flex: 1;
+            max-width: 230px;
+        }
+
+        .btn-no {
+            background: linear-gradient(145deg, #e53935, #b71c1c);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(229,57,53,0.45);
+            font-size: 1.35em;
+            padding: 18px 28px;
+            flex: 1;
+            max-width: 230px;
+        }
+
+        .hidden { display: none !important; }
+
+        /* particles */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes fall {
+            0%   { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        @keyframes rise {
+            0%   { transform: translateY(30px) scale(0.6); opacity: 1; }
+            100% { transform: translateY(-110vh) scale(1.6); opacity: 0; }
+        }
+
+        .screen-flash {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            pointer-events: none;
+            animation: flash 0.35s ease-out forwards;
+        }
+
+        @keyframes flash {
+            0%   { opacity: 0.7; }
+            100% { opacity: 0; }
+        }
+
+        .result-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 2.8em;
+            font-weight: bold;
+            z-index: 1001;
+            text-shadow: 3px 3px 8px rgba(0,0,0,0.5);
+            animation: popIn 0.5s ease-out forwards;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        @keyframes popIn {
+            0%   { transform: translate(-50%, -50%) scale(0) rotate(-10deg); }
+            60%  { transform: translate(-50%, -50%) scale(1.25) rotate(3deg); }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+        }
+
+        /* decorative lanterns */
+        .deco {
+            position: fixed;
+            font-size: 32px;
+            opacity: 0.25;
+            pointer-events: none;
+            animation: sway 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes sway {
+            0%   { transform: rotate(-8deg); }
+            100% { transform: rotate(8deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="deco" style="top:8px;left:10px;animation-delay:0s">🏮</div>
+<div class="deco" style="top:8px;left:60px;animation-delay:0.5s">🏮</div>
+<div class="deco" style="top:8px;right:10px;animation-delay:0.3s">🏮</div>
+<div class="deco" style="top:8px;right:60px;animation-delay:0.8s">🏮</div>
+
+<div class="counter hidden" id="counter"></div>
+
+<div class="header">
+    <h1>🧧 Spring Festival Fortune 🏮</h1>
+</div>
+
+<div class="main-card" id="mainCard">
+    <div class="emoji-display" id="emojiDisplay">🎲</div>
+    <div class="phrase-display" id="phraseDisplay"></div>
+    <div class="question-display" id="questionDisplay"></div>
+    <div class="button-area" id="buttonArea">
+        <button class="btn btn-start" id="startBtn">🎲 START 🎲</button>
+        <button class="btn btn-reveal hidden" id="revealPhraseBtn">🔍 Reveal the Phrase</button>
+        <button class="btn btn-reveal hidden" id="revealQuestionBtn">❓ Reveal the Question</button>
+        <button class="btn btn-next hidden" id="nextBtn">👉 Next Student</button>
+    </div>
+</div>
+
+<div class="yes-no-wrap" id="yesNoWrap">
+    <button class="btn btn-yes" id="yesBtn">✅ Yes, I will!</button>
+    <button class="btn btn-no" id="noBtn">❌ No, I won't!</button>
+</div>
+
+<script>
+const allItems = [
+    { emoji: '✂️',  phrase: 'get a haircut' },
+    { emoji: '🧧', phrase: 'get a red envelope' },
+    { emoji: '🧧', phrase: 'give a red envelope' },
+    { emoji: '🏮', phrase: 'buy a paper lantern' },
+    { emoji: '🏮', phrase: 'make a lantern' },
+    { emoji: '🧹', phrase: 'prepare the house' },
+    { emoji: '🍳', phrase: 'prepare the food' },
+    { emoji: '👩‍👩‍👧‍👧', phrase: 'celebrate with family' },
+    { emoji: '😴', phrase: 'have a rest' },
+    { emoji: '🎆', phrase: 'watch fireworks' },
+    { emoji: '🥟', phrase: 'make dumplings' },
+    { emoji: '🌳', phrase: 'go to the park' },
+    { emoji: '⚽', phrase: 'play football' },
+    { emoji: '🐟', phrase: 'eat fish' },
+    { emoji: '📺', phrase: 'watch the CNY Gala' },
+    { emoji: '📝', phrase: 'do homework' }
+];
+
+let queue = [];
+let currentItem = null;
+let cardNumber = 0;
+
+function shuffle(a) {
+    const b = [...a];
+    for (let i = b.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [b[i], b[j]] = [b[j], b[i]];
+    }
+    return b;
+}
+
+function nextFromQueue() {
+    if (queue.length === 0) queue = shuffle(allItems);
+    return queue.pop();
+}
+
+/* ---- Audio ---- */
+let audioCtx;
+function ensureAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function tone(freq, dur, type, vol) {
+    if (!audioCtx) return;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type || 'sine';
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(vol || 0.12, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + dur);
+}
+
+function tickSound()   { tone(700 + Math.random() * 500, 0.04, 'square', 0.06); }
+function landSound()   { tone(600, 0.08); setTimeout(() => tone(950, 0.25, 'triangle', 0.14), 70); }
+function revealSound() { tone(523, 0.12); setTimeout(() => tone(659, 0.12), 90); setTimeout(() => tone(784, 0.25), 180); }
+
+function happySound() {
+    [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 0.18, 'sine', 0.1), i * 90));
+}
+
+function sadSound() {
+    tone(400, 0.25, 'sawtooth', 0.07);
+    setTimeout(() => tone(340, 0.25, 'sawtooth', 0.07), 180);
+    setTimeout(() => tone(280, 0.45, 'sawtooth', 0.07), 360);
+}
+
+/* ---- DOM refs ---- */
+const $emoji      = document.getElementById('emojiDisplay');
+const $phrase     = document.getElementById('phraseDisplay');
+const $question   = document.getElementById('questionDisplay');
+const $card       = document.getElementById('mainCard');
+const $counter    = document.getElementById('counter');
+const $startBtn   = document.getElementById('startBtn');
+const $revealP    = document.getElementById('revealPhraseBtn');
+const $revealQ    = document.getElementById('revealQuestionBtn');
+const $nextBtn    = document.getElementById('nextBtn');
+const $yesNoWrap  = document.getElementById('yesNoWrap');
+const $yesBtn     = document.getElementById('yesBtn');
+const $noBtn      = document.getElementById('noBtn');
+
+/* ---- State helpers ---- */
+function hideAll() {
+    $startBtn.classList.add('hidden');
+    $revealP.classList.add('hidden');
+    $revealQ.classList.add('hidden');
+    $nextBtn.classList.add('hidden');
+    $yesNoWrap.classList.remove('show');
+    $phrase.classList.remove('show');
+    $question.classList.remove('show');
+    $phrase.textContent = '';
+    $question.textContent = '';
+}
+
+function updateCounter() {
+    const round = Math.ceil(cardNumber / allItems.length);
+    const pos = ((cardNumber - 1) % allItems.length) + 1;
+    $counter.textContent = 'Round ' + round + '  ·  ' + pos + ' / ' + allItems.length;
+    $counter.classList.remove('hidden');
+}
+
+/* ---- Slot-machine spin ---- */
+function spin(onDone) {
+    const emojis = allItems.map(i => i.emoji);
+    let delay = 55;
+    let ticks = 0;
+    const total = 22 + Math.floor(Math.random() * 8);
+    $card.classList.add('spinning');
+
+    function step() {
+        $emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        tickSound();
+        ticks++;
+        if (ticks < total) {
+            delay += ticks > total * 0.55 ? 35 : 6;
+            setTimeout(step, delay);
+        } else {
+            $emoji.textContent = currentItem.emoji;
+            $card.classList.remove('spinning');
+            $emoji.classList.add('land');
+            landSound();
+            setTimeout(() => { $emoji.classList.remove('land'); onDone(); }, 420);
+        }
+    }
+    step();
+}
+
+/* ---- Particle factory ---- */
+function particle(emoji, x, y, anim, dur) {
+    const el = document.createElement('div');
+    el.className = 'particle';
+    el.textContent = emoji;
+    el.style.fontSize = (22 + Math.random() * 22) + 'px';
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    if (anim === 'fall') {
+        el.style.animation = 'fall ' + dur + 's ease-in forwards';
+        el.style.animationDelay = (Math.random() * 0.6) + 's';
+    } else if (anim === 'rise') {
+        el.style.animation = 'rise ' + dur + 's ease-out forwards';
+        el.style.animationDelay = (Math.random() * 0.4) + 's';
+    } else if (anim === 'explode') {
+        const a = Math.random() * Math.PI * 2;
+        const d = 90 + Math.random() * 220;
+        el.style.transition = 'all ' + dur + 's ease-out';
+        el.style.opacity = '1';
+        requestAnimationFrame(() => {
+            el.style.transform = 'translate(' + (Math.cos(a) * d) + 'px,' + (Math.sin(a) * d) + 'px) scale(0.2)';
+            el.style.opacity = '0';
+        });
+    }
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), (dur + 1.5) * 1000);
+}
+
+function flash(color) {
+    const d = document.createElement('div');
+    d.className = 'screen-flash';
+    d.style.background = color;
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 450);
+}
+
+function bigText(txt, color) {
+    const d = document.createElement('div');
+    d.className = 'result-text';
+    d.textContent = txt;
+    d.style.color = color;
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 2200);
+}
+
+const W = () => window.innerWidth;
+const H = () => window.innerHeight;
+
+/* ---- Positive effects ---- */
+const positives = [
+    () => { // confetti
+        const c = ['🟥','🟧','🟨','🟩','🟦','🟪','⬜'];
+        for (let i = 0; i < 45; i++) particle(c[Math.floor(Math.random()*c.length)], Math.random()*W(), -30, 'fall', 2+Math.random()*2);
+        flash('rgba(255,215,0,0.45)'); bigText('🎉 YES! 🎉','#ffd700');
+    },
+    () => { // happy faces rising
+        const f = ['😄','😊','🥳','😁','🤩','😍'];
+        for (let i = 0; i < 28; i++) particle(f[Math.floor(Math.random()*f.length)], Math.random()*W(), H()+20, 'rise', 2+Math.random()*2);
+        flash('rgba(255,235,59,0.35)'); bigText('😄 YEAH! 😄','#4caf50');
+    },
+    () => { // fireworks burst
+        const s = ['✨','⭐','💫','🌟','🔥'];
+        const cx = W()/2, cy = H()/2;
+        for (let i = 0; i < 35; i++) particle(s[Math.floor(Math.random()*s.length)], cx+(Math.random()-0.5)*60, cy+(Math.random()-0.5)*60, 'explode', 1.5);
+        flash('rgba(255,152,0,0.4)'); bigText('🎆 WOW! 🎆','#ff9800');
+    },
+    () => { // party poppers
+        const p = ['🎉','🎊','🎈','🎁','🪅'];
+        for (let i = 0; i < 24; i++) particle(p[Math.floor(Math.random()*p.length)], Math.random()*W(), H()+20, 'rise', 2.2+Math.random()*1.5);
+        flash('rgba(233,30,99,0.3)'); bigText("🎊 LET'S GO! 🎊",'#e91e63');
+    },
+    () => { // hearts
+        const h = ['❤️','🧡','💛','💚','💙','💜'];
+        for (let i = 0; i < 28; i++) particle(h[Math.floor(Math.random()*h.length)], Math.random()*W(), H()+20, 'rise', 2+Math.random()*2);
+        flash('rgba(244,67,54,0.3)'); bigText('❤️ LOVE IT! ❤️','#e91e63');
+    },
+    () => { // star burst
+        const st = ['⭐','🌟','✨','💛','🌠'];
+        const cx = W()/2, cy = H()/2;
+        for (let i = 0; i < 40; i++) particle(st[Math.floor(Math.random()*st.length)], cx+(Math.random()-0.5)*80, cy+(Math.random()-0.5)*80, 'explode', 1.7);
+        flash('rgba(255,255,0,0.35)'); bigText('⭐ SUPER! ⭐','#ff8f00');
+    }
+];
+
+/* ---- Negative effects ---- */
+const negatives = [
+    () => { // sad faces
+        const f = ['😢','😭','😿','🥺','😞'];
+        for (let i = 0; i < 28; i++) particle(f[Math.floor(Math.random()*f.length)], Math.random()*W(), -30, 'fall', 2+Math.random()*2);
+        flash('rgba(33,150,243,0.3)'); bigText('😢 OH NO! 😢','#1e88e5');
+    },
+    () => { // rain
+        const r = ['💧','💦','🌧️','💧','💦'];
+        for (let i = 0; i < 40; i++) particle(r[Math.floor(Math.random()*r.length)], Math.random()*W(), -30, 'fall', 1.4+Math.random()*1.5);
+        flash('rgba(69,90,100,0.4)'); bigText('🌧️ What a pity... 🌧️','#546e7a');
+    },
+    () => { // thumbs down
+        const t = ['👎','🙅','🚫','❌','👎'];
+        for (let i = 0; i < 24; i++) particle(t[Math.floor(Math.random()*t.length)], Math.random()*W(), -30, 'fall', 2+Math.random()*2);
+        flash('rgba(183,28,28,0.3)'); bigText('👎 NO WAY! 👎','#b71c1c');
+    },
+    () => { // broken hearts
+        const b = ['💔','😿','💔','🥀','💔'];
+        for (let i = 0; i < 24; i++) particle(b[Math.floor(Math.random()*b.length)], Math.random()*W(), -30, 'fall', 2+Math.random()*2);
+        flash('rgba(136,14,79,0.3)'); bigText('💔 Oh... 💔','#880e4f');
+    },
+    () => { // ghosts
+        const g = ['👻','😱','💀','🦇','🕷️'];
+        for (let i = 0; i < 22; i++) particle(g[Math.floor(Math.random()*g.length)], Math.random()*W(), H()+20, 'rise', 2.2+Math.random()*1.5);
+        flash('rgba(0,0,0,0.4)'); bigText('👻 BOO! 👻','#4a148c');
+    },
+    () => { // storm
+        const s = ['⛈️','🌩️','⚡','🌪️','💨'];
+        const cx = W()/2, cy = H()/2;
+        for (let i = 0; i < 30; i++) particle(s[Math.floor(Math.random()*s.length)], cx+(Math.random()-0.5)*80, cy+(Math.random()-0.5)*80, 'explode', 1.7);
+        flash('rgba(38,50,56,0.45)'); bigText('⛈️ OH NO! ⛈️','#263238');
+    }
+];
+
+/* ---- Game flow ---- */
+function startRound() {
+    ensureAudio();
+    hideAll();
+    currentItem = nextFromQueue();
+    cardNumber++;
+    updateCounter();
+    $emoji.textContent = '🎲';
+
+    setTimeout(() => {
+        spin(() => {
+            $revealP.classList.remove('hidden');
+        });
+    }, 200);
+}
+
+function revealPhrase() {
+    revealSound();
+    $phrase.textContent = currentItem.phrase;
+    $phrase.classList.add('show');
+    $revealP.classList.add('hidden');
+    setTimeout(() => $revealQ.classList.remove('hidden'), 350);
+}
+
+function revealQuestion() {
+    revealSound();
+    $question.textContent = 'Will you ' + currentItem.phrase + ' tomorrow?';
+    $question.classList.add('show');
+    $revealQ.classList.add('hidden');
+    setTimeout(() => $yesNoWrap.classList.add('show'), 350);
+}
+
+function answerYes() {
+    ensureAudio();
+    happySound();
+    $yesNoWrap.classList.remove('show');
+    positives[Math.floor(Math.random() * positives.length)]();
+    setTimeout(() => $nextBtn.classList.remove('hidden'), 1100);
+}
+
+function answerNo() {
+    ensureAudio();
+    sadSound();
+    $yesNoWrap.classList.remove('show');
+    negatives[Math.floor(Math.random() * negatives.length)]();
+    setTimeout(() => $nextBtn.classList.remove('hidden'), 1100);
+}
+
+function nextStudent() {
+    startRound();
+}
+
+/* ---- Event listeners ---- */
+$startBtn.addEventListener('click', startRound);
+$revealP.addEventListener('click', revealPhrase);
+$revealQ.addEventListener('click', revealQuestion);
+$yesBtn.addEventListener('click', answerYes);
+$noBtn.addEventListener('click', answerNo);
+$nextBtn.addEventListener('click', nextStudent);
+</script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>

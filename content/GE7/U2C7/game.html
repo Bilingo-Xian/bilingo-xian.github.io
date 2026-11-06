@@ -1,0 +1,1331 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Job Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #1a237e 0%, #3949ab 30%, #5c6bc0 55%, #ff8a65 85%, #ffcc02 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .bg-cloud {
+            position: fixed;
+            opacity: 0.12;
+            pointer-events: none;
+            animation: driftCloud 25s linear infinite;
+            z-index: 0;
+            font-size: 3rem;
+        }
+
+        @keyframes driftCloud {
+            0% { transform: translateX(-120px); }
+            100% { transform: translateX(calc(100vw + 120px)); }
+        }
+
+        .content-wrap {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 640px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            color: #fff;
+            margin-bottom: 8px;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .step-indicator {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .step-dot {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.4);
+            transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        .step-dot.active {
+            background: #ffd54f;
+            border-color: #ffb300;
+            transform: scale(1.4);
+            box-shadow: 0 0 12px rgba(255,213,79,0.6);
+        }
+
+        .step-dot.done {
+            background: #69f0ae;
+            border-color: #00e676;
+        }
+
+        .step-conn {
+            width: 14px;
+            height: 2px;
+            background: rgba(255,255,255,0.25);
+            border-radius: 2px;
+        }
+
+        .step-conn.done { background: #69f0ae; }
+
+        .player-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            animation: badgePop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        .player-badge.pa {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #64b5f6;
+            color: #1565c0;
+        }
+
+        .player-badge.pb {
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            border: 2px solid #ba68c8;
+            color: #6a1b9a;
+        }
+
+        @keyframes badgePop {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .instruction {
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 600;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.3);
+            min-height: 28px;
+            padding: 0 10px;
+        }
+
+        .instruction .hl {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 8px;
+        }
+
+        .grid-section {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .grid-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .skill-grid, .job-grid-others {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 7px;
+            width: 100%;
+        }
+
+        .job-grid-recommended {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 7px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.92);
+            border: 3px solid rgba(200,200,200,0.5);
+            border-radius: 14px;
+            padding: 9px 4px 7px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+            user-select: none;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 78px;
+        }
+
+        .card:hover {
+            transform: scale(1.06) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        .card:active { transform: scale(0.95); }
+
+        .card.selected {
+            border-color: #ffd54f;
+            background: linear-gradient(135deg, #fff8e1, #ffecb3);
+            box-shadow: 0 0 0 3px rgba(255,213,79,0.4), 0 4px 15px rgba(255,193,7,0.3);
+        }
+
+        .card.selected::after {
+            content: '⭐';
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 0.75rem;
+            animation: starPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        @keyframes starPop {
+            0% { transform: scale(0) rotate(-180deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .card.recommended {
+            border-color: #ffd54f;
+            background: linear-gradient(135deg, #fffde7, #fff9c4);
+            box-shadow: 0 0 0 2px rgba(255,213,79,0.2);
+        }
+
+        .card.job-selected {
+            border-color: #69f0ae;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            box-shadow: 0 0 0 3px rgba(105,240,174,0.4), 0 4px 15px rgba(76,175,80,0.3);
+        }
+
+        .card.job-selected::after {
+            content: '✓';
+            position: absolute;
+            top: 2px;
+            right: 5px;
+            font-size: 0.8rem;
+            font-weight: 900;
+            color: #2e7d32;
+        }
+
+        .card .emoji {
+            font-size: 1.9rem;
+            display: inline-block;
+        }
+
+        .card:hover .emoji {
+            animation: wiggle 0.4s ease;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-8deg); }
+            75% { transform: rotate(8deg); }
+        }
+
+        .card .name {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #444;
+            margin-top: 3px;
+            line-height: 1.15;
+        }
+
+        .doubt-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 200;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .doubt-overlay.visible {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .doubt-box {
+            background: white;
+            border-radius: 24px;
+            padding: 28px 24px 20px;
+            text-align: center;
+            max-width: 280px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .doubt-emoji {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .doubt-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .doubt-sub {
+            font-size: 0.85rem;
+            color: #777;
+            margin-bottom: 14px;
+        }
+
+        .doubt-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .doubt-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .doubt-btn:hover { transform: scale(1.05); }
+        .doubt-btn:active { transform: scale(0.95); }
+
+        .doubt-btn.yes {
+            background: linear-gradient(135deg, #ffd54f, #ffb300);
+            color: #3e2723;
+        }
+
+        .doubt-btn.no {
+            background: #eee;
+            color: #555;
+        }
+
+        .processing-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(26,35,126,0.92);
+            z-index: 100;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+        }
+
+        .processing-overlay.visible {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .processing-icon {
+            font-size: 3.5rem;
+            animation: processSpin 1s linear infinite;
+        }
+
+        @keyframes processSpin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.15); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .processing-text {
+            color: #ffd54f;
+            font-size: 1.2rem;
+            font-weight: 700;
+            animation: textPulse 0.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes textPulse {
+            from { opacity: 0.6; }
+            to { opacity: 1; }
+        }
+
+        .dream-card-container {
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .dream-card-container.visible {
+            display: flex;
+            animation: cardReveal 0.6s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        @keyframes cardReveal {
+            0% { transform: scale(0) rotateY(90deg); opacity: 0; }
+            60% { transform: scale(1.04) rotateY(-4deg); }
+            100% { transform: scale(1) rotateY(0deg); opacity: 1; }
+        }
+
+        .dream-card {
+            width: 240px;
+            background: linear-gradient(160deg, #ffffff, #f8f8f8);
+            border-radius: 20px;
+            padding: 18px 14px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+
+        .dream-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ffd54f, #ff6f00, #ffd54f);
+        }
+
+        .dream-card .dc-title {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ff6f00;
+            margin-bottom: 6px;
+        }
+
+        .dream-card .dc-emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 4px;
+            animation: floatEmoji 3s ease-in-out infinite;
+        }
+
+        @keyframes floatEmoji {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .dream-card .dc-job {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #1a237e;
+            margin-bottom: 8px;
+        }
+
+        .dream-card .dc-reason {
+            font-size: 0.85rem;
+            color: #555;
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 7px 10px;
+            border: 1.5px dashed #ccc;
+        }
+
+        .dream-card .dc-reason strong {
+            color: #2e7d32;
+        }
+
+        .dream-card .dc-player {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 2px 7px;
+            border-radius: 8px;
+        }
+
+        .dream-card .dc-player.cpa {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .dream-card .dc-player.cpb {
+            background: #f3e5f5;
+            color: #6a1b9a;
+        }
+
+        .dream-card .dc-stars {
+            position: absolute;
+            top: 9px;
+            right: 9px;
+            font-size: 0.8rem;
+            opacity: 0.4;
+        }
+
+        .final-page {
+            display: none;
+            width: 100%;
+        }
+
+        .final-page.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .final-cards-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .final-cards-row .dream-card {
+            width: 200px;
+            padding: 14px 10px;
+        }
+
+        .final-cards-row .dream-card .dc-emoji { font-size: 2.5rem; }
+        .final-cards-row .dream-card .dc-job { font-size: 1rem; }
+
+        .dialogue-section {
+            background: rgba(255,255,255,0.12);
+            border-radius: 20px;
+            padding: 14px;
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+
+        .dialogue-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .dialogue-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .dialogue-row {
+            display: flex;
+            width: 100%;
+            opacity: 0;
+            transform: translateY(8px);
+            animation: bubbleIn 0.4s ease forwards;
+        }
+
+        .dialogue-row.left { justify-content: flex-start; }
+        .dialogue-row.right { justify-content: flex-end; }
+
+        @keyframes bubbleIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bubble-wrapper {
+            max-width: 80%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .bubble-wrapper:hover { transform: scale(1.02); }
+        .bubble-wrapper:active { transform: scale(0.97); }
+
+        .bubble-label {
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            padding-left: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .dialogue-row.left .bubble-label { color: #90caf9; }
+        .dialogue-row.right .bubble-label { color: #ce93d8; }
+
+        .bubble {
+            padding: 9px 14px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+
+        .dialogue-row.left .bubble {
+            background: linear-gradient(135deg, #e3f2fd, #e1f5fe);
+            border: 2.5px solid #64b5f6;
+            border-bottom-left-radius: 5px;
+            color: #1565c0;
+        }
+
+        .dialogue-row.right .bubble {
+            background: linear-gradient(135deg, #f3e5f5, #fce4ec);
+            border: 2.5px solid #ba68c8;
+            border-bottom-right-radius: 5px;
+            color: #6a1b9a;
+        }
+
+        .bubble .hidden-text {
+            display: none;
+            font-weight: 600;
+        }
+
+        .bubble .tap-hint {
+            font-size: 1.3rem;
+            opacity: 0.7;
+            animation: hintPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes hintPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .bubble.revealed .hidden-text { display: inline; }
+        .bubble.revealed .tap-hint { display: none; }
+        .bubble.revealed { box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 11px 24px;
+            border: none;
+            border-radius: 24px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        .btn:hover {
+            transform: scale(1.06) translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+        }
+
+        .btn:active { transform: scale(0.95); }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #ffd54f, #ffb300);
+            color: #3e2723;
+            box-shadow: 0 4px 12px rgba(255,179,0,0.3);
+        }
+
+        .btn-grey {
+            background: linear-gradient(135deg, #78909c, #546e7a);
+            color: white;
+        }
+
+        .hidden { display: none !important; }
+
+        .sparkle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 1.3rem;
+            animation: sparkleAnim 0.8s ease forwards;
+            z-index: 999;
+        }
+
+        @keyframes sparkleAnim {
+            0% { opacity: 1; transform: scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1.3) rotate(180deg); }
+            100% { opacity: 0; transform: scale(0.3) rotate(360deg) translateY(-50px); }
+        }
+
+        .separator-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: rgba(255,255,255,0.5);
+            margin: 8px 0 5px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.15);
+            padding-top: 8px;
+        }
+
+        @media (max-width: 480px) {
+            .skill-grid, .job-grid-others, .job-grid-recommended {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 5px;
+            }
+            .card {
+                min-height: 70px;
+                padding: 7px 3px 5px;
+            }
+            .card .emoji { font-size: 1.6rem; }
+            .card .name { font-size: 0.65rem; }
+            .dream-card { width: 210px; }
+            .final-cards-row .dream-card { width: 155px; padding: 10px 6px; }
+            .final-cards-row .dream-card .dc-emoji { font-size: 2rem; }
+            .final-cards-row .dream-card .dc-job { font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-cloud" style="top:8%; animation-delay:0s; font-size:3.5rem;">☁️</div>
+    <div class="bg-cloud" style="top:28%; animation-delay:8s; font-size:2.5rem;">☁️</div>
+    <div class="bg-cloud" style="top:50%; animation-delay:3s; font-size:3rem;">☁️</div>
+    <div class="bg-cloud" style="top:72%; animation-delay:13s; font-size:2rem;">☁️</div>
+    <div class="bg-cloud" style="top:88%; animation-delay:5s; font-size:2.8rem;">☁️</div>
+
+    <div class="content-wrap">
+        <h1>☁️ Dream Job Builder ⭐</h1>
+
+        <div class="step-indicator">
+            <div class="step-dot active" data-step="1"></div>
+            <div class="step-conn" data-conn="1"></div>
+            <div class="step-dot" data-step="2"></div>
+            <div class="step-conn" data-conn="2"></div>
+            <div class="step-dot" data-step="3"></div>
+            <div class="step-conn" data-conn="3"></div>
+            <div class="step-dot" data-step="4"></div>
+            <div class="step-conn" data-conn="4"></div>
+            <div class="step-dot" data-step="5"></div>
+        </div>
+
+        <div class="player-badge pa" id="playerBadge">🙋‍♂️ Student A</div>
+
+        <div class="instruction" id="instruction">What are you <span class="hl">good at</span>? Pick a skill!</div>
+
+        <div class="grid-section" id="skillSection">
+            <div class="grid-label">⭐ I am good at...</div>
+            <div class="skill-grid" id="skillGrid"></div>
+        </div>
+
+        <div class="grid-section hidden" id="jobSection">
+            <div class="grid-label" id="jobRecLabel">🌟 Recommended for you</div>
+            <div class="job-grid-recommended" id="jobGridRec"></div>
+            <div class="separator-label">Other jobs</div>
+            <div class="job-grid-others" id="jobGridOthers"></div>
+        </div>
+
+        <div class="dream-card-container" id="cardPreview"></div>
+
+        <div class="final-page" id="finalPage">
+            <div class="final-cards-row" id="finalCardsRow"></div>
+            <div class="dialogue-section">
+                <div class="dialogue-title">🗣️ Practice the dialogue — tap to reveal!</div>
+                <div class="dialogue-container" id="dialogueContainer"></div>
+            </div>
+        </div>
+
+        <div class="btn-row" id="btnRow">
+            <button class="btn btn-gold hidden" id="btnNext">Next →</button>
+            <button class="btn btn-grey hidden" id="btnReset">↺ Start Over</button>
+        </div>
+    </div>
+
+    <div class="doubt-overlay" id="doubtOverlay">
+        <div class="doubt-box">
+            <span class="doubt-emoji">🤨</span>
+            <div class="doubt-text">Are you sure?</div>
+            <div class="doubt-sub" id="doubtSub">That's an unusual combo...</div>
+            <div class="doubt-buttons">
+                <button class="doubt-btn no" id="doubtNo">Try again</button>
+                <button class="doubt-btn yes" id="doubtYes">Yes, I'm sure!</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="processing-overlay" id="processingOverlay">
+        <div class="processing-icon">⚙️</div>
+        <div class="processing-text">Building your Dream Card...</div>
+    </div>
+
+    <script>
+        // === DATA ===
+        const skills = [
+            { name: "science", emoji: "🔬" },
+            { name: "calligraphy", emoji: "✒️" },
+            { name: "fishing", emoji: "🎣" },
+            { name: "sports", emoji: "🏃" },
+            { name: "cooking", emoji: "👨‍🍳" },
+            { name: "sailing", emoji: "⛵" },
+            { name: "drawing", emoji: "🎨" },
+            { name: "music", emoji: "🎵" },
+            { name: "reading", emoji: "📖" },
+            { name: "math", emoji: "🔢" },
+            { name: "swimming", emoji: "🏊" },
+            { name: "helping people", emoji: "🤝" },
+            { name: "computers", emoji: "💻" },
+            { name: "dancing", emoji: "💃" },
+            { name: "building things", emoji: "🧱" },
+            { name: "animals", emoji: "🐾" },
+        ];
+
+        const jobs = [
+            { name: "scientist", emoji: "🧑‍🔬", relatedSkills: ["science", "math", "reading"] },
+            { name: "artist", emoji: "🧑‍🎨", relatedSkills: ["drawing", "calligraphy"] },
+            { name: "fisherman", emoji: "🎣", relatedSkills: ["fishing", "sailing"] },
+            { name: "firefighter", emoji: "🧑‍🚒", relatedSkills: ["sports", "swimming", "helping people"] },
+            { name: "chef", emoji: "🧑‍🍳", relatedSkills: ["cooking"] },
+            { name: "athlete", emoji: "🏅", relatedSkills: ["sports", "swimming", "dancing"] },
+            { name: "musician", emoji: "🎸", relatedSkills: ["music"] },
+            { name: "teacher", emoji: "🧑‍🏫", relatedSkills: ["reading", "helping people", "math", "science"] },
+            { name: "doctor", emoji: "🧑‍⚕️", relatedSkills: ["science", "helping people", "reading"] },
+            { name: "pilot", emoji: "🧑‍✈️", relatedSkills: ["math", "science", "computers"] },
+            { name: "sailor", emoji: "⚓", relatedSkills: ["sailing", "swimming", "fishing"] },
+            { name: "engineer", emoji: "🔧", relatedSkills: ["math", "science", "building things", "computers"] },
+            { name: "vet", emoji: "🐕", relatedSkills: ["animals", "science", "helping people"] },
+            { name: "dancer", emoji: "🩰", relatedSkills: ["dancing", "music", "sports"] },
+            { name: "programmer", emoji: "👩‍💻", relatedSkills: ["computers", "math"] },
+            { name: "architect", emoji: "🏛️", relatedSkills: ["building things", "drawing", "math"] },
+        ];
+
+        // === AUDIO ===
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioCtx();
+        }
+
+        function playTone(freq, dur, type, vol) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type || 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol || 0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + dur);
+        }
+
+        function playSelect() {
+            playTone(600, 0.1, 'sine', 0.1);
+            setTimeout(() => playTone(800, 0.12, 'sine', 0.08), 60);
+        }
+
+        function playChime() {
+            playTone(880, 0.12, 'sine', 0.09);
+            setTimeout(() => playTone(1100, 0.12, 'sine', 0.07), 70);
+            setTimeout(() => playTone(1320, 0.18, 'sine', 0.09), 140);
+        }
+
+        function playFanfare() {
+            [523,659,784,880,1047].forEach((n,i) => setTimeout(() => playTone(n, 0.18, 'sine', 0.09), i * 90));
+        }
+
+        function playDoubt() {
+            playTone(300, 0.15, 'triangle', 0.12);
+            setTimeout(() => playTone(250, 0.2, 'triangle', 0.1), 120);
+        }
+
+        function playReveal() {
+            playTone(700, 0.06, 'sine', 0.08);
+            setTimeout(() => playTone(900, 0.1, 'sine', 0.09), 50);
+        }
+
+        // === EFFECTS ===
+        function spawnSparkles(x, y, n) {
+            const emojis = ['✨', '⭐', '💫', '🌟'];
+            for (let i = 0; i < n; i++) {
+                const s = document.createElement('div');
+                s.className = 'sparkle';
+                s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                s.style.left = (x + (Math.random() - 0.5) * 60) + 'px';
+                s.style.top = (y + (Math.random() - 0.5) * 60) + 'px';
+                s.style.animationDelay = (Math.random() * 0.15) + 's';
+                document.body.appendChild(s);
+                setTimeout(() => s.remove(), 900);
+            }
+        }
+
+        // === STATE ===
+        let gameState = 'A_SKILL'; // A_SKILL, A_JOB, A_CARD, B_SKILL, B_JOB, B_CARD, FINAL
+        let selectedSkillIdx = null;
+        let selectedJobIdx = null;
+        let aSkill = null, aJob = null, bSkill = null, bJob = null;
+        let doubtShown = false;
+
+        // === ELEMENTS ===
+        const skillSection = document.getElementById('skillSection');
+        const jobSection = document.getElementById('jobSection');
+        const skillGrid = document.getElementById('skillGrid');
+        const jobGridRec = document.getElementById('jobGridRec');
+        const jobGridOthers = document.getElementById('jobGridOthers');
+        const instruction = document.getElementById('instruction');
+        const playerBadge = document.getElementById('playerBadge');
+        const btnNext = document.getElementById('btnNext');
+        const btnReset = document.getElementById('btnReset');
+        const finalPage = document.getElementById('finalPage');
+        const cardPreview = document.getElementById('cardPreview');
+        const processingOverlay = document.getElementById('processingOverlay');
+        const doubtOverlay = document.getElementById('doubtOverlay');
+        const doubtSub = document.getElementById('doubtSub');
+
+        // === STEP DOTS ===
+        function getStepNumber() {
+            switch(gameState) {
+                case 'A_SKILL': return 1;
+                case 'A_JOB': return 2;
+                case 'A_CARD': return 3;
+                case 'B_SKILL': return 3;
+                case 'B_JOB': return 4;
+                case 'B_CARD': return 5;
+                case 'FINAL': return 5;
+            }
+            return 1;
+        }
+
+        function updateStepDots() {
+            const step = getStepNumber();
+            document.querySelectorAll('.step-dot').forEach(d => {
+                const s = parseInt(d.dataset.step);
+                d.classList.remove('active', 'done');
+                if (s < step) d.classList.add('done');
+                if (s === step) d.classList.add('active');
+            });
+            document.querySelectorAll('.step-conn').forEach(c => {
+                const s = parseInt(c.dataset.conn);
+                c.classList.toggle('done', s < step);
+            });
+        }
+
+        // === BUILD SKILL GRID ===
+        function buildSkillGrid() {
+            skillGrid.innerHTML = '';
+            selectedSkillIdx = null;
+            skills.forEach((sk, idx) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `<span class="emoji">${sk.emoji}</span><span class="name">${sk.name}</span>`;
+                card.addEventListener('click', () => {
+                    initAudio();
+                    skillGrid.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    playSelect();
+                    selectedSkillIdx = idx;
+                    const rect = card.getBoundingClientRect();
+                    spawnSparkles(rect.left + rect.width/2, rect.top + rect.height/2, 3);
+                    btnNext.classList.remove('hidden');
+                });
+                skillGrid.appendChild(card);
+            });
+        }
+
+        // === BUILD JOB GRID ===
+        function buildJobGrid(skillName) {
+            jobGridRec.innerHTML = '';
+            jobGridOthers.innerHTML = '';
+            selectedJobIdx = null;
+            doubtShown = false;
+
+            const recommended = [];
+            const others = [];
+
+            jobs.forEach((job, idx) => {
+                if (job.relatedSkills.includes(skillName)) {
+                    recommended.push({ job, idx });
+                } else {
+                    others.push({ job, idx });
+                }
+            });
+
+            recommended.forEach(({ job, idx }) => {
+                jobGridRec.appendChild(createJobCard(job, idx, true));
+            });
+
+            others.forEach(({ job, idx }) => {
+                jobGridOthers.appendChild(createJobCard(job, idx, false));
+            });
+        }
+
+        function createJobCard(job, idx, isRec) {
+            const card = document.createElement('div');
+            card.className = 'card' + (isRec ? ' recommended' : '');
+            card.innerHTML = `<span class="emoji">${job.emoji}</span><span class="name">${job.name}</span>`;
+            card.addEventListener('click', () => {
+                initAudio();
+                jobSection.querySelectorAll('.card').forEach(c => c.classList.remove('job-selected'));
+                card.classList.add('job-selected');
+                playSelect();
+                selectedJobIdx = idx;
+                const rect = card.getBoundingClientRect();
+                spawnSparkles(rect.left + rect.width/2, rect.top + rect.height/2, 4);
+                btnNext.classList.remove('hidden');
+            });
+            return card;
+        }
+
+        // === CHECK WEIRD COMBO ===
+        function isWeirdCombo(skillIdx, jobIdx) {
+            const skillName = skills[skillIdx].name;
+            const job = jobs[jobIdx];
+            return !job.relatedSkills.includes(skillName);
+        }
+
+        // === DREAM CARD HTML ===
+        function makeDreamCardHTML(player, job, skill) {
+            const pClass = player === 'A' ? 'cpa' : 'cpb';
+            return `
+                <div class="dream-card">
+                    <span class="dc-player ${pClass}">Student ${player}</span>
+                    <span class="dc-stars">✨⭐✨</span>
+                    <div class="dc-title">Dream Card</div>
+                    <span class="dc-emoji">${job.emoji}</span>
+                    <div class="dc-job">${job.name}</div>
+                    <div class="dc-reason">I am good at <strong>${skill.name} ${skill.emoji}</strong></div>
+                </div>
+            `;
+        }
+
+        // === MAIN BUTTON HANDLER ===
+        btnNext.addEventListener('click', handleNext);
+
+        function handleNext() {
+            initAudio();
+            playChime();
+
+            switch(gameState) {
+                case 'A_SKILL':
+                    aSkill = selectedSkillIdx;
+                    selectedSkillIdx = null;
+                    gameState = 'A_JOB';
+                    updateStepDots();
+                    instruction.innerHTML = 'What do you <span class="hl">want to be</span>? Pick a dream job!';
+                    skillSection.classList.add('hidden');
+                    jobSection.classList.remove('hidden');
+                    buildJobGrid(skills[aSkill].name);
+                    btnNext.classList.add('hidden');
+                    break;
+
+                case 'A_JOB':
+                    if (isWeirdCombo(aSkill, selectedJobIdx) && !doubtShown) {
+                        showDoubt(aSkill, selectedJobIdx);
+                        return;
+                    }
+                    aJob = selectedJobIdx;
+                    selectedJobIdx = null;
+                    showProcessing('A');
+                    break;
+
+                case 'A_CARD':
+                    // Dismiss A card, go to B
+                    cardPreview.classList.remove('visible');
+                    gameState = 'B_SKILL';
+                    updateStepDots();
+                    playerBadge.className = 'player-badge pb';
+                    playerBadge.innerHTML = '🙋‍♀️ Student B';
+                    instruction.innerHTML = 'What are you <span class="hl">good at</span>? Pick a skill!';
+                    skillSection.classList.remove('hidden');
+                    buildSkillGrid();
+                    btnNext.classList.add('hidden');
+                    btnNext.textContent = 'Next →';
+                    break;
+
+                case 'B_SKILL':
+                    bSkill = selectedSkillIdx;
+                    selectedSkillIdx = null;
+                    gameState = 'B_JOB';
+                    updateStepDots();
+                    instruction.innerHTML = 'What do you <span class="hl">want to be</span>? Pick a dream job!';
+                    skillSection.classList.add('hidden');
+                    jobSection.classList.remove('hidden');
+                    buildJobGrid(skills[bSkill].name);
+                    btnNext.classList.add('hidden');
+                    break;
+
+                case 'B_JOB':
+                    if (isWeirdCombo(bSkill, selectedJobIdx) && !doubtShown) {
+                        showDoubt(bSkill, selectedJobIdx);
+                        return;
+                    }
+                    bJob = selectedJobIdx;
+                    selectedJobIdx = null;
+                    showProcessing('B');
+                    break;
+
+                case 'B_CARD':
+                    // Dismiss B card, go to final
+                    cardPreview.classList.remove('visible');
+                    gameState = 'FINAL';
+                    updateStepDots();
+                    showFinalPage();
+                    break;
+            }
+        }
+
+        // === DOUBT ===
+        function showDoubt(skillIdx, jobIdx) {
+            const skillName = skills[skillIdx].name;
+            const jobName = jobs[jobIdx].name;
+            doubtSub.textContent = `${skillName} → ${jobName}?`;
+            doubtOverlay.classList.add('visible');
+            playDoubt();
+        }
+
+        document.getElementById('doubtNo').addEventListener('click', () => {
+            doubtOverlay.classList.remove('visible');
+            jobSection.querySelectorAll('.card').forEach(c => c.classList.remove('job-selected'));
+            selectedJobIdx = null;
+            btnNext.classList.add('hidden');
+        });
+
+        document.getElementById('doubtYes').addEventListener('click', () => {
+            doubtOverlay.classList.remove('visible');
+            doubtShown = true;
+            // Proceed with current selection
+            if (gameState === 'A_JOB') {
+                aJob = selectedJobIdx;
+                selectedJobIdx = null;
+                showProcessing('A');
+            } else if (gameState === 'B_JOB') {
+                bJob = selectedJobIdx;
+                selectedJobIdx = null;
+                showProcessing('B');
+            }
+        });
+
+        // === PROCESSING ===
+        function showProcessing(player) {
+            processingOverlay.classList.add('visible');
+            btnNext.classList.add('hidden');
+            jobSection.classList.add('hidden');
+
+            const isA = player === 'A';
+            const skill = isA ? skills[aSkill] : skills[bSkill];
+            const job = isA ? jobs[aJob] : jobs[bJob];
+
+            setTimeout(() => {
+                processingOverlay.classList.remove('visible');
+                playFanfare();
+
+                cardPreview.innerHTML = makeDreamCardHTML(player, job, skill);
+                cardPreview.classList.add('visible');
+
+                instruction.textContent = `⭐ Student ${player}'s Dream Card! ⭐`;
+                btnNext.classList.remove('hidden');
+                btnNext.textContent = isA ? "Student B's turn →" : "See the dialogue! →";
+
+                gameState = isA ? 'A_CARD' : 'B_CARD';
+                updateStepDots();
+            }, 1400);
+        }
+
+        // === FINAL PAGE ===
+        function showFinalPage() {
+            skillSection.classList.add('hidden');
+            jobSection.classList.add('hidden');
+            cardPreview.classList.remove('visible');
+            playerBadge.style.display = 'none';
+
+            instruction.textContent = '🎉 Tap each bubble to practise!';
+            finalPage.classList.add('visible');
+            btnNext.classList.add('hidden');
+            btnReset.classList.remove('hidden');
+
+            // Build final cards
+            const row = document.getElementById('finalCardsRow');
+            row.innerHTML = makeDreamCardHTML('A', jobs[aJob], skills[aSkill]) + makeDreamCardHTML('B', jobs[bJob], skills[bSkill]);
+
+            // Build dialogue
+            buildDialogue();
+        }
+
+        function buildDialogue() {
+            const container = document.getElementById('dialogueContainer');
+            container.innerHTML = '';
+
+            const aJobName = jobs[aJob].name;
+            const aSkillName = skills[aSkill].name;
+            const bJobName = jobs[bJob].name;
+            const bSkillName = skills[bSkill].name;
+
+            function art(w) { return 'aeiou'.includes(w[0].toLowerCase()) ? 'an' : 'a'; }
+
+            const lines = [
+                { side:"left", speaker:"Student A", hint:"💪❓", text:`What are you good at?` },
+                { side:"right", speaker:"Student B", hint:"💪", text:`I am good at ${bSkillName}.` },
+                { side:"left", speaker:"Student A", hint:"💭❓", text:`What do you want to be?` },
+                { side:"right", speaker:"Student B", hint:"💭", text:`I want to be ${art(bJobName)} ${bJobName}.` },
+                { side:"right", speaker:"Student B", hint:"💪❓", text:`What are you good at?` },
+                { side:"left", speaker:"Student A", hint:"💪", text:`I am good at ${aSkillName}.` },
+                { side:"right", speaker:"Student B", hint:"💭❓", text:`What do you want to be?` },
+                { side:"left", speaker:"Student A", hint:"💭", text:`I want to be ${art(aJobName)} ${aJobName}.` },
+            ];
+
+            lines.forEach((line, i) => {
+                const row = document.createElement('div');
+                row.className = `dialogue-row ${line.side}`;
+                row.style.animationDelay = (i * 0.08) + 's';
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'bubble-wrapper';
+
+                const label = document.createElement('div');
+                label.className = 'bubble-label';
+                label.textContent = line.speaker;
+
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.innerHTML = `<span class="tap-hint">${line.hint}</span><span class="hidden-text">${line.text}</span>`;
+
+                wrapper.addEventListener('click', () => {
+                    initAudio();
+                    if (!bubble.classList.contains('revealed')) {
+                        bubble.classList.add('revealed');
+                        playReveal();
+                        const rect = bubble.getBoundingClientRect();
+                        spawnSparkles(rect.left + rect.width/2, rect.top + rect.height/2, 3);
+                    } else {
+                        bubble.classList.remove('revealed');
+                    }
+                });
+
+                wrapper.appendChild(label);
+                wrapper.appendChild(bubble);
+                row.appendChild(wrapper);
+                container.appendChild(row);
+            });
+        }
+
+        // === RESET ===
+        btnReset.addEventListener('click', () => {
+            initAudio();
+            playTone(400, 0.1, 'sine', 0.06);
+
+            gameState = 'A_SKILL';
+            selectedSkillIdx = null;
+            selectedJobIdx = null;
+            aSkill = null; aJob = null; bSkill = null; bJob = null;
+            doubtShown = false;
+
+            updateStepDots();
+            instruction.innerHTML = 'What are you <span class="hl">good at</span>? Pick a skill!';
+            playerBadge.style.display = 'inline-flex';
+            playerBadge.className = 'player-badge pa';
+            playerBadge.innerHTML = '🙋‍♂️ Student A';
+            skillSection.classList.remove('hidden');
+            jobSection.classList.add('hidden');
+            cardPreview.classList.remove('visible');
+            finalPage.classList.remove('visible');
+            btnNext.classList.add('hidden');
+            btnNext.textContent = 'Next →';
+            btnReset.classList.add('hidden');
+
+            buildSkillGrid();
+        });
+
+        // === INIT ===
+        buildSkillGrid();
+        updateStepDots();
+    </script>
+
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>
