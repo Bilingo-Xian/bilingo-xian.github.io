@@ -471,4 +471,6 @@ a.ncc-tile:hover{transform:translateY(-3px)}
 .ncc-book-tag{font-size:.75rem;font-weight:800;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--muted)}
 .ncc-top{margin-left:auto;font-size:.82rem;font-weight:700;color:var(--muted);text-decoration:none}
 .ncc-top:hover{color:var(--accent)}
+.ncc-unit-nav{display:flex;justify-content:space-between;gap:10px;margin:18px 0 6px}
+.ncc-unit-nav .ncc-top{margin-left:0;border:1px solid var(--border);border-radius:12px;padding:8px 14px;background:var(--surface)}
 .ncc-mats{display:flex;flex-direction:column;gap:12px;padding-left:18px}

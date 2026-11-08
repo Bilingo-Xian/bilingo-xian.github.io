@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NCC U27 — On the Aeroplane — Bilingo Bonus Box</title>
+<link rel="icon" href="../../../assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a href="../../../index.html"><img class="logo" src="../../../assets/logo.png" alt="Bilingo logo"></a>
+  <a class="wordmark" href="../../../index.html">Bilingo Bonus Box<small>teaching materials hub</small></a>
+  <nav class="header-nav">
+    <a class="nav-pill" href="../../../index.html">🏠 Books</a>
+    <a class="nav-pill" href="../../../GE3.html">GE 3</a>
+    <a class="nav-pill" href="../../../GE4.html">GE 4</a>
+    <a class="nav-pill" href="../../../GE7.html">GE 7</a>
+    <a class="nav-pill" href="../../../GE8.html">GE 8</a>
+    <a class="nav-pill active" href="../../../ncc.html">NCC</a>
+    <span class="theme-switch" title="Theme">
+      <button data-theme="day" title="Day theme">☀️</button>
+      <button data-theme="night" title="Night theme">🌙</button>
+      <button data-theme="bilingo" title="Bilingo rainbow theme">🌈</button>
+    </span>
+  </nav>
+</header>
+<main class="wrap">
+  <section class="ncc-unit" style="--book-color:#16a34a">
+    <div class="ncc-unit-head">
+      <span class="ncc-u-num">U27</span>
+      <h2>On the Aeroplane</h2>
+      <span class="ncc-book-tag">NCC1-3</span>
+      <a class="ncc-top" href="../../../ncc.html">↑ all units</a>
+    </div>
+    <div class="ncc-mats"><div class="mat-card">
+  <h3>🎮 NCC1-3 U27. Countries and Nationalities</h3>
+  <p>Opens in a new tab — project it on the board.</p>
+  <a class="btn" href="NCC1-3%20U27.%20Countries%20and%20Nationalities.html" target="_blank" rel="noopener">Open ↗</a>
+</div></div>
+    <div class="ncc-unit-nav"><a class="ncc-top" href="../U26/index.html">◀ U26 · A Trip to Italy</a><span></span><a class="ncc-top" href="../U25-27/index.html">▶ U25–27 Review · Review</a></div>
+  </section>
+</main>
+<a class="feedback-fab" href="mailto:bilingo2014@proton.me?subject=Bonus%20Box%20feedback">📝 Feedback</a>
+<footer class="site-footer">Made with 🧡 for Bilingo teachers · problems or ideas? Use the feedback button!</footer>
+<div class="viewer" id="viewer">
+  <span class="v-count" id="viewer-count"></span>
+  <button class="v-close v-arrow" id="viewer-close" style="width:44px;height:44px">×</button>
+  <button class="v-arrow v-prev" id="viewer-prev" aria-label="Previous picture">◀</button>
+  <img id="viewer-img" alt="">
+  <button class="v-arrow v-next" id="viewer-next" aria-label="Next picture">▶</button>
+  <span class="v-name" id="viewer-name"></span>
+</div>
+<script>window.PICSETS = {"U27": []};</script>
+<script src="../../../assets/site.js"></script>
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+  /* never let the buttons leak into a paper printout */
+  @media print { .bilingo-ui { display: none !important; } }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body>
+</html>
