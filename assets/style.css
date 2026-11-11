@@ -452,6 +452,7 @@ img { max-width: 100%; }
 /* ---------- NCC ---------- */
 .ncc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:16px 0 10px}
 a.ncc-tile{display:block;border-radius:14px;padding:10px 12px;color:#fff;text-decoration:none;transition:transform .15s;box-shadow:0 4px 14px -6px rgb(15 23 42/.35)}
+a.ncc-tile.review{border:2px dashed rgb(255 255 255/.75);background-image:none !important}
 a.ncc-tile:hover{transform:translateY(-3px)}
 .ncc-tile .n-num{display:block;font-size:.72rem;font-weight:800;letter-spacing:.08em;opacity:.92}
 .ncc-tile .n-title{display:block;font-weight:700;font-size:.92rem;line-height:1.25;margin-top:3px}

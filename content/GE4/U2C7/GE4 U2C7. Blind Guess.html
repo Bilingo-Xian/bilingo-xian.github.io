@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Can You Hear? — Blind Guess (GE4 U2C7)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  color:#fff;padding:10px 12px 30px;overflow-x:hidden;
+  background:linear-gradient(135deg,#48dbfb,#0abde3 45%,#3867d6);
+}
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+.topbar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:920px;margin-bottom:6px;gap:8px;flex-wrap:wrap}
+h1{font-size:clamp(1.05em,3.2vw,1.7em);text-shadow:2px 2px 8px rgba(0,0,0,.25)}
+.togs{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.rc{background:rgba(255,255,255,.22);padding:4px 14px;border-radius:20px;font-size:.85em;font-weight:700;white-space:nowrap}
+.tg{
+  background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.35);
+  border-radius:20px;padding:4px 12px;font-size:.92em;font-weight:900;cursor:pointer;
+  user-select:none;color:rgba(255,255,255,.55);transition:all .2s;white-space:nowrap;
+}
+.tg.on{color:#fff;border-color:#2ed573;background:rgba(46,213,115,.25);box-shadow:0 0 14px rgba(46,213,115,.45)}
+.tg:hover{transform:scale(1.05)}
+
+.stage{
+  width:100%;max-width:920px;position:relative;
+  background:linear-gradient(180deg,#2c3e50,#1e2a38);
+  border:3px solid #48dbfb;border-radius:24px;
+  padding:14px 14px 18px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+}
+
+.banner{
+  width:100%;max-width:640px;margin:8px auto 8px;min-height:70px;
+  background:rgba(255,255,255,.1);border:2px dashed rgba(255,255,255,.35);
+  border-radius:18px;padding:12px 16px;text-align:center;
+  display:flex;flex-direction:column;justify-content:center;gap:4px;
+  font-size:clamp(.95em,2.4vw,1.45em);font-weight:900;line-height:1.4;transition:.35s;
+}
+.banner.solid{border-style:solid;border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.16)}
+.banner .row{animation:fadeUp .35s ease-out;line-height:1.5}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.banner.bigquestion{font-size:clamp(1.3em,4vw,2.1em);border-color:#48dbfb;background:rgba(72,219,251,.14)}
+.banner.hide{display:none}
+
+.prompt{
+  text-align:center;font-size:clamp(.85em,2.2vw,1.05em);font-weight:700;
+  color:rgba(255,255,255,.9);margin:2px 0 10px;min-height:1.6em;
+  text-shadow:1px 1px 4px rgba(0,0,0,.2);
+}
+
+.mainbtn{
+  display:block;margin:6px auto 10px;
+  padding:13px 40px;font-size:clamp(1em,2.6vw,1.2em);font-weight:900;
+  background:linear-gradient(135deg,#f9ca24,#f0932b);color:#1e2a38;
+  border:none;border-radius:50px;cursor:pointer;font-family:'Nunito',sans-serif;
+  box-shadow:0 8px 26px rgba(249,202,36,.4);transition:all .25s;
+  animation:glow 2s ease-in-out infinite;
+}
+.mainbtn:hover{transform:scale(1.06)}
+.mainbtn:active{transform:scale(.97)}
+.mainbtn.hide{display:none}
+@keyframes glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
+
+/* corner add-buttons */
+.addbtns{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:8px;z-index:5}
+.addbtn{
+  width:52px;height:52px;border-radius:50%;border:3px solid rgba(255,255,255,.5);
+  background:linear-gradient(135deg,#48dbfb,#3867d6);color:#fff;font-size:1.5em;cursor:pointer;
+  display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.35);transition:all .2s;
+}
+.addbtn:hover{transform:scale(1.12)}
+.addbtn:active{transform:scale(.94)}
+.addbtn.off{opacity:.35;filter:grayscale(.8);pointer-events:none}
+.addbtn .plus{position:absolute;margin-left:30px;margin-top:30px;font-size:.6em;background:#2ed573;border-radius:50%;width:20px;height:20px;display:grid;place-items:center;font-weight:900}
+.addbtn{position:relative}
+
+/* the tiles */
+.tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;width:100%;margin:4px auto 8px;min-height:170px}
+.tile{
+  width:clamp(120px,17vw,158px);border-radius:18px;padding:8px 6px 10px;text-align:center;
+  background:rgba(255,255,255,.1);border:3px solid rgba(255,255,255,.28);
+  position:relative;user-select:none;
+  animation:popIn .45s cubic-bezier(.34,1.56,.64,1);
+  transition:box-shadow .2s,border-color .2s;
+}
+@keyframes popIn{0%{transform:scale(0)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+.tile.leaving{animation:popOut .28s ease-in forwards}
+@keyframes popOut{to{transform:scale(0);opacity:0}}
+.tile img.tpic{width:100%;border-radius:12px;display:block;filter:drop-shadow(0 5px 9px rgba(0,0,0,.35))}
+.tile .temo{font-size:clamp(3.2em,8vw,4.4em);line-height:1.15;filter:drop-shadow(0 5px 9px rgba(0,0,0,.35))}
+.tile .tname{font-weight:900;font-size:clamp(.95em,2.4vw,1.15em);margin:4px 0 6px;text-shadow:1px 1px 4px rgba(0,0,0,.3)}
+.tile .spk{
+  width:52px;height:40px;border-radius:12px;border:3px solid rgba(255,255,255,.5);cursor:pointer;
+  background:linear-gradient(135deg,#48dbfb,#3867d6);color:#fff;font-size:1.15em;font-family:'Nunito',sans-serif;
+  transition:all .15s;box-shadow:0 4px 12px rgba(72,219,251,.3);
+}
+.tile .spk:hover{transform:scale(1.1)}
+.tile .spk:active{transform:scale(.93)}
+.tile.locked .spk{opacity:.45;pointer-events:none}
+.tile .spk.playing{animation:spkPulse .5s ease infinite}
+@keyframes spkPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18);box-shadow:0 0 22px rgba(72,219,251,.9)}}
+.tile .x{
+  position:absolute;top:-9px;right:-9px;width:26px;height:26px;border-radius:50%;
+  border:2px solid #fff;background:#ee5253;color:#fff;font-size:.8em;font-weight:900;cursor:pointer;
+  display:grid;place-items:center;box-shadow:0 3px 8px rgba(0,0,0,.35);transition:all .15s;z-index:2;
+}
+.tile .x:hover{transform:scale(1.2)}
+@keyframes wrongShake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-9px)}20%,40%,60%,80%{transform:translateX(9px)}}
+.tile.nope{animation:wrongShake .45s ease}
+.tile.won{border-color:#2ed573;box-shadow:0 0 0 4px rgba(46,213,115,.35),0 0 34px rgba(46,213,115,.55)}
+
+/* the big green GUESSED button */
+.guessbtn{
+  display:block;margin:10px auto 0;
+  padding:15px 54px;font-size:clamp(1.1em,3vw,1.45em);font-weight:900;
+  background:linear-gradient(135deg,#34d399,#10b981);color:#022c22;
+  border:none;border-radius:50px;cursor:pointer;font-family:'Nunito',sans-serif;
+  box-shadow:0 10px 30px rgba(16,185,129,.45);transition:all .25s;
+  animation:glow 2s ease-in-out infinite;
+}
+.guessbtn:hover{transform:scale(1.06)}
+.guessbtn:active{transform:scale(.97)}
+.guessbtn.hide{display:none}
+.guessbtn.wait{filter:grayscale(.5) brightness(.75);animation:none}
+
+.popup{position:fixed;top:36%;left:50%;transform:translate(-50%,-50%) scale(0);font-size:clamp(1.7em,6.5vw,3.2em);font-weight:900;z-index:1000;pointer-events:none;text-shadow:3px 3px 12px rgba(0,0,0,.35);opacity:0;white-space:nowrap}
+.popup.show{animation:popIn 1.2s ease forwards}
+@keyframes popIn{0%{transform:translate(-50%,-50%) scale(0);opacity:0}20%{transform:translate(-50%,-50%) scale(1.3);opacity:1}40%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(0);opacity:0}}
+
+.startov{
+  position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;gap:14px;
+  align-items:center;justify-content:center;cursor:pointer;
+  background:linear-gradient(135deg,#48dbfb,#3867d6);color:#fff;
+  font-weight:900;text-align:center;padding:20px;
+}
+.startov .t{font-size:clamp(1.6em,6vw,3em);text-shadow:2px 2px 10px rgba(0,0,0,.3)}
+.startov .s{font-size:clamp(1em,3vw,1.4em);opacity:.9}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<div class="startov" id="startOv">
+  <div class="t">👂 What Can You Hear? 🙈</div>
+  <div class="s">👆 Tap anywhere to start!</div>
+</div>
+
+<div class="topbar">
+  <h1>👂 What Can You Hear?</h1>
+  <div class="togs">
+    <div class="rc" id="rc">Round 1</div>
+    <div class="tg on" id="tgS" title="Sound on/off">🔊</div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="addbtns">
+    <button class="addbtn" id="addV" title="Add a vehicle to the screen">🚗<span class="plus">+</span></button>
+    <button class="addbtn" id="addA" title="Add an animal to the screen">🐻<span class="plus">+</span></button>
+  </div>
+
+  <div class="banner hide" id="banner"></div>
+  <div class="prompt" id="prompt"></div>
+  <button class="mainbtn hide" id="mainBtn"></button>
+
+  <div class="tiles" id="tiles"></div>
+
+  <button class="guessbtn hide wait" id="guessBtn">✅ Guessed it! 🎉</button>
+</div>
+
+<div class="popup" id="popup"></div>
+
+<script>
+/* ================================================================
+   ★★★ WHERE TO ADD MORE SOUNDS ★★★
+   ----------------------------------------------------------------
+   1) NEW THING: add one line to VEHICLES or ANIMALS below
+      (copy an existing line).  Its sound file goes into sounds/
+      named EXACTLY like its id:
+          id:'train'  ->  sounds/train.m4a   (or .mp3 / .wav)
+      Nothing else to change — buttons appear automatically.
+
+   2) EXTRA RECORDINGS ("variants"): drop up to 2 more files next
+      to the main one, numbered:
+          sounds/car.m4a    sounds/car2.m4a    sounds/car3.m4a
+      The game checks which of them exist and randomly picks ONE —
+      separately for EVERY ROUND.  Replaying the speaker inside the
+      same round repeats the SAME recording, so the blindfolded kid
+      hears a consistent sound.  One or two files is totally fine —
+      the game simply uses whatever it finds.
+
+   3) FORMAT: .m4a is best (tiny + fast).  .mp3 and .wav also work.
+      Files load in the background when the game starts, so tapping
+      a speaker plays instantly.
+   ----------------------------------------------------------------
+   img: picture file (vehicles).  If no img, `e` (emoji) is shown.
+   dn:  the phrase used in the dialogue ("a car", "an elephant").
+   ================================================================ */
+const VEHICLES=[
+  {id:'car',   img:'assets/car.jpg',   dn:'a car'},
+  {id:'bus',   img:'assets/bus.jpg',   dn:'a bus'},
+  {id:'boat',  img:'assets/boat.jpg',  dn:'a boat'},
+  {id:'plane', img:'assets/plane.jpg', dn:'a plane'},
+  {id:'train', img:'assets/train.jpg', dn:'a train'}   // no train.m4a yet → synth whistle+chuffs plays instead
+];
+const ANIMALS=[
+  {id:'bear',     e:'🐻', dn:'a bear'},
+  {id:'birds',    e:'🐦', dn:'a bird'},
+  {id:'elephant', e:'🐘', dn:'an elephant'},
+  {id:'fly',      e:'🪰', dn:'a fly'},
+  {id:'frog',     e:'🐸', dn:'a frog'}
+];
+const ALL=[...VEHICLES,...ANIMALS];
+const byId=id=>ALL.find(s=>s.id===id);
+
+const qp=new URLSearchParams(location.search);
+const DBG_SND=qp.get('s');       // debug: this sound is the answer
+const DBG_PHASE=qp.get('phase'); // debug: 'question' | 'listen' | 'dialogue'
+
+/* ============ SOUND BANK (preload → instant playback) ============
+   Every thing gets up to 3 slots: id.m4a / id2.m4a / id3.m4a
+   (.mp3 and .wav are tried as fallbacks for each slot).  Slots that
+   don't exist are quietly skipped. */
+const bank={};      // id -> {slots:[{el,ok,tried,url}]}
+function loadSound(id){
+  if(bank[id])return bank[id];
+  const entry={slots:[]};
+  bank[id]=entry;
+  for(let k=1;k<=3;k++){
+    const base='sounds/'+id+(k>1?k:'');
+    const slot={el:new Audio(),ok:false,tried:0,urls:[base+'.m4a',base+'.mp3',base+'.wav'],url:''};
+    slot.el.preload='auto';
+    slot.el.addEventListener('canplaythrough',()=>{slot.ok=true},{once:true});
+    slot.el.addEventListener('loadeddata',()=>{slot.ok=true},{once:true});
+    slot.el.addEventListener('error',()=>{           // missing file → try next format
+      slot.tried++;
+      if(slot.tried<slot.urls.length){slot.el.src=slot.urls[slot.tried]}
+      else{slot.dead=true}
+    });
+    slot.url=slot.urls[0];
+    slot.el.src=slot.url;
+    entry.slots.push(slot);
+  }
+  return entry;
+}
+function aliveSlots(id){return (bank[id]?bank[id].slots:[]).filter(s=>!s.dead)}
+const pickMap={};   // `${round}:${id}` -> chosen slot index (same all round)
+function playSound(id){
+  if(!soundOn)return null;
+  const slots=aliveSlots(id);
+  if(!slots.length){                     // nothing on disk → built-in synth
+    if(id==='train')synthTrain();
+    else{initAudio();tone(500,'sine',.15,.2);tone(650,'sine',.15,.2,.12)}
+    return null;
+  }
+  const key=round+':'+id;
+  if(pickMap[key]==null||bank[id].slots[pickMap[key]].dead){
+    pickMap[key]=bank[id].slots.indexOf(slots[~~(Math.random()*slots.length)]);
+  }
+  const slot=bank[id].slots[pickMap[key]];
+  slot.el.pause();slot.el.currentTime=0;
+  slot.el.play().catch(()=>{});
+  return slot;
+}
+/* built-in train (used only while sounds/train.* is missing) */
+function synthTrain(){
+  initAudio();if(!AC)return;
+  [[622,0],[740,.03],[466,.06]].forEach(([f,d])=>{   // whistle chord, slow fall
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.type='triangle';o.frequency.setValueAtTime(f,AC.currentTime+d);
+    o.frequency.exponentialRampToValueAtTime(f*.93,AC.currentTime+d+1.15);
+    g.gain.setValueAtTime(0,AC.currentTime+d);
+    g.gain.linearRampToValueAtTime(.15,AC.currentTime+d+.12);
+    g.gain.setValueAtTime(.15,AC.currentTime+d+.8);
+    g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d+1.3);
+    o.connect(g);g.connect(AC.destination);
+    o.start(AC.currentTime+d);o.stop(AC.currentTime+d+1.35);
+  });
+  const dur=2,sr=AC.sampleRate,buf=AC.createBuffer(1,sr*dur,sr),dd=buf.getChannelData(0);
+  for(let i=0;i<dd.length;i++)dd[i]=Math.random()*2-1;   // chuff-chuff steam
+  for(let c=0;c<7;c++){
+    const src=AC.createBufferSource();src.buffer=buf;
+    const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=520;bp.Q.value=1.1;
+    const g=AC.createGain();const t0=AC.currentTime+.05+c*.27;
+    g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(.45,t0+.02);
+    g.gain.exponentialRampToValueAtTime(.001,t0+.15);
+    src.connect(bp);bp.connect(g);g.connect(AC.destination);
+    src.start(t0);src.stop(t0+.18);
+  }
+}
+
+/* ============ AUDIO FX (synth only) ============ */
+let AC,soundOn=true;
+function initAudio(){if(!soundOn)return;if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}
+function tone(f,type,dur,vol=.25,del=0){
+  if(!AC||!soundOn)return;const o=AC.createOscillator(),g=AC.createGain();
+  o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(vol,AC.currentTime+del);
+  g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+del+dur);
+  o.connect(g);g.connect(AC.destination);
+  o.start(AC.currentTime+del);o.stop(AC.currentTime+del+dur);
+}
+function sndCorrect(){initAudio();tone(523,'sine',.18,.22,0);tone(659,'sine',.18,.22,.09);tone(784,'sine',.25,.28,.18);tone(1047,'sine',.35,.18,.3)}
+function sndWrong(){initAudio();tone(160,'square',.3,.16);tone(120,'sawtooth',.22,.1,.1)}
+function sndCheer(){
+  initAudio();if(!AC)return;
+  const dur=.9,sr=AC.sampleRate,buf=AC.createBuffer(1,sr*dur,sr),d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,1.6);
+  const src=AC.createBufferSource();src.buffer=buf;
+  const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=900;bp.Q.value=.8;
+  const g=AC.createGain();g.gain.setValueAtTime(.5,AC.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+dur);
+  src.connect(bp);bp.connect(g);g.connect(AC.destination);src.start();
+  for(let i=0;i<5;i++)tone(500+Math.random()*500,'sine',.18,.1,Math.random()*.5);
+}
+function sndReveal(){initAudio();tone(660,'triangle',.12,.15,0);tone(880,'triangle',.14,.15,.08);tone(1100,'triangle',.2,.18,.16)}
+function sndPop(){initAudio();tone(700,'sine',.07,.16);tone(1050,'sine',.08,.14,.05)}
+function sndNext(){initAudio();
+  const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';
+  o.frequency.setValueAtTime(350,AC.currentTime);o.frequency.exponentialRampToValueAtTime(900,AC.currentTime+.12);
+  g.gain.setValueAtTime(.1,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.18);
+  o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.18);
+}
+document.getElementById('tgS').onclick=function(){
+  soundOn=!soundOn;this.classList.toggle('on',soundOn);this.textContent=soundOn?'🔊':'🔇';
+};
+
+/* ============ CONFETTI ============ */
+const cvs=document.getElementById('confetti'),cx=cvs.getContext('2d');
+let pts=[],afr=null;
+function rCvs(){cvs.width=innerWidth;cvs.height=innerHeight}
+addEventListener('resize',rCvs);rCvs();
+function boom(x,y,n=120){
+  for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=Math.random()*14+4;
+    pts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-5,
+      col:['#ffe66d','#ff6b6b','#4ecdc4','#45b7d1','#f9ca24','#ff9ff3','#48dbfb','#00d2d3','#ff6348','#7bed9f'][~~(Math.random()*10)],
+      sz:Math.random()*7+3,life:1,rot:Math.random()*360,rs:(Math.random()-.5)*15,
+      sh:Math.random()>.4?'r':'c'});}
+  if(!afr)aLoop();
+}
+function fireworks(){
+  boom(innerWidth*.25,innerHeight*.3,90);setTimeout(()=>boom(innerWidth*.75,innerHeight*.25,90),180);
+  setTimeout(()=>boom(innerWidth*.5,innerHeight*.2,110),360);
+}
+function aLoop(){cx.clearRect(0,0,cvs.width,cvs.height);
+  for(let i=pts.length-1;i>=0;i--){const p=pts[i];p.x+=p.vx;p.vy+=.22;p.y+=p.vy;p.vx*=.99;p.life-=.01;p.rot+=p.rs;
+    if(p.life<=0||p.y>cvs.height+30){pts.splice(i,1);continue}
+    cx.save();cx.translate(p.x,p.y);cx.rotate(p.rot*Math.PI/180);cx.globalAlpha=Math.min(1,p.life*2.5);cx.fillStyle=p.col;
+    if(p.sh==='r')cx.fillRect(-p.sz/2,-p.sz/2,p.sz,p.sz*.6);
+    else{cx.beginPath();cx.arc(0,0,p.sz/2,0,Math.PI*2);cx.fill()}
+    cx.restore();}
+  if(pts.length>0)afr=requestAnimationFrame(aLoop);else{afr=null;cx.clearRect(0,0,cvs.width,cvs.height);}
+}
+
+/* ============ STATE ============ */
+let round=0,phase='',playedId=null;
+const $=id=>document.getElementById(id);
+const tiles=$('tiles'),banner=$('banner'),prompt=$('prompt'),mainBtn=$('mainBtn'),rc=$('rc'),guessBtn=$('guessBtn');
+
+function popup(txt){
+  const p=$('popup');p.textContent=txt;p.className='popup show';
+  setTimeout(()=>p.className='popup',1300);
+}
+function setPrompt(t){prompt.textContent=t}
+function setBtn(label,fn,cls){
+  mainBtn.className='mainbtn'+(cls?' '+cls:'');
+  mainBtn.textContent=label;mainBtn.onclick=fn;
+  mainBtn.classList.remove('hide');
+}
+function hideBtn(){mainBtn.classList.add('hide')}
+function solidBanner(html,cls){banner.className='banner solid'+(cls?' '+cls:'');banner.classList.remove('hide');banner.innerHTML=`<div class="row">${html}</div>`}
+function hideBanner(){banner.className='banner hide';banner.innerHTML=''}
+
+/* ============ TILES ============ */
+function visibleIds(){return [...tiles.querySelectorAll('.tile')].map(t=>t.dataset.id)}
+function addTile(item){
+  if(visibleIds().includes(item.id)||tiles.querySelector(`[data-id="${item.id}"]`))return;
+  loadSound(item.id);sndPop();
+  const t=document.createElement('div');
+  t.className='tile'+(phase==='question'?' locked':'');
+  t.dataset.id=item.id;
+  const media=item.img?`<img class="tpic" src="${item.img}" alt="${item.id}">`:`<div class="temo">${item.e}</div>`;
+  t.innerHTML=`${media}<div class="tname">${item.id}</div><button class="spk" title="Play the sound">🔊</button><button class="x" title="Pop this off the screen">✖</button>`;
+  tiles.appendChild(t);
+  t.querySelector('.spk').onclick=ev=>tapSpeaker(item.id,ev.currentTarget);
+  t.querySelector('.x').onclick=()=>removeTile(item.id);
+  refreshAddButtons();
+}
+function removeTile(id){
+  const t=tiles.querySelector(`[data-id="${id}"]`);
+  if(!t)return;
+  if(visibleIds().length<=2){
+    sndWrong();t.classList.remove('nope');void t.offsetWidth;t.classList.add('nope');
+    popup('Keep at least two! 🙅');return;
+  }
+  sndPop();t.classList.add('leaving');
+  setTimeout(()=>{t.remove();refreshAddButtons()},270);
+}
+function refreshAddButtons(){
+  const vis=visibleIds();
+  $('addV').classList.toggle('off',!VEHICLES.some(v=>!vis.includes(v.id)));
+  $('addA').classList.toggle('off',!ANIMALS.some(a=>!vis.includes(a.id)));
+}
+function addFrom(list,btn){
+  const vis=visibleIds();
+  const rest=list.filter(s=>!vis.includes(s.id));
+  if(!rest.length){popup('All of them are here! 🎉');return}
+  addTile(rest[~~(Math.random()*rest.length)]);
+}
+$('addV').onclick=()=>addFrom(VEHICLES);
+$('addA').onclick=()=>addFrom(ANIMALS);
+
+/* ============ SPEAKERS ============ */
+let lastSpkBtn=null,playingEl=null;
+function stopPulse(){if(lastSpkBtn){lastSpkBtn.classList.remove('playing')}lastSpkBtn=null}
+function tapSpeaker(id,btn){
+  initAudio();
+  if(phase!=='listen'){
+    sndWrong();
+    const t=btn.closest('.tile');
+    t.classList.remove('nope');void t.offsetWidth;t.classList.add('nope');
+    return;
+  }
+  stopPulse();
+  if(playingEl){playingEl.pause();playingEl.currentTime=0}
+  const slot=playSound(id);
+  playingEl=slot?slot.el:null;
+  btn.classList.add('playing');lastSpkBtn=btn;
+  if(playingEl){playingEl.onended=()=>{btn.classList.remove('playing');if(lastSpkBtn===btn)lastSpkBtn=null}}
+  playedId=id;
+  const item=byId(id);
+  const first=!pickMap['asked:'+round+':'+id];
+  pickMap['asked:'+round+':'+id]=true;
+  setPrompt(first
+    ?'🙈 Guess! "Is it '+item.dn+'?" — 🔁 tap 🔊 to hear it again (same sound!)'
+    :'🔁 Same sound! 🙈 Keep guessing — or press the green button!');
+  guessBtn.classList.remove('wait');
+  sndPop();
+}
+
+/* ============ FLOW ============
+   show question -> listen & guess -> dialogue -> next round   */
+function newRound(){
+  round++;
+  playedId=null;stopPulse();if(playingEl){playingEl.pause()}
+  for(const k in pickMap)delete pickMap[k];
+  rc.textContent='Round '+round;
+  tiles.querySelectorAll('.tile').forEach(t=>t.classList.remove('won','locked'));
+  hideBanner();hideBtn();
+  guessBtn.classList.add('hide');guessBtn.classList.add('wait');
+  phase='question';
+  setPrompt('🙈 Blindfold one kid! The helper watches the screen.');
+  setBtn('Show the Question ❓',phaseQuestion);
+  refreshAddButtons();
+}
+function phaseQuestion(){
+  phase='question';sndReveal();
+  solidBanner('❓ What can you hear? ❓','bigquestion');
+  setPrompt('🔁 Everyone asks the blindfolded kid: "What can you hear?"');
+  setBtn('Next ▶ 🎧',phaseListen,'');
+}
+function phaseListen(){
+  phase='listen';sndNext();hideBtn();
+  banner.className='banner solid';
+  banner.innerHTML='<div class="row">🎧 👆 Helper: tap a speaker! &nbsp;·&nbsp; 🙈 Guess: "Is it a …?"</div>';
+  tiles.querySelectorAll('.tile').forEach(t=>t.classList.remove('locked'));
+  guessBtn.classList.remove('hide');guessBtn.classList.add('wait');
+  setPrompt('👆 Helper taps a speaker — the blindfolded kid guesses!');
+}
+function phaseDialogue(){
+  if(!playedId){
+    sndWrong();
+    guessBtn.classList.remove('wait');void guessBtn.offsetWidth;
+    popup('Play a sound first! 🔊');return;
+  }
+  phase='dialogue';sndReveal();stopPulse();
+  guessBtn.classList.add('hide');
+  const right=byId(playedId);
+  const wrongs=visibleIds().filter(i=>i!==playedId);
+  const wrong=wrongs.length?byId(wrongs[~~(Math.random()*wrongs.length)]):null;
+  const lines=['— What can you hear?'];
+  if(wrong)lines.push('— Is it '+wrong.dn+'?','— No, it\'s not.');
+  lines.push('— Is it '+right.dn+'?','— Yes, it is! 🎉');
+  solidBanner(lines.map((l,i)=>`<div class="row" style="animation-delay:${i*.22}s">${l}</div>`).join(''));
+  tiles.querySelectorAll('.tile').forEach(t=>t.classList.toggle('won',t.dataset.id===playedId));
+  setTimeout(()=>playSound(playedId),900);            // hear it one last time
+  setPrompt('🔁 Everyone say it! Then swap the blindfold and press Next!');
+  sndCorrect();sndCheer();
+  const t=tiles.querySelector(`[data-id="${playedId}"]`);
+  if(t){const r=t.getBoundingClientRect();boom(r.left+r.width/2,r.top+r.height/2,130)}
+  popup(['🎉 Great ears!','🏆 Amazing!','⭐ Wonderful!','👂 You got it!'][~~(Math.random()*4)]);
+  setBtn('Next ▶ 🔊',()=>{sndNext();newRound()},'');
+}
+guessBtn.onclick=()=>phaseDialogue();
+
+/* ============ START ============ */
+function startGame(){
+  const ov=$('startOv');if(ov)ov.remove();
+  initAudio();
+  VEHICLES.forEach(v=>addTile(v));            // the five U2C7 vehicles
+  loadSound('train');                         // starts fetching — synth is the fallback
+  if(DBG_SND)playedId=DBG_SND;
+  newRound();
+  if(DBG_PHASE==='question'){phaseQuestion()}
+  else if(DBG_PHASE==='listen'){phaseQuestion();phaseListen();if(DBG_SND)playSound(DBG_SND)}
+  else if(DBG_PHASE==='dialogue'){phaseQuestion();phaseListen();if(DBG_SND){playedId=DBG_SND;playSound(DBG_SND);phaseDialogue()}}
+}
+$('startOv').addEventListener('click',startGame,{once:true});
+if(DBG_SND||DBG_PHASE)startGame();   // debug/screenshot mode: skip the tap-to-start overlay
+</script>
+
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+  /* never let the buttons leak into a paper printout */
+  @media print { .bilingo-ui { display: none !important; } }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body>
+</html>
