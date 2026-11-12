@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>What Can You Hear? — Blind Guess (GE4 U2C7)</title>
+<title>Blind Guess: Listen Carefully! (GE4 U2C7)</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
@@ -66,8 +66,10 @@ h1{font-size:clamp(1.05em,3.2vw,1.7em);text-shadow:2px 2px 8px rgba(0,0,0,.25)}
 .mainbtn.hide{display:none}
 @keyframes glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
 
-/* corner add-buttons */
-.addbtns{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:8px;z-index:5}
+/* group toggle buttons — a column to the RIGHT of the game box */
+.gamewrap{display:flex;gap:14px;justify-content:center;align-items:flex-start;width:100%;max-width:1000px}
+.addbtns{display:flex;flex-direction:column;gap:10px;z-index:5;padding-top:14px}
+@media(max-width:820px){.gamewrap{flex-direction:column;align-items:center}.addbtns{flex-direction:row;padding-top:0}}
 .addbtn{
   width:52px;height:52px;border-radius:50%;border:3px solid rgba(255,255,255,.5);
   background:linear-gradient(135deg,#48dbfb,#3867d6);color:#fff;font-size:1.5em;cursor:pointer;
@@ -146,7 +148,7 @@ h1{font-size:clamp(1.05em,3.2vw,1.7em);text-shadow:2px 2px 8px rgba(0,0,0,.25)}
 <canvas id="confetti"></canvas>
 
 <div class="startov" id="startOv">
-  <div class="t">👂 What Can You Hear? 🙈</div>
+  <div class="t">🙈 Blind Guess: Listen Carefully! 👂</div>
   <div class="s">👆 Tap anywhere to start!</div>
 </div>
 
@@ -158,12 +160,8 @@ h1{font-size:clamp(1.05em,3.2vw,1.7em);text-shadow:2px 2px 8px rgba(0,0,0,.25)}
   </div>
 </div>
 
+<div class="gamewrap">
 <div class="stage">
-  <div class="addbtns">
-    <button class="addbtn" id="addV" title="Add a vehicle to the screen">🚗<span class="plus">+</span></button>
-    <button class="addbtn" id="addA" title="Add an animal to the screen">🐻<span class="plus">+</span></button>
-  </div>
-
   <div class="banner hide" id="banner"></div>
   <div class="prompt" id="prompt"></div>
   <button class="mainbtn hide" id="mainBtn"></button>
@@ -172,6 +170,12 @@ h1{font-size:clamp(1.05em,3.2vw,1.7em);text-shadow:2px 2px 8px rgba(0,0,0,.25)}
 
   <button class="guessbtn hide wait" id="guessBtn">✅ Guessed it! 🎉</button>
 </div>
+<div class="addbtns">
+  <button class="addbtn" id="addV" title="Vehicles on/off (all at once)">🚗<span class="plus">+</span></button>
+  <button class="addbtn" id="addA" title="Animals on/off (all at once)">🐻<span class="plus">+</span></button>
+  <button class="addbtn" id="addO" title="Other sounds on/off (all at once)">📦<span class="plus">+</span></button>
+</div>
+</div>
 
 <div class="popup" id="popup"></div>
 
@@ -179,7 +183,7 @@ h1{font-size:clamp(1.05em,3.2vw,1.7em);text-shadow:2px 2px 8px rgba(0,0,0,.25)}
 /* ================================================================
    ★★★ WHERE TO ADD MORE SOUNDS ★★★
    ----------------------------------------------------------------
-   1) NEW THING: add one line to VEHICLES or ANIMALS below
+   1) NEW THING: add one line to VEHICLES, ANIMALS or OTHERS below
       (copy an existing line).  Its sound file goes into sounds/
       named EXACTLY like its id:
           id:'train'  ->  sounds/train.m4a   (or .mp3 / .wav)
@@ -206,7 +210,7 @@ const VEHICLES=[
   {id:'bus',   img:'assets/bus.jpg',   dn:'a bus'},
   {id:'boat',  img:'assets/boat.jpg',  dn:'a boat'},
   {id:'plane', img:'assets/plane.jpg', dn:'a plane'},
-  {id:'train', img:'assets/train.jpg', dn:'a train'}   // no train.m4a yet → synth whistle+chuffs plays instead
+  {id:'train', img:'assets/train.jpg', dn:'a train'}   // synth whistle+chuffs is only a fallback if sounds/train.* is missing
 ];
 const ANIMALS=[
   {id:'bear',     e:'🐻', dn:'a bear'},
@@ -215,7 +219,14 @@ const ANIMALS=[
   {id:'fly',      e:'🪰', dn:'a fly'},
   {id:'frog',     e:'🐸', dn:'a frog'}
 ];
-const ALL=[...VEHICLES,...ANIMALS];
+const OTHERS=[
+  {id:'TV',         e:'📺', dn:'a TV'},
+  {id:'computer',   e:'💻', dn:'a computer'},
+  {id:'game',       e:'🎮', dn:'a game'},
+  {id:'school',     e:'🏫', dn:'a school'},
+  {id:'whiteboard', img:'whiteboard.png', dn:'a whiteboard'}
+];
+const ALL=[...VEHICLES,...ANIMALS,...OTHERS];
 const byId=id=>ALL.find(s=>s.id===id);
 
 const qp=new URLSearchParams(location.search);
@@ -382,7 +393,7 @@ function addTile(item){
   if(visibleIds().includes(item.id)||tiles.querySelector(`[data-id="${item.id}"]`))return;
   loadSound(item.id);sndPop();
   const t=document.createElement('div');
-  t.className='tile'+(phase==='question'?' locked':'');
+  t.className='tile'+(phase==='listen'?'':' locked');
   t.dataset.id=item.id;
   const media=item.img?`<img class="tpic" src="${item.img}" alt="${item.id}">`:`<div class="temo">${item.e}</div>`;
   t.innerHTML=`${media}<div class="tname">${item.id}</div><button class="spk" title="Play the sound">🔊</button><button class="x" title="Pop this off the screen">✖</button>`;
@@ -402,18 +413,32 @@ function removeTile(id){
   setTimeout(()=>{t.remove();refreshAddButtons()},270);
 }
 function refreshAddButtons(){
+  // always clickable; the badge flips to '−' when the whole group is on
+  // screen (pressing it then pops them all off)
   const vis=visibleIds();
-  $('addV').classList.toggle('off',!VEHICLES.some(v=>!vis.includes(v.id)));
-  $('addA').classList.toggle('off',!ANIMALS.some(a=>!vis.includes(a.id)));
+  [['addV',VEHICLES],['addA',ANIMALS],['addO',OTHERS]].forEach(([bid,list])=>{
+    $(bid).querySelector('.plus').textContent=list.every(x=>vis.includes(x.id))?'−':'+';
+  });
 }
-function addFrom(list,btn){
+function toggleGroup(list){
   const vis=visibleIds();
-  const rest=list.filter(s=>!vis.includes(s.id));
-  if(!rest.length){popup('All of them are here! 🎉');return}
-  addTile(rest[~~(Math.random()*rest.length)]);
+  const on=list.filter(x=>vis.includes(x.id));
+  const off=list.filter(x=>!vis.includes(x.id));
+  if(on.length&&!off.length){
+    // whole group on screen → pop them ALL off (but keep ≥2 tiles total)
+    const removeCount=Math.min(on.length,Math.max(0,vis.length-2));
+    on.slice(0,removeCount).forEach((x,i)=>setTimeout(()=>{
+      const t=tiles.querySelector(`[data-id="${x.id}"]`);
+      if(t){sndPop();t.classList.add('leaving');setTimeout(()=>{t.remove();refreshAddButtons()},270)}
+    },i*90));
+    return;
+  }
+  // some (or none) on screen → pop the missing ones on, one by one
+  off.forEach((x,i)=>setTimeout(()=>addTile(x),i*110));
 }
-$('addV').onclick=()=>addFrom(VEHICLES);
-$('addA').onclick=()=>addFrom(ANIMALS);
+$('addV').onclick=()=>toggleGroup(VEHICLES);
+$('addA').onclick=()=>toggleGroup(ANIMALS);
+$('addO').onclick=()=>toggleGroup(OTHERS);
 
 /* ============ SPEAKERS ============ */
 let lastSpkBtn=null,playingEl=null;
@@ -453,24 +478,18 @@ function newRound(){
   tiles.querySelectorAll('.tile').forEach(t=>t.classList.remove('won','locked'));
   hideBanner();hideBtn();
   guessBtn.classList.add('hide');guessBtn.classList.add('wait');
-  phase='question';
+  phase='idle';
   setPrompt('🙈 Blindfold one kid! The helper watches the screen.');
   setBtn('Show the Question ❓',phaseQuestion);
   refreshAddButtons();
 }
 function phaseQuestion(){
-  phase='question';sndReveal();
+  phase='listen';sndReveal();
   solidBanner('❓ What can you hear? ❓','bigquestion');
-  setPrompt('🔁 Everyone asks the blindfolded kid: "What can you hear?"');
-  setBtn('Next ▶ 🎧',phaseListen,'');
-}
-function phaseListen(){
-  phase='listen';sndNext();hideBtn();
-  banner.className='banner solid';
-  banner.innerHTML='<div class="row">🎧 👆 Helper: tap a speaker! &nbsp;·&nbsp; 🙈 Guess: "Is it a …?"</div>';
+  hideBtn();                                            // no Next — straight to listening
   tiles.querySelectorAll('.tile').forEach(t=>t.classList.remove('locked'));
-  guessBtn.classList.remove('hide');guessBtn.classList.add('wait');
-  setPrompt('👆 Helper taps a speaker — the blindfolded kid guesses!');
+  guessBtn.classList.remove('hide');guessBtn.classList.add('wait');   // grayed until a speaker is tapped
+  setPrompt('🔁 Everyone asks the blindfolded kid: "What can you hear?" — then 👆 the helper taps a speaker!');
 }
 function phaseDialogue(){
   if(!playedId){
@@ -507,8 +526,11 @@ function startGame(){
   if(DBG_SND)playedId=DBG_SND;
   newRound();
   if(DBG_PHASE==='question'){phaseQuestion()}
-  else if(DBG_PHASE==='listen'){phaseQuestion();phaseListen();if(DBG_SND)playSound(DBG_SND)}
-  else if(DBG_PHASE==='dialogue'){phaseQuestion();phaseListen();if(DBG_SND){playedId=DBG_SND;playSound(DBG_SND);phaseDialogue()}}
+  else if(DBG_PHASE==='listen'){phaseQuestion();if(DBG_SND)playSound(DBG_SND)}
+  else if(DBG_PHASE==='dialogue'){phaseQuestion();if(DBG_SND){playedId=DBG_SND;playSound(DBG_SND);phaseDialogue()}}
+  if(qp.get('all')){toggleGroup(ANIMALS);toggleGroup(OTHERS)}   // debug: everything on screen
+  const POP={'animals':'addA','others':'addO','vehicles':'addV'}[qp.get('pop')];
+  if(POP)$(POP).onclick();                                     // debug: simulate a group-button click
 }
 $('startOv').addEventListener('click',startGame,{once:true});
 if(DBG_SND||DBG_PHASE)startGame();   // debug/screenshot mode: skip the tap-to-start overlay

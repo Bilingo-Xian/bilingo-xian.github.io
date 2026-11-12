@@ -212,7 +212,7 @@ function playCur(){
   if(!soundOn)return;
   try{
     if(curSnd){curSnd.pause();curSnd.currentTime=0}
-    curSnd=new Audio('sounds/'+cur.id+'.wav');
+    curSnd=new Audio('sounds/'+cur.id+'.m4a');
     curSnd.play().catch(()=>{});
   }catch(e){}
 }
