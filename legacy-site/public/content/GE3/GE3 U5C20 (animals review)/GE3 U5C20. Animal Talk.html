@@ -356,6 +356,25 @@ body {
 
 .highlight { color: #764ba2; font-weight: 800; }
 
+/* FLOATING WORD CHIP — the word the kids must find */
+.word-chip {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: #5e35b1;
+    background: #f5f0ff;
+    border: 3px dashed #b39ddb;
+    border-radius: 16px;
+    padding: 6px 30px;
+    margin: 4px 0 2px;
+    letter-spacing: 1px;
+    animation: chipFloat 2.5s ease-in-out infinite;
+    box-shadow: 0 6px 18px rgba(118,75,162,0.18);
+}
+@keyframes chipFloat {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-6px) rotate(1deg); }
+}
+
 /* BUTTONS */
 .action-row {
     display: flex;
@@ -522,12 +541,14 @@ const animals = {
         { name: 'fly', emoji: '🪰', article: 'A' },
         { name: 'ladybug', emoji: '🐞', article: 'A' },
         { name: 'butterfly', emoji: '🦋', article: 'A' },
+        { name: 'bug', emoji: '🐛', article: 'A' },
     ],
     birds: [
         { name: 'duck', emoji: '🦆', article: 'A' },
         { name: 'eagle', emoji: '🦅', article: 'An' },
         { name: 'owl', emoji: '🦉', article: 'An' },
         { name: 'goose', emoji: '🪿', article: 'A' },
+        { name: 'geese', emoji: '🪿', article: '', plural: true },
         { name: 'parrot', emoji: '🦜', article: 'A' },
         { name: 'penguin', emoji: '🐧', article: 'A' },
     ],
@@ -561,89 +582,140 @@ let streak = 0;
 let totalDone = 0;
 
 // ===== CARD GENERATORS =====
-function getRandomFrom(cat) {
-    const arr = animals[cat];
-    return arr[Math.floor(Math.random() * arr.length)];
-}
+const QUESTION_TYPES = ['whatIsThis', 'whatIsX', 'isItA_yes', 'isItA_no'];
+
+// Emojis that look too similar to be used as alternatives of each other
+const CONFUSABLE = { '🪿': ['🦆'], '🦆': ['🪿'] };
+
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
 function getDistractors(correct, count) {
-    const allEmojis = Object.values(animals).flat();
-    const others = allEmojis.filter(a => a.emoji !== correct.emoji);
+    const all = Object.values(animals).flat();
+    const banned = [correct.emoji, ...(CONFUSABLE[correct.emoji] || [])];
+    const others = all.filter(a => !banned.includes(a.emoji));
     shuffle(others);
     return others.slice(0, count);
 }
 
-function getCatOf(animal) {
-    for (const [cat, arr] of Object.entries(animals)) {
-        if (arr.find(a => a.name === animal.name)) return cat;
+// --- WeightedPool: "random is not 100% random" ---
+// After a key is used it is IMPOSSIBLE to pick again until every other key
+// has been used (cooldown of n-1 picks). Once the cooldown ends its chance
+// grows slowly (1, 2, 3... per pick), so no back-to-back repeats, no words
+// starving, and each full loop covers everything before anything repeats.
+// Fresh (unused) keys get full weight, so the first loop is pure shuffle order.
+class WeightedPool {
+    constructor(keys) {
+        this.keys = [...keys];
+        this.n = keys.length;
+        this.last = {};   // key -> turn when last used
+        this.turn = 0;
     }
-    return 'bugs';
+    weight(k) {
+        if (this.last[k] === undefined) return this.n; // fresh
+        const tsu = this.turn - this.last[k];          // turns since used
+        if (tsu <= this.n - 1) return 0;               // cooling down: impossible
+        return tsu - (this.n - 1);                     // chance grows slowly after
+    }
+    pick() {
+        this.turn++;
+        const ws = this.keys.map(k => this.weight(k));
+        const total = ws.reduce((a, b) => a + b, 0);
+        let r = Math.random() * total;
+        for (let i = 0; i < this.keys.length; i++) {
+            r -= ws[i];
+            if (r <= 0) { this.last[this.keys[i]] = this.turn; return this.keys[i]; }
+        }
+        const k = this.keys[ws.findIndex(w => w > 0)] || this.keys[0];
+        this.last[k] = this.turn;
+        return k;
+    }
 }
 
-// Generate a single card
-function generateCard(forceCat) {
-    const cats = forceCat ? [forceCat] : ['bugs','birds','large','small'];
-    const cat = cats[Math.floor(Math.random() * cats.length)];
-    const item = getRandomFrom(cat);
+let catPool = null, typePool = null, animalPools = {};
+
+// Endless-mode card: pools guarantee every category, animal and question
+// type rotates through before anything repeats.
+function nextEndlessCard() {
+    const cat = catPool.pick();
+    const name = animalPools[cat].pick();
+    const item = animals[cat].find(a => a.name === name);
+    const type = typePool.pick();
+    return buildCard(cat, item, type);
+}
+
+// Round deck for one category: every animal appears exactly once and the
+// three question types are spread so each type is asked at least once.
+function buildRoundDeck(cat) {
+    const items = shuffle(animals[cat]);
+    const types = ['whatIsThis', 'whatIsX', 'isItA_yes'];
+    const typeDeck = [];
+    while (typeDeck.length < items.length) typeDeck.push(...shuffle(types));
+    return items.map((item, i) => buildCard(cat, item, typeDeck[i]));
+}
+
+// Build a single card from explicit parts
+function buildCard(cat, item, type) {
+    const plural = !!item.plural;
     const catName = catNames[cat];
-
-    // For "all" mode, also create cross-category "No" questions
-    const questionTypes = ['whatIsThis', 'whatIsX', 'isItA_yes'];
-
-    if (mode === 'all' || !forceCat) {
-        questionTypes.push('isItA_no');
-    }
-
-    const type = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+    const catNameP = catName + 's'; // bugs, birds, large animals, small animals
 
     let card = { cat, item, type };
 
     if (type === 'whatIsThis') {
-        // Show emoji -> "What is this?" -> "A bee is a bug."
+        // Word chip + "What is this?" -> tap the matching emoji
         const distractors = getDistractors(item, 3);
         card.emojiPhase = {
-            question: 'What is this? 👆',
+            question: plural ? 'What are these? 👆' : 'What is this? 👆',
+            wordChip: item.name,
             correct: item,
             choices: shuffle([item, ...distractors])
         };
         card.sentencePhase = {
-            teacher: `What is this?`,
-            student: `${item.article} <b id="b1" class="blank">${item.name}</b> is a <b id="b2" class="blank">${catName}</b>.`,
-            reveals: [['b1'], ['b2']]
+            teacher: plural ? 'What are these?' : 'What is this?',
+            student: plural
+                ? `${cap(item.name)} are <b id="b1" class="blank">${catNameP}</b>.`
+                : `${item.article} <b id="b1" class="blank">${item.name}</b> is a <b id="b2" class="blank">${catName}</b>.`,
+            reveals: plural ? [['b1']] : [['b1'], ['b2']]
         };
     } else if (type === 'whatIsX') {
-        // "What is a giraffe?" -> emoji choice -> sentence
+        // "What is a giraffe?" -> tap the emoji -> sentence
         const distractors = getDistractors(item, 3);
-        card.emojiPhase = {
-            question: `What is ${item.article.toLowerCase()} <span class="highlight">${item.name}</span>?`,
-            correct: item,
-            choices: shuffle([item, ...distractors])
-        };
+        const q = plural ? `What are <span class="highlight">${item.name}</span>?`
+                         : `What is ${item.article.toLowerCase()} <span class="highlight">${item.name}</span>?`;
+        card.emojiPhase = { question: q, correct: item, choices: shuffle([item, ...distractors]) };
         card.sentencePhase = {
-            teacher: `What is ${item.article.toLowerCase()} ${item.name}?`,
-            student: `${item.article} <b id="b1" class="blank">${item.name}</b> is a <b id="b2" class="blank">${catName}</b>.`,
-            reveals: [['b1'], ['b2']]
+            teacher: q,
+            student: plural
+                ? `${cap(item.name)} are <b id="b1" class="blank">${catNameP}</b>.`
+                : `${item.article} <b id="b1" class="blank">${item.name}</b> is a <b id="b2" class="blank">${catName}</b>.`,
+            reveals: plural ? [['b1']] : [['b1'], ['b2']]
         };
     } else if (type === 'isItA_yes') {
         // "Is a duck a bird?" -> Yes
-        card.emojiPhase = null; // skip emoji choice sometimes
+        card.emojiPhase = null; // no tapping, straight to the sentence
         card.showEmoji = item.emoji;
         card.sentencePhase = {
-            teacher: `Is ${item.article.toLowerCase()} <span class="highlight">${item.name}</span> a ${catName}?`,
-            student: `<b id="b1" class="blank">Yes</b>, ${item.article.toLowerCase()} <b id="b2" class="blank">${item.name}</b> is a <b id="b3" class="blank">${catName}</b>.`,
-            reveals: [['b1'], ['b2','b3']]
+            teacher: plural ? `Are <span class="highlight">${item.name}</span> ${catNameP}?`
+                            : `Is ${item.article.toLowerCase()} <span class="highlight">${item.name}</span> a ${catName}?`,
+            student: plural
+                ? `<b id="b1" class="blank">Yes</b>, ${item.name} are <b id="b2" class="blank">${catNameP}</b>.`
+                : `<b id="b1" class="blank">Yes</b>, ${item.article.toLowerCase()} <b id="b2" class="blank">${item.name}</b> is a <b id="b3" class="blank">${catName}</b>.`,
+            reveals: plural ? [['b1','b2']] : [['b1'], ['b2','b3']]
         };
     } else if (type === 'isItA_no') {
         // Pick a WRONG category to ask about
         const otherCats = Object.keys(catNames).filter(c => c !== cat);
         const wrongCat = otherCats[Math.floor(Math.random() * otherCats.length)];
-        const wrongCatName = catNames[wrongCat];
+        const wrongCatName = catNames[wrongCat] + (plural ? 's' : '');
 
         card.emojiPhase = null;
         card.showEmoji = item.emoji;
         card.sentencePhase = {
-            teacher: `Is ${item.article.toLowerCase()} <span class="highlight">${item.name}</span> a ${wrongCatName}?`,
-            student: `<b id="b1" class="blank">No</b>, ${item.article.toLowerCase()} ${item.name} is <b id="b2" class="blank">not</b> a ${wrongCatName}. It's a <b id="b3" class="blank">${catName}</b>!`,
+            teacher: plural ? `Are <span class="highlight">${item.name}</span> ${wrongCatName}?`
+                            : `Is ${item.article.toLowerCase()} <span class="highlight">${item.name}</span> a ${wrongCatName}?`,
+            student: plural
+                ? `<b id="b1" class="blank">No</b>, ${item.name} are <b id="b2" class="blank">not</b> ${wrongCatName}. They are <b id="b3" class="blank">${catNameP}</b>!`
+                : `<b id="b1" class="blank">No</b>, ${item.article.toLowerCase()} ${item.name} is <b id="b2" class="blank">not</b> a ${wrongCatName}. It's a <b id="b3" class="blank">${catName}</b>!`,
             reveals: [['b1','b2'], ['b3']]
         };
     }
@@ -660,12 +732,17 @@ function startGame(m) {
     currentIdx = 0;
 
     if (isEndless) {
+        catPool = new WeightedPool(Object.keys(animals));
+        typePool = new WeightedPool(QUESTION_TYPES);
+        animalPools = {};
+        for (const c of Object.keys(animals)) {
+            animalPools[c] = new WeightedPool(animals[c].map(a => a.name));
+        }
         cards = [];
-        for (let i = 0; i < 5; i++) cards.push(generateCard(null));
+        for (let i = 0; i < 5; i++) cards.push(nextEndlessCard());
     } else {
-        cards = [];
-        // Generate ~8 cards for the category, mix of types
-        for (let i = 0; i < 8; i++) cards.push(generateCard(m));
+        // One full round: every animal + every question type of the category
+        cards = buildRoundDeck(m);
     }
 
     showScreen('gameScreen');
@@ -697,6 +774,7 @@ function loadCard() {
 function renderEmojiPhase(card) {
     const ep = card.emojiPhase;
     let html = `<div class="phase-badge">Step 1: Pick!</div>`;
+    if (ep.wordChip) html += `<div class="word-chip">${ep.wordChip}</div>`;
     html += `<div class="speech-bubble teacher visible">${ep.question}</div>`;
     html += `<div class="emoji-choices">`;
     ep.choices.forEach((ch, i) => {
@@ -805,7 +883,7 @@ function nextCard() {
 
     // Endless: add more cards
     if (isEndless) {
-        cards.push(generateCard(null));
+        cards.push(nextEndlessCard());
         loadCardAnimated();
     } else {
         if (currentIdx >= cards.length) {
@@ -886,159 +964,5 @@ function megaConfetti() {
 </script>
 
 
-
-<!-- Bilingo sound FX: synthesized WebAudio, no asset files needed -->
-<style>
-.bilingo-redflash{position:fixed;inset:0;z-index:2147483647;pointer-events:none;background:rgba(229,57,53,.22);animation:bilingoFlash .45s ease-out forwards}
-@keyframes bilingoFlash{from{opacity:1}to{opacity:0}}
-.bilingo-shake{animation:bilingoShake .4s ease!important}
-@keyframes bilingoShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
-</style>
-<script>
-(function(){
-if(window.__bilingoSfx)return;window.__bilingoSfx=true;
-var CFG={GOOD:[".emoji-choice.correct",".reveal-btn.next"],BAD:[".emoji-choice.wrong"],DING:[],TICK:"",TAP:"button, .emoji-choice"};
-var ctx=null,lastGood=0,lastBad=0,lastDing=0;
-function ac(){if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ctx&&ctx.state==='suspended')ctx.resume();return ctx}
-function tone(f,d,type,v,delay,slide){var c=ac();if(!c)return;var t=c.currentTime+(delay||0);var o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.05)}
-function gate(t,ms){var n=Date.now();if(n-t<ms)return 0;return n}
-function tap(){tone(950,.05,'sine',.05)}
-function good(){var t=gate(lastGood,120);if(!t)return;lastGood=t;[523.25,659.25,783.99,1046.5].forEach(function(f,i){tone(f,.18,'triangle',.18,i*.07)})}
-function ding(){var t=gate(lastDing,120);if(!t)return;lastDing=t;tone(880,.12,'sine',.12);tone(1318.5,.2,'sine',.09,.08)}
-function bad(){var t=gate(lastBad,120);if(!t)return;lastBad=t;tone(170,.3,'sawtooth',.15,0,85)}
-function tickS(){tone(1500,.03,'square',.035)}
-function redflash(){var d=document.createElement('div');d.className='bilingo-redflash';(document.body||document.documentElement).appendChild(d);setTimeout(function(){d.remove()},500);var b=document.body;if(!b)return;b.classList.remove('bilingo-shake');void b.offsetWidth;b.classList.add('bilingo-shake');setTimeout(function(){b.classList.remove('bilingo-shake')},450)}
-if(CFG.TAP){document.addEventListener('pointerdown',function(e){var t=e.target;if(t&&t.closest&&t.closest(CFG.TAP))tap()},true)}
-var fired=new Map();
-function scan(){
-CFG.GOOD.concat(CFG.BAD,CFG.DING).forEach(function(sel){
-document.querySelectorAll(sel).forEach(function(el){
-var rec=fired.get(el);if(!rec){rec={};fired.set(el,rec)}
-if(!rec[sel]){rec[sel]=1;
-if(CFG.GOOD.indexOf(sel)>=0)good();
-else if(CFG.DING.indexOf(sel)>=0)ding();
-else{bad();redflash()}}})});
-fired.forEach(function(rec,el){Object.keys(rec).forEach(function(sel){try{if(!el.matches(sel))delete rec[sel]}catch(e){delete rec[sel]}});if(!Object.keys(rec).length)fired.delete(el)})}
-var scanT=null;
-function schedule(){clearTimeout(scanT);scanT=setTimeout(scan,80)}
-var mo=new MutationObserver(function(muts){
-var need=false;
-for(var i=0;i<muts.length;i++){var m=muts[i];
-if(m.type==='attributes'){need=true}
-else if(m.type==='childList'){need=true;
-if(CFG.TICK&&m.addedNodes){for(var j=0;j<m.addedNodes.length;j++){var n=m.addedNodes[j];if(n&&n.matches&&n.matches(CFG.TICK))tickS()}}}}
-if(need)schedule()});
-mo.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
-})();
-</script>
-
-
-
-<style>
-  .bilingo-ui {
-    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-    font-family: system-ui, sans-serif;
-  }
-  .bilingo-ui button {
-    width: 48px; height: 48px; border: 0; border-radius: 14px;
-    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
-    display: grid; place-items: center; transition: background .15s, transform .15s;
-  }
-  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
-  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .85; }
-  .bilingo-ui .b-handle { display: none; }
-  .bilingo-ui.mini > *:not(.b-handle) { display: none; }
-  .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
-</style>
-
-
-
-
-
-<!-- Bilingo game controls: zoom + fullscreen toggle (auto-collapsing) -->
-<style>
-  .bilingo-ui {
-    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-    font-family: system-ui, sans-serif;
-  }
-  .bilingo-ui button {
-    width: 48px; height: 48px; border: 0; border-radius: 14px;
-    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
-    display: grid; place-items: center; transition: background .15s, transform .15s;
-  }
-  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
-  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .85; }
-  .bilingo-ui .b-handle { display: none; }
-  .bilingo-ui.mini > *:not(.b-handle) { display: none; }
-  .bilingo-ui.mini .b-handle { display: grid; width: 40px; height: 40px; font-size: 1.1rem; }
-</style>
-<div id="bilingo-ui" class="bilingo-ui">
-  <button type="button" class="b-handle" title="Show controls" aria-label="Show controls">⚙️</button>
-  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
-  <div class="b-pct">100%</div>
-  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
-  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
-</div>
-<script>
-(function () {
-  if (window.__bilingoUI) return;
-  window.__bilingoUI = true;
-  var bar = document.getElementById('bilingo-ui');
-  var pct = bar.querySelector('.b-pct');
-  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom';
-  var z = parseFloat(localStorage.getItem(KEY) || '1');
-  if (isNaN(z)) z = 1;
-  z = Math.min(MAX, Math.max(MIN, z));
-
-  function apply() {
-    document.documentElement.style.setProperty('zoom', z);
-    pct.textContent = Math.round(z * 100) + '%';
-  }
-  function shrink() {
-    z = Math.max(MIN, Math.round((z - STEP) * 100) / 100);
-    localStorage.setItem(KEY, z); apply();
-  }
-  function grow() {
-    z = Math.min(MAX, Math.round((z + STEP) * 100) / 100);
-    localStorage.setItem(KEY, z); apply();
-  }
-  function toggleFS() {
-    var el = document.documentElement;
-    if (document.fullscreenElement || document.webkitFullscreenElement) {
-      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-    } else if (el.requestFullscreen) {
-      el.requestFullscreen().catch(function () {});
-    } else if (el.webkitRequestFullscreen) {
-      el.webkitRequestFullscreen();
-    }
-  }
-
-  bar.querySelector('.b-plus').addEventListener('click', grow);
-  bar.querySelector('.b-minus').addEventListener('click', shrink);
-  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
-  bar.querySelector('.b-handle').addEventListener('click', function () {
-    bar.classList.remove('mini');
-    poke();
-  });
-
-  // Collapse to just the handle after 5s without interaction, so the bar
-  // never sits on top of the game's own buttons.
-  var idleTimer = null;
-  function poke() {
-    bar.classList.remove('mini');
-    clearTimeout(idleTimer);
-    idleTimer = setTimeout(function () { bar.classList.add('mini'); }, 5000);
-  }
-  bar.addEventListener('pointerdown', poke);
-  poke();
-  apply();
-})();
-</script>
 
 </body></html>

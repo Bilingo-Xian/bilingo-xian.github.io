@@ -1,0 +1,746 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocab Challenge — Units 19–21</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=Caveat:wght@700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--ink:#2d2926;--green:#10b981;--red:#ff5a4e;--amber:#f0b420;--purple:#b0a5f4;--orange:#e8590c;--cream:#fff8ef}
+body{font-family:'Nunito',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;color:var(--ink);user-select:none;-webkit-user-select:none;touch-action:manipulation;overflow-x:hidden}
+
+/* ===== Wavy animated background ===== */
+.bg-stack{position:fixed;inset:0;z-index:0;overflow:hidden}
+.bg-layer{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease,filter .5s ease}
+.bg-layer.on{opacity:1}
+body.fail-mood .bg-layer{filter:saturate(.5) sepia(.3) brightness(.9)}
+.wave{position:absolute;left:0;width:200%;pointer-events:none;animation:waveDrift 17s linear infinite,waveBob 7s ease-in-out infinite}
+.wave path{fill:rgba(255,255,255,.22)}
+.wave.w2{animation-duration:27s,9s;animation-direction:reverse,normal;bottom:-8px}
+.wave.w2 path{fill:rgba(255,255,255,.13)}
+@keyframes waveDrift{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes waveBob{0%,100%{margin-bottom:0}50%{margin-bottom:10px}}
+
+/* ===== Fail vignette + emoji wave ===== */
+#vignette{position:fixed;inset:0;z-index:55;pointer-events:none;opacity:0;transition:opacity .4s ease;background:radial-gradient(ellipse at center,transparent 48%,rgba(190,30,30,.42) 80%,rgba(140,15,15,.62) 100%)}
+#vignette.on{opacity:1}
+#emoji-layer{position:fixed;inset:0;z-index:60;pointer-events:none;overflow:hidden}
+.fx-emoji{position:absolute;bottom:-60px;animation:emojiRise 1.9s ease-out forwards,emojiSway .6s ease-in-out infinite alternate;text-shadow:0 2px 8px rgba(0,0,0,.15)}
+@keyframes emojiRise{from{opacity:1}to{transform:translateY(-82vh) rotate(16deg);opacity:0}}
+@keyframes emojiSway{from{margin-left:0}to{margin-left:20px}}
+
+/* ===== App frame + shake ===== */
+#app{width:100%;max-width:640px;padding:16px;position:relative;z-index:2;min-height:100vh}
+#app.shaking{animation:shakeMild .5s ease}
+#app.shaking-hard{animation:shakeHard .65s ease}
+@keyframes shakeMild{0%,100%{transform:translate(0,0) rotate(0)}15%{transform:translate(-5px,2px) rotate(-.6deg)}30%{transform:translate(5px,-2px) rotate(.5deg)}45%{transform:translate(-4px,1px) rotate(-.4deg)}60%{transform:translate(4px,2px) rotate(.4deg)}75%{transform:translate(-2px,-1px) rotate(-.2deg)}90%{transform:translate(2px,1px) rotate(.2deg)}}
+@keyframes shakeHard{0%,100%{transform:translate(0,0) rotate(0)}10%{transform:translate(-12px,4px) rotate(-1.3deg)}25%{transform:translate(12px,-5px) rotate(1.2deg)}40%{transform:translate(-10px,3px) rotate(-1deg)}55%{transform:translate(10px,5px) rotate(1deg)}70%{transform:translate(-7px,-3px) rotate(-.6deg)}85%{transform:translate(6px,2px) rotate(.5deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(36px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes confettiFall{to{top:110vh;transform:rotate(720deg)}}
+@keyframes floatUp{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-85px) scale(1.5)}}
+@keyframes starPop{from{transform:scale(0) rotate(-180deg)}to{transform:scale(1) rotate(0)}}
+
+.screen{display:none}.screen.active{display:block;animation:fadeIn .45s ease}
+
+/* ===== Top bar ===== */
+.top-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.tpill{background:#fff;border:3px solid rgba(45,41,38,.08);border-radius:100vw;padding:6px 14px;font-weight:900;font-size:.8em;box-shadow:0 4px 14px rgba(45,41,38,.10)}
+.stage-badge.easy{color:#0b7a5c;border-color:#a7f3d0;background:#ecfdf5}
+.stage-badge.medium{color:#92610b;border-color:#fde68a;background:#fffbeb}
+.stage-badge.hard{color:#c0392b;border-color:#fecaca;background:#fef2f2}
+.streak-badge{display:none;color:#c2410c}
+.streak-badge.show{display:inline-block;animation:pulse .6s ease infinite}
+.progress-wrap{height:10px;background:rgba(255,255,255,.35);border-radius:100vw;overflow:hidden;margin-bottom:12px;border:2px solid rgba(255,255,255,.35)}
+.progress-bar{height:100%;background:#fff;border-radius:100vw;transition:width .4s ease}
+
+/* ===== Timer ===== */
+.timer-wrap{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.timer-circle{width:50px;height:50px;border-radius:50%;border:4px solid rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:1.15em;color:#fff;flex-shrink:0;background:rgba(255,255,255,.18);transition:border-color .3s;text-shadow:0 2px 6px rgba(0,0,0,.18)}
+.timer-circle.warning{border-color:var(--amber);animation:pulse .5s ease infinite}
+.timer-circle.danger{border-color:var(--red);animation:pulse .3s ease infinite}
+.timer-bar-bg{flex:1;height:10px;background:rgba(255,255,255,.35);border-radius:100vw;overflow:hidden;border:2px solid rgba(255,255,255,.35)}
+.timer-bar{height:100%;border-radius:100vw;transition:width .1s linear,background .3s}
+.timer-bar.full{background:#fff}
+.timer-bar.mid{background:var(--amber)}
+.timer-bar.low{background:var(--red)}
+
+/* ===== Question card ===== */
+.q-card{background:#fff;border-radius:26px;padding:26px 24px 22px;margin-bottom:14px;box-shadow:0 12px 34px rgba(45,41,38,.16);border:3px solid rgba(45,41,38,.05);animation:slideUp .35s ease}
+.q-type-label{font-family:'Fredoka One',cursive;font-size:.95em;letter-spacing:.5px;margin-bottom:10px;color:#7c3aed}
+.q-prompt{font-weight:800;font-size:1.18em;line-height:1.5}
+.q-context{margin-top:10px;color:#666;font-size:.95em;font-weight:600;font-style:italic}
+
+/* ===== Options ===== */
+.options-grid{display:grid;gap:12px}
+.options-grid.cols-2{grid-template-columns:1fr 1fr}
+.options-grid.cols-1{grid-template-columns:1fr}
+.opt-btn{background:#fff;border:3px solid rgba(45,41,38,.10);border-radius:18px;padding:18px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1.02em;color:var(--ink);cursor:pointer;transition:all .15s;box-shadow:0 5px 0 rgba(45,41,38,.07)}
+.opt-btn:hover{transform:translateY(-3px);border-color:var(--purple);box-shadow:0 8px 0 rgba(45,41,38,.07)}
+.opt-btn:active{transform:scale(.96)}
+.opt-btn.correct{background:var(--green);border-color:#0b7a5c;color:#fff;animation:popIn .35s ease;box-shadow:0 5px 0 #0b7a5c}
+.opt-btn.wrong{background:var(--red);border-color:#b91c1c;color:#fff}
+.opt-btn.dead{background:#eceff1;border-color:#ff8a80;color:#9aa0a6;pointer-events:none;box-shadow:none}
+.opt-btn.dead::before{content:'✗ ';color:#e53935;font-weight:900}
+.opt-btn.disabled{pointer-events:none}
+.tf-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tf-btn{border:3px solid rgba(45,41,38,.10);border-radius:18px;padding:20px;font-family:'Fredoka One',cursive;font-size:1.25em;cursor:pointer;background:#fff;transition:all .15s;box-shadow:0 5px 0 rgba(45,41,38,.07)}
+.tf-true{color:#0b7a5c}.tf-false{color:#c0392b}
+.tf-btn.correct{background:var(--green);color:#fff;border-color:#0b7a5c;box-shadow:0 5px 0 #0b7a5c}
+.tf-btn.wrong{background:var(--red);color:#fff;border-color:#b91c1c}
+.tf-btn.dead{background:#eceff1;border-color:#ff8a80;color:#9aa0a6;pointer-events:none;box-shadow:none}
+.tf-btn.dead::before{content:'✗ ';color:#e53935}
+.tf-btn.disabled{pointer-events:none}
+
+/* ===== Drag / build ===== */
+.drag-sentence{background:#fff;border-radius:18px;padding:22px 18px;font-weight:800;font-size:1.12em;line-height:2.3;text-align:center;border:3px solid rgba(45,41,38,.08);box-shadow:0 5px 0 rgba(45,41,38,.06)}
+.drag-blank{display:inline-block;min-width:64px;border:3px dashed var(--purple);border-radius:12px;padding:2px 10px;margin:0 3px;color:#8b7fd4;background:#f6f4ff;cursor:pointer;transition:all .15s;font-size:.9em}
+.drag-blank.filled{border-style:solid;background:#ede9fe;color:#5b21b6}
+.drag-blank.correct-slot{border-color:var(--green);background:#d1fae5;color:#065f46;border-style:solid}
+.drag-blank.wrong-slot{border-color:var(--red);background:#ffe3e0;color:#b91c1c;border-style:solid;animation:wrongFlash .45s ease 3}
+.drag-blank.locked{pointer-events:none}
+@keyframes wrongFlash{0%,100%{background:#ffe3e0}50%{background:#ffb3ab}}
+.drag-tiles{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px}
+.drag-tile{background:#fff;border:3px solid rgba(45,41,38,.12);border-radius:14px;padding:12px 18px;font-weight:900;font-size:1em;cursor:pointer;box-shadow:0 4px 0 rgba(45,41,38,.08);transition:all .12s;font-family:'Nunito',sans-serif}
+.drag-tile:hover{transform:translateY(-2px)}
+.drag-tile.used{opacity:.25;pointer-events:none;transform:scale(.95)}
+.drag-tile.disabled{pointer-events:none;opacity:.4}
+.drag-check-btn{display:none;margin:18px auto 0;background:linear-gradient(135deg,#f0b420,#f97316);color:#fff;border:none;padding:15px 40px;border-radius:100vw;font-family:'Fredoka One',cursive;font-size:1.1em;cursor:pointer;box-shadow:0 6px 0 #c2610f;transition:all .15s}
+.drag-check-btn.show{display:block;animation:popIn .3s ease}
+.drag-check-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #c2610f}
+
+/* ===== Feedback ===== */
+.feedback{display:none;margin-top:16px;border-radius:20px;padding:16px 18px;font-weight:800;animation:slideUp .3s ease;border:3px solid transparent}
+.feedback.show{display:block}
+.feedback.fb-correct{background:#d1fae5;border-color:#6ee7b7;color:#065f46}
+.feedback.fb-wrong{background:#ffe3e0;border-color:#ffb3ab;color:#b91c1c}
+.feedback.fb-try{background:#fff7d6;border-color:#efd978;color:#8a6d0b}
+.feedback.fb-blaze{background:linear-gradient(135deg,#fef3c7,#fde68a);border-color:var(--amber);color:#92400e}
+.feedback-icon{font-size:1.3em;margin-right:6px}
+.feedback-text{font-family:'Fredoka One',cursive;font-size:1.15em}
+.feedback-explain{margin-top:8px;font-weight:700;font-size:.93em;line-height:1.5}
+.pts-badge{display:inline-block;background:#ecfdf5;color:var(--green);padding:2px 12px;border-radius:100vw;font-size:.85em;font-weight:900;margin-left:8px}
+.pts-badge.zero{background:#fef2f2;color:#dc2626}
+.pts-badge.blaze{background:linear-gradient(135deg,#f0b420,#f97316);color:#fff}
+
+/* ===== Discussion ===== */
+.discuss-card{display:none;margin-top:14px;background:var(--cream);border:3px solid var(--amber);border-radius:20px;padding:16px 18px;animation:slideUp .35s ease}
+.discuss-card.show{display:block}
+.discussion-label{font-family:'Caveat',cursive;font-size:1.5em;color:#c47f0e;margin-bottom:2px}
+.discussion-text{font-weight:800;font-size:1.05em;line-height:1.5;color:#5b4a1e}
+
+/* ===== Next button ===== */
+.next-wrap{display:none;margin-top:16px;text-align:center}
+.next-wrap.show{display:block}
+.next-btn{background:var(--ink);color:#fff;border:none;padding:16px 46px;border-radius:100vw;font-family:'Fredoka One',cursive;font-size:1.15em;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.28);transition:all .15s;animation:popIn .3s ease}
+.next-btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.28)}
+</style>
+<style>
+/* ===== Start screen ===== */
+.start-screen{text-align:center;padding-top:9vh}
+.start-kicker{font-family:'Caveat',cursive;font-size:1.7em;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.22)}
+.start-title{font-family:'Fredoka One',cursive;font-size:3em;color:#fff;line-height:1.04;margin:6px 0 10px;text-shadow:0 4px 0 rgba(45,41,38,.18),0 12px 32px rgba(0,0,0,.16)}
+.start-title .t1{display:block;transform:rotate(-2.4deg)}
+.start-title .t2{display:block;transform:rotate(1.6deg)}
+.start-units{display:inline-block;background:#fff;color:var(--ink);border-radius:100vw;padding:8px 24px;font-weight:900;transform:rotate(-1.2deg);box-shadow:0 5px 0 rgba(45,41,38,.15);margin-bottom:8px}
+.start-theme{color:#fff;font-weight:800;text-shadow:0 2px 8px rgba(0,0,0,.2);margin-bottom:30px}
+.start-btn{background:#fff;color:var(--ink);padding:18px 52px;border:4px solid var(--ink);border-radius:100vw;font-family:'Fredoka One',cursive;font-size:1.35em;cursor:pointer;box-shadow:0 7px 0 rgba(45,41,38,.35);transition:all .15s;animation:pulse 2.2s ease infinite}
+.start-btn:hover{transform:translateY(-3px) rotate(-1deg)}
+.start-btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(45,41,38,.35)}
+.start-words{margin:28px auto 0;max-width:540px;line-height:2.1;font-weight:800}
+.start-words span{display:inline-block;background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.4);border-radius:100vw;padding:2px 12px;margin:3px;font-size:.8em;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.15)}
+
+/* ===== Level up ===== */
+.levelup-screen{text-align:center;padding:12vh 20px 0}
+.levelup-icon{font-size:4.2em;margin-bottom:14px;animation:bounce 1s ease infinite}
+.levelup-title{font-family:'Fredoka One',cursive;font-size:2.4em;color:#fff;margin-bottom:10px}
+.levelup-title .u1{display:block;transform:rotate(-2deg);text-shadow:0 4px 0 rgba(45,41,38,.2)}
+.levelup-title .u2{display:block;transform:rotate(1.4deg);font-size:.6em;text-shadow:0 4px 0 rgba(45,41,38,.2)}
+.levelup-msg{color:#fff;font-weight:800;font-size:1.05em;margin-bottom:10px;text-shadow:0 1px 6px rgba(0,0,0,.22)}
+.levelup-score{font-family:'Fredoka One',cursive;font-size:1.5em;color:#fff;margin-bottom:30px;text-shadow:0 2px 8px rgba(0,0,0,.22)}
+.levelup-btn{background:#fff;color:var(--ink);border:4px solid var(--ink);padding:16px 44px;border-radius:100vw;font-family:'Fredoka One',cursive;font-size:1.25em;cursor:pointer;box-shadow:0 7px 0 rgba(45,41,38,.35);transition:all .15s}
+.levelup-btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(45,41,38,.35)}
+.levelup-next-stage{color:#fff;font-weight:800;margin-top:16px;text-shadow:0 1px 6px rgba(0,0,0,.22)}
+
+/* ===== Final ===== */
+.final-card{background:#fff;border-radius:28px;padding:36px 26px;text-align:center;box-shadow:0 14px 40px rgba(45,41,38,.2);border:3px solid rgba(45,41,38,.06);margin-top:5vh;animation:slideUp .4s ease}
+.final-title{font-family:'Fredoka One',cursive;font-size:2.1em}
+.final-score{font-family:'Fredoka One',cursive;font-size:3.6em;color:var(--orange)}
+.final-label{color:#999;font-size:.9em;font-weight:800;margin-bottom:14px}
+.final-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:14px 0}
+.fstat{background:var(--cream);border-radius:16px;padding:12px 8px;border:2px solid rgba(45,41,38,.06)}
+.fstat-val{font-family:'Fredoka One',cursive;font-size:1.5em;color:var(--orange)}
+.fstat-lbl{font-size:.68em;color:#999;text-transform:uppercase;font-weight:900;letter-spacing:.5px}
+.final-stars{font-size:3em;margin:10px 0}
+.final-stars .star{display:inline-block;opacity:.15;transition:all .4s}
+.final-stars .star.on{opacity:1;animation:starPop .5s ease backwards}
+.final-stars .star:nth-child(2){animation-delay:.2s}.final-stars .star:nth-child(3){animation-delay:.4s}
+.final-msg{font-size:1.05em;color:#555;font-weight:700;margin:12px 0 22px;line-height:1.5}
+.final-btn{background:var(--ink);color:#fff;padding:15px 40px;border:none;border-radius:100vw;font-weight:900;font-size:1.05em;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.25);transition:all .15s}
+.final-btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
+
+/* ===== Mistakes + review cards ===== */
+.mistakes-card{background:#fff;border-radius:26px;padding:30px 24px;margin-top:18px;box-shadow:0 14px 40px rgba(45,41,38,.18);text-align:left;border:3px solid #ffb3ab;position:relative;overflow:hidden;animation:slideUp .4s ease}
+.mistakes-card::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#ff5a4e,#f97316,#f0b420)}
+.mistakes-title{font-family:'Fredoka One',cursive;font-size:1.45em;color:#c0392b;text-align:center;margin-bottom:4px}
+.mistakes-subtitle{text-align:center;color:#888;font-weight:800;font-size:.92em;margin-bottom:18px}
+.mistake-item{background:#fef2f2;border:2px solid #fecaca;border-radius:14px;padding:12px 16px;margin-bottom:8px;font-weight:800;color:#991b1b;font-size:.95em;animation:slideUp .4s ease backwards}
+.mistake-sub{font-family:'Fredoka One',cursive;font-size:.95em;color:#991b1b;margin:10px 0 8px}
+.mistake-words{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.mistake-word-tag{background:#fee2e2;border:2px solid #fca5a5;border-radius:100vw;padding:4px 14px;font-weight:900;font-size:.82em;color:#991b1b}
+.perfect-card{background:#fff;border-radius:26px;padding:30px 24px;margin-top:18px;box-shadow:0 14px 40px rgba(45,41,38,.18);text-align:center;border:3px solid #a7f3d0;animation:slideUp .4s ease}
+.perfect-title{font-family:'Fredoka One',cursive;font-size:1.4em;color:var(--green)}
+.perfect-msg{color:#555;font-weight:800;margin-top:6px}
+.review-card{background:#fff;border-radius:26px;padding:30px 24px;margin-top:18px;box-shadow:0 14px 40px rgba(45,41,38,.18);text-align:left;border:3px solid rgba(45,41,38,.06);animation:slideUp .4s ease}
+.review-title{font-family:'Fredoka One',cursive;font-size:1.5em;color:#7c3aed;text-align:center;margin-bottom:4px}
+.review-prompt{text-align:center;color:#777;font-weight:800;font-size:.95em;margin-bottom:18px}
+.review-section-label{font-family:'Fredoka One',cursive;font-size:1em;color:#3b0764;margin:16px 0 10px;padding-bottom:6px;border-bottom:3px solid #ede9fe}
+.structure-list{list-style:none;padding:0;margin:0}
+.structure-list li{background:#f5f3ff;border:2px solid #c4b5fd;border-radius:14px;padding:11px 14px;margin-bottom:8px;font-weight:800;font-size:.92em;color:#5b21b6;line-height:1.4}
+.structure-list li .struct-example{display:block;font-weight:600;color:#666;font-size:.86em;margin-top:3px;font-style:italic}
+.word-cloud{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:6px}
+.word-tag{background:var(--cream);border:2px solid #fde68a;border-radius:100vw;padding:5px 14px;font-weight:900;font-size:.84em;color:#92610b}
+
+/* ===== Blaze overlay ===== */
+.blaze-overlay{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.32);animation:blazeIn .3s ease}
+@keyframes blazeIn{from{opacity:0}to{opacity:1}}
+@keyframes blazeOut{to{opacity:0}}
+.blaze-scene{position:relative;width:280px;height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.blaze-ring{position:absolute;inset:0;border-radius:50%;border:6px solid rgba(240,180,32,.85);animation:ringPulse 1.4s ease-out infinite}
+.blaze-ring:nth-child(2){animation-delay:.3s}
+.blaze-ring:nth-child(3){animation-delay:.6s}
+@keyframes ringPulse{from{transform:scale(.35);opacity:1}to{transform:scale(1.35);opacity:0}}
+.blaze-emoji{font-size:4.2em;animation:bounce .7s ease infinite;z-index:2}
+.blaze-label{font-family:'Fredoka One',cursive;font-size:1.75em;color:#fff;transform:rotate(-2deg);z-index:2;margin-top:8px;text-shadow:0 3px 0 rgba(45,41,38,.28),0 8px 24px rgba(0,0,0,.25)}
+.blaze-bonus{font-weight:900;color:#fff;background:var(--orange);padding:5px 18px;border-radius:100vw;margin-top:12px;z-index:2;box-shadow:0 3px 0 rgba(0,0,0,.22);font-size:.9em}
+
+/* ===== Floating bits ===== */
+.confetti-piece{position:fixed;top:-20px;z-index:65;pointer-events:none;animation:confettiFall linear forwards}
+.float-points{position:fixed;font-family:'Fredoka One',cursive;pointer-events:none;z-index:66;animation:floatUp 1.2s ease forwards;text-shadow:0 2px 10px rgba(0,0,0,.2)}
+
+@media(max-width:460px){
+.start-title{font-size:2.2em}
+.q-prompt{font-size:1.02em}
+.options-grid.cols-2{grid-template-columns:1fr}
+.final-score{font-size:2.8em}
+.drag-blank{min-width:52px;padding:2px 6px;font-size:.82em}
+.drag-tile{padding:10px 14px;font-size:.88em}
+.tpill{font-size:.72em;padding:5px 10px}
+.levelup-title{font-size:1.8em}
+.blaze-scene{width:230px;height:230px}
+.blaze-label{font-size:1.3em}
+}
+</style>
+<style>
+.mistake-q{font-weight:700;color:#7f1d1d;line-height:1.4}
+.mistake-a{font-weight:800;color:#065f46;margin-top:4px}
+.mistake-a u{text-decoration:none;font-weight:900;color:#0b7a5c;background:#d1fae5;border-radius:6px;padding:0 4px}
+</style>
+</head>
+<body>
+<div class="bg-stack">
+  <div class="bg-layer" id="bg-a"></div>
+  <div class="bg-layer" id="bg-b"></div>
+  <svg class="wave w1" viewBox="0 0 2880 320" preserveAspectRatio="none" style="height:24vh;min-height:110px"><path d="M0,170 C240,90 480,250 720,170 C960,90 1200,250 1440,170 C1680,90 1920,250 2160,170 C2400,90 2640,250 2880,170 L2880,320 L0,320 Z"/></svg>
+  <svg class="wave w2" viewBox="0 0 2880 320" preserveAspectRatio="none" style="height:18vh;min-height:80px"><path d="M0,200 C90,120 270,270 360,200 C450,120 630,270 720,200 C810,120 990,270 1080,200 C1170,120 1350,270 1440,200 C1530,120 1710,270 1800,200 C1890,120 2070,270 2160,200 C2250,120 2430,270 2520,200 C2610,120 2790,270 2880,200 L2880,320 L0,320 Z"/></svg>
+</div>
+<div id="vignette"></div>
+<div id="emoji-layer"></div>
+<div id="app">
+
+<div id="start-screen" class="screen active">
+<div class="start-screen">
+  <div class="start-kicker">Bilingo English · Review Class</div>
+  <div class="start-title"><span class="t1">VOCAB</span><span class="t2">CHALLENGE!</span></div>
+  <div class="start-units">UNITS 19 – 21</div>
+  <div class="start-theme">Kate's New Bookcase · Anna's Flowers · Jason's Empty Kitchen</div>
+  <button class="start-btn" onclick="beginGame()">Let's Go! 🚀</button>
+  <div class="start-words">
+    <span>bookcase</span><span>favourite</span><span>hammer</span><span>hard</span><span>make</span><span>paint</span><span>pink</span><span>work</span><span>dish</span><span>homework</span><span>listen</span><span>idea</span><span>nail</span><span>need</span><span>careful</span><span>drop</span><span>flower</span><span>front</span><span>in front of</span><span>vase</span><span>send</span><span>show</span><span>take</span><span>birthday</span><span>card</span><span>happy</span><span>bread</span><span>cheese</span><span>chocolate</span><span>coffee</span><span>soap</span><span>sugar</span><span>tea</span><span>tobacco</span><span>any</span><span>bird</span><span>some</span><span>bar</span><span>butter</span><span>cake</span><span>loaf</span><span>piece</span><span>pound</span><span>smoke</span>
+  </div>
+</div>
+</div>
+
+<div id="levelup-screen" class="screen">
+<div class="levelup-screen">
+  <div class="levelup-icon" id="lu-icon">⬆️</div>
+  <div class="levelup-title"><span class="u1" id="lu-title">LEVEL UP!</span><span class="u2" id="lu-sub">You did it!</span></div>
+  <div class="levelup-msg" id="lu-msg">Great work so far!</div>
+  <div class="levelup-score" id="lu-score">🏆 Score: 0</div>
+  <button class="levelup-btn" id="lu-btn" onclick="startNextStage()">Continue →</button>
+  <div class="levelup-next-stage" id="lu-next">Next: MEDIUM</div>
+</div>
+</div>
+
+<div id="game-screen" class="screen">
+<div class="top-bar">
+  <span class="tpill stage-badge easy" id="g-stage">EASY</span>
+  <span class="tpill streak-badge" id="g-streak">🔥 3</span>
+  <span class="tpill">🏆 <span id="g-score">0</span></span>
+  <span class="tpill" id="g-counter">1 / 8</span>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="g-progress"></div></div>
+<div class="timer-wrap" id="timer-area">
+  <div class="timer-circle" id="timer-num">15</div>
+  <div class="timer-bar-bg"><div class="timer-bar full" id="timer-bar"></div></div>
+</div>
+<div class="q-card">
+  <div class="q-type-label" id="q-label">EASY</div>
+  <div class="q-prompt" id="q-prompt"></div>
+  <div class="q-context" id="q-context"></div>
+</div>
+<div class="options-grid cols-2" id="opts-area"></div>
+<div class="tf-grid" id="tf-area" style="display:none"></div>
+<div id="drag-area" style="display:none">
+  <div class="drag-sentence" id="drag-sentence"></div>
+  <div class="drag-tiles" id="drag-tiles"></div>
+  <button class="drag-check-btn" id="drag-check" onclick="checkDrag()">Check Answer ✓</button>
+</div>
+<div class="feedback" id="feedback">
+  <span class="feedback-icon" id="fb-icon">✅</span>
+  <span class="feedback-text" id="fb-text"></span>
+  <span class="pts-badge" id="fb-pts"></span>
+  <div class="feedback-explain" id="fb-explain"></div>
+</div>
+<div class="discuss-card" id="discuss-card">
+  <div class="discussion-label">💬 BONUS — Let's Talk!</div>
+  <div class="discussion-text" id="discuss-text"></div>
+</div>
+<div class="next-wrap" id="next-wrap"><button class="next-btn" id="next-btn" onclick="nextQuestion()">Next →</button></div>
+</div>
+
+<div id="final-screen" class="screen">
+<div class="final-card">
+  <div class="final-title">Game Over! 🎬</div>
+  <div class="final-score" id="f-score">0</div>
+  <div class="final-label">Class Points</div>
+  <div class="final-stats">
+    <div class="fstat"><div class="fstat-val" id="f-correct">0</div><div class="fstat-lbl">Correct</div></div>
+    <div class="fstat"><div class="fstat-val" id="f-total">0</div><div class="fstat-lbl">Questions</div></div>
+    <div class="fstat"><div class="fstat-val" id="f-pct">0%</div><div class="fstat-lbl">Accuracy</div></div>
+  </div>
+  <div class="final-stars"><span class="star" id="fs1">⭐</span><span class="star" id="fs2">⭐</span><span class="star" id="fs3">⭐</span></div>
+  <div class="final-msg" id="f-msg"></div>
+  <button class="final-btn" onclick="location.reload()">Play Again 🔁</button>
+</div>
+<div id="mistakes-area"></div>
+<div class="review-card">
+    <div class="review-title">📚 Review Time!</div>
+    <div class="review-prompt">Can you make your own sentences with these?</div>
+
+    <div class="review-section-label">✏️ Key Structures</div>
+    <ul class="structure-list">
+        <li>paint sth. + colour<span class="struct-example">I'm going to paint it pink. (把……漆成……颜色)</span></li>
+        <li>sth. is/are for sb.<span class="struct-example">The bookcase is for me. (某物是给某人的)</span></li>
+        <li>be going to + verb<span class="struct-example">She's going to paint the bookcase. (打算做某事)</span></li>
+        <li>in front of …<span class="struct-example">The vase is in front of the window. (在……前面——外部)</span></li>
+        <li>in the front of …<span class="struct-example">The teacher is in the front of the classroom. (在……前面——内部)</span></li>
+        <li>be careful / Don't …!<span class="struct-example">Be careful! Don't drop the vase! (当心！不要……！)</span></li>
+        <li>send/show/take sb. sth. (双宾语)<span class="struct-example">Send her a birthday card. / Show me the flowers.</span></li>
+        <li>a pound/piece/loaf/bar of …<span class="struct-example">A loaf of bread. A bar of chocolate. (量词)</span></li>
+        <li>Is there any …? / There is some …<span class="struct-example">Is there any sugar? — Yes, there's some. (there be 疑问句)</span></li>
+    </ul>
+
+    <div class="review-section-label">📖 Words — Unit 19 (Kate's New Bookcase)</div>
+    <div class="word-cloud">
+        <span class="word-tag">bookcase</span><span class="word-tag">favourite</span><span class="word-tag">hammer</span>
+        <span class="word-tag">hard</span><span class="word-tag">make</span><span class="word-tag">paint</span>
+        <span class="word-tag">pink</span><span class="word-tag">work</span><span class="word-tag">dish</span>
+        <span class="word-tag">homework</span><span class="word-tag">listen</span><span class="word-tag">idea</span>
+        <span class="word-tag">nail</span><span class="word-tag">need</span>
+    </div>
+
+    <div class="review-section-label">📖 Words — Unit 20 (Anna's Flowers)</div>
+    <div class="word-cloud">
+        <span class="word-tag">careful</span><span class="word-tag">drop</span><span class="word-tag">flower</span>
+        <span class="word-tag">front</span><span class="word-tag">in front of</span><span class="word-tag">vase</span>
+        <span class="word-tag">send</span><span class="word-tag">show</span><span class="word-tag">take</span>
+        <span class="word-tag">birthday</span><span class="word-tag">card</span><span class="word-tag">happy</span>
+    </div>
+
+    <div class="review-section-label">📖 Words — Unit 21 (Jason's Empty Kitchen)</div>
+    <div class="word-cloud">
+        <span class="word-tag">bread</span><span class="word-tag">cheese</span><span class="word-tag">chocolate</span>
+        <span class="word-tag">coffee</span><span class="word-tag">soap</span><span class="word-tag">sugar</span>
+        <span class="word-tag">tea</span><span class="word-tag">tobacco</span><span class="word-tag">any</span>
+        <span class="word-tag">bird</span><span class="word-tag">some</span><span class="word-tag">bar</span>
+        <span class="word-tag">butter</span><span class="word-tag">cake</span><span class="word-tag">loaf</span>
+        <span class="word-tag">piece</span><span class="word-tag">pound</span><span class="word-tag">smoke</span>
+    </div>
+</div>
+</div>
+
+</div>
+<div id="blaze-container"></div>
+
+<script>
+/* ===== AUDIO (all synthesized, no files) ===== */
+let ac;
+function initAC(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}
+function note(f,t0,dur,type,vol,slideTo){type=type||'sine';vol=vol||.07;const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.connect(g);g.connect(ac.destination);o.frequency.setValueAtTime(f,ac.currentTime+t0);if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,ac.currentTime+t0+dur);g.gain.setValueAtTime(vol,ac.currentTime+t0);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t0+dur);o.start(ac.currentTime+t0);o.stop(ac.currentTime+t0+dur+.03)}
+function snd(t){try{initAC();
+if(t==='cl'){note(700,0,.05,'sine',.045)}
+else if(t==='ok'){note(523,0,.12);note(659,.08,.12);note(784,.16,.28)}
+else if(t==='ok2'){note(392,0,.1,'triangle',.08);[784,988,1175,1319,1568].forEach((f,i)=>note(f,.06+i*.08,.22,'triangle',.075));note(2093,.5,.4,'sine',.05)}
+else if(t==='no1'){note(311,0,.14,'sine',.06,277);note(233,.13,.24,'sine',.06)}
+else if(t==='no2'){note(392,0,.16,'sawtooth',.04);note(370,.16,.16,'sawtooth',.04);note(349,.32,.16,'sawtooth',.04);note(330,.48,.22,'sawtooth',.04);note(262,.7,.6,'sawtooth',.045,235)}
+else if(t==='win'){[523,659,784,1047].forEach((f,i)=>note(f,i*.13,.34,'sine',.065))}
+}catch(e){}}
+
+/* ===== FX: confetti, floating points, emoji wave, vignette, shake ===== */
+function confetti(n){n=n||20;const cols=['#f0b420','#fb66e5','#00c2b9','#6595f9','#ff5800','#10b981','#b0a5f4'];for(let i=0;i<n;i++){const p=document.createElement('div');p.className='confetti-piece';p.style.left=Math.random()*100+'vw';p.style.background=cols[~~(Math.random()*cols.length)];p.style.width=(Math.random()*8+5)+'px';p.style.height=(Math.random()*8+5)+'px';p.style.borderRadius=Math.random()>.5?'50%':'3px';p.style.animationDuration=(Math.random()*2+1.5)+'s';p.style.animationDelay=Math.random()*.4+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),4200)}}
+function floatPts(x,y,txt,col){const e=document.createElement('div');e.className='float-points';e.textContent=txt;e.style.left=x+'px';e.style.top=y+'px';e.style.color=col||'#0b7a5c';e.style.fontSize='1.5em';document.body.appendChild(e);setTimeout(()=>e.remove(),1200)}
+const FAIL_EMOJIS=['🤔','😅','🙈','😬','❓','🤷','💭','😵‍💫'];
+function emojiWave(){const layer=document.getElementById('emoji-layer');for(let i=0;i<16;i++){const e=document.createElement('div');e.className='fx-emoji';e.textContent=FAIL_EMOJIS[~~(Math.random()*FAIL_EMOJIS.length)];e.style.left=(3+Math.random()*92)+'vw';e.style.fontSize=(1.5+Math.random()*1.5)+'em';e.style.animationDelay=(Math.random()*.35)+'s';layer.appendChild(e);setTimeout(()=>e.remove(),2700)}}
+function vignetteFlash(){const v=document.getElementById('vignette');document.body.classList.add('fail-mood');v.classList.add('on');setTimeout(()=>{v.classList.remove('on');document.body.classList.remove('fail-mood')},1500)}
+function shake(lvl){const app=document.getElementById('app');app.classList.remove('shaking','shaking-hard');void app.offsetWidth;app.classList.add(lvl===1?'shaking':'shaking-hard')}
+
+/* ===== Wavy gradient background, re-rolled every question ===== */
+const PALETTES=['linear-gradient(160deg,#f5d76e,#ff8c69 55%,#c8a2c8)','linear-gradient(160deg,#00c2b9,#6595f9 60%,#b0a5f4)','linear-gradient(160deg,#ffc72c,#ff5800 55%,#fb66e5)','linear-gradient(160deg,#a8e6cf,#77c3f2 55%,#b0a5f4)','linear-gradient(160deg,#ff9a8b,#ff6a88 60%,#ffb38a)','linear-gradient(160deg,#f6d365,#fda085 55%,#f6a6c1)','linear-gradient(160deg,#84fab0,#8fd3f4 60%,#a6c1ee)','linear-gradient(160deg,#fccb90,#d57eeb 60%,#8fd3f4)'];
+let bgFlip=false,lastPal=-1;
+function rollPalette(){let i;do{i=~~(Math.random()*PALETTES.length)}while(i===lastPal&&PALETTES.length>1);lastPal=i;const a=document.getElementById('bg-a'),b=document.getElementById('bg-b');const showEl=bgFlip?a:b,hideEl=bgFlip?b:a;showEl.style.background=PALETTES[i];showEl.classList.add('on');hideEl.classList.remove('on');bgFlip=!bgFlip}
+rollPalette();
+
+/* ===== Blaze praise pool ===== */
+const PRAISES=[{e:'🚀',t:'BLAZING FAST!'},{e:'🧠',t:'GENIUS!'},{e:'🔥',t:'ON FIRE!'},{e:'🎯',t:'BULLSEYE!'},{e:'💎',t:'DIAMOND MIND!'},{e:'⚡',t:'LIGHTNING SPEED!'},{e:'👑',t:'SPEED KING!'},{e:'🌟',t:'STAR POWER!'}];
+function showBlaze(praise){const container=document.getElementById('blaze-container');const overlay=document.createElement('div');overlay.className='blaze-overlay';overlay.innerHTML='<div class="blaze-scene"><div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-ring"></div><div class="blaze-emoji">'+praise.e+'</div><div class="blaze-label">'+praise.t+'</div><div class="blaze-bonus">⚡ SPEED BONUS +2 ⚡</div></div>';container.appendChild(overlay);snd('ok2');confetti(45);setTimeout(()=>{overlay.style.animation='blazeOut .4s ease forwards';setTimeout(()=>overlay.remove(),420)},1600)}
+</script>
+
+<script>
+/* ====== GAME DATA — UNITS 19 – 21 ====== */
+const BLAZE_THRESHOLD=5;
+const stages=[{"name":"EASY","badgeClass":"easy","icon":"🌟","timer":15,"questions":[{"qlabel":"True or False?","prompt":"'A vase' is something you put flowers in. 🏺","type":"tf","correct":true,"explain":"Yes! A vase is a container for flowers. You put flowers in a vase.","discuss":"Is there a vase in your home? Which room is it in"},{"qlabel":"True or False?","prompt":"'In front of' means 'after something'.","type":"tf","correct":false,"explain":"No! 'In front of' means BEFORE something, on the other side from 'behind'. The opposite!","discuss":"What is in front of you right now?"},{"qlabel":"Fill the gap","prompt":"The flowers are in ___ of the window.","opts":["front","the fronts","a front","fronts"],"ans":0,"explain":"'In front of' (no 'the') = 在……前面 (outside/external position). The vase is in front of the window.","discuss":"Make a sentence with 'in front of'."},{"qlabel":"Fill the gap","prompt":"Be ___! Don't drop the vase!","opts":["happy","hard","careful","favourite"],"ans":2,"explain":"'Be careful!' = 当心！ We say it when there's danger or something might break.","discuss":"Are you usually careful?"},{"qlabel":"Fill the gap","prompt":"She's ___ paint the bookcase pink.","opts":["going to","going","go to","goes to"],"ans":0,"explain":"'Be going to + verb' = 打算做某事. She IS GOING TO paint it. (future plan)","discuss":"What are you going to do after school today?"},{"qlabel":"Fill the gap","prompt":"___ drop the vase! It's very expensive!","opts":["Not","No","Don't","Doesn't"],"ans":2,"explain":"Negative imperative: DON'T + verb = 不要……！Don't drop it! Don't run!","discuss":"What is the most expensive thing you have?"},{"qlabel":"Fill the gap","prompt":"Give me a ___ of chocolate, please.","opts":["loaf","pound","bottle","bar"],"ans":3,"explain":"A BAR of chocolate (一条巧克力). Chocolate comes in bars! Also: a bar of soap.","discuss":"Do you want a bar of chocolate right now? 🍫"},{"qlabel":"Fill the gap","prompt":"Send ___ a birthday card!","opts":["she","her","hers","she's"],"ans":1,"explain":"Double object: Send + PERSON (object pronoun) + THING. Send HER a card. (Give me, show him, take her…)"},{"qlabel":"Fill the gap","prompt":"I need a ___ of bread from the shop.","opts":["bar","some","loaf","pound"],"ans":2,"explain":"A LOAF of bread (一条面包). A loaf is the whole bread in one piece from the baker.","discuss":"How often does your family buy bread?"},{"qlabel":"Fill the gap","prompt":"Is there ___ sugar in the kitchen?","opts":["some","any","a","the"],"ans":1,"explain":"In questions, we use ANY: 'Is there ANY sugar?' In positive sentences: 'There is SOME sugar.'","discuss":"Make a sentence with 'some' and then change it to 'any'."},{"qlabel":"Fill the gap","prompt":"There ___ some coffee in the kitchen.","opts":["is","are","be","have"],"ans":0,"explain":"Coffee is uncountable, so we use 'There IS some coffee.' (not 'are')","discuss":"Does anyone in your family drink coffee?"}]},{"name":"MEDIUM","badgeClass":"medium","icon":"🔥","timer":25,"questions":[{"qlabel":"Choose correctly","prompt":"Which sentence is correct?","opts":["Don't dropping the vase!","Not drop the vase!","Don't drop the vase!","Doesn't drop the vase!"],"ans":2,"explain":"Negative imperative = DON'T + base verb. Don't drop! Don't run! Don't eat!"},{"qlabel":"Choose correctly","prompt":"Which sentence uses 'some' and 'any' correctly?","opts":["Is there some milk?","There isn't any milk.","There aren't some bread.","Is there any milks?"],"ans":1,"explain":"Negative sentences use ANY: There ISN'T ANY milk. ✓ Questions also use 'any'. Positive sentences use 'some'.","discuss":"Is there any milk in your kitchen now?"},{"qlabel":"True or False?","prompt":"'Show me the flowers' and 'Show the flowers to me' have the same meaning.","type":"tf","correct":true,"explain":"Yes! Both are correct. Double object verbs: show/send/give + person + thing = show/send/give + thing + TO + person.","discuss":"Describe something in your backpack, let other guess what it is. Then show it to everyone."},{"qlabel":"True or False?","prompt":"'Homework' means 'work you do at school in class'. 📖","type":"tf","correct":false,"explain":"No! 'Homework' is work you do at HOME after school, not in the classroom.","discuss":"Do you like doing homework? What homework do you have today?"}]},{"name":"HARD","badgeClass":"hard","icon":"🏆","timer":20,"questions":[{"qlabel":"🔨 What's this?","prompt":"You use this tool to hit nails into wood. 🔨","opts":["vase","hammer","bookcase","dish"],"ans":1,"discuss":"Do you have a hammer at home? Who uses it?"},{"qlabel":"🌸 What's this?","prompt":"Something beautiful from the garden. You put it in a vase. 🌷","opts":["flower","nail","soap","bird"],"ans":0,"discuss":"What's your favourite flower?"},{"qlabel":"🍞 What's this?","prompt":"You eat this every day. It's made from flour and you can buy a loaf of it.","opts":["cheese","tobacco","bread","soap"],"ans":2,"discuss":"Do you like to ear bread?"},{"qlabel":"🔍 Odd One Out","prompt":"Which one is NOT food or drink?","opts":["bread","cheese","coffee","hammer"],"ans":3,"discuss":"What's your favourite food?"},{"qlabel":"🍫 What's this?","prompt":"A sweet brown food made from cocoa. Children love it! 🍫","opts":["chocolate","butter","soap","tobacco"],"ans":0,"discuss":"Do you like chocolate? What's your favourite kind?"},{"qlabel":"What's this word?","prompt":"You use it to wash your hands. It smells nice. 🧼","opts":["sugar","soap","tobacco","tea"],"ans":1},{"qlabel":"🐦 What's this?","prompt":"An animal with wings and feathers that can fly. 🐦","opts":["bird","cake","loaf","card"],"ans":0,"discuss":"Can you see birds from your window? What colour are they?"},{"qtype":"drag","qlabel":"🧩 Build it! (3 gaps, 5 tiles)","prompt":"Put the words in the correct order:","sentence":"She's ___ ___ paint the ___.","words":["to","bookcase","going","goes","wall"],"correct":["going","to","bookcase"],"qTimer":25,"discuss":"What colour do you want to paint your room?"},{"qtype":"drag","qlabel":"🧩 Build it! (3 gaps, 5 tiles)","prompt":"Put the words in the correct places:","sentence":"The vase is ___ ___ ___ the table.","words":["of","in","front","on","behind"],"correct":["in","front","of"],"qTimer":25,"discuss":"What's in front of your school?"},{"qlabel":"⚡ Tricky!","prompt":"'a pound of cheese' — What does 'a pound' measure?","opts":["colour","weight","height","speed"],"ans":1,"explain":"A pound is a unit of WEIGHT (重量). One pound ≈ 450 grams. 'A pound of cheese' = about 450g of cheese.","discuss":"How much does your schoolbag weigh?"},{"qtype":"drag","qlabel":"🧩 Build it! (3 gaps, 5 tiles)","prompt":"Put the words in the correct places:","sentence":"___ there ___ bread in the ___?","words":["kitchen","Is","any","Are","some"],"correct":["Is","any","kitchen"],"qTimer":25},{"qtype":"drag","qlabel":"🧩 Build it! (3 gaps, 5 tiles)","prompt":"Put the words in the correct places:","sentence":"Don't forget to ___ him a ___ ___!","words":["card","send","birthday","cake","calling"],"correct":["send","birthday","card"],"qTimer":25,"discuss":"When is your birthday? What do you want for your birthday?"},{"qlabel":"⚡ Tricky!","prompt":"Choose a correct option.","opts":["a loaf of sugar","a piece of bread","a bar of tea","a pound of flowers"],"ans":1,"explain":"A PIECE of bread ✓ (一片面包). A loaf of BREAD, a bar of CHOCOLATE/SOAP, a pound of SUGAR/CHEESE.","discuss":"Can you use 'a piece of' in a sentence?"},{"qtype":"drag","qlabel":"🧩 Build it! (3 gaps, 5 tiles)","prompt":"Put the words in the correct places:","sentence":"I'm ___ to ___ it ___.","words":["pink","paint","going","yesterday","painting"],"correct":["going","paint","pink"],"qTimer":25,"explain":"'paint sth + colour' = 把某物漆成某颜色. I'm going to paint it pink!"},{"qlabel":"⚡ Final Boss!","prompt":"'The teacher is at the front of the classroom.' Where is the teacher?","opts":["Outside, in front of the building","Inside, in the front area","Under the table","On top of the classroom"],"ans":1,"explain":"'In/At THE front of' (with 'the') = INSIDE, at the front part (内部前面). 'In front of' (no 'the') = OUTSIDE, before something (外部前面).","discuss":"Use 'at the front of' in a sentence."}]}];
+window.stages=stages;
+
+/* ====== STATE ====== */
+let G={stage:0,q:0,score:0,correct:0,total:0,timerInt:null,timeLeft:0,timerMax:0,answered:false,attempt:0,streak:0,qStart:0,wrongQs:[]};
+window.G=G;
+let dragState={placed:[],correct:[],locked:[]};
+function shuffleArray(a){for(let i=a.length-1;i>0;i--){const j=~~(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t}return a}
+function prepGame(){stages.forEach(st=>{shuffleArray(st.questions);st.questions.forEach(q=>{if(q.opts){const order=shuffleArray(q.opts.map(function(_,i){return i}));const oldOpts=q.opts.slice();q.opts=order.map(function(i){return oldOpts[i]});q.ans=order.indexOf(q.ans)}})})}
+
+function showScr(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+
+function beginGame(){
+  initAC();snd('cl');prepGame();
+  G={stage:0,q:0,score:0,correct:0,total:0,timerInt:null,timeLeft:0,timerMax:0,answered:false,attempt:0,streak:0,qStart:0,wrongQs:[]};
+  window.G=G;
+  const h=location.hash.match(/s(\d)q(\d+)/);if(h){G.stage=Math.min(2,parseInt(h[1]));G.q=Math.min(7,parseInt(h[2]))}
+  showScr('game-screen');showQuestion();
+}
+
+function calcPoints(){const pct=G.timeLeft/G.timerMax;if(pct>0.66)return 3;if(pct>0.33)return 2;return 1}
+function isBlaze(){return(Date.now()-G.qStart)/1000<=BLAZE_THRESHOLD}
+
+function updateStreak(ok){if(ok)G.streak++;else G.streak=0;const b=document.getElementById('g-streak');if(G.streak>=3){b.textContent='🔥 '+G.streak;b.className='tpill streak-badge show'}else b.className='tpill streak-badge'}
+
+function showQuestion(){
+  G.answered=false;G.attempt=0;clearInterval(G.timerInt);G.qStart=Date.now();
+  document.getElementById('app').classList.remove('shaking','shaking-hard');
+  rollPalette();
+  const st=stages[G.stage],q=st.questions[G.q];
+  const qTime=q.qTimer||st.timer;
+  const badge=document.getElementById('g-stage');
+  badge.textContent=st.name;badge.className='tpill stage-badge '+st.badgeClass;
+  document.getElementById('g-score').textContent=G.score;
+  document.getElementById('g-counter').textContent=(G.q+1)+' / '+st.questions.length;
+  const totalQs=stages.reduce((s,x)=>s+x.questions.length,0);
+  const doneQs=stages.slice(0,G.stage).reduce((s,x)=>s+x.questions.length,0)+G.q;
+  document.getElementById('g-progress').style.width=(doneQs/totalQs*100)+'%';
+  document.getElementById('q-label').textContent=q.qlabel||st.name;
+  document.getElementById('q-prompt').innerHTML=q.prompt;
+  document.getElementById('q-context').textContent=q.qcontext||'';
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('discuss-card').className='discuss-card';
+  document.getElementById('next-wrap').className='next-wrap';
+  document.getElementById('fb-pts').textContent='';document.getElementById('fb-pts').className='pts-badge';
+  G.timerMax=qTime;G.timeLeft=qTime;
+  const tn=document.getElementById('timer-num'),tb=document.getElementById('timer-bar');
+  tn.textContent=G.timeLeft;tn.className='timer-circle';
+  tb.style.width='100%';tb.className='timer-bar full';
+  G.timerInt=setInterval(()=>{
+    G.timeLeft--;tn.textContent=G.timeLeft;
+    tb.style.width=(G.timeLeft/qTime*100)+'%';
+    if(G.timeLeft<=4){tn.className='timer-circle danger';tb.className='timer-bar low'}
+    else if(G.timeLeft<=7){tn.className='timer-circle warning';tb.className='timer-bar mid'}
+    if(G.timeLeft<=0){clearInterval(G.timerInt);timeUp()}
+  },1000);
+  const oa=document.getElementById('opts-area'),ta=document.getElementById('tf-area'),da=document.getElementById('drag-area');
+  oa.innerHTML='';ta.innerHTML='';oa.style.display='none';ta.style.display='none';da.style.display='none';
+  const dc=document.getElementById('drag-check');dc.style.display='';dc.className='drag-check-btn';
+  if(q.qtype==='drag'){da.style.display='block';setupDrag(q)}
+  else if(q.type==='tf'){ta.style.display='grid';
+    const bT=document.createElement('button');bT.className='tf-btn tf-true';bT.innerHTML='✓ True';bT.onclick=function(e){answerTF(true,e)};
+    const bF=document.createElement('button');bF.className='tf-btn tf-false';bF.innerHTML='✗ False';bF.onclick=function(e){answerTF(false,e)};
+    ta.appendChild(bT);ta.appendChild(bF);
+  }else{oa.style.display='grid';oa.className='options-grid '+(q.opts.some(o=>o.length>25)?'cols-1':'cols-2');
+    q.opts.forEach((opt,i)=>{const b=document.createElement('button');b.className='opt-btn';b.textContent=opt;b.onclick=function(e){answerMC(i,e)};oa.appendChild(b)})}
+}
+</script>
+
+<script>
+/* ====== DRAG / BUILD ====== */
+function setupDrag(q){
+  dragState={placed:new Array(q.correct.length).fill(null),correct:q.correct.slice(),locked:new Array(q.correct.length).fill(false)};
+  const se=document.getElementById('drag-sentence'),te=document.getElementById('drag-tiles');
+  te.innerHTML='';document.getElementById('drag-check').className='drag-check-btn';
+  const parts=q.sentence.split('___');let html='';
+  for(let i=0;i<parts.length;i++){html+=parts[i];if(i<parts.length-1)html+='<span class="drag-blank" data-idx="'+i+'" onclick="removeFromBlank('+i+')">('+(i+1)+')</span>'}
+  se.innerHTML=html;
+  shuffleArray(q.words).forEach(w=>{const t=document.createElement('button');t.className='drag-tile';t.textContent=w;t.setAttribute('data-word',w);t.onclick=function(){placeWord(w)};te.appendChild(t)});
+}
+function placeWord(w){
+  if(G.answered)return;const idx=dragState.placed.indexOf(null);if(idx===-1)return;
+  dragState.placed[idx]=w;snd('cl');
+  const b=document.querySelector('.drag-blank[data-idx="'+idx+'"]');if(!b)return;b.textContent=w;b.className='drag-blank filled'+(dragState.locked[idx]?' locked':'');
+  document.querySelectorAll('#drag-tiles .drag-tile').forEach(t=>{if(t.getAttribute('data-word')===w&&!t.classList.contains('used'))t.classList.add('used')});
+  if(!dragState.placed.includes(null))document.getElementById('drag-check').className='drag-check-btn show';
+}
+function removeFromBlank(idx){
+  if(G.answered||dragState.locked[idx])return;const w=dragState.placed[idx];if(!w)return;
+  dragState.placed[idx]=null;snd('cl');
+  const b=document.querySelector('.drag-blank[data-idx="'+idx+'"]');b.textContent='('+(idx+1)+')';b.className='drag-blank';
+  document.querySelectorAll('#drag-tiles .drag-tile').forEach(t=>{if(t.getAttribute('data-word')===w&&t.classList.contains('used'))t.classList.remove('used')});
+  document.getElementById('drag-check').className='drag-check-btn';
+}
+function checkDrag(){
+  if(G.answered)return;
+  const wrongIdx=[];dragState.placed.forEach((w,i)=>{if(w!==dragState.correct[i])wrongIdx.push(i)});
+  if(wrongIdx.length===0){resolveCorrect(null);return}
+  if(G.attempt===0){
+    G.attempt=1;snd('no1');shake(1);
+    wrongIdx.forEach(i=>{
+      const w=dragState.placed[i];dragState.placed[i]=null;
+      const b=document.querySelector('.drag-blank[data-idx="'+i+'"]');if(b){b.textContent='('+(i+1)+')';b.className='drag-blank wrong-slot'}
+      if(w)document.querySelectorAll('#drag-tiles .drag-tile').forEach(t=>{if(t.getAttribute('data-word')===w)t.classList.remove('used')});
+    });
+    document.getElementById('drag-check').className='drag-check-btn';
+    showFeedback('try','Almost! 🛠️','Fix the red gaps and check again — you have one more try!',0);
+  }else{
+    resolveFail(null);
+  }
+}
+
+/* ====== ANSWERS: two chances ====== */
+function answerMC(i,ev){
+  if(G.answered)return;
+  const st=stages[G.stage],q=st.questions[G.q];
+  if(i===q.ans){resolveCorrect(ev);return}
+  const btns=document.querySelectorAll('#opts-area .opt-btn');
+  if(G.attempt===0){
+    G.attempt=1;snd('no1');shake(1);
+    btns[i].classList.add('dead');
+    showFeedback('try','Try again! 🤔','One more chance — read it carefully!',0);
+  }else{
+    resolveFail(ev);
+  }
+}
+function answerTF(val,ev){
+  if(G.answered)return;
+  const st=stages[G.stage],q=st.questions[G.q];
+  if(val===q.correct){resolveCorrect(ev);return}
+  if(G.attempt===0){
+    G.attempt=1;snd('no1');shake(1);
+    (val?document.querySelector('.tf-true'):document.querySelector('.tf-false')).classList.add('dead');
+    showFeedback('try','Try again! 🤔','One more chance — think about it!',0);
+  }else{
+    resolveFail(ev);
+  }
+}
+
+/* ====== RESOLUTION ====== */
+function markReveal(){
+  const st=stages[G.stage],q=st.questions[G.q];
+  if(q.qtype==='drag'){
+    document.querySelectorAll('#drag-tiles .drag-tile').forEach(t=>t.classList.add('disabled'));
+    document.getElementById('drag-check').style.display='none';
+    document.querySelectorAll('.drag-blank').forEach((b,i)=>{
+      b.textContent=dragState.correct[i];
+      b.className='drag-blank filled correct-slot';
+    });
+  }else if(q.type==='tf'){
+    const btns=document.querySelectorAll('#tf-area .tf-btn');
+    btns.forEach((b,i)=>{b.classList.add('disabled');if((i===0)===q.correct)b.classList.add('correct');else b.classList.add('dead')});
+  }else{
+    const btns=document.querySelectorAll('#opts-area .opt-btn');
+    btns.forEach((b,i)=>{b.classList.add('disabled');if(i===q.ans)b.classList.add('correct');else b.classList.add('dead')});
+  }
+}
+function resolveCorrect(ev){
+  G.answered=true;clearInterval(G.timerInt);G.total++;
+  const st=stages[G.stage],q=st.questions[G.q];
+  markReveal();
+  const firstTry=G.attempt===0,blazed=firstTry&&isBlaze();
+  let pts=firstTry?calcPoints():1;
+  if(blazed)pts+=2;
+  G.score+=pts;G.correct++;updateStreak(true);
+  if(blazed){const p=PRAISES[~~(Math.random()*PRAISES.length)];showBlaze(p);showFeedback('blaze',p.t+' '+p.e,q.explain||'',pts,true)}
+  else{snd('ok');confetti(firstTry?14:8);showFeedback('correct',firstTry?'Correct! ✅':'Nice save! 🛟',q.explain||'',pts,false)}
+  if(ev&&ev.clientX)floatPts(ev.clientX,ev.clientY-20,'+'+pts,blazed?'#e8590c':firstTry?'#0b7a5c':'#6595f9');
+  else floatPts(window.innerWidth/2,window.innerHeight/2-60,'+'+pts,blazed?'#e8590c':'#0b7a5c');
+  document.getElementById('g-score').textContent=G.score;
+  showDiscussionAndNext(q);
+}
+function resolveFail(ev,customTitle){
+  G.answered=true;clearInterval(G.timerInt);G.total++;
+  const st=stages[G.stage],q=st.questions[G.q];
+  markReveal();
+  snd('no2');shake(2);vignetteFlash();emojiWave();updateStreak(false);G.wrongQs.push(q);
+  let ansText='';
+  if(q.qtype==='drag')ansText='Correct sentence: '+q.sentence.split('___').map((p,i)=>i<dragState.correct.length?p+dragState.correct[i]:p).join(' ');
+  else if(q.type==='tf')ansText=(q.correct?'The answer is TRUE. ':'The answer is FALSE. ')+(q.explain||'');
+  else ansText='The answer is: '+q.opts[q.ans]+(q.explain?' — '+q.explain:'');
+  showFeedback('wrong',customTitle||'Not quite! ❌',ansText,0,false);
+  document.getElementById('g-score').textContent=G.score;
+  showDiscussionAndNext(q);
+}
+function timeUp(){if(G.answered)return;resolveFail(null,"Time's up! ⏰")}
+
+/* ====== FEEDBACK + DISCUSSION ====== */
+function showFeedback(kind,text,explain,pts,blazed){
+  const fb=document.getElementById('feedback');
+  fb.className='feedback show fb-'+kind;
+  document.getElementById('fb-icon').textContent=kind==='correct'?'✅':kind==='wrong'?'❌':kind==='try'?'🤔':'⚡';
+  document.getElementById('fb-text').textContent=text;
+  document.getElementById('fb-explain').textContent=explain||'';
+  const pb=document.getElementById('fb-pts');
+  if(pts>0&&blazed){pb.textContent='+'+pts+' 🔥';pb.className='pts-badge blaze'}
+  else if(pts>0){pb.textContent='+'+pts;pb.className='pts-badge'}
+  else if(pts===0&&kind==='wrong'){pb.textContent='+0';pb.className='pts-badge zero'}
+  else pb.textContent='';
+}
+function showDiscussionAndNext(q){
+  if(q.discuss){document.getElementById('discuss-card').className='discuss-card show';document.getElementById('discuss-text').textContent=q.discuss}
+  document.getElementById('next-wrap').className='next-wrap show';
+  const st=stages[G.stage],isLastQ=G.q>=st.questions.length-1,isLastStage=G.stage>=stages.length-1;
+  const btn=document.getElementById('next-btn');
+  if(isLastQ&&isLastStage)btn.textContent='See Results! 🎉';
+  else if(isLastQ)btn.textContent='Level Up! ⬆️';
+  else btn.textContent='Next →';
+}
+function nextQuestion(){
+  snd('cl');const st=stages[G.stage];G.q++;
+  if(G.q>=st.questions.length){
+    if(G.stage>=stages.length-1)showFinalResults();
+    else showLevelUp();
+  }else showQuestion();
+}
+
+/* ====== LEVEL UP + FINAL ====== */
+function showLevelUp(){
+  const st=stages[G.stage],nx=stages[G.stage+1];
+  document.getElementById('lu-icon').textContent=nx?'⬆️':'🏆';
+  document.getElementById('lu-title').textContent=st.name+' COMPLETE!';
+  document.getElementById('lu-sub').textContent=nx?'Level Up!':'Wow!';
+  document.getElementById('lu-msg').textContent='Great work so far!';
+  document.getElementById('lu-score').textContent='🏆 Score: '+G.score;
+  document.getElementById('lu-next').textContent=nx?'Next: '+nx.name+' '+nx.icon:'';
+  document.getElementById('lu-btn').textContent=nx?'Level Up! →':'See Results!';
+  showScr('levelup-screen');snd('win');confetti(25);
+}
+function startNextStage(){snd('cl');G.stage++;G.q=0;showScr('game-screen');showQuestion()}
+function buildMistakesSection(){
+  const area=document.getElementById('mistakes-area');area.innerHTML='';
+  if(G.wrongQs.length===0){area.innerHTML='<div class="perfect-card"><div class="perfect-title">🎉 Perfect Run!</div><div class="perfect-msg">You got everything right! No mistakes to review. Amazing work!</div></div>';return}
+  let html='<div class="mistakes-card"><div class="mistakes-title">⚠️ Pay Extra Attention to These!</div><div class="mistakes-subtitle">You made '+G.wrongQs.length+' mistake'+(G.wrongQs.length>1?'s':'')+' — look at them once more:</div>';
+  G.wrongQs.forEach(q=>{
+    let ans;
+    if(q.qtype==='drag')ans=q.sentence.split('___').map((p,i)=>i<q.correct.length?p+'<u>'+q.correct[i]+'</u>':p).join(' ');
+    else if(q.type==='tf')ans=q.correct?'TRUE':'FALSE';
+    else ans=q.opts[q.ans];
+    html+='<div class="mistake-item"><div class="mistake-q">'+q.prompt.replace(/<[^>]+>/g,'')+'</div><div class="mistake-a">✓ '+ans+'</div></div>';
+  });
+  html+='</div>';area.innerHTML=html;
+}
+function showFinalResults(){
+  showScr('final-screen');snd('win');
+  setTimeout(()=>confetti(50),300);setTimeout(()=>confetti(30),900);
+  document.getElementById('f-score').textContent=G.score;
+  document.getElementById('f-correct').textContent=G.correct;
+  document.getElementById('f-total').textContent=G.total;
+  const pct=Math.round(G.correct/G.total*100);
+  document.getElementById('f-pct').textContent=pct+'%';
+  const scorePct=G.score/(G.total*5)*100;
+  const stars=scorePct>=60?3:scorePct>=40?2:scorePct>=20?1:0;
+  for(let i=1;i<=3;i++)document.getElementById('fs'+i).className=i<=stars?'star on':'star';
+  const msgs=["Keep practising — you'll get there! 💪","Good work! A bit more practice and you'll be perfect! 👍","Great job, class! You know these words well! 🎉","AMAZING! You're vocabulary superstars! 🌟"];
+  document.getElementById('f-msg').textContent=msgs[stars];
+  buildMistakesSection();
+  window.scrollTo(0,0);
+}
+</script>
+<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+  /* never let the buttons leak into a paper printout */
+  @media print { .bilingo-ui { display: none !important; } }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body></html>
