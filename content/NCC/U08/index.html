@@ -54,7 +54,7 @@
 </div>
 <script>window.PICSETS = {"U08": []};</script>
 <script src="../../../assets/site.js"></script>
-<!-- Bilingo game controls: zoom + fullscreen (gear toggle, auto-hide 7s) -->
+<!-- Bilingo game controls: zoom + fullscreen + sound (gear toggle, auto-hide 7s) -->
 <style>
   .bilingo-ui {
     position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
@@ -80,6 +80,7 @@
   <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
   <div class="b-pct">100%</div>
   <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-mute" title="Sound on/off" aria-label="Sound on or off">🔊</button>
   <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
   <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
 </div>
@@ -110,6 +111,51 @@
     }
     poke();
   }
+
+  /* ----- sound on/off: one switch for EVERY sound system a game might use -----
+     Synthesized WebAudio games create oscillators/buffer sources at play time,
+     so patching the prototype constructors silences them even if their context
+     was created earlier. Games using <audio> elements are covered by patching
+     play(). The flag is read live, so un-muting works instantly too. */
+  var MUTE_KEY = 'bilingo-muted';
+  window.__bilingoMuted = localStorage.getItem(MUTE_KEY) === '1';
+  function dummyParam() {
+    return { value: 0, setValueAtTime: function () {}, linearRampToValueAtTime: function () {},
+             exponentialRampToValueAtTime: function () {}, cancelScheduledValues: function () {} };
+  }
+  function dummyNode() {
+    var n = { connect: function (d) { return d || n; }, disconnect: function () {},
+              start: function () {}, stop: function () {},
+              gain: dummyParam(), frequency: dummyParam(), detune: dummyParam(),
+              playbackRate: dummyParam(), Q: dummyParam(),
+              type: '', buffer: null, loop: false, onended: null };
+    return n;
+  }
+  [window.AudioContext, window.webkitAudioContext].forEach(function (AC) {
+    if (!AC || !AC.prototype) return;
+    ['createOscillator', 'createBufferSource'].forEach(function (m) {
+      var orig = AC.prototype[m];
+      AC.prototype[m] = function () { return window.__bilingoMuted ? dummyNode() : orig.apply(this, arguments); };
+    });
+  });
+  var origPlay = HTMLAudioElement.prototype.play;
+  HTMLAudioElement.prototype.play = function () {
+    if (window.__bilingoMuted) return Promise.resolve();
+    return origPlay.apply(this, arguments);
+  };
+  var muteBtn = bar.querySelector('.b-mute');
+  function showMute() { muteBtn.textContent = window.__bilingoMuted ? '🔇' : '🔊'; }
+  function setMute(m) {
+    window.__bilingoMuted = m;
+    localStorage.setItem(MUTE_KEY, m ? '1' : '0');
+    if (m) { /* stop anything already ringing this second */
+      document.querySelectorAll('audio').forEach(function (a) { a.pause(); });
+    }
+    showMute();
+  }
+  muteBtn.addEventListener('click', function () { setMute(!window.__bilingoMuted); poke(); });
+  showMute();
+
   bar.querySelector('.b-plus').addEventListener('click', grow);
   bar.querySelector('.b-minus').addEventListener('click', shrink);
   bar.querySelector('.b-fs').addEventListener('click', toggleFS);
