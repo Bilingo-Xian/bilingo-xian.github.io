@@ -254,10 +254,10 @@ body.fail-mood .bg-layer{filter:saturate(.5) sepia(.3) brightness(.9)}
   <div class="start-kicker">Bilingo English · Review Class</div>
   <div class="start-title"><span class="t1">TEST</span><span class="t2">REVIEW!</span></div>
   <div class="start-units">UNITS 19 – 24</div>
-  <div class="start-theme">Part 1: Quiz on key structures 🎯<br>Part 2: Speaking practice with teacher rating 🗣️ (at the end!)</div>
+  <div class="start-theme">Part 1: Quiz — 18 questions on key structures 🎯<br>Part 2: Speaking practice — 5 groups, teacher rating 🗣️</div>
   <button class="start-btn" onclick="beginGame()">Let's Go! 🚀</button>
   <div class="start-words">
-    <span>paint</span><span>wall</span><span>gift</span><span>bookcase</span><span>flowers</span><span>eggs</span><span>money</span><span>bread</span><span>piece</span><span>pound</span><span>meat</span><span>cheese</span><span>refrigerator</span><span>handwriting</span><span>tidy</span><span>next door</span><span>over there</span><span>hurry</span><span>late</span><span>careful</span>
+    <span>paint</span><span>wall</span><span>gift</span><span>bookcase</span><span>flowers</span><span>eggs</span><span>money</span><span>bread</span><span>piece</span><span>pound</span><span>meat</span><span>cheese</span><span>refrigerator</span><span>handwriting</span><span>tidy</span><span>next door</span><span>over there</span><span>hurry</span><span>late</span><span>careful</span><span>wait a minute</span>
   </div>
 </div>
 </div>
@@ -346,11 +346,15 @@ body.fail-mood .bg-layer{filter:saturate(.5) sepia(.3) brightness(.9)}
     <span class="word-tag">paint</span><span class="word-tag">wall</span><span class="word-tag">gift</span><span class="word-tag">bookcase</span><span class="word-tag">flowers</span><span class="word-tag">eggs</span><span class="word-tag">money</span><span class="word-tag">bread</span><span class="word-tag">piece</span><span class="word-tag">pound</span><span class="word-tag">meat</span><span class="word-tag">cheese</span><span class="word-tag">refrigerator</span><span class="word-tag">handwriting</span><span class="word-tag">tidy</span><span class="word-tag">next door</span><span class="word-tag">over there</span><span class="word-tag">hurry</span><span class="word-tag">late</span><span class="word-tag">careful</span>
   </div>
 </div>
+</div>
+
 <style>
-.sp-group{margin-top:18px;border-top:2px dashed #e5e7eb;padding-top:14px}
-.sp-group-title{font-family:'Fredoka One',cursive;font-size:1.15em;color:#4f46e5}
-.sp-group-sub{font-size:.85em;color:#6b7280;font-weight:700;margin:2px 0 10px}
-.sp-item{background:#f8f7ff;border:2px solid #e5e7eb;border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.practice-wrap{max-width:640px;margin:0 auto;padding:12px 14px 34px}
+.pg-head{text-align:center;margin:12px 0 18px}
+.pg-title{font-family:'Fredoka One',cursive;font-size:1.7em;color:#fff;text-shadow:0 3px 12px rgba(0,0,0,.3)}
+.pg-sub{color:rgba(255,255,255,.88);font-weight:700;font-size:.9em;margin-top:4px}
+.pg-next{display:block;margin:18px auto 0}
+.sp-item{background:#fff;border:2px solid #e5e7eb;border-radius:18px;padding:14px 16px;margin-bottom:12px;box-shadow:0 6px 20px rgba(45,41,38,.12);animation:slideUp .4s ease}
 .sp-q{font-weight:800;color:#2d2926;line-height:1.45}
 .sp-struct{display:inline-block;background:#fef3c7;color:#92400e;font-size:.72em;font-weight:800;border-radius:8px;padding:2px 8px;margin-bottom:5px}
 .sp-ex-btn{margin-top:8px;background:#e0e7ff;color:#3730a3;border:none;border-radius:10px;padding:6px 12px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.8em;cursor:pointer}
@@ -362,190 +366,31 @@ body.fail-mood .bg-layer{filter:saturate(.5) sepia(.3) brightness(.9)}
 .sp-star{font-size:1.5em;cursor:pointer;filter:grayscale(1);opacity:.35;transition:transform .15s,filter .15s,opacity .15s;background:none;border:none;padding:0}
 .sp-star.lit{filter:none;opacity:1;transform:scale(1.15)}
 </style>
-<div class="review-card">
-  <div class="review-title">🗣️ Speaking Practice — Part 2</div>
-  <div class="review-prompt">Answer out loud in FULL sentences! Teacher taps the stars to rate each answer. ⭐⭐⭐</div>
-  <div class="sp-group">
-    <div class="sp-group-title">🏠 Colours &amp; Home</div>
-    <div class="sp-group-sub">Talk about colours, furniture, and where things go</div>
-    <div class="sp-item">
-      <div class="sp-q">What is your favourite colour? Why?</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">My favourite colour is blue because it makes me feel calm. / I like green best because it's the colour of trees.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q">Do you have a bookcase? What colour is it? Where do you put your books?</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">Yes, I have a bookcase in my bedroom. It is brown. I put my books on it. / No, I don't have a bookcase. I put my books on my desk.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q"><span class="sp-struct">paint sth. + colour</span><br>Make a sentence:</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">I want to paint my bedroom wall pink. / My dad painted the door white. / She painted the bookcase blue.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q"><span class="sp-struct">in front of / in the front of</span><br>Make TWO sentences — one with each:</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">There are flowers in front of our house. (= outside)<br>The teacher's desk is in the front of the classroom. (= inside, at the front part)</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q">What colour flowers do you like? Where do you put flowers at home?</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">I like yellow flowers. I put them in a vase in front of the window. / I like red roses. We put flowers on the table in the living room.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-  </div>
-  <div class="sp-group">
-    <div class="sp-group-title">🎁 Gifts &amp; Shopping</div>
-    <div class="sp-group-sub">Talk about presents, buying things, and asking for help</div>
-    <div class="sp-item">
-      <div class="sp-q">What gift do you want for your birthday this year?</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">I want a new football for my birthday. / I'd like some books for my birthday this year.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q">What gift will you give to your best friend for their birthday?</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">I will give my best friend a nice pen. / I'll give her a book because she likes reading.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q"><span class="sp-struct">sth. is/are for sb.</span><br>Make a sentence:</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">These flowers are for my mum. / This cake is for you! / The blue cup is for my sister.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q"><span class="sp-struct">a pound of / a piece of</span><br>Make a sentence with EACH:</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">I'd like a pound of cheese, please. / Can I have a piece of cake? / Give me a pound of beef and a piece of bread.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q"><span class="sp-struct">ask sb. for sth.</span><br>Make a sentence:</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">I asked my teacher for help. / He asked his mum for some money. / She asked me for a piece of paper.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q"><span class="sp-struct">ask sb. for sth. + a pound of + a piece of</span><br>📝 Make a short dialogue at a shop:</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">A: Can I help you?<br>B: Yes! I'd like a pound of beef, please.<br>A: Here you are. Anything else?<br>B: Can I ask you for a piece of paper? I need to write a list.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-  </div>
-  <div class="sp-group">
-    <div class="sp-group-title">🍽️ Food &amp; Drinks</div>
-    <div class="sp-group-sub">Talk about what you eat, drink, and keep at home</div>
-    <div class="sp-item">
-      <div class="sp-q">What do you have in your refrigerator at home?</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">We have milk, eggs, vegetables and some meat in our refrigerator. / There is cheese, butter and juice in my fridge.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q">Do you like tea, milk, or coffee best? Why?</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">I like milk best because it's good for my body. / I like tea best because it tastes nice.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q">What sweet foods do you like?</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">I like chocolate and cake. / I love ice cream and biscuits — they're delicious!</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q">What food would you take to a picnic?</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">I'd take sandwiches, fruit and juice to a picnic. / I would take some cake, a piece of cheese and some water.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q"><span class="sp-struct">need to do sth.</span><br>Make a sentence:</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">I need to buy some milk. / We need to hurry up! / She needs to do her homework before dinner.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q"><span class="sp-struct">need to do + a pound of / a piece of</span><br>📝 Make a short dialogue — you and your friend are going to the shop:</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">A: We need to buy some food for the picnic.<br>B: OK! I think we need to get a pound of cheese.<br>A: And I want a piece of cake for dessert.<br>B: Good idea! We also need to buy some juice.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-  </div>
-  <div class="sp-group">
-    <div class="sp-group-title">⚽ Activities &amp; Plans</div>
-    <div class="sp-group-sub">Talk about what you do and what you're going to do</div>
-    <div class="sp-item">
-      <div class="sp-q">What are you going to do after class today?</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">I'm going to play football with my friends after class. / I'm going to go home and do my homework.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q">Do you like playing football? Why or why not?</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">Yes, I like to play football because it's exciting! / No, I don't like it because I'm not good at it.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q"><span class="sp-struct">like to do sth. / love sb./sth.</span><br>Make a sentence with EACH:</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">I like to read books before bed. I love my family. / She likes to draw pictures. She loves art class.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q">Is your handwriting tidy or messy? Why?</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">My handwriting is quite tidy because I practise a lot. / It's a bit messy because I write too fast!</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q"><span class="sp-struct">hurry up + wait a minute + be careful + over there</span><br>📝 Make a short dialogue using ALL of these:</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">A: Hurry up! The bus is over there!<br>B: Wait a minute! I need to get my bag.<br>A: Be careful! The road is busy!<br>B: OK, OK! I can see it over there. Let's go!</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-  </div>
-  <div class="sp-group">
-    <div class="sp-group-title">🏘️ Places &amp; Directions</div>
-    <div class="sp-group-sub">Describe where things are</div>
-    <div class="sp-item">
-      <div class="sp-q"><span class="sp-struct">next door to</span><br>Make a sentence:</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">The bakery is next door to the bookshop. / My best friend lives next door to me.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q"><span class="sp-struct">over there</span><br>Make a sentence:</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">Look! The supermarket is over there. / Can you see the cat over there? / Put the flowers over there on the table.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q">What food do you usually buy at the shop?</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">I usually buy eggs, bread and milk at the shop. / I buy fruit and vegetables every week.</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-    <div class="sp-item">
-      <div class="sp-q"><span class="sp-struct">next door to + over there + wait a minute + be careful</span><br>📝 Make a short dialogue — you're showing a friend around your neighbourhood:</div>
-      <button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>
-      <div class="sp-example">A: Look! My school is over there.<br>B: Oh nice! And what's that next door to it?<br>A: That's the bookshop. Let's go and look!<br>B: Wait a minute — be careful! There's a car coming!</div>
-      <div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div>
-    </div>
-  </div>
+<div id="practice-intro" class="screen">
+<div class="levelup-screen">
+  <div class="levelup-icon">🗣️</div>
+  <div class="levelup-title"><span class="u1">QUIZ COMPLETE!</span><span class="u2">Part 2: Practice Time!</span></div>
+  <div class="levelup-msg">Now let's TALK! 🎤 5 speaking groups — answer in FULL sentences!<br>Teacher taps the ⭐ stars to rate each answer.</div>
+  <div class="levelup-score" id="pi-score">🏆 Quiz Score: 0</div>
+  <button class="levelup-btn" onclick="startPractice()">Start Practice →</button>
+  <div class="levelup-next-stage">Results & review come after practice</div>
 </div>
-<script>
-function spToggle(btn){var ex=btn.nextElementSibling;var open=ex.classList.toggle('open');btn.textContent=open?'🙈 Hide example':'💡 Show example';}
-function spRate(el,n){var wrap=el.parentElement;var cur=wrap.getAttribute('data-r');var val=(String(n)===cur)?0:n;wrap.setAttribute('data-r',val);var stars=wrap.querySelectorAll('.sp-star');for(var i=0;i<stars.length;i++){if(i<val)stars[i].classList.add('lit');else stars[i].classList.remove('lit');}}
-</script>
+</div>
+
+<div id="practice-screen" class="screen">
+<div class="top-bar">
+  <span class="tpill stage-badge medium">PRACTICE 🗣️</span>
+  <span class="tpill">🏆 <span id="pg-score">0</span></span>
+  <span class="tpill" id="pg-counter">Group 1 / 5</span>
+</div>
+<div class="practice-wrap">
+  <div class="pg-head">
+    <div class="pg-title" id="pg-title"></div>
+    <div class="pg-sub" id="pg-sub"></div>
+  </div>
+  <div id="pg-items"></div>
+  <button class="levelup-btn pg-next" id="pg-btn" onclick="nextPracticeGroup()">Next Group →</button>
+</div>
 </div>
 
 </div>
@@ -587,7 +432,7 @@ function showBlaze(praise){const container=document.getElementById('blaze-contai
 <script>
 /* ====== GAME DATA — UNITS 19 – 24 ====== */
 const BLAZE_THRESHOLD=5;
-const stages=[{"name":"EASY","badgeClass":"easy","icon":"🌟","timer":15,"questions":[{"qlabel":"Fill the gap","prompt":"'This gift ___ you.' — Choose the correct words.","opts":["is to","is for","are for","is from"],"ans":1,"explain":"'Something IS FOR someone' = it's meant for them. (这个礼物是给你的)"},{"qlabel":"Fill the gap","prompt":"She asked her mum ___ some money.","opts":["to","at","for","of"],"ans":2,"explain":"Structure: ask + someone + FOR + something → 'She asked her mum for some money.' (向某人要某物)"},{"qlabel":"True or False?","prompt":"'The shop is next door to the bank' means the shop and the bank are next to each other.","type":"tf","correct":true,"explain":"'Next door to' = right next to, neighbouring. (紧挨着，在隔壁)"},{"qlabel":"True or False?","prompt":"'Be careful!' means 'Don't worry!'","type":"tf","correct":false,"explain":"No! 'Be careful!' = Pay attention! Watch out! (小心！当心！) It's a warning, not comfort."}]},{"name":"MEDIUM","badgeClass":"medium","icon":"🔥","timer":25,"questions":[{"qlabel":"Fill the gap","prompt":"The teacher is standing ___ the classroom.<br><span style='color:#888;font-size:.85em'>(She is inside the room.)</span>","opts":["in front of","in the front of","next to","over there"],"ans":1,"explain":"'In THE front of' = inside, at the front part. (在里面的前部)"},{"qlabel":"Fill the gap","prompt":"There is a big tree ___ my house.<br><span style='color:#888;font-size:.85em'>(The tree is outside.)</span>","opts":["in the front of","in front of","behind","next to"],"ans":1,"explain":"'In front of' = outside, in the space before something. (在外面的前面)"},{"qlabel":"Choose the correct sentence","prompt":"Which sentence is correct?","opts":["I need buy some eggs.","I need to buy some eggs.","I need buying some eggs.","I need buy to eggs."],"ans":1,"explain":"Structure: need + TO + verb → 'I need to buy some eggs.' (需要做某事)"},{"qlabel":"Choose the correct sentence","prompt":"Which sentence is correct?","opts":["I like play football.","I like to play football.","I like playing to football.","I to like play football."],"ans":1,"explain":"Structure: like + TO + verb → 'I like to play football.' (喜欢做某事)"}]},{"name":"HARD","badgeClass":"hard","icon":"🏆","timer":20,"questions":[{"qlabel":"Choose the correct sentence","prompt":"Which sentence is correct?","opts":["I paint the wall.","I paint the wall blue.","I paint blue the wall.","I paint to wall blue."],"ans":1,"explain":"Structure: paint + something + colour → 'I paint the wall blue.' (把墙刷成蓝色)"},{"qlabel":"Choose the correct sentence","prompt":"Which sentence is correct?","opts":["I want a meat of pound.","A pound meat, please.","A pound of meat, please.","Of a pound meat, please."],"ans":2,"explain":"'A pound of' + noun → a pound of meat. (一磅肉)"},{"qtype":"drag","qlabel":"🧩 Build it! (4 gaps, 6 tiles)","prompt":"Fill the blanks to complete the sentence:","sentence":"Give me ___ ___ ___ ___, please.","words":["of","a","bread","piece","the","an"],"correct":["a","piece","of","bread"],"explain":"'A piece of' + uncountable noun → a piece of bread (一片面包)","qTimer":28},{"qtype":"drag","qlabel":"🧩 Build it! (4 gaps, 6 tiles)","prompt":"Fill the blanks to complete the sentence:","sentence":"___ ___! We're ___ ___ school!","words":["for","Hurry","up","late","to","slowly"],"correct":["Hurry","up","late","for"],"explain":"'Hurry up!' = 快点! / 'late for' = 迟到了","qTimer":28}]}];
+const stages=[{"name":"EASY","badgeClass":"easy","icon":"🌟","timer":15,"questions":[{"qlabel":"Fill the gap","prompt":"'This gift ___ you.' — Choose the correct words.","opts":["is to","is for","are for","is from"],"ans":1,"explain":"'Something IS FOR someone' = it's meant for them. (这个礼物是给你的)"},{"qlabel":"Fill the gap","prompt":"She asked her mum ___ some money.","opts":["to","at","for","of"],"ans":2,"explain":"Structure: ask + someone + FOR + something → 'She asked her mum for some money.' (向某人要某物)"},{"qlabel":"True or False?","prompt":"'The shop is next door to the bank' means the shop and the bank are next to each other.","type":"tf","correct":true,"explain":"'Next door to' = right next to, neighbouring. (紧挨着，在隔壁)"},{"qlabel":"True or False?","prompt":"'Be careful!' means 'Don't worry!'","type":"tf","correct":false,"explain":"No! 'Be careful!' = Pay attention! Watch out! (小心！当心！) It's a warning, not comfort."},{"qlabel":"True or False?","prompt":"'Wait a minute!' means 'Hurry up!'","type":"tf","correct":false,"explain":"No! 'Wait a minute!' = stop, wait a moment (等一下). It's the OPPOSITE of 'Hurry up!' (快点!)"},{"qlabel":"Fill the gap","prompt":"'Look! The bus is ___ there!' — Choose the correct word.","opts":["over","on","in","at"],"ans":0,"explain":"'Over there' = in that place, away from us (在那边). 'Look! The bus is over there!'"}]},{"name":"MEDIUM","badgeClass":"medium","icon":"🔥","timer":25,"questions":[{"qlabel":"Fill the gap","prompt":"The teacher is standing ___ the classroom.<br><span style='color:#888;font-size:.85em'>(She is inside the room.)</span>","opts":["in front of","in the front of","next to","over there"],"ans":1,"explain":"'In THE front of' = inside, at the front part. (在里面的前部)"},{"qlabel":"Fill the gap","prompt":"There is a big tree ___ my house.<br><span style='color:#888;font-size:.85em'>(The tree is outside.)</span>","opts":["in the front of","in front of","behind","next to"],"ans":1,"explain":"'In front of' = outside, in the space before something. (在外面的前面)"},{"qlabel":"Choose the correct sentence","prompt":"Which sentence is correct?","opts":["I need buy some eggs.","I need to buy some eggs.","I need buying some eggs.","I need buy to eggs."],"ans":1,"explain":"Structure: need + TO + verb → 'I need to buy some eggs.' (需要做某事)"},{"qlabel":"Choose the correct sentence","prompt":"Which sentence is correct?","opts":["I like play football.","I like to play football.","I like playing to football.","I to like play football."],"ans":1,"explain":"Structure: like + TO + verb → 'I like to play football.' (喜欢做某事)"},{"qlabel":"Fill the gap","prompt":"'Do we need ___ any milk?' — Choose the correct words.","opts":["to buy","buy","buying","for buy"],"ans":0,"explain":"need + TO + verb → 'Do we need to buy any milk?' (需要做某事) — it works in questions too!"},{"qlabel":"⚡ What do you say?","prompt":"Your little brother is running near a busy road. What do you shout?","opts":["Be careful!","Be careless!","Go to sleep!","Have fun!"],"ans":0,"explain":"'Be careful!' = Watch out! (小心!当心!) — you shout it when something is dangerous. 'Careless' is the trap: it means 粗心的!"}]},{"name":"HARD","badgeClass":"hard","icon":"🏆","timer":20,"questions":[{"qlabel":"Choose the correct sentence","prompt":"Which sentence is correct?","opts":["I paint the wall.","I paint the wall blue.","I paint blue the wall.","I paint to wall blue."],"ans":1,"explain":"Structure: paint + something + colour → 'I paint the wall blue.' (把墙刷成蓝色)"},{"qlabel":"Choose the correct sentence","prompt":"Which sentence is correct?","opts":["I want a meat of pound.","A pound meat, please.","A pound of meat, please.","Of a pound meat, please."],"ans":2,"explain":"'A pound of' + noun → a pound of meat. (一磅肉)"},{"qtype":"drag","qlabel":"🧩 Build it! (4 gaps, 6 tiles)","prompt":"Fill the blanks to complete the sentence:","sentence":"Give me ___ ___ ___ ___, please.","words":["of","a","bread","piece","the","an"],"correct":["a","piece","of","bread"],"explain":"'A piece of' + uncountable noun → a piece of bread (一片面包)","qTimer":28},{"qtype":"drag","qlabel":"🧩 Build it! (4 gaps, 6 tiles)","prompt":"Fill the blanks to complete the sentence:","sentence":"___ ___! We're ___ ___ school!","words":["for","Hurry","up","late","to","slowly"],"correct":["Hurry","up","late","for"],"explain":"'Hurry up!' = 快点! / 'late for' = 迟到了","qTimer":28},{"qtype":"drag","qlabel":"🧩 Build it! (3 gaps, 5 tiles)","prompt":"Put the words in the correct places:","sentence":"The bakery is ___ ___ ___ the bookshop.","words":["next","door","to","near","front"],"correct":["next","door","to"],"explain":"'Next door to' = right beside, neighbouring (紧挨着,在隔壁). The bakery is next door to the bookshop.","qTimer":25},{"qtype":"drag","qlabel":"🧩 Build it! (3 gaps, 5 tiles)","prompt":"Put the words in the correct places:","sentence":"Wait ___ ___! The bus is ___ there!","words":["a","minute","over","hour","for"],"correct":["a","minute","over"],"explain":"'Wait a minute!' = 等一下 · 'over there' = 在那边 → Wait a minute! The bus is over there!","qTimer":25}]}];
 window.stages=stages;
 
 /* ====== STATE ====== */
@@ -799,7 +644,7 @@ function showDiscussionAndNext(q){
 function nextQuestion(){
   snd('cl');const st=stages[G.stage];G.q++;
   if(G.q>=st.questions.length){
-    if(G.stage>=stages.length-1)showFinalResults();
+    if(G.stage>=stages.length-1)showPracticeTransition();
     else showLevelUp();
   }else showQuestion();
 }
@@ -846,6 +691,38 @@ function showFinalResults(){
   buildMistakesSection();
   window.scrollTo(0,0);
 }
+/* ====== SPEAKING PRACTICE PAGES (Part 2 — after the quiz) ====== */
+const practiceGroups=[{"title":"🏠 Colours & Home","sub":"Talk about colours, furniture, and where things go","items":[{"q":"What is your favourite colour? Why?","example":"My favourite colour is blue because it makes me feel calm. / I like green best because it's the colour of trees."},{"q":"Do you have a bookcase? What colour is it? Where do you put your books?","example":"Yes, I have a bookcase in my bedroom. It is brown. I put my books on it. / No, I don't have a bookcase. I put my books on my desk."},{"structure":"paint sth. + colour","q":"Make a sentence:","example":"I want to paint my bedroom wall pink. / My dad painted the door white. / She painted the bookcase blue."},{"structure":"in front of / in the front of","q":"Make TWO sentences — one with each:","example":"There are flowers in front of our house. (= outside)\nThe teacher's desk is in the front of the classroom. (= inside, at the front part)"},{"q":"What colour flowers do you like? Where do you put flowers at home?","example":"I like yellow flowers. I put them in a vase in front of the window. / I like red roses. We put flowers on the table in the living room."}]},{"title":"🎁 Gifts & Shopping","sub":"Talk about presents, buying things, and asking for help","items":[{"q":"What gift do you want for your birthday this year?","example":"I want a new football for my birthday. / I'd like some books for my birthday this year."},{"q":"What gift will you give to your best friend for their birthday?","example":"I will give my best friend a nice pen. / I'll give her a book because she likes reading."},{"structure":"sth. is/are for sb.","q":"Make a sentence:","example":"These flowers are for my mum. / This cake is for you! / The blue cup is for my sister."},{"structure":"a pound of / a piece of","q":"Make a sentence with EACH:","example":"I'd like a pound of cheese, please. / Can I have a piece of cake? / Give me a pound of beef and a piece of bread."},{"structure":"ask sb. for sth.","q":"Make a sentence:","example":"I asked my teacher for help. / He asked his mum for some money. / She asked me for a piece of paper."},{"type":"dialogue","structure":"ask sb. for sth. + a pound of + a piece of","q":"📝 Make a short dialogue at a shop:","example":"A: Can I help you?\nB: Yes! I'd like a pound of beef, please.\nA: Here you are. Anything else?\nB: Can I ask you for a piece of paper? I need to write a list."}]},{"title":"🍽️ Food & Drinks","sub":"Talk about what you eat, drink, and keep at home","items":[{"q":"What do you have in your refrigerator at home?","example":"We have milk, eggs, vegetables and some meat in our refrigerator. / There is cheese, butter and juice in my fridge."},{"q":"Do you like tea, milk, or coffee best? Why?","example":"I like milk best because it's good for my body. / I like tea best because it tastes nice."},{"q":"What sweet foods do you like?","example":"I like chocolate and cake. / I love ice cream and biscuits — they're delicious!"},{"q":"What food would you take to a picnic?","example":"I'd take sandwiches, fruit and juice to a picnic. / I would take some cake, a piece of cheese and some water."},{"structure":"need to do sth.","q":"Make a sentence:","example":"I need to buy some milk. / We need to hurry up! / She needs to do her homework before dinner."},{"type":"dialogue","structure":"need to do + a pound of / a piece of","q":"📝 Make a short dialogue — you and your friend are going to the shop:","example":"A: We need to buy some food for the picnic.\nB: OK! I think we need to get a pound of cheese.\nA: And I want a piece of cake for dessert.\nB: Good idea! We also need to buy some juice."}]},{"title":"⚽ Activities & Plans","sub":"Talk about what you do and what you're going to do","items":[{"q":"What are you going to do after class today?","example":"I'm going to play football with my friends after class. / I'm going to go home and do my homework."},{"q":"Do you like playing football? Why or why not?","example":"Yes, I like to play football because it's exciting! / No, I don't like it because I'm not good at it."},{"structure":"like to do sth. / love sb./sth.","q":"Make a sentence with EACH:","example":"I like to read books before bed. I love my family. / She likes to draw pictures. She loves art class."},{"q":"Is your handwriting tidy or messy? Why?","example":"My handwriting is quite tidy because I practise a lot. / It's a bit messy because I write too fast!"},{"type":"dialogue","structure":"hurry up + wait a minute + be careful + over there","q":"📝 Make a short dialogue using ALL of these:","example":"A: Hurry up! The bus is over there!\nB: Wait a minute! I need to get my bag.\nA: Be careful! The road is busy!\nB: OK, OK! I can see it over there. Let's go!"}]},{"title":"🏘️ Places & Directions","sub":"Describe where things are","items":[{"structure":"next door to","q":"Make a sentence:","example":"The bakery is next door to the bookshop. / My best friend lives next door to me."},{"structure":"over there","q":"Make a sentence:","example":"Look! The supermarket is over there. / Can you see the cat over there? / Put the flowers over there on the table."},{"q":"What food do you usually buy at the shop?","example":"I usually buy eggs, bread and milk at the shop. / I buy fruit and vegetables every week."},{"type":"dialogue","structure":"next door to + over there + wait a minute + be careful","q":"📝 Make a short dialogue — you're showing a friend around your neighbourhood:","example":"A: Look! My school is over there.\nB: Oh nice! And what's that next door to it?\nA: That's the bookshop. Let's go and look!\nB: Wait a minute — be careful! There's a car coming!"}]}];
+let PG=0;
+function escSp(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function spToggle(btn){const ex=btn.nextElementSibling;const open=ex.classList.toggle('open');btn.textContent=open?'🙈 Hide example':'💡 Show example'}
+function spRate(el,n){const wrap=el.parentElement;const cur=wrap.getAttribute('data-r');const val=(String(n)===cur)?0:n;wrap.setAttribute('data-r',val);const stars=wrap.querySelectorAll('.sp-star');for(let i=0;i<stars.length;i++){if(i<val)stars[i].classList.add('lit');else stars[i].classList.remove('lit')}}
+function showPracticeTransition(){
+  document.getElementById('pi-score').textContent='🏆 Quiz Score: '+G.score;
+  showScr('practice-intro');snd('win');confetti(30);
+}
+function startPractice(){snd('cl');PG=0;showPracticeGroup()}
+function showPracticeGroup(){
+  const g=practiceGroups[PG];
+  document.getElementById('pg-counter').textContent='Group '+(PG+1)+' / '+practiceGroups.length;
+  document.getElementById('pg-score').textContent=G.score;
+  document.getElementById('pg-title').textContent=g.title;
+  document.getElementById('pg-sub').textContent=g.sub;
+  let h='';
+  g.items.forEach(it=>{
+    h+='<div class="sp-item"><div class="sp-q">';
+    if(it.structure)h+='<span class="sp-struct">'+escSp(it.structure)+'</span><br>';
+    h+=escSp(it.q)+'</div>';
+    h+='<button class="sp-ex-btn" onclick="spToggle(this)">💡 Show example</button>';
+    h+='<div class="sp-example">'+escSp(it.example).replace(/\n/g,'<br>')+'</div>';
+    h+='<div class="sp-stars" data-r="0"><span class="sp-star-lbl">RATE:</span><button class="sp-star" onclick="spRate(this,1)">⭐</button><button class="sp-star" onclick="spRate(this,2)">⭐</button><button class="sp-star" onclick="spRate(this,3)">⭐</button></div></div>';
+  });
+  document.getElementById('pg-items').innerHTML=h;
+  document.getElementById('pg-btn').textContent=PG>=practiceGroups.length-1?'Finish! 🎉':'Next Group →';
+  showScr('practice-screen');window.scrollTo(0,0);
+}
+function nextPracticeGroup(){snd('cl');PG++;if(PG>=practiceGroups.length)showFinalResults();else showPracticeGroup()}
+
 </script>
 <!-- Bilingo game controls: zoom + fullscreen + sound (gear toggle, auto-hide 7s) -->
 <style>

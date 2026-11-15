@@ -71,6 +71,8 @@ button.rc:disabled{opacity:.5;cursor:default}
 .card.pick{cursor:pointer;border-color:rgba(255,215,0,.75);box-shadow:0 0 22px rgba(255,215,0,.35)}
 .card.pick:hover{transform:scale(1.07);background:rgba(255,255,255,.2)}
 .card.picked{border-color:#ffd700!important;box-shadow:0 0 35px rgba(255,215,0,.55)!important}
+.card.hl{border-color:#ffd700;transform:scale(1.06);z-index:2;animation:hlpulse 1.2s ease-in-out infinite}
+@keyframes hlpulse{0%,100%{box-shadow:0 0 16px rgba(255,215,0,.4)}50%{box-shadow:0 0 40px rgba(255,215,0,.8)}}
 .card.sad{opacity:.55;filter:grayscale(.35)}
 .card.wiggle{animation:wiggle .5s ease}
 @keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
@@ -579,7 +581,7 @@ function setCharState(name,state,anim){
 function clearPicks(){
   CH.forEach(c=>{
     const card=$('card-'+c.n);
-    card.classList.remove('pick','picked');
+    card.classList.remove('pick','picked','hl');
     card.onclick=null;
   });
 }
@@ -682,26 +684,24 @@ function newRound(){
   task.useLess=useLess;
   chipSay('🎤 Make a question!');
   banner.innerHTML+=`<div class="row" style="opacity:.55;font-size:.8em">…then tap to REVEAL</div>`;
-  setPrompt('🗣️ Everyone ask the question!');
+  if(isSuper){
+    setPrompt('⭐ ALL characters glow → SUPERLATIVE! Everyone ask!');
+    CH.forEach(c=>$('card-'+c.n).classList.add('hl'));
+  }else{
+    setPrompt('↔️ TWO characters glow → COMPARATIVE! Everyone ask!');
+    task.two.forEach(c=>$('card-'+c.n).classList.add('hl'));
+  }
   showBtn();setBtn('Reveal Question 👀',()=>phaseReveal(task),'');
 
   function phaseReveal(task){
     phase='revealQ';sndReveal();
     solidBanner(say);
     setPrompt('🤔 You decide! There is NO wrong answer — TAP!');
-    if(task.isSuper){
-      CH.forEach(c=>{
-        const card=$('card-'+c.n);
-        card.classList.add('pick');
-        card.onclick=()=>choose(task,c.n);
-      });
-    }else{
-      task.two.forEach(c=>{
-        const card=$('card-'+c.n);
-        card.classList.add('pick');
-        card.onclick=()=>choose(task,c.n);
-      });
-    }
+    (task.isSuper?CH:task.two).forEach(c=>{
+      const card=$('card-'+c.n);
+      card.classList.add('pick');
+      card.onclick=()=>choose(task,c.n);
+    });
     hideBtn();
   }
 }
@@ -792,7 +792,6 @@ hardBtn.onclick=()=>{
 $('skipReviewBtn').onclick=()=>{ if(!reviewDone){ sndNext(); startGame(); } };
 runReviewStep();
 </script>
-
 <!-- Bilingo game controls: zoom + fullscreen + sound (gear toggle, auto-hide 7s) -->
 <style>
   .bilingo-ui {
