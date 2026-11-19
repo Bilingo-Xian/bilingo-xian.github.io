@@ -1,0 +1,9 @@
+{
+  "name": "rebecca-get-well-games",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NCC1-3 U32 'Can Rebecca come out and play?' bonus HTML games",
+  "scripts": {
+    "dev": "node server.js"
+  }
+}

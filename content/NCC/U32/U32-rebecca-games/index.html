@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Can Rebecca Come Out and Play? — Bonus Games (NCC1-3 U32)</title>
+<style>
+  :root{
+    --bg1:#fff7e6; --bg2:#e6f7ff; --card:#ffffff; --ink:#2d2a32;
+    --pink:#ff6b9d; --teal:#2ec4b6; --orange:#ff9f43; --purple:#a55eea;
+    --green:#3ddc84; --red:#ff5a5a; --yellow:#ffd23f;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0; min-height:100vh; color:var(--ink);
+    font-family:"Comic Sans MS","Chalkboard SE","Segoe UI",sans-serif;
+    background:linear-gradient(135deg,var(--bg1),var(--bg2));
+  }
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 22px; background:rgba(255,255,255,.7); backdrop-filter:blur(6px);
+    position:sticky; top:0; z-index:50; box-shadow:0 2px 10px rgba(0,0,0,.06);
+  }
+  header .brand{font-size:1.15rem; font-weight:bold;}
+  header .brand small{display:block; font-size:.7rem; color:#777; font-weight:normal;}
+  #stars{font-size:1.3rem; font-weight:bold; color:#e8a100;}
+  .screen{display:none; max-width:860px; margin:0 auto; padding:24px 18px 60px;}
+  .screen.active{display:block; animation:pop .35s ease;}
+  @keyframes pop{from{opacity:0; transform:translateY(12px) scale(.98);} to{opacity:1; transform:none;}}
+  h1{font-size:clamp(1.5rem,4vw,2.3rem); margin:.2em 0; text-align:center;}
+  .sub{text-align:center; color:#666; margin-top:-6px;}
+  .menu-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-top:26px;}
+  .card{
+    background:var(--card); border-radius:22px; padding:22px 18px; text-align:center;
+    box-shadow:0 6px 18px rgba(60,60,90,.10); cursor:pointer; border:4px solid transparent;
+    transition:transform .15s, border-color .15s;
+  }
+  .card:hover{transform:translateY(-4px) scale(1.02);}
+  .card .emoji{font-size:3rem; display:block; margin-bottom:8px;}
+  .card h3{margin:.2em 0; font-size:1.15rem;}
+  .card p{margin:.2em 0; font-size:.85rem; color:#777;}
+  .card .done-tag{display:inline-block; margin-top:8px; font-size:.8rem; background:var(--green); color:#fff; padding:2px 10px; border-radius:999px;}
+  button{font-family:inherit;}
+  .btn{
+    border:none; border-radius:999px; padding:14px 26px; font-size:1.1rem; font-weight:bold;
+    cursor:pointer; color:#fff; box-shadow:0 4px 0 rgba(0,0,0,.15); transition:transform .08s;
+  }
+  .btn:active{transform:translateY(3px); box-shadow:none;}
+  .btn.green{background:var(--green);} .btn.red{background:var(--red);}
+  .btn.teal{background:var(--teal);} .btn.purple{background:var(--purple);}
+  .btn.orange{background:var(--orange);}
+  .btn.ghost{background:#fff; color:var(--ink); box-shadow:0 4px 0 rgba(0,0,0,.08);}
+  .btn:disabled{opacity:.45; cursor:not-allowed; transform:none;}
+  .home-bar{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
+  .stage{
+    background:var(--card); border-radius:26px; padding:26px 22px;
+    box-shadow:0 8px 22px rgba(60,60,90,.10); text-align:center;
+  }
+  .big-emoji{font-size:4.2rem; line-height:1.1;}
+  .prompt{font-size:1.25rem; margin:14px 0 4px; font-weight:bold;}
+  .hint{color:#888; font-size:.95rem;}
+  .choice-row{display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:18px;}
+  .tile{
+    background:#f1f0ff; border:3px solid var(--purple); color:var(--ink);
+    border-radius:14px; padding:12px 18px; font-size:1.15rem; font-weight:bold; cursor:pointer;
+    transition:transform .1s;
+  }
+  .tile:hover{transform:scale(1.06);}
+  .tile.picked{opacity:.3; pointer-events:none;}
+  .build-zone{
+    min-height:64px; border:3px dashed #bbb; border-radius:14px; margin:16px auto 0;
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:center; padding:10px; max-width:560px;
+  }
+  .build-zone .tile{background:#e6fff6; border-color:var(--teal);}
+  .feedback{
+    margin:16px auto 0; max-width:560px; border-radius:16px; padding:14px 16px; font-size:1.1rem;
+    display:none; font-weight:bold;
+  }
+  .feedback.good{display:block; background:#e6ffe6; color:#1c7a1c; border:3px solid var(--green);}
+  .feedback.bad{display:block; background:#ffecec; color:#a02020; border:3px solid var(--red);}
+  .progress-dots{display:flex; gap:8px; justify-content:center; margin:10px 0 0;}
+  .dot{width:14px; height:14px; border-radius:50%; background:#ddd;}
+  .dot.hit{background:var(--green);} .dot.miss{background:var(--red);} .dot.now{outline:3px solid var(--yellow);}
+  .speaker{font-size:.9rem; font-weight:bold; color:#fff; display:inline-block; padding:3px 14px; border-radius:999px; margin-bottom:6px;}
+  .speaker.gary{background:var(--teal);} .speaker.wang{background:var(--orange);}
+  .dialogue-line{font-size:1.4rem; line-height:1.9; max-width:600px; margin:0 auto;}
+  .blank{display:inline-block; min-width:110px; border-bottom:4px solid var(--purple); color:var(--purple);}
+  .mood-meter{font-size:2.4rem; margin:8px 0;}
+  .food-item{font-size:4.6rem; animation:bob 1.2s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-10px) rotate(3deg);}}
+  .food-name{font-size:1.4rem; font-weight:bold; margin-top:6px;}
+  details.teacher{
+    margin-top:28px; background:#fffdf5; border:3px dashed var(--orange); border-radius:18px; padding:14px 18px;
+  }
+  details.teacher summary{font-weight:bold; cursor:pointer; font-size:1.05rem;}
+  details.teacher li{margin:.45em 0; font-size:.95rem;}
+  .confetti{position:fixed; top:-40px; font-size:1.8rem; z-index:100; pointer-events:none; animation:fall linear forwards;}
+  @keyframes fall{to{transform:translateY(110vh) rotate(540deg); opacity:.7;}}
+  .final-score{font-size:1.3rem; margin-top:14px;}
+  #mute{position:fixed; bottom:14px; right:14px; z-index:60; font-size:1.4rem; background:#fff; border-radius:50%; width:52px; height:52px; border:none; box-shadow:0 3px 10px rgba(0,0,0,.15); cursor:pointer;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">🤒 Can Rebecca Come Out and Play?
+    <small>NCC1-3 · Unit 32 · Bonus Games · Class K6068</small>
+  </div>
+  <div id="stars">⭐ 0</div>
+</header>
+
+<!-- ============ MENU ============ -->
+<section id="menu" class="screen active">
+  <h1>Help Rebecca Get Better! 🛏️</h1>
+  <p class="sub">Pick a game. Collect ⭐ for every right answer!</p>
+  <div class="menu-grid">
+    <div class="card" onclick="go('feed'); startFeed();">
+      <span class="emoji">🍫</span>
+      <h3>Feed Rebecca</h3>
+      <p>Rich food? Sweets? NO WAY! What CAN she eat?</p>
+      <span class="done-tag" id="tag-feed" style="display:none">done!</span>
+    </div>
+    <div class="card" onclick="go('keep'); startKeep();">
+      <span class="emoji">🧣</span>
+      <h3>Keep It Right</h3>
+      <p>Build sentences: <i>keep + her + warm</i></p>
+      <span class="done-tag" id="tag-keep" style="display:none">done!</span>
+    </div>
+    <div class="card" onclick="go('doctor'); startDoctor();">
+      <span class="emoji">🌡️</span>
+      <h3>Doctor, Doctor!</h3>
+      <p>What's wrong with the patient? Headache? Mumps?</p>
+      <span class="done-tag" id="tag-doctor" style="display:none">done!</span>
+    </div>
+    <div class="card" onclick="go('dialogue'); startDialogue();">
+      <span class="emoji">📖</span>
+      <h3>Finish the Dialogue</h3>
+      <p>Gary &amp; Mr Wang — fill in the missing words</p>
+      <span class="done-tag" id="tag-dialogue" style="display:none">done!</span>
+    </div>
+    <div class="card" onclick="go('silly'); startSilly();">
+      <span class="emoji">🪟</span>
+      <h3>Sensible or Silly?</h3>
+      <p>Lean out of the window?! Play a match in the library?!</p>
+      <span class="done-tag" id="tag-silly" style="display:none">done!</span>
+    </div>
+  </div>
+
+  <details class="teacher">
+    <summary>🧑‍🏫 Teacher cheat-sheet (offline extensions)</summary>
+    <ul>
+      <li><b>Before “Feed Rebecca”:</b> ask Joey what HE eats when he's ill — <i>“When I have a cold, I eat…”</i> — then play.</li>
+      <li><b>Keep It Right → TPR:</b> after each sentence, act it out (wrap a blanket, close the door, shush the baby). Then give silly commands: “Keep the teacher quiet!” 😄</li>
+      <li><b>Doctor, Doctor → reverse charades:</b> after the quiz, Joey acts an illness, you guess: “You look terrible! Do you have an earache?”</li>
+      <li><b>Finish the Dialogue → role play:</b> swap roles, then change the illness (measles! mumps!) and re-perform the call.</li>
+      <li><b>Sensible or Silly → make your own:</b> Joey invents 2 silly sentences for YOU to judge. Kids love catching the teacher out.</li>
+      <li><b>Exit ticket:</b> “Chocolate always makes me feel better” — agree or disagree? What makes <i>you</i> feel better? (…because…)</li>
+    </ul>
+  </details>
+</section>
+
+<!-- ============ GAME 1: FEED REBECCA ============ -->
+<section id="feed" class="screen">
+  <div class="home-bar">
+    <button class="btn ghost" onclick="go('menu')">🏠 Menu</button>
+    <b>🍫 Feed Rebecca</b><span></span>
+  </div>
+  <div class="stage">
+    <div class="mood-meter" id="feed-mood">🤒</div>
+    <p class="prompt">Rebecca is ill! Can she eat this?</p>
+    <p class="hint">Remember: no rich food, no sweets! 🚫🍫</p>
+    <div class="food-item" id="feed-emoji">🍚</div>
+    <div class="food-name" id="feed-name">rice</div>
+    <div class="choice-row">
+      <button class="btn green" id="feed-yes">😋 GIVE IT!</button>
+      <button class="btn red" id="feed-no">🙅 NO WAY!</button>
+    </div>
+    <div class="feedback" id="feed-fb"></div>
+    <button class="btn teal" id="feed-next" style="display:none; margin-top:14px;">Next food ➜</button>
+    <div class="progress-dots" id="feed-dots"></div>
+    <div class="final-score" id="feed-final" style="display:none"></div>
+  </div>
+</section>
+
+<!-- ============ GAME 2: KEEP IT RIGHT ============ -->
+<section id="keep" class="screen">
+  <div class="home-bar">
+    <button class="btn ghost" onclick="go('menu')">🏠 Menu</button>
+    <b>🧣 Keep It Right</b><span></span>
+  </div>
+  <div class="stage">
+    <div class="big-emoji" id="keep-pic">🛏️</div>
+    <p class="prompt">Build the sentence: <i>keep + somebody/something + adjective</i></p>
+    <div class="build-zone" id="keep-build"></div>
+    <div class="choice-row" id="keep-tiles"></div>
+    <div class="feedback" id="keep-fb"></div>
+    <button class="btn teal" id="keep-next" style="display:none; margin-top:14px;">Next ➜</button>
+    <div class="progress-dots" id="keep-dots"></div>
+    <div class="final-score" id="keep-final" style="display:none"></div>
+  </div>
+</section>
+
+<!-- ============ GAME 3: DOCTOR DOCTOR ============ -->
+<section id="doctor" class="screen">
+  <div class="home-bar">
+    <button class="btn ghost" onclick="go('menu')">🏠 Menu</button>
+    <b>🌡️ Doctor, Doctor!</b><span></span>
+  </div>
+  <div class="stage">
+    <div class="big-emoji" id="doc-pic">🤒</div>
+    <p class="prompt" id="doc-line">"I feel hot! It's 39°C!"</p>
+    <p class="hint">What's wrong? You feel/look + adjective… you have a …?</p>
+    <div class="choice-row" id="doc-options"></div>
+    <div class="feedback" id="doc-fb"></div>
+    <button class="btn teal" id="doc-next" style="display:none; margin-top:14px;">Next patient ➜</button>
+    <div class="progress-dots" id="doc-dots"></div>
+    <div class="final-score" id="doc-final" style="display:none"></div>
+  </div>
+</section>
+
+<!-- ============ GAME 4: FINISH THE DIALOGUE ============ -->
+<section id="dialogue" class="screen">
+  <div class="home-bar">
+    <button class="btn ghost" onclick="go('menu')">🏠 Menu</button>
+    <b>📖 Finish the Dialogue</b><span></span>
+  </div>
+  <div class="stage">
+    <span class="speaker" id="dia-speaker">Mr Wang</span>
+    <p class="dialogue-line" id="dia-line"></p>
+    <div class="choice-row" id="dia-options"></div>
+    <div class="feedback" id="dia-fb"></div>
+    <button class="btn teal" id="dia-next" style="display:none; margin-top:14px;">Next line ➜</button>
+    <div class="progress-dots" id="dia-dots"></div>
+    <div class="final-score" id="dia-final" style="display:none"></div>
+  </div>
+</section>
+
+<!-- ============ GAME 5: SENSIBLE OR SILLY ============ -->
+<section id="silly" class="screen">
+  <div class="home-bar">
+    <button class="btn ghost" onclick="go('menu')">🏠 Menu</button>
+    <b>🪟 Sensible or Silly?</b><span></span>
+  </div>
+  <div class="stage">
+    <div class="big-emoji" id="silly-pic">📚</div>
+    <p class="prompt" id="silly-text">Talk quietly in the library.</p>
+    <div class="choice-row">
+      <button class="btn green" id="silly-ok">👍 SENSIBLE</button>
+      <button class="btn red" id="silly-no">👎 SILLY!</button>
+    </div>
+    <div class="feedback" id="silly-fb"></div>
+    <button class="btn teal" id="silly-next" style="display:none; margin-top:14px;">Next ➜</button>
+    <div class="progress-dots" id="silly-dots"></div>
+    <div class="final-score" id="silly-final" style="display:none"></div>
+  </div>
+</section>
+
+<button id="mute" title="sound on/off">🔊</button>
+
+<script>
+/* ---------------- shared state ---------------- */
+let stars = 0, muted = false;
+const doneFlags = {};
+function addStars(n){ stars += n; document.getElementById('stars').textContent = '⭐ ' + stars; }
+function go(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0});
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function markDone(key){ doneFlags[key]=true; document.getElementById('tag-'+key).style.display='inline-block'; }
+function confetti(){
+  const em = ['🎉','⭐','🌟','💊','🩹','🍎','✨'];
+  for(let i=0;i<28;i++){
+    const s = document.createElement('span');
+    s.className='confetti'; s.textContent = em[Math.floor(Math.random()*em.length)];
+    s.style.left = Math.random()*100 + 'vw';
+    s.style.animationDuration = (1.6+Math.random()*1.6)+'s';
+    s.style.animationDelay = (Math.random()*0.4)+'s';
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(), 3800);
+  }
+}
+/* tiny sounds */
+let AC=null;
+function tone(freq, dur, when=0, type='sine', vol=.18){
+  if(muted) return;
+  try{
+    AC = AC || new (window.AudioContext||window.webkitAudioContext)();
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.type=type; o.frequency.value=freq; o.connect(g); g.connect(AC.destination);
+    const t=AC.currentTime+when;
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    o.start(t); o.stop(t+dur+.02);
+  }catch(e){}
+}
+const sfx = {
+  good(){ tone(523,.12); tone(659,.12,.1); tone(784,.2,.2); },
+  bad(){ tone(196,.25,0,'square',.1); },
+  tap(){ tone(700,.06,0,'triangle',.08); },
+  win(){ [523,659,784,1046].forEach((f,i)=>tone(f,.16,i*.13)); }
+};
+document.getElementById('mute').onclick = function(){ muted=!muted; this.textContent = muted?'🔇':'🔊'; };
+
+function dots(boxId, total){
+  const box=document.getElementById(boxId); box.innerHTML='';
+  for(let i=0;i<total;i++){ const d=document.createElement('div'); d.className='dot'; box.appendChild(d); }
+  return box.children;
+}
+function setDot(list,i,cls){ if(list[i]) list[i].className='dot '+cls; }
+function fb(el, ok, text){ el.className='feedback '+(ok?'good':'bad'); el.innerHTML=text; }
+
+/* =============== GAME 1: FEED REBECCA =============== */
+const FOODS = [
+  {e:'🍫',n:'chocolate', ok:false, say:"No way! She mustn't eat sweets! 🚫"},
+  {e:'🍚',n:'rice', ok:true, say:"Yes! Rice is light and good for her."},
+  {e:'🍰',n:'cake', ok:false, say:"Cake is rich food — no! She must stay in bed, not eat cake!"},
+  {e:'🍲',n:'soup', ok:true, say:"Perfect! Warm soup keeps her warm. 🥣"},
+  {e:'🍦',n:'ice cream', ok:false, say:"Ice cream?! She has a temperature! NO! 🥶"},
+  {e:'🍎',n:'an apple', ok:true, say:"Yes! An apple a day keeps the doctor away! 😄"},
+  {e:'🍔',n:'a hamburger', ok:false, say:"Too rich! She mustn't eat rich food."},
+  {e:'🍌',n:'a banana', ok:true, say:"Great choice! Soft and healthy."},
+  {e:'🍟',n:'chips / fries', ok:false, say:"Greasy and rich — no way!"},
+  {e:'🥛',n:'warm milk', ok:true, say:"Yes! Warm milk helps her sleep. 😴"},
+  {e:'🍬',n:'candy', ok:false, say:"Candy is sweets — absolutely not! 🙅"},
+  {e:'🥣',n:'porridge', ok:true, say:"Lovely! Plain porridge is perfect for a sick day."}
+];
+let feedQ=[], feedI=0, feedScore=0, feedDots;
+const MOODS=['🤒','😷','😕','🙂','😄'];
+function startFeed(){
+  feedQ = shuffle(FOODS.slice()); feedI=0; feedScore=0;
+  document.getElementById('feed-final').style.display='none';
+  feedDots = dots('feed-dots', feedQ.length);
+  renderFeed();
+}
+function renderFeed(){
+  const f=feedQ[feedI];
+  document.getElementById('feed-emoji').textContent=f.e;
+  document.getElementById('feed-name').textContent=f.n;
+  document.getElementById('feed-fb').className='feedback';
+  document.getElementById('feed-next').style.display='none';
+  document.getElementById('feed-yes').disabled=false;
+  document.getElementById('feed-no').disabled=false;
+  document.getElementById('feed-mood').textContent = MOODS[Math.min(MOODS.length-1, Math.floor(feedScore/3))];
+  setDot(feedDots,feedI,'now');
+}
+function feedAnswer(saidYes){
+  const f=feedQ[feedI], correct = (saidYes===f.ok);
+  document.getElementById('feed-yes').disabled=true;
+  document.getElementById('feed-no').disabled=true;
+  if(correct){ feedScore++; addStars(1); sfx.good(); fb(document.getElementById('feed-fb'),true,(f.ok?'😋 ':'🚫 ')+f.say); setDot(feedDots,feedI,'hit'); }
+  else{ sfx.bad(); fb(document.getElementById('feed-fb'),false,'Oops! '+(f.ok? f.n+' is fine — she CAN eat it. 😅' : f.say)); setDot(feedDots,feedI,'miss'); }
+  document.getElementById('feed-mood').textContent = MOODS[Math.min(MOODS.length-1, Math.floor(feedScore/3))];
+  const btn=document.getElementById('feed-next'); btn.style.display='inline-block';
+  btn.textContent = (feedI===feedQ.length-1)?'Finish 🏁':'Next food ➜';
+}
+document.getElementById('feed-yes').onclick=()=>feedAnswer(true);
+document.getElementById('feed-no').onclick=()=>feedAnswer(false);
+document.getElementById('feed-next').onclick=()=>{
+  feedI++;
+  if(feedI>=feedQ.length){
+    sfx.win(); confetti(); markDone('feed');
+    const el=document.getElementById('feed-final');
+    el.style.display='block';
+    el.innerHTML=`🏁 Rebecca feels <b>${feedScore>=10?'MUCH better! 😄':feedScore>=7?'better! 🙂':'a bit better… keep resting! 😷'}</b><br>You scored ${feedScore}/${feedQ.length}!`;
+    document.getElementById('feed-next').style.display='none';
+    document.getElementById('feed-fb').className='feedback';
+    document.getElementById('feed-mood').textContent = feedScore>=10?'😄':feedScore>=7?'🙂':'😷';
+  } else renderFeed();
+};
+
+/* =============== GAME 2: KEEP IT RIGHT =============== */
+const KEEPS = [
+  {pic:'🛏️🧣', words:['Keep','her','warm'], extra:['cold','him'], line:'Keep her warm. — She has a temperature!'},
+  {pic:'📚🤫', words:['Keep','the library','quiet'], extra:['noisy'], line:'Keep the library quiet. — Shhh! People are reading!'},
+  {pic:'🐶❄️', words:['Keep','the dog','warm'], extra:['wet','cold'], line:'Keep the dog warm. — It\'s cold outside!'},
+  {pic:'👶😴', words:['Keep','the baby','quiet'], extra:['loud'], line:'Keep the baby quiet. — Shhh, he\'s sleeping!'},
+  {pic:'🚪🌬️', words:['Keep','the door','open'], extra:['closed'], line:'Keep the door open. — We need fresh air!'},
+  {pic:'🥛🧊', words:['Keep','the milk','cold'], extra:['hot'], line:'Keep the milk cold. — Put it in the fridge!'},
+  {pic:'👐🧼', words:['Keep','your hands','clean'], extra:['dirty'], line:'Keep your hands clean. — Wash them before you eat!'},
+  {pic:'😄🎈', words:['Keep','him','happy'], extra:['sad'], line:'Keep him happy. — Tell him a funny story!'}
+];
+let keepI=0, keepScore=0, keepBuilt=[], keepDots, keepOrder=[];
+function startKeep(){
+  keepOrder = shuffle(KEEPS.slice()); keepI=0; keepScore=0;
+  document.getElementById('keep-final').style.display='none';
+  keepDots=dots('keep-dots',keepOrder.length);
+  renderKeep();
+}
+function renderKeep(){
+  const k=keepOrder[keepI]; keepBuilt=[];
+  document.getElementById('keep-pic').textContent=k.pic;
+  document.getElementById('keep-build').innerHTML='';
+  document.getElementById('keep-fb').className='feedback';
+  document.getElementById('keep-next').style.display='none';
+  const box=document.getElementById('keep-tiles'); box.innerHTML='';
+  shuffle(k.words.concat(k.extra)).forEach(w=>{
+    const t=document.createElement('button'); t.className='tile'; t.textContent=w;
+    t.onclick=()=>{ sfx.tap(); t.classList.add('picked'); keepBuilt.push({w,t}); renderBuilt(k); };
+    box.appendChild(t);
+  });
+  setDot(keepDots,keepI,'now');
+}
+function renderBuilt(k){
+  const zone=document.getElementById('keep-build'); zone.innerHTML='';
+  keepBuilt.forEach((item,idx)=>{
+    const t=document.createElement('button'); t.className='tile'; t.textContent=item.w;
+    t.onclick=()=>{ sfx.tap(); item.t.classList.remove('picked'); keepBuilt.splice(idx,1); renderBuilt(k); document.getElementById('keep-fb').className='feedback'; };
+    zone.appendChild(t);
+  });
+  if(keepBuilt.length===k.words.length) checkKeep(k);
+}
+function checkKeep(k){
+  const attempt=keepBuilt.map(x=>x.w).join(' '), target=k.words.join(' ');
+  if(attempt===target){
+    keepScore++; addStars(2); sfx.good();
+    fb(document.getElementById('keep-fb'),true,'✅ '+k.line);
+    setDot(keepDots,keepI,'hit');
+    document.getElementById('keep-next').style.display='inline-block';
+    document.getElementById('keep-next').textContent=(keepI===keepOrder.length-1)?'Finish 🏁':'Next ➜';
+  }else{
+    sfx.bad();
+    fb(document.getElementById('keep-fb'),false,'🤔 Hmm… not quite. Tap the words above to take them back and try again! Remember: <b>keep + who/what + adjective</b>.');
+    setDot(keepDots,keepI,'miss');
+  }
+}
+document.getElementById('keep-next').onclick=()=>{
+  keepI++;
+  if(keepI>=keepOrder.length){
+    sfx.win(); confetti(); markDone('keep');
+    const el=document.getElementById('keep-final'); el.style.display='block';
+    el.innerHTML=`🏁 You kept everything just right! Score: ${keepScore}/${keepOrder.length} ${keepScore===keepOrder.length?'— PERFECT! 🌟':''}`;
+    document.getElementById('keep-next').style.display='none';
+  } else renderKeep();
+};
+
+/* =============== GAME 3: DOCTOR DOCTOR =============== */
+const CASES = [
+  {pic:'🤒🌡️', line:'"I feel hot and cold! It\'s 39°C!"', options:['a temperature','a toothache','an earache'], ans:'a temperature', fact:'She has a temperature. She must remain in bed! 🛏️'},
+  {pic:'😖🦷', line:'"My tooth hurts when I eat chocolate!"', options:['a headache','a toothache','the mumps'], ans:'a toothache', fact:'He has a toothache. He must see the dentist! 🦷'},
+  {pic:'🤧', line:'"Achoo! I can\'t stop sneezing and coughing!"', options:['a cold','a stomach ache','measles'], ans:'a cold', fact:'She has a cold. She must keep warm and drink hot water! 🍵'},
+  {pic:'👂😣', line:'"My ear hurts so much! I can\'t hear you!"', options:['a headache','an earache','the flu'], ans:'an earache', fact:'He has an earache. The doctor must look in his ear!'},
+  {pic:'🤢', line:'"My tummy hurts! I feel sick!"', options:['a stomach ache','a cold','a temperature'], ans:'a stomach ache', fact:'She has a stomach ache. No rich food for her!'},
+  {pic:'😵‍💫', line:'"My head is pounding! Bang, bang, bang!"', options:['an earache','the mumps','a headache'], ans:'a headache', fact:'He has a headache. Keep the room quiet! 🤫'},
+  {pic:'🔴😷', line:'"Look at all these little red spots on my face!"', options:['measles','mumps','a cold'], ans:'measles', fact:'She has measles. She must stay at home!'},
+  {pic:'🐹', line:'"My cheeks are HUGE — I look like a hamster!"', options:['a toothache','mumps','a headache'], ans:'mumps', fact:'He has the mumps. No talking, just rest! 😄'}
+];
+let docI=0, docScore=0, docDots, docOrder=[];
+function startDoctor(){
+  docOrder=shuffle(CASES.slice()); docI=0; docScore=0;
+  document.getElementById('doc-final').style.display='none';
+  docDots=dots('doc-dots',docOrder.length);
+  renderDoc();
+}
+function renderDoc(){
+  const c=docOrder[docI];
+  document.getElementById('doc-pic').textContent=c.pic;
+  document.getElementById('doc-line').textContent=c.line;
+  document.getElementById('doc-fb').className='feedback';
+  document.getElementById('doc-next').style.display='none';
+  const box=document.getElementById('doc-options'); box.innerHTML='';
+  shuffle(c.options.slice()).forEach(o=>{
+    const b=document.createElement('button'); b.className='btn '+(Math.random()<.5?'purple':'orange'); b.textContent=o;
+    b.onclick=()=>{
+      if(o===c.ans){ docScore++; addStars(1); sfx.good(); fb(document.getElementById('doc-fb'),true,'🩺 Correct! '+c.fact); setDot(docDots,docI,'hit'); }
+      else{ sfx.bad(); fb(document.getElementById('doc-fb'),false,'❌ Not quite! '+c.fact); setDot(docDots,docI,'miss'); }
+      box.querySelectorAll('button').forEach(x=>x.disabled=true);
+      const nx=document.getElementById('doc-next'); nx.style.display='inline-block';
+      nx.textContent=(docI===docOrder.length-1)?'Finish 🏁':'Next patient ➜';
+    };
+    box.appendChild(b);
+  });
+  setDot(docDots,docI,'now');
+}
+document.getElementById('doc-next').onclick=()=>{
+  docI++;
+  if(docI>=docOrder.length){
+    sfx.win(); confetti(); markDone('doctor');
+    const el=document.getElementById('doc-final'); el.style.display='block';
+    el.innerHTML=`🏁 Clinic closed! You diagnosed ${docScore}/${docOrder.length} patients ${docScore>=7?'— Doctor Joey, M.D.! 🥼':''}`;
+    document.getElementById('doc-next').style.display='none';
+  } else renderDoc();
+};
+
+/* =============== GAME 4: FINISH THE DIALOGUE =============== */
+const DIALOGUE = [
+  {sp:'wang', before:'No. She has a temperature. The doctor says she mustn\'t ', blank:'get up', after:'.', options:['get up','get down','stand up'], why:'“Get up” = leave the bed. She must remain in bed!'},
+  {sp:'wang', before:'She must ', blank:'remain', after:' in bed until she feels better.', options:['remain','remember','play'], why:'“Remain” = stay. Careful — “remember” looks similar but means something else! 😄'},
+  {sp:'wang', before:'We need to keep her ', blank:'warm', after:'.', options:['warm','cold','noisy'], why:'keep + her + adjective: keep her WARM. 🧣'},
+  {sp:'gary', before:'Does she want to see me? I can go upstairs to ', blank:'talk', after:' to her.', options:['talk','play','shout'], why:'Gary wants to talk to Rebecca upstairs.'},
+  {sp:'wang', before:'No, not ', blank:'yet', after:'. She must rest today. You can come back tomorrow.', options:['yet','now','today'], why:'“Not yet” = not now, maybe later. ⏰'},
+  {sp:'gary', before:'Perhaps I can bring her some food. Chocolate always makes me feel ', blank:'better', after:'.', options:['better','best','good'], why:'feel + adjective: feel better. 🍫'},
+  {sp:'wang', before:'', blank:'Certainly', after:'. But don\'t bring her any chocolate.', options:['Certainly','Quickly','No way'], why:'“Certainly” = of course / yes, definitely.'},
+  {sp:'wang', before:'She mustn\'t eat ', blank:'rich food', after:' or sweets.', options:['rich food','poor food','fast food'], why:'Rich food = heavy, fatty food like cake and burgers. 🍔🚫'}
+];
+let diaI=0, diaScore=0, diaDots;
+function startDialogue(){
+  diaI=0; diaScore=0;
+  document.getElementById('dia-final').style.display='none';
+  diaDots=dots('dia-dots',DIALOGUE.length);
+  renderDia();
+}
+function renderDia(){
+  const d=DIALOGUE[diaI];
+  const sp=document.getElementById('dia-speaker');
+  sp.textContent = d.sp==='gary'?'Gary':'Mr Wang';
+  sp.className='speaker '+d.sp;
+  document.getElementById('dia-line').innerHTML =
+    `${d.before}<span class="blank">&nbsp;?&nbsp;</span>${d.after}`;
+  document.getElementById('dia-fb').className='feedback';
+  document.getElementById('dia-next').style.display='none';
+  const box=document.getElementById('dia-options'); box.innerHTML='';
+  shuffle(d.options.slice()).forEach(o=>{
+    const b=document.createElement('button'); b.className='btn teal'; b.textContent=o;
+    b.onclick=()=>{
+      document.getElementById('dia-line').innerHTML =
+        `${d.before}<span class="blank">${o}</span>${d.after}`;
+      if(o===d.blank){ diaScore++; addStars(1); sfx.good(); fb(document.getElementById('dia-fb'),true,'✅ Exactly! '+d.why); setDot(diaDots,diaI,'hit'); }
+      else{ sfx.bad(); fb(document.getElementById('dia-fb'),false,'❌ Actually… the answer is “'+d.blank+'”. '+d.why); setDot(diaDots,diaI,'miss'); 
+        document.getElementById('dia-line').innerHTML = `${d.before}<span class="blank">${d.blank}</span>${d.after}`; }
+      box.querySelectorAll('button').forEach(x=>x.disabled=true);
+      const nx=document.getElementById('dia-next'); nx.style.display='inline-block';
+      nx.textContent=(diaI===DIALOGUE.length-1)?'Finish 🏁':'Next line ➜';
+    };
+    box.appendChild(b);
+  });
+  setDot(diaDots,diaI,'now');
+}
+document.getElementById('dia-next').onclick=()=>{
+  diaI++;
+  if(diaI>=DIALOGUE.length){
+    sfx.win(); confetti(); markDone('dialogue');
+    const el=document.getElementById('dia-final'); el.style.display='block';
+    el.innerHTML=`🏁 Dialogue complete! ${diaScore}/${DIALOGUE.length} ${diaScore===DIALOGUE.length?'— you ARE Mr Wang! 🎭':'— now try performing it!'}`;
+    document.getElementById('dia-next').style.display='none';
+  } else renderDia();
+};
+
+/* =============== GAME 5: SENSIBLE OR SILLY =============== */
+const SILLY = [
+  {pic:'📚🤫', text:'Talk quietly in the library.', ok:true, say:'Yes! Keep the library quiet!'},
+  {pic:'🪟😱', text:'Lean out of the window on the 10th floor.', ok:false, say:'SILLY and DANGEROUS! You mustn\'t lean out of the window!'},
+  {pic:'🏥📢', text:'Make a lot of noise in the hospital.', ok:false, say:'No! Sick people need quiet. Keep the hospital quiet!'},
+  {pic:'🚗📱', text:'Drive quickly and play with your phone.', ok:false, say:'Never! Drive slowly and look at the road! 🚗'},
+  {pic:'⚽📚', text:'Play a football match in the library.', ok:false, say:'Haha, silly! Play the match outside, not between the books!'},
+  {pic:'🩺💬', text:'Tell the doctor exactly how you feel.', ok:true, say:'Right! “Doctor, I feel terrible because I have a headache.”'},
+  {pic:'🧸💥', text:'Break your toys when you feel angry.', ok:false, say:'Silly! Take a deep breath instead. Your toys did nothing wrong! 😄'},
+  {pic:'🛏️🤒', text:'Get up and play football when you have a temperature.', ok:false, say:'No! Remain in bed until you feel better — just like Rebecca!'},
+  {pic:'🏃💨', text:'Come back quickly when Mum calls you for dinner.', ok:true, say:'Sensible! (And dinner is waiting 😋)'},
+  {pic:'🍫🤢', text:'Eat ten chocolates when you are ill.', ok:false, say:'No rich food or sweets when you\'re ill! Poor Rebecca…'}
+];
+let silI=0, silScore=0, silDots, silOrder=[];
+function startSilly(){
+  silOrder=shuffle(SILLY.slice()); silI=0; silScore=0;
+  document.getElementById('silly-final').style.display='none';
+  silDots=dots('silly-dots',silOrder.length);
+  renderSilly();
+}
+function renderSilly(){
+  const s=silOrder[silI];
+  document.getElementById('silly-pic').textContent=s.pic;
+  document.getElementById('silly-text').textContent=s.text;
+  document.getElementById('silly-fb').className='feedback';
+  document.getElementById('silly-next').style.display='none';
+  document.getElementById('silly-ok').disabled=false;
+  document.getElementById('silly-no').disabled=false;
+  setDot(silDots,silI,'now');
+}
+function sillyAnswer(saidSensible){
+  const s=silOrder[silI], correct=(saidSensible===s.ok);
+  document.getElementById('silly-ok').disabled=true;
+  document.getElementById('silly-no').disabled=true;
+  if(correct){ silScore++; addStars(1); sfx.good(); fb(document.getElementById('silly-fb'),true,'✅ '+s.say); setDot(silDots,silI,'hit'); }
+  else{ sfx.bad(); fb(document.getElementById('silly-fb'),false,'❌ '+s.say); setDot(silDots,silI,'miss'); }
+  const nx=document.getElementById('silly-next'); nx.style.display='inline-block';
+  nx.textContent=(silI===silOrder.length-1)?'Finish 🏁':'Next ➜';
+}
+document.getElementById('silly-ok').onclick=()=>sillyAnswer(true);
+document.getElementById('silly-no').onclick=()=>sillyAnswer(false);
+document.getElementById('silly-next').onclick=()=>{
+  silI++;
+  if(silI>=silOrder.length){
+    sfx.win(); confetti(); markDone('silly');
+    const el=document.getElementById('silly-final'); el.style.display='block';
+    el.innerHTML=`🏁 You spotted ${silScore}/${silOrder.length} correctly! ${silScore>=9?'100% sensible, 0% silly! 🏆':'Now invent a silly sentence for your teacher!'}`;
+    document.getElementById('silly-next').style.display='none';
+  } else renderSilly();
+};
+</script>
+<!-- Bilingo game controls: zoom + fullscreen + sound (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+  /* never let the buttons leak into a paper printout */
+  @media print { .bilingo-ui { display: none !important; } }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-mute" title="Sound on/off" aria-label="Sound on or off">🔊</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+
+  /* ----- sound on/off: one switch for EVERY sound system a game might use -----
+     Synthesized WebAudio games create oscillators/buffer sources at play time,
+     so patching the prototype constructors silences them even if their context
+     was created earlier. Games using <audio> elements are covered by patching
+     play(). The flag is read live, so un-muting works instantly too. */
+  var MUTE_KEY = 'bilingo-muted';
+  window.__bilingoMuted = localStorage.getItem(MUTE_KEY) === '1';
+  function dummyParam() {
+    return { value: 0, setValueAtTime: function () {}, linearRampToValueAtTime: function () {},
+             exponentialRampToValueAtTime: function () {}, cancelScheduledValues: function () {} };
+  }
+  function dummyNode() {
+    var n = { connect: function (d) { return d || n; }, disconnect: function () {},
+              start: function () {}, stop: function () {},
+              gain: dummyParam(), frequency: dummyParam(), detune: dummyParam(),
+              playbackRate: dummyParam(), Q: dummyParam(),
+              type: '', buffer: null, loop: false, onended: null };
+    return n;
+  }
+  [window.AudioContext, window.webkitAudioContext].forEach(function (AC) {
+    if (!AC || !AC.prototype) return;
+    ['createOscillator', 'createBufferSource'].forEach(function (m) {
+      var orig = AC.prototype[m];
+      AC.prototype[m] = function () { return window.__bilingoMuted ? dummyNode() : orig.apply(this, arguments); };
+    });
+  });
+  var origPlay = HTMLAudioElement.prototype.play;
+  HTMLAudioElement.prototype.play = function () {
+    if (window.__bilingoMuted) return Promise.resolve();
+    return origPlay.apply(this, arguments);
+  };
+  var muteBtn = bar.querySelector('.b-mute');
+  function showMute() { muteBtn.textContent = window.__bilingoMuted ? '🔇' : '🔊'; }
+  function setMute(m) {
+    window.__bilingoMuted = m;
+    localStorage.setItem(MUTE_KEY, m ? '1' : '0');
+    if (m) { /* stop anything already ringing this second */
+      document.querySelectorAll('audio').forEach(function (a) { a.pause(); });
+    }
+    showMute();
+  }
+  muteBtn.addEventListener('click', function () { setMute(!window.__bilingoMuted); poke(); });
+  showMute();
+
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body>
+</html>

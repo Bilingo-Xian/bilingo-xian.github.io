@@ -210,3 +210,28 @@
     route()
   })
 })()
+
+/* ---- feedback overlay: embed the Feishu form on click, link fallback ---- */
+;(function () {
+  var fab = document.querySelector('a.feedback-fab')
+  var ov = document.getElementById('fbOverlay')
+  if (!fab || !ov) return
+  var frame = ov.querySelector('iframe')
+  var closeBtn = ov.querySelector('.fb-close')
+
+  function open(e) {
+    if (e) e.preventDefault()
+    if (!frame.src) frame.src = frame.getAttribute('data-src')
+    ov.hidden = false
+    document.body.style.overflow = 'hidden'
+  }
+  function close() {
+    ov.hidden = true
+    document.body.style.overflow = ''
+  }
+
+  fab.addEventListener('click', open)
+  if (closeBtn) closeBtn.addEventListener('click', close)
+  ov.addEventListener('click', function (e) { if (e.target === ov) close() })
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !ov.hidden) close() })
+})()
