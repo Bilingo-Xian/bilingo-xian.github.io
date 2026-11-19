@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Day at the Zoo: How Many Animals? (GE4 U3C9)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Nunito',system-ui,sans-serif;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:14px 12px 40px;overflow-x:hidden;color:#2b3a2e;
+  background:linear-gradient(160deg,#eaf7ee 0%,#d3ecf5 55%,#c5e8d5 100%);
+}
+
+/* ---------- top bar ---------- */
+.topbar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:720px;margin-bottom:10px;gap:10px}
+h1{font-size:clamp(1.15em,3.4vw,1.8em);font-weight:900;color:#1f4d2e;text-shadow:0 2px 0 rgba(255,255,255,.7)}
+.togs{display:flex;gap:8px;align-items:center}
+.rc{background:#fff;padding:5px 16px;border-radius:20px;font-weight:800;font-size:.88em;color:#2e7d32;box-shadow:0 3px 10px rgba(46,125,50,.18)}
+.tg{background:#fff;border:2px solid #cde6d0;border-radius:20px;padding:5px 13px;font-weight:900;cursor:pointer;user-select:none;color:#7aa383;transition:all .2s;font-size:.92em}
+.tg.on{color:#fff;border-color:#2ed573;background:linear-gradient(135deg,#2ed573,#1eae5c);box-shadow:0 4px 14px rgba(46,213,115,.4)}
+.tg:hover{transform:scale(1.06)}
+
+/* ---------- enclosure ---------- */
+.stage{width:100%;max-width:720px;position:relative}
+.enclosure{
+  width:100%;height:clamp(300px,46vh,430px);position:relative;overflow:hidden;
+  border-radius:30px;border:6px solid #fff;
+  box-shadow:0 24px 50px rgba(31,77,46,.22),inset 0 0 0 2px rgba(0,0,0,.04);
+}
+.bglayer{position:absolute;inset:0;transition:opacity 1.1s ease;opacity:1}
+.bglayer.back{opacity:0}
+.enclosure .ground{
+  position:absolute;left:0;right:0;bottom:0;height:34%;
+  background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(46,125,50,.18) 30%,rgba(27,94,32,.34) 100%);
+  pointer-events:none;z-index:1;
+}
+.fence{position:absolute;left:0;right:0;height:5px;border-radius:3px;
+  background:repeating-linear-gradient(90deg,rgba(109,58,10,.35) 0 16px,transparent 16px 24px);z-index:2;pointer-events:none}
+.f1{top:32%}.f2{top:62%}
+
+/* ---------- animals ---------- */
+.animal{position:absolute;display:inline-block;z-index:5;transform-origin:center bottom;
+  animation:popAnimal .5s cubic-bezier(.68,-.55,.265,1.55) forwards;filter:drop-shadow(0 6px 6px rgba(0,0,0,.22))}
+.animal img{display:block;height:100%;width:auto}
+.animal.solo{
+  left:50%;top:44%;height:clamp(110px,20vh,170px);font-size:clamp(100px,18vh,160px);
+  animation:idleBounce 2.2s ease-in-out infinite;
+}
+.animal.cheer{animation:cheerBounce .65s cubic-bezier(.36,.07,.19,.97) 2}
+@keyframes idleBounce{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-56%) scale(1.05)}}
+@keyframes popAnimal{0%{transform:scale(0) rotate(-160deg);opacity:0}70%{transform:scale(1.25) rotate(8deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes cheerBounce{0%,100%{transform:translateY(0) scale(1)}30%{transform:translateY(-26px) scale(1.1)}60%{transform:translateY(0) scale(.96)}80%{transform:translateY(-9px) scale(1.03)}}
+@keyframes wobble1{0%,100%{transform:translate(0,0) rotate(0)}25%{transform:translate(2px,-1px) rotate(1deg)}50%{transform:translate(-1px,1px) rotate(-1deg)}75%{transform:translate(1px,-2px) rotate(.5deg)}}
+@keyframes wobble2{0%,100%{transform:translate(0,0) rotate(0)}25%{transform:translate(-2px,1px) rotate(-1deg)}50%{transform:translate(1px,-1px) rotate(1deg)}75%{transform:translate(-1px,2px) rotate(-.5deg)}}
+@keyframes wobble3{0%,100%{transform:translate(0,0) rotate(0)}33%{transform:translate(1px,-2px) rotate(1.5deg)}66%{transform:translate(-2px,1px) rotate(-1deg)}}
+
+/* ---------- word chip (the vocab word must be on screen) ---------- */
+.wordchip{
+  position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:8;
+  background:rgba(255,255,255,.94);color:#1f4d2e;font-weight:900;
+  font-size:clamp(1.1em,3vw,1.5em);padding:8px 26px;border-radius:50px;
+  box-shadow:0 8px 22px rgba(0,0,0,.2);animation:chipIn .45s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes chipIn{from{transform:translateX(-50%) scale(0)}to{transform:translateX(-50%) scale(1)}}
+
+/* ---------- speech bubble ---------- */
+.bubble{
+  width:100%;max-width:720px;background:#fff;border-radius:26px;padding:18px 24px;
+  margin-top:14px;box-shadow:0 14px 34px rgba(31,77,46,.16);
+  text-align:center;position:relative;min-height:76px;
+  display:flex;align-items:center;justify-content:center;
+}
+.bubble::before{content:'';position:absolute;top:-11px;left:50%;transform:translateX(-50%);
+  border-left:13px solid transparent;border-right:13px solid transparent;border-bottom:13px solid #fff}
+.speech-text{font-size:clamp(1.15em,3.2vw,1.65em);font-weight:800;color:#333;animation:fadeInUp .4s ease;line-height:1.45}
+.speech-placeholder{font-size:clamp(.95em,2.6vw,1.15em);color:#a8b8ab;font-style:italic;font-weight:700}
+.hl-q{color:#e65100;background:#fff3e0;padding:0 6px;border-radius:8px}
+.hl-a{color:#1e7d32;background:#e7f6ea;padding:0 6px;border-radius:8px}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ---------- buttons ---------- */
+.controls{margin-top:16px;display:flex;flex-direction:column;align-items:center;gap:12px;min-height:64px}
+.btn{
+  padding:16px 46px;border:none;border-radius:50px;
+  font-size:clamp(1em,2.8vw,1.25em);font-weight:900;cursor:pointer;transition:all .2s;
+  font-family:'Nunito',sans-serif;color:#fff;animation:glow 1.8s ease-in-out infinite;
+}
+@keyframes glow{0%,100%{box-shadow:0 6px 18px rgba(0,0,0,.18)}50%{box-shadow:0 6px 30px rgba(0,0,0,.3)}}
+.btn:hover{transform:translateY(-3px) scale(1.03)}
+.btn:active{transform:translateY(0) scale(.97)}
+.btn:disabled{opacity:.45;cursor:not-allowed;animation:none;transform:none!important;box-shadow:0 3px 8px rgba(0,0,0,.08)!important}
+.b-q{background:linear-gradient(135deg,#ffa726,#fb8c00)}
+.b-a{background:linear-gradient(135deg,#66bb6a,#2e7d32)}
+.b-n{background:linear-gradient(135deg,#42a5f5,#1565c0)}
+
+/* ---------- juice ---------- */
+.num-burst{position:fixed;top:42%;left:50%;transform:translate(-50%,-50%);z-index:300;
+  font-size:clamp(90px,22vw,170px);font-weight:900;color:#fff;
+  -webkit-text-stroke:4px #fb8c00;text-shadow:0 10px 30px rgba(251,140,0,.45);
+  animation:numBurst 1s cubic-bezier(.2,.8,.3,1) forwards;pointer-events:none}
+@keyframes numBurst{0%{transform:translate(-50%,-50%) scale(0) rotate(-8deg);opacity:1}
+  45%{transform:translate(-50%,-50%) scale(1.15) rotate(3deg);opacity:1}
+  100%{transform:translate(-50%,-70%) scale(1.25);opacity:0}}
+.sparkle{position:absolute;font-size:22px;pointer-events:none;animation:sparkleFloat 1.2s ease-out forwards;z-index:10}
+@keyframes sparkleFloat{0%{transform:scale(0) rotate(0);opacity:1}50%{transform:scale(1.3) rotate(180deg);opacity:1}100%{transform:translateY(-46px) scale(0) rotate(360deg);opacity:0}}
+.flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:250}
+.flash.go{animation:flashFade .45s ease-out forwards}
+@keyframes flashFade{0%{opacity:.7}100%{opacity:0}}
+
+/* ---------- start overlay with instructions ---------- */
+.startov{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;gap:16px;
+  align-items:center;justify-content:center;cursor:pointer;text-align:center;padding:22px;
+  background:linear-gradient(150deg,#43a05c,#1f7a4d 55%,#155d3c);color:#fff;font-weight:800}
+.startov .t{font-size:clamp(1.7em,6vw,3em);font-weight:900;text-shadow:0 3px 12px rgba(0,0,0,.3)}
+.startov .sub{font-size:clamp(1em,3vw,1.35em);opacity:.92}
+.howto{background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.35);border-radius:22px;
+  padding:16px 22px;max-width:560px;text-align:left;font-size:clamp(.92em,2.6vw,1.08em);line-height:1.85}
+.howto li{margin-left:1.2em}
+.targets{background:rgba(255,255,255,.94);color:#1f4d2e;border-radius:18px;padding:12px 24px;
+  font-size:clamp(.95em,2.7vw,1.12em);line-height:1.7;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.targets .lab{font-size:.78em;font-weight:900;letter-spacing:2px;color:#7aa383;text-transform:uppercase}
+.targets b{color:#e65100}.targets b.a2{color:#1e7d32}
+.startov .go{margin-top:4px;font-size:clamp(.95em,2.6vw,1.1em);animation:blinkGo 1.4s infinite}
+@keyframes blinkGo{0%,100%{opacity:1}50%{opacity:.45}}
+
+@media (max-width:560px){
+  .enclosure{height:300px}
+  .animal.solo{font-size:84px;height:96px}
+}
+</style>
+</head>
+<body>
+<div class="flash" id="flash"></div>
+
+<div class="startov" id="startOv">
+  <div class="t">🦁 A Day at the Zoo 🐘</div>
+  <div class="sub">How Many Animals Can You See?</div>
+  <ol class="howto">
+    <li>👫 Invite <b>two students</b> — one <b>Asks</b>, one <b>Answers</b>. (The class counts along!)</li>
+    <li>👀 Look at the animal. The Asker asks: <i>"How many … can you see?"</i></li>
+    <li>❓ Press <b>Reveal Question</b> — the animals multiply! Count them aloud, together.</li>
+    <li>🔢 Press <b>Reveal Answer</b> — everyone says the answer sentence.</li>
+    <li>🔁 Swap roles, press <b>Next Animal</b>!</li>
+  </ol>
+  <div class="targets">
+    <div class="lab">🎯 Target structures</div>
+    <div>❓ <b>How many frogs</b> can you see?</div>
+    <div>✅ <span class="a2">I can see twelve frogs.</span></div>
+  </div>
+  <div class="go">👆 Tap anywhere to start!</div>
+</div>
+
+<div class="topbar">
+  <h1>🌿 A Day at the Zoo</h1>
+  <div class="togs">
+    <div class="rc" id="rc">Round 1</div>
+    <div class="tg on" id="tgS" title="Sound on/off">🔊</div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="enclosure" id="enclosure">
+    <div class="bglayer" id="bgA"></div>
+    <div class="bglayer back" id="bgB"></div>
+    <div class="ground"></div>
+    <div class="fence f1"></div>
+    <div class="fence f2"></div>
+  </div>
+  <div class="wordchip" id="wordChip" style="display:none"></div>
+</div>
+
+<div class="bubble">
+  <div class="speech-placeholder" id="speechContent">🗣️ Look at the animal! Ask the question...</div>
+</div>
+
+<div class="controls" id="controls"></div>
+
+<style>
+  .bilingo-ui{position:fixed;right:12px;bottom:12px;z-index:2147483646;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:system-ui,sans-serif}
+  .bilingo-ui button{width:48px;height:48px;border:0;border-radius:14px;background:rgba(18,18,32,.55);color:#fff;font-size:1.2rem;cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,0,0,.35);display:grid;place-items:center;transition:background .15s,transform .15s}
+  .bilingo-ui button:hover{background:rgba(70,60,150,.75);transform:scale(1.08)}
+  .bilingo-ui .b-pct{font-size:.95rem;font-weight:800;color:#33413a;opacity:.85}
+  .bilingo-ui .b-handle{display:none}
+  .bilingo-ui.mini>*:not(.b-handle){display:none}
+  .bilingo-ui.mini .b-handle{display:grid;width:40px;height:40px;font-size:1.1rem}
+</style>
+<script>
+(function(){
+  if(window.__bilingoUI)return;window.__bilingoUI=true;
+  var bar=document.getElementById('bilingo-ui'),pct=bar.querySelector('.b-pct');
+  var MIN=.5,MAX=2.5,STEP=.1,KEY='bilingo-zoom';
+  var z=parseFloat(localStorage.getItem(KEY)||'1');if(isNaN(z))z=1;
+  z=Math.min(MAX,Math.max(MIN,z));
+  function apply(){document.documentElement.style.setProperty('zoom',z);pct.textContent=Math.round(z*100)+'%'}
+  bar.querySelector('.b-plus').addEventListener('click',function(){z=Math.min(MAX,Math.round((z+STEP)*100)/100);localStorage.setItem(KEY,z);apply()});
+  bar.querySelector('.b-minus').addEventListener('click',function(){z=Math.max(MIN,Math.round((z-STEP)*100)/100);localStorage.setItem(KEY,z);apply()});
+  bar.querySelector('.b-fs').addEventListener('click',function(){
+    var el=document.documentElement;
+    if(document.fullscreenElement||document.webkitFullscreenElement)(document.exitFullscreen||document.webkitExitFullscreen).call(document);
+    else if(el.requestFullscreen)el.requestFullscreen().catch(function(){});
+    else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
+  });
+  var idleTimer=null;
+  function poke(){bar.classList.remove('mini');clearTimeout(idleTimer);idleTimer=setTimeout(function(){bar.classList.add('mini')},5000)}
+  bar.addEventListener('pointerdown',poke);poke();apply();
+})();
+</script>
+<!-- Bilingo game controls: zoom + fullscreen + sound (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+  /* never let the buttons leak into a paper printout */
+  @media print { .bilingo-ui { display: none !important; } }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-mute" title="Sound on/off" aria-label="Sound on or off">🔊</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+
+  /* ----- sound on/off: one switch for EVERY sound system a game might use -----
+     Synthesized WebAudio games create oscillators/buffer sources at play time,
+     so patching the prototype constructors silences them even if their context
+     was created earlier. Games using <audio> elements are covered by patching
+     play(). The flag is read live, so un-muting works instantly too. */
+  var MUTE_KEY = 'bilingo-muted';
+  window.__bilingoMuted = localStorage.getItem(MUTE_KEY) === '1';
+  function dummyParam() {
+    return { value: 0, setValueAtTime: function () {}, linearRampToValueAtTime: function () {},
+             exponentialRampToValueAtTime: function () {}, cancelScheduledValues: function () {} };
+  }
+  function dummyNode() {
+    var n = { connect: function (d) { return d || n; }, disconnect: function () {},
+              start: function () {}, stop: function () {},
+              gain: dummyParam(), frequency: dummyParam(), detune: dummyParam(),
+              playbackRate: dummyParam(), Q: dummyParam(),
+              type: '', buffer: null, loop: false, onended: null };
+    return n;
+  }
+  [window.AudioContext, window.webkitAudioContext].forEach(function (AC) {
+    if (!AC || !AC.prototype) return;
+    ['createOscillator', 'createBufferSource'].forEach(function (m) {
+      var orig = AC.prototype[m];
+      AC.prototype[m] = function () { return window.__bilingoMuted ? dummyNode() : orig.apply(this, arguments); };
+    });
+  });
+  var origPlay = HTMLAudioElement.prototype.play;
+  HTMLAudioElement.prototype.play = function () {
+    if (window.__bilingoMuted) return Promise.resolve();
+    return origPlay.apply(this, arguments);
+  };
+  var muteBtn = bar.querySelector('.b-mute');
+  function showMute() { muteBtn.textContent = window.__bilingoMuted ? '🔇' : '🔊'; }
+  function setMute(m) {
+    window.__bilingoMuted = m;
+    localStorage.setItem(MUTE_KEY, m ? '1' : '0');
+    if (m) { /* stop anything already ringing this second */
+      document.querySelectorAll('audio').forEach(function (a) { a.pause(); });
+    }
+    showMute();
+  }
+  muteBtn.addEventListener('click', function () { setMute(!window.__bilingoMuted); poke(); });
+  showMute();
+
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body>
+</html>

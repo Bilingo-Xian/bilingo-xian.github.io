@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift Shop Colors (GE4 U3C12)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Nunito',system-ui,sans-serif;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:14px 12px 40px;overflow-x:hidden;color:#5b2a52;
+  background:linear-gradient(160deg,#fdeffb 0%,#f8e3f4 55%,#f2d4ee 100%);
+}
+
+/* ---------- top bar ---------- */
+.topbar{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:740px;margin-bottom:10px;gap:10px}
+h1{font-size:clamp(1.15em,3.4vw,1.8em);font-weight:900;color:#8c2f7e;text-shadow:0 2px 0 rgba(255,255,255,.6)}
+.togs{display:flex;gap:8px;align-items:center}
+.rc{background:#fff;padding:5px 16px;border-radius:20px;font-weight:800;font-size:.88em;color:#b03a9e;box-shadow:0 3px 10px rgba(176,58,158,.18)}
+.tg{background:#fff;border:2px solid #ecc8e6;border-radius:20px;padding:5px 13px;font-weight:900;cursor:pointer;user-select:none;color:#c49abd;transition:all .2s;font-size:.92em}
+.tg.on{color:#fff;border-color:#d451b8;background:linear-gradient(135deg,#e87ad1,#c13aa6);box-shadow:0 4px 14px rgba(212,81,184,.4)}
+.tg:hover{transform:scale(1.06)}
+
+/* ---------- shop scene ---------- */
+.stage{width:100%;max-width:740px;position:relative}
+.shop{
+  width:100%;height:clamp(300px,48vh,430px);position:relative;overflow:hidden;
+  border-radius:30px;border:6px solid #fff;
+  box-shadow:0 24px 50px rgba(92,42,82,.22),inset 0 0 0 2px rgba(0,0,0,.04);
+  background:linear-gradient(180deg,#fff7fd 0%,#fce8f8 55%,#f6d9f0 100%);
+}
+.shelf{position:absolute;left:5%;right:5%;height:14px;border-radius:7px;z-index:2;
+  background:linear-gradient(180deg,#c98a5b,#a5673f);
+  box-shadow:0 8px 16px rgba(122,67,42,.28)}
+.shelf::after{content:'';position:absolute;left:2%;right:2%;top:100%;height:26px;
+  background:linear-gradient(180deg,rgba(122,67,42,.16),rgba(122,67,42,0))}
+.sh1{top:34%}.sh2{top:63%}.sh3{top:92%}
+.awning{position:absolute;top:0;left:0;right:0;height:12%;z-index:3;
+  background:repeating-linear-gradient(90deg,#e5566d 0 46px,#fff 46px 92px);
+  border-radius:0 0 18px 18px;box-shadow:0 6px 14px rgba(0,0,0,.12)}
+.sign{position:absolute;top:3.4%;left:50%;transform:translateX(-50%);z-index:4;
+  background:#fff;color:#8c2f7e;font-weight:900;font-size:clamp(.85em,2.4vw,1.05em);
+  padding:4px 20px;border-radius:14px;box-shadow:0 4px 10px rgba(0,0,0,.14);letter-spacing:1px}
+
+/* ---------- items ---------- */
+.item{position:absolute;z-index:5;transform-origin:center bottom;
+  animation:dropIn .55s cubic-bezier(.34,1.4,.64,1) forwards}
+.item img{display:block;width:100%;height:auto;filter:var(--cf,none)}
+.item .ei{display:block;font-size:60px;line-height:1.15;text-align:center;filter:var(--cf,none)}
+.item .tag{position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);
+  background:#fff8d9;border:2px solid #e5c964;color:#8a6d1a;font-weight:900;
+  font-size:.68em;padding:1px 8px;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,.12);
+  animation:tagPop .4s .3s cubic-bezier(.34,1.56,.64,1) backwards;white-space:nowrap}
+@keyframes dropIn{0%{transform:translateY(-160px) scale(.6) rotate(-8deg);opacity:0}
+  60%{transform:translateY(4px) scale(1.02) rotate(2deg);opacity:1}
+  100%{transform:translateY(0) scale(1) rotate(0);opacity:1}}
+@keyframes tagPop{from{transform:translateX(-50%) scale(0)}to{transform:translateX(-50%) scale(1)}}
+.item.solo{left:50%;top:20%;width:clamp(150px,26vw,220px);transform:translateX(-50%);
+  animation:soloIn .6s cubic-bezier(.34,1.4,.64,1) forwards}
+@keyframes soloIn{0%{transform:translateX(-50%) scale(0)}70%{transform:translateX(-50%) scale(1.06)}100%{transform:translateX(-50%) scale(1)}}
+
+/* ---------- word chip ---------- */
+.wordchip{
+  position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:8;
+  background:rgba(255,255,255,.95);color:#8c2f7e;font-weight:900;
+  font-size:clamp(1.05em,3vw,1.45em);padding:7px 24px;border-radius:50px;
+  box-shadow:0 8px 22px rgba(92,42,82,.3);animation:chipIn .45s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes chipIn{from{transform:translateX(-50%) scale(0)}to{transform:translateX(-50%) scale(1)}}
+
+/* ---------- speech bubble ---------- */
+.bubble-speech{
+  width:100%;max-width:740px;background:#fff;border-radius:26px;padding:18px 24px;
+  margin-top:14px;box-shadow:0 14px 34px rgba(92,42,82,.16);
+  text-align:center;position:relative;min-height:76px;
+  display:flex;align-items:center;justify-content:center;color:#333;
+}
+.bubble-speech::before{content:'';position:absolute;top:-11px;left:50%;transform:translateX(-50%);
+  border-left:13px solid transparent;border-right:13px solid transparent;border-bottom:13px solid #fff}
+.speech-text{font-size:clamp(1.1em,3.2vw,1.6em);font-weight:800;color:#333;animation:fadeInUp .4s ease;line-height:1.5}
+.speech-placeholder{font-size:clamp(.95em,2.6vw,1.15em);color:#c0a2bb;font-style:italic;font-weight:700}
+.hl-q{color:#b03a9e;background:#fbe9f7;padding:0 6px;border-radius:8px}
+.hl-a{color:#1e7d32;background:#e7f6ea;padding:0 6px;border-radius:8px}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ---------- buttons ---------- */
+.controls{margin-top:16px;display:flex;flex-direction:column;align-items:center;gap:12px;min-height:64px}
+.btn{
+  padding:16px 46px;border:none;border-radius:50px;
+  font-size:clamp(1em,2.8vw,1.25em);font-weight:900;cursor:pointer;transition:all .2s;
+  font-family:'Nunito',sans-serif;color:#fff;animation:glow 1.8s ease-in-out infinite;
+}
+@keyframes glow{0%,100%{box-shadow:0 6px 18px rgba(0,0,0,.18)}50%{box-shadow:0 6px 30px rgba(0,0,0,.3)}}
+.btn:hover{transform:translateY(-3px) scale(1.03)}
+.btn:active{transform:translateY(0) scale(.97)}
+.b-q{background:linear-gradient(135deg,#e87ad1,#c13aa6)}
+.b-a{background:linear-gradient(135deg,#66bb6a,#2e7d32)}
+.b-n{background:linear-gradient(135deg,#42a5f5,#1565c0)}
+
+/* ---------- juice ---------- */
+.flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:250}
+.flash.go{animation:flashFade .45s ease-out forwards}
+@keyframes flashFade{0%{opacity:.7}100%{opacity:0}}
+.rainbow{position:fixed;top:0;left:0;width:100%;height:8px;z-index:300;pointer-events:none;
+  background:linear-gradient(90deg,#ff6b6b,#f9ca24,#6bcb77,#45b7d1,#c56cf0,#ff6b6b);
+  animation:rainbowSweep 1.2s ease-in-out forwards;transform:translateY(-12px)}
+@keyframes rainbowSweep{0%{transform:translateY(-12px);opacity:1}100%{transform:translateY(105vh);opacity:.6}}
+
+/* ---------- start overlay ---------- */
+.startov{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;gap:15px;
+  align-items:center;justify-content:center;cursor:pointer;text-align:center;padding:22px;
+  background:linear-gradient(150deg,#d451b8,#a82f96 55%,#7c1d70);color:#fff;font-weight:800}
+.startov .t{font-size:clamp(1.7em,6vw,3em);font-weight:900;text-shadow:0 3px 12px rgba(0,0,0,.3)}
+.startov .sub{font-size:clamp(1em,3vw,1.35em);opacity:.94}
+.howto{background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.4);border-radius:22px;
+  padding:16px 22px;max-width:580px;text-align:left;font-size:clamp(.92em,2.6vw,1.08em);line-height:1.85}
+.howto li{margin-left:1.2em}
+.targets{background:rgba(255,255,255,.95);color:#8c2f7e;border-radius:18px;padding:12px 26px;
+  font-size:clamp(.95em,2.7vw,1.12em);line-height:1.7;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.targets .lab{font-size:.78em;font-weight:900;letter-spacing:2px;color:#c49abd;text-transform:uppercase}
+.targets b{color:#b03a9e}.targets b.a2{color:#1e7d32}
+.startov .go{margin-top:4px;font-size:clamp(.95em,2.6vw,1.1em);animation:blinkGo 1.4s infinite}
+@keyframes blinkGo{0%,100%{opacity:1}50%{opacity:.45}}
+
+@media (max-width:560px){ .shop{height:300px} }
+</style>
+</head>
+<body>
+<div class="flash" id="flash"></div>
+
+<div class="startov" id="startOv">
+  <div class="t">🎁 Gift Shop Colors</div>
+  <div class="sub">What Color Are They?</div>
+  <ol class="howto">
+    <li>👫 Invite <b>two students</b> — one <b>Asks</b>, one <b>Answers</b>. (The class describes too!)</li>
+    <li>👀 Look at the things on the shelves. The Asker asks: <i>"What color are the …?"</i></li>
+    <li>🗣️ Everyone <b>describes the colors</b> out loud — one color, two colors… or <b>COLORFUL!</b></li>
+    <li>✅ Press <b>Reveal Answer</b> — everyone says the answer sentence, then <b>Next Customer</b>!</li>
+  </ol>
+  <div class="targets">
+    <div class="lab">🎯 Target structures</div>
+    <div>❓ <b>What color are the yo-yos?</b></div>
+    <div>✅ <span class="a2">The yo-yos are orange and blue.</span> / <span class="a2">The yo-yos are colorful!</span></div>
+  </div>
+  <div class="go">👆 Tap anywhere to start!</div>
+</div>
+
+<div class="topbar">
+  <h1>🎁 Gift Shop Colors</h1>
+  <div class="togs">
+    <div class="rc" id="rc">Customer 1</div>
+    <div class="tg on" id="tgS" title="Sound on/off">🔊</div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="shop" id="shop">
+    <div class="awning"></div>
+    <div class="sign">🎀 GIFT SHOP 🎀</div>
+    <div class="shelf sh1"></div>
+    <div class="shelf sh2"></div>
+    <div class="shelf sh3"></div>
+  </div>
+  <div class="wordchip" id="wordChip" style="display:none"></div>
+</div>
+
+<div class="bubble-speech">
+  <div class="speech-placeholder" id="speechContent">🗣️ Look at the gifts! Ask the question...</div>
+</div>
+
+<div class="controls" id="controls"></div>
+
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-handle" title="Show controls" aria-label="Show controls">⚙️</button>
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+</div>
+
+<script>
+/* ================================================================
+   GIFT SHOP STOCK — plural sets (shelves) + singular specials.
+   Lesson words: postcard, puppet, yo-yo, zebra, colorful, shop.
+   PNGs (conventions §6): postcard, puppet, yo-yo (no emoji) and
+   shop (its picture IS the answer). Balloon/zebra use old emoji.
+   Colors come from CSS filters on the pictures (hue-rotate etc).  */
+const COLOR_FILTERS={
+  red:'none',
+  orange:'hue-rotate(28deg)',
+  yellow:'hue-rotate(55deg)',
+  green:'hue-rotate(115deg)',
+  blue:'hue-rotate(235deg)',
+  purple:'hue-rotate(275deg)',
+  pink:'hue-rotate(315deg)',
+  brown:'sepia(.85) saturate(.9)',
+  white:'grayscale(1) brightness(2.35) contrast(.75)',
+  black:'grayscale(1) brightness(.32)'
+};
+const STOCK=[
+  {id:'yoyo',     name:'yo-yos',    singular:'yo-yo',    plural:true, img:'assets/yoyo.png',      w:3},
+  {id:'postcard', name:'postcards', singular:'postcard', plural:true, img:'assets/postcard.png',  w:3},
+  {id:'balloon',  name:'balloons',  singular:'balloon',  plural:true, e:'🎈',                       w:2},
+  {id:'zebra',    name:'zebras',    singular:'zebra',    plural:true, e:'🦓', fixedColors:['black','white'], w:1},
+  {id:'puppet',   name:'puppet',    singular:'puppet',   plural:false,img:'assets/puppet.png',  special:'colorful', w:1},
+  {id:'shop',     name:'shop',      singular:'shop',     plural:false,img:'assets/shop.png',    special:'white and red', w:1}
+];
+/* weight-aware pool (conventions §1B, over the STOCK keys) */
+class WeightedPool{
+  constructor(keys){this.keys=[...keys];this.n=keys.length;this.last={};this.turn=0}
+  weight(k){
+    if(this.last[k]===undefined)return this.n;
+    const tsu=this.turn-this.last[k];
+    if(tsu<=this.n-1)return 0;
+    return tsu-(this.n-1);
+  }
+  pick(){
+    this.turn++;
+    const ws=this.keys.map(k=>this.weight(k));
+    const total=ws.reduce((a,b)=>a+b,0);
+    let r=Math.random()*total;
+    for(let i=0;i<this.keys.length;i++){
+      r-=ws[i];
+      if(r<=0){this.last[this.keys[i]]=this.turn;return this.keys[i]}
+    }
+    const k=this.keys[ws.findIndex(w=>w>0)]||this.keys[0];
+    this.last[k]=this.turn;return k;
+  }
+}
+/* expand stock keys by weight for the pool */
+const poolKeys=[];
+STOCK.forEach(s=>{for(let i=0;i<s.w;i++)poolKeys.push(s.id)});
+const pool=new WeightedPool(poolKeys);
+const byId=id=>STOCK.find(s=>s.id===id);
+
+/* ============ STATE ============ */
+const $=id=>document.getElementById(id);
+const shop=$('shop'),wordChip=$('wordChip'),speech=$('speechContent'),
+      controls=$('controls'),rc=$('rc'),flash=$('flash');
+let round=0,soundOn=true,AC=null;
+let current=null,currentColors=[];
+const qp=new URLSearchParams(location.search);
+
+/* ============ SOUND ============ */
+function initAudio(){if(!soundOn)return;if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}
+function tone(f,type,dur,vol,del){
+  if(!AC||!soundOn)return;const t0=AC.currentTime+(del||0);
+  const o=AC.createOscillator(),g=AC.createGain();
+  o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(.001,t0+dur);
+  o.connect(g);g.connect(AC.destination);o.start(t0);o.stop(t0+dur+.02);
+}
+function playDing(){initAudio();tone(880,'sine',.3,.1)}
+function playBell(){initAudio();tone(988,'triangle',.4,.12,0);tone(1319,'triangle',.5,.1,.02)}
+function playFanfare(){initAudio();[523,659,784,1047].forEach((f,i)=>tone(f,'triangle',.25,.08,i*.12))}
+function playPop(p){initAudio();tone(p||(400+Math.random()*300),'sine',.1,.09)}
+document.getElementById('tgS').onclick=function(){soundOn=!soundOn;this.classList.toggle('on',soundOn);this.textContent=soundOn?'🔊':'🔇'};
+
+/* ============ JUICE ============ */
+const cvs=document.createElement('canvas');cvs.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:400';
+document.body.appendChild(cvs);const cx=cvs.getContext('2d');let pts=[],afr=null;
+function rCvs(){cvs.width=innerWidth;cvs.height=innerHeight}
+addEventListener('resize',rCvs);rCvs();
+function boom(x,y,n){
+  for(let i=0;i<(n||100);i++){const a=Math.random()*6.283,s=Math.random()*13+4;
+    pts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-5,
+      col:['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff6bff','#ff9f43'][~~(Math.random()*6)],
+      sz:Math.random()*7+3,life:1,rot:Math.random()*360,rs:(Math.random()-.5)*14,
+      sh:Math.random()>.4?'r':'c'});}
+  if(!afr)aLoop();
+}
+function aLoop(){
+  cx.clearRect(0,0,cvs.width,cvs.height);
+  for(let i=pts.length-1;i>=0;i--){const p=pts[i];p.x+=p.vx;p.vy+=.22;p.y+=p.vy;p.vx*=.99;p.life-=.011;p.rot+=p.rs;
+    if(p.life<=0||p.y>cvs.height+30){pts.splice(i,1);continue}
+    cx.save();cx.translate(p.x,p.y);cx.rotate(p.rot*Math.PI/180);cx.globalAlpha=Math.min(1,p.life*2.5);cx.fillStyle=p.col;
+    if(p.sh==='r')cx.fillRect(-p.sz/2,-p.sz/2,p.sz,p.sz*.6);
+    else{cx.beginPath();cx.arc(0,0,p.sz/2,0,6.283);cx.fill()}
+    cx.restore();}
+  if(pts.length)afr=requestAnimationFrame(aLoop);else{afr=null;cx.clearRect(0,0,cvs.width,cvs.height)}
+}
+function screenFlash(){flash.classList.remove('go');void flash.offsetWidth;flash.classList.add('go')}
+function rainbowSweep(){
+  const rb=document.createElement('div');rb.className='rainbow';
+  document.body.appendChild(rb);setTimeout(()=>rb.remove(),1400);
+}
+
+/* ============ HELPERS ============ */
+function itemHTML(s){return s.img?'<img src="'+s.img+'" alt="'+s.name+'">':'<span class="ei">'+s.e+'</span>'}
+function pickColors(n){
+  if(current.fixedColors){
+    const out=[];
+    for(let i=0;i<n;i++)out.push(current.fixedColors[i%2]);
+    return out;
+  }
+  const keys=Object.keys(COLOR_FILTERS);
+  const out=[];
+  for(let i=0;i<n;i++){
+    let c;
+    do{c=keys[~~(Math.random()*keys.length)]}while(out.includes(c)&&Math.random()<.7);
+    out.push(c);
+  }
+  return out;
+}
+
+/* ============ FLOW ============ */
+function newCustomer(){
+  round++;
+  rc.textContent='Customer '+round;
+  shop.querySelectorAll('.item').forEach(el=>el.remove());
+  current=byId(pool.pick());
+  currentColors=[];
+
+  if(current.plural){
+    const count=4+~~(Math.random()*4);   // 4-7 items
+    currentColors=pickColors(count);
+    const shelfTops=[.34,.63,.92];
+    const perShelf=Math.ceil(count/2);
+    let idx=0;
+    for(let s=0;s<2&&idx<count;s++){
+      const n=Math.min(perShelf,count-idx);
+      for(let i=0;i<n;i++){
+        const el=document.createElement('div');
+        el.className='item';
+        const w=current.e?72:96;
+        el.style.width=w+'px';
+        el.style.left=(10+ (i+0.5)*(80/n) - (w/shop.clientWidth*50))+'%';
+        el.style.top='calc('+(shelfTops[s]*100)+'% - '+(current.e?86:104)+'px)';
+        el.style.setProperty('--cf',COLOR_FILTERS[currentColors[idx]]);
+        el.innerHTML=itemHTML(current)+'<span class="tag">'+currentColors[idx]+'</span>';
+        el.querySelector('.tag').style.display='none';
+        shop.appendChild(el);
+        setTimeout(()=>playPop(330+idx*40),idx*130);
+        idx++;
+      }
+    }
+  }else{
+    const el=document.createElement('div');
+    el.className='item solo';
+    el.innerHTML=itemHTML(current);
+    shop.appendChild(el);
+    playPop(520);
+  }
+
+  wordChip.style.display='block';
+  wordChip.innerHTML=(current.e?current.e+' ':'')+current.name;
+  wordChip.style.animation='none';void wordChip.offsetWidth;wordChip.style.animation='';
+
+  speech.innerHTML='🗣️ Look at the '+(current.plural?current.name:' '+current.name)+'! Ask the question...';
+  speech.className='speech-placeholder';
+  controls.innerHTML='<button class="btn b-q" onclick="revealQuestion()">❓ Reveal Question</button>';
+}
+function revealQuestion(){
+  playDing();
+  const word=current.plural?current.name:current.singular;
+  speech.className='speech-text';
+  speech.innerHTML=current.plural
+    ?'<span class="hl-q">What color are the '+word+'</span>?'
+    :'<span class="hl-q">What color is the '+word+'</span>?';
+  controls.innerHTML='<button class="btn b-a" onclick="revealAnswer()">✅ Reveal Answer</button>';
+  wordChip.style.display='none';
+}
+function revealAnswer(){
+  playBell();playFanfare();screenFlash();
+  shop.querySelectorAll('.item .tag').forEach(t=>t.style.display='');
+  const word=current.plural?current.name:current.singular;
+  const subj=current.plural?'The '+word+' are ':'The '+word+' is ';
+  let ans;
+  if(current.special)ans=current.special;
+  else{
+    const distinct=[...new Set(currentColors)];
+    if(distinct.length>=3)ans='colorful!';
+    else if(distinct.length===2)ans=distinct[0]+' and '+distinct[1];
+    else ans=distinct[0];
+  }
+  speech.className='speech-text';
+  speech.innerHTML=subj+'<span class="hl-a">'+ans+'</span>';
+  if(ans==='colorful!')rainbowSweep();
+  boom(innerWidth*.3,innerHeight*.35,80);setTimeout(()=>boom(innerWidth*.7,innerHeight*.3,80),170);
+  controls.innerHTML='<button class="btn b-n" onclick="nextCustomer()">🛍️ Next Customer</button>';
+}
+function nextCustomer(){playPop(620);newCustomer()}
+
+/* ============ START ============ */
+function startGame(){
+  const ov=$('startOv');if(ov)ov.remove();
+  initAudio();
+  newCustomer();
+  if(qp.get('phase')==='question')revealQuestion();
+  else if(qp.get('phase')==='answer'){revealQuestion();setTimeout(revealAnswer,800)}
+}
+$('startOv').addEventListener('click',startGame,{once:true});
+if(qp.get('go'))startGame();
+</script>
+
+<style>
+  .bilingo-ui{position:fixed;right:12px;bottom:12px;z-index:2147483646;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:system-ui,sans-serif}
+  .bilingo-ui button{width:48px;height:48px;border:0;border-radius:14px;background:rgba(18,18,32,.55);color:#fff;font-size:1.2rem;cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,0,0,.35);display:grid;place-items:center;transition:background .15s,transform .15s}
+  .bilingo-ui button:hover{background:rgba(70,60,150,.75);transform:scale(1.08)}
+  .bilingo-ui .b-pct{font-size:.95rem;font-weight:800;color:#8c2f7e;opacity:.85}
+  .bilingo-ui .b-handle{display:none}
+  .bilingo-ui.mini>*:not(.b-handle){display:none}
+  .bilingo-ui.mini .b-handle{display:grid;width:40px;height:40px;font-size:1.1rem}
+</style>
+<script>
+(function(){
+  if(window.__bilingoUI)return;window.__bilingoUI=true;
+  var bar=document.getElementById('bilingo-ui'),pct=bar.querySelector('.b-pct');
+  var MIN=.5,MAX=2.5,STEP=.1,KEY='bilingo-zoom';
+  var z=parseFloat(localStorage.getItem(KEY)||'1');if(isNaN(z))z=1;
+  z=Math.min(MAX,Math.max(MIN,z));
+  function apply(){document.documentElement.style.setProperty('zoom',z);pct.textContent=Math.round(z*100)+'%'}
+  bar.querySelector('.b-plus').addEventListener('click',function(){z=Math.min(MAX,Math.round((z+STEP)*100)/100);localStorage.setItem(KEY,z);apply()});
+  bar.querySelector('.b-minus').addEventListener('click',function(){z=Math.max(MIN,Math.round((z-STEP)*100)/100);localStorage.setItem(KEY,z);apply()});
+  bar.querySelector('.b-fs').addEventListener('click',function(){
+    var el=document.documentElement;
+    if(document.fullscreenElement||document.webkitFullscreenElement)(document.exitFullscreen||document.webkitExitFullscreen).call(document);
+    else if(el.requestFullscreen)el.requestFullscreen().catch(function(){});
+    else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
+  });
+  var idleTimer=null;
+  function poke(){bar.classList.remove('mini');clearTimeout(idleTimer);idleTimer=setTimeout(function(){bar.classList.add('mini')},5000)}
+  bar.addEventListener('pointerdown',poke);poke();apply();
+})();
+</script>
+<!-- Bilingo game controls: zoom + fullscreen + sound (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+  /* never let the buttons leak into a paper printout */
+  @media print { .bilingo-ui { display: none !important; } }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-mute" title="Sound on/off" aria-label="Sound on or off">🔊</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+
+  /* ----- sound on/off: one switch for EVERY sound system a game might use -----
+     Synthesized WebAudio games create oscillators/buffer sources at play time,
+     so patching the prototype constructors silences them even if their context
+     was created earlier. Games using <audio> elements are covered by patching
+     play(). The flag is read live, so un-muting works instantly too. */
+  var MUTE_KEY = 'bilingo-muted';
+  window.__bilingoMuted = localStorage.getItem(MUTE_KEY) === '1';
+  function dummyParam() {
+    return { value: 0, setValueAtTime: function () {}, linearRampToValueAtTime: function () {},
+             exponentialRampToValueAtTime: function () {}, cancelScheduledValues: function () {} };
+  }
+  function dummyNode() {
+    var n = { connect: function (d) { return d || n; }, disconnect: function () {},
+              start: function () {}, stop: function () {},
+              gain: dummyParam(), frequency: dummyParam(), detune: dummyParam(),
+              playbackRate: dummyParam(), Q: dummyParam(),
+              type: '', buffer: null, loop: false, onended: null };
+    return n;
+  }
+  [window.AudioContext, window.webkitAudioContext].forEach(function (AC) {
+    if (!AC || !AC.prototype) return;
+    ['createOscillator', 'createBufferSource'].forEach(function (m) {
+      var orig = AC.prototype[m];
+      AC.prototype[m] = function () { return window.__bilingoMuted ? dummyNode() : orig.apply(this, arguments); };
+    });
+  });
+  var origPlay = HTMLAudioElement.prototype.play;
+  HTMLAudioElement.prototype.play = function () {
+    if (window.__bilingoMuted) return Promise.resolve();
+    return origPlay.apply(this, arguments);
+  };
+  var muteBtn = bar.querySelector('.b-mute');
+  function showMute() { muteBtn.textContent = window.__bilingoMuted ? '🔇' : '🔊'; }
+  function setMute(m) {
+    window.__bilingoMuted = m;
+    localStorage.setItem(MUTE_KEY, m ? '1' : '0');
+    if (m) { /* stop anything already ringing this second */
+      document.querySelectorAll('audio').forEach(function (a) { a.pause(); });
+    }
+    showMute();
+  }
+  muteBtn.addEventListener('click', function () { setMute(!window.__bilingoMuted); poke(); });
+  showMute();
+
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body>
+</html>

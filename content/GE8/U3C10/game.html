@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GE8 · U3C10 · Yesterday Detective — Did you…?</title>
+<style>
+  :root{
+    --ink:#2b2b3a;
+    --paper:#fffdf6;
+    --accent:#ff8f3f;
+    --accent2:#3fa7ff;
+    --good:#2e9e5b;
+    --bad:#e0533d;
+    --did:#ff5d8f;
+    --vb:#8b5cf6;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:"Trebuchet MS","Comic Sans MS",Verdana,sans-serif;
+    background:linear-gradient(160deg,#ffe9c7 0%,#ffd3e0 55%,#cfe8ff 100%);
+    color:var(--ink);
+    overflow-x:hidden;
+  }
+  #app{max-width:1020px;margin:0 auto;padding:14px 16px 40px;}
+
+  /* ---------- top bar ---------- */
+  #topbar{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    background:var(--card);border:3px solid var(--ink);border-radius:18px;
+    padding:10px 16px;box-shadow:0 4px 0 rgba(43,43,58,.25);
+  }
+  #topbar .title{font-size:clamp(18px,2.6vw,26px);font-weight:900;letter-spacing:.5px;}
+  #topbar .title .sub{display:block;font-size:12px;font-weight:700;color:#777;letter-spacing:1px;}
+  #roundbox{margin-left:auto;font-size:clamp(14px,2vw,18px);font-weight:800;background:#fff3d6;border:2.5px solid var(--ink);border-radius:12px;padding:6px 12px;white-space:nowrap;}
+  #soundbtn{font-size:20px;background:#fff;border:2.5px solid var(--ink);border-radius:12px;padding:5px 11px;cursor:pointer;box-shadow:0 3px 0 rgba(43,43,58,.25);}
+  #soundbtn:active{transform:translateY(2px);box-shadow:none;}
+
+  /* ---------- stage ---------- */
+  #stage{margin-top:16px;}
+  .panel{
+    background:var(--card);border:3px solid var(--ink);border-radius:22px;
+    padding:clamp(16px,3vw,30px);box-shadow:0 6px 0 rgba(43,43,58,.22);
+  }
+  .kicker{font-size:clamp(13px,1.8vw,16px);font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#8a8a99;margin-bottom:8px;}
+  .big{font-size:clamp(22px,3.6vw,38px);font-weight:900;line-height:1.25;}
+  .mid{font-size:clamp(17px,2.4vw,24px);font-weight:800;line-height:1.35;}
+  .small{font-size:clamp(14px,1.9vw,17px);font-weight:700;line-height:1.45;color:#555;}
+  .center{text-align:center;}
+
+  /* rumor card */
+  #rumorwrap{display:flex;justify-content:center;}
+  .rumor-card{
+    position:relative;width:min(680px,100%);
+    background:repeating-linear-gradient(45deg,#fff7e0 0 18px,#ffefc4 18px 36px);
+    border:3.5px dashed #d99a2b;border-radius:20px;padding:20px 26px 16px;
+    transform:rotate(-1.2deg);box-shadow:0 8px 0 rgba(43,43,58,.15);
+  }
+  .rumor-stamp{
+    position:absolute;top:-14px;right:16px;background:#e0533d;color:#fff;
+    font-weight:900;letter-spacing:1px;font-size:clamp(13px,1.8vw,16px);
+    border:3px solid #fff;outline:2.5px solid #e0533d;border-radius:10px;padding:4px 12px;
+    transform:rotate(3deg);box-shadow:0 3px 6px rgba(0,0,0,.2);
+  }
+  .rumor-emoji{font-size:clamp(34px,5.5vw,52px);text-align:center;margin-top:4px;}
+  .teacher-hint{margin-top:10px;font-size:clamp(12px,1.7vw,15px);font-weight:700;color:#9a7b23;text-align:center;font-style:italic;}
+
+  /* question area */
+  .speech{
+    position:relative;background:#eef4ff;border:3px solid #7aa7e8;border-radius:18px;
+    padding:16px 20px;margin-top:14px;
+  }
+  .speech:after{
+    content:"";position:absolute;top:-14px;left:42px;border:8px solid transparent;border-bottom-color:#7aa7e8;border-top:0;
+  }
+  .qtext{font-size:clamp(24px,4vw,42px);font-weight:900;line-height:1.3;}
+  .did{color:var(--did);}
+  .vb{color:var(--vb);}
+  .tip{
+    margin-top:12px;background:#fff3d6;border:2.5px dashed #d99a2b;border-radius:14px;
+    padding:10px 14px;font-size:clamp(14px,2vw,18px);font-weight:800;
+  }
+
+  /* YES / NO buttons */
+  #vote{display:flex;gap:16px;justify-content:center;margin-top:16px;flex-wrap:wrap;}
+  .votebtn{
+    flex:1 1 240px;max-width:360px;cursor:pointer;border:4px solid var(--ink);border-radius:20px;
+    padding:16px 10px;font-family:inherit;font-weight:900;font-size:clamp(24px,3.6vw,36px);
+    box-shadow:0 6px 0 rgba(43,43,58,.3);transition:transform .08s;
+  }
+  .votebtn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(43,43,58,.3);}
+  #yesbtn{background:#dff7e8;color:#1d7a44;}
+  #nobtn{background:#ffe3dd;color:#b2331f;}
+  .votebtn.picked{outline:6px solid #ffd23f;outline-offset:3px;}
+  .votebtn.pulse{animation:pulse .25s ease;}
+  @keyframes pulse{50%{transform:scale(1.06);}}
+
+  /* full-sentence reveal */
+  #sentence{
+    display:none;margin-top:16px;text-align:center;
+    background:#eafaf0;border:3px solid #7fce9d;border-radius:18px;padding:14px 18px;
+  }
+  #sentence .slabel{font-size:clamp(12px,1.6vw,14px);font-weight:900;letter-spacing:2px;color:#5b9c73;text-transform:uppercase;}
+  #sentence .sline{font-size:clamp(24px,4vw,42px);font-weight:900;line-height:1.3;margin-top:2px;}
+
+  /* character pop-in */
+  #charwrap{display:none;margin-top:16px;}
+  #charwrap.pop{animation:popin .4s cubic-bezier(.2,1.6,.4,1) both;}
+  @keyframes popin{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+  #charbox{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;background:#fdf1dc;border:3px solid var(--ink);border-radius:20px;padding:14px 18px;box-shadow:0 6px 0 rgba(43,43,58,.18);}
+  #charimg{
+    width:clamp(110px,16vw,170px);height:clamp(130px,19vw,200px);object-fit:contain;
+    background:#fff;border:3px solid var(--ink);border-radius:16px;padding:6px;
+    box-shadow:0 4px 0 rgba(43,43,58,.2);
+  }
+  .cbubble{
+    position:relative;flex:1;min-width:250px;background:#fff;border:3.5px solid var(--ink);
+    border-radius:18px;padding:14px 18px;box-shadow:0 5px 0 rgba(43,43,58,.2);margin-bottom:8px;
+  }
+  .cbubble:before{
+    content:"";position:absolute;left:-16px;bottom:26px;border:9px solid transparent;border-right-color:var(--ink);border-left:0;
+  }
+  .charline{font-size:clamp(19px,2.9vw,30px);font-weight:900;line-height:1.35;}
+
+  /* big action button */
+  #actionbar{display:flex;justify-content:center;margin-top:22px;}
+  #action{
+    cursor:pointer;font-family:inherit;font-weight:900;letter-spacing:1px;
+    font-size:clamp(18px,2.8vw,26px);color:#fff;background:linear-gradient(180deg,#ff9d4d,#ff7a1a);
+    border:4px solid var(--ink);border-radius:18px;padding:16px 38px;box-shadow:0 7px 0 rgba(43,43,58,.35);
+    transition:transform .08s;
+  }
+  #action:active{transform:translateY(5px);box-shadow:0 2px 0 rgba(43,43,58,.35);}
+  #action.alt{background:linear-gradient(180deg,#5cb3ff,#2f8fe8);}
+
+  /* progress dots */
+  #dots{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:18px;}
+  .dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--ink);background:#fff;}
+  .dot.now{background:var(--accent);transform:scale(1.25);}
+  .dot.done-yes{background:var(--good);}
+  .dot.done-no{background:#c9c9d4;}
+
+  /* ---------- start overlay ---------- */
+  #overlay{
+    position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(160deg,#ffe9c7 0%,#ffd3e0 55%,#cfe8ff 100%);padding:18px;overflow-y:auto;
+  }
+  #overlay .sheet{
+    max-width:760px;width:100%;background:var(--card);border:4px solid var(--ink);border-radius:26px;
+    padding:clamp(20px,4vw,40px);box-shadow:0 10px 0 rgba(43,43,58,.25);
+  }
+  #overlay h1{font-size:clamp(30px,5.4vw,52px);font-weight:900;text-align:center;line-height:1.1;}
+  #overlay h1 .mag{color:var(--did);}
+  #overlay .unit{text-align:center;font-weight:900;letter-spacing:2px;color:#8a8a99;font-size:clamp(12px,1.8vw,15px);margin-top:6px;}
+  #overlay .story{margin-top:16px;font-size:clamp(16px,2.3vw,21px);font-weight:700;line-height:1.5;text-align:center;}
+  #overlay .howto{margin-top:18px;background:#f4f8ff;border:3px solid #9ec2f5;border-radius:18px;padding:14px 18px;}
+  #overlay .howto ol{margin-left:24px;font-size:clamp(15px,2.1vw,19px);font-weight:800;line-height:1.65;}
+  #overlay .rulebox{margin-top:16px;background:#fff3d6;border:3px dashed #d99a2b;border-radius:18px;padding:14px 18px;}
+  #overlay .rulebox .rline{font-size:clamp(16px,2.4vw,22px);font-weight:900;line-height:1.6;}
+  #overlay .tap{margin-top:22px;text-align:center;font-size:clamp(17px,2.6vw,24px);font-weight:900;color:#fff;background:linear-gradient(180deg,#ff9d4d,#ff7a1a);border:4px solid var(--ink);border-radius:18px;padding:15px 20px;box-shadow:0 7px 0 rgba(43,43,58,.35);animation:bob 1.4s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+  /* ---------- finale ---------- */
+  #finale{display:none;}
+  #finale .medal{font-size:clamp(56px,10vw,96px);text-align:center;}
+  #finale h2{font-size:clamp(26px,4.6vw,44px);font-weight:900;text-align:center;margin-top:8px;}
+  #finale .rank{text-align:center;font-size:clamp(16px,2.4vw,23px);font-weight:800;color:#6b4a12;margin-top:10px;}
+
+  /* confetti canvas */
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:900;}
+
+  .shake{animation:shake .45s ease;}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-7px)}80%{transform:translateX(7px)}}
+
+  @media (max-width:640px){
+    #topbar{gap:8px;}
+    #charimg{width:100px;height:120px;}
+  }
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<div id="app">
+  <div id="topbar">
+    <div class="title">🔍 Yesterday Detective<span class="sub">GE8 · U3C10 · In My Day · Past Simple Questions</span></div>
+    <div id="roundbox">Round <span id="roundnum">–</span>/16</div>
+    <button id="soundbtn" title="Sound on/off">🔊</button>
+  </div>
+
+  <div id="stage">
+
+    <!-- PHASE 0: rumor about the pair at the board -->
+    <div class="panel" id="ph-rumor">
+      <div class="kicker center">📢 A rumor about ONE of our two volunteers!</div>
+      <div id="rumorwrap">
+        <div class="rumor-card">
+          <div class="rumor-stamp">RUMOR!</div>
+          <div class="big center" id="rumor-text">Yesterday, they …</div>
+          <div class="rumor-emoji" id="rumor-emoji">📧</div>
+        </div>
+      </div>
+      <div class="teacher-hint">🗣️ About ONE of the two — the partner asks the question… then they swap!</div>
+    </div>
+
+    <!-- PHASE 1: make the question (rumor stays visible) -->
+    <div class="panel" id="ph-ask" style="display:none;">
+      <div class="kicker center">🗣️ Volunteers! Look at the sentence and make the question.</div>
+      <div id="ask-rumor"></div>
+      <div class="mid center" id="prompt-line">❓ “Did you ________ yesterday?”</div>
+      <div id="q-area" style="display:none;">
+        <div class="speech">
+          <div class="qtext" id="q-text"></div>
+        </div>
+        <div class="tip" id="q-tip"></div>
+      </div>
+    </div>
+
+    <!-- PHASE 2: yes / no, then the magic sentence, then a friend pops in -->
+    <div class="panel" id="ph-vote" style="display:none;">
+      <div class="kicker center">🙋 Your turn! Yes or no?</div>
+      <div id="vote-q"></div>
+      <div id="vote">
+        <button class="votebtn" id="yesbtn">👍 YES</button>
+        <button class="votebtn" id="nobtn">👎 NO</button>
+      </div>
+      <div id="sentence">
+        <div class="slabel">Say the full sentence!</div>
+        <div class="sline" id="s-line"></div>
+      </div>
+      <div id="charwrap">
+        <div id="charbox">
+          <img id="charimg" src="" alt="character">
+          <div class="cbubble">
+            <div class="charline" id="char-line"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="actionbar"><button id="action">Make the question ➜</button></div>
+    <div id="dots"></div>
+  </div>
+
+  <!-- FINALE -->
+  <div class="panel" id="finale">
+    <div class="medal">🏆</div>
+    <h2>Case closed, Detective Squad!</h2>
+    <div class="rank">🔍 You cracked all 16 rumors — great questions, great answers!</div>
+    <div class="center" style="margin-top:16px;"><button id="again" style="cursor:pointer;font-family:inherit;font-weight:900;font-size:clamp(17px,2.6vw,24px);color:#fff;background:linear-gradient(180deg,#5cb3ff,#2f8fe8);border:4px solid var(--ink);border-radius:18px;padding:14px 34px;box-shadow:0 7px 0 rgba(43,43,58,.35);">🔁 Play again!</button></div>
+  </div>
+</div>
+
+<!-- START OVERLAY -->
+<div id="overlay">
+  <div class="sheet">
+    <h1>🔍 <span class="mag">Yesterday</span> Detective</h1>
+    <div class="unit">GE8 · UNIT 3 CLASS 10 · IN MY DAY · PAST SIMPLE QUESTIONS</div>
+    <div class="story">Two volunteers come to the board — and a rumor starts flying 😲<br>
+    The rumor is about <b>one</b> of them (<b>he or she</b>!). The partner asks the <b>“Did you…?”</b> question,
+    the volunteer answers <b>YES</b> or <b>NO</b>… and a friend pops in to say <b>“Me too!”</b> 😄</div>
+    <div class="howto">
+      <ol>
+        <li>🙋 Two volunteers come to the board.</li>
+        <li>📢 Read the rumor — it’s about <b>ONE</b> of them: <b>he or she</b>!</li>
+        <li>🗣️ The partner asks the <b>“Did you…?”</b> question (make it first, looking at the sentence!).</li>
+        <li>👆 Reveal the question — check the magic words!</li>
+        <li>🙋 The volunteer answers: tap <b>YES</b> or <b>NO</b> — everyone says the full sentence!</li>
+        <li>🦝 A friend appears: <b>“Me too!”</b> or <b>“And I didn’t!”</b> — then swap roles!</li>
+      </ol>
+    </div>
+    <div class="rulebox">
+      <div class="kicker">🎯 Target structure</div>
+      <div class="rline">🗣️ “Yesterday, he or she <b style="color:var(--vb)">ate</b> a kebab.” ➜</div>
+      <div class="rline">❓ “<b style="color:var(--did)">Did</b> you <b style="color:var(--vb)">eat</b> a kebab?” &nbsp;<span style="color:#b07413;">(ate ➜ eat!)</span></div>
+      <div class="rline">😄 “Yes, I <b style="color:var(--did)">did</b>.” &nbsp;🙅 “No, I <b style="color:var(--did)">didn’t</b>.”</div>
+    </div>
+    <div class="tap">👆 Tap anywhere to start!</div>
+  </div>
+</div>
+
+<script>
+/* ================= CHARACTERS (random pop-in) ================= */
+const CHARS=[
+  {name:"Laki",   img:"assets/characters/Laki.png"},
+  {name:"Lele",   img:"assets/characters/Lele.png"},
+  {name:"Nani",   img:"assets/characters/Nani.png"},
+  {name:"Ola",    img:"assets/characters/Ola.png"},
+  {name:"Pili",   img:"assets/characters/Pili.png"},
+  {name:"Grandma",img:"assets/grandma_photo.png"}
+];
+
+/* ================= GAME DATA =================
+   vp = base verb, vs = past simple verb
+   ans = what the popping-in character did (true = did it, false = didn't) */
+const ROUNDS=[
+  {vs:"sent",   vp:"send",   rest:"an e-mail",        e:"📧", ans:true },
+  {vs:"typed",  vp:"type",   rest:"an e-mail",        e:"⌨️", ans:true },
+  {vs:"fixed",  vp:"fix",    rest:"a broken fan",     e:"🌀", ans:true },
+  {vs:"went",   vp:"go",     rest:"online",           e:"🌐", ans:true },
+  {vs:"played", vp:"play",   rest:"computer games",   e:"🎮", ans:true },
+  {vs:"listened",vp:"listen",rest:"to the radio",     e:"📻", ans:true },
+  {vs:"picked", vp:"pick",   rest:"strawberries",     e:"🍓", ans:true },
+  {vs:"ate",    vp:"eat",    rest:"a kebab",          e:"🍢", ans:true },
+  {vs:"forgot", vp:"forget", rest:"the homework",     e:"🎒", ans:true },
+  {vs:"wrote",  vp:"write",  rest:"a letter",         e:"✉️", ans:false},
+  {vs:"replied",vp:"reply",  rest:"to a message",     e:"📲", ans:false},
+  {vs:"watched",vp:"watch",  rest:"TV",               e:"📺", ans:false},
+  {vs:"took",   vp:"take",   rest:"a photo",          e:"📷", ans:false},
+  {vs:"ordered",vp:"order",  rest:"a milkshake",      e:"🍹", ans:false},
+  {vs:"tasted", vp:"taste",  rest:"something sour", e:"🍋", ans:false},
+  {vs:"made",   vp:"make",   rest:"a cake",           e:"🎂", ans:false}
+];
+
+/* ============ GAME STATE (round deck — no Math.random mid-round) ============ */
+let deck=[], roundIdx=-1, lastChar=-1, soundOn=true;
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function newDeck(){deck=shuffle(ROUNDS.slice());}
+
+/* ============ DOM ============ */
+const $=id=>document.getElementById(id);
+const panels=["ph-rumor","ph-ask","ph-vote"];
+function show(id){panels.forEach(p=>$(p).style.display=(p===id?"block":"none"));}
+function setAction(cls,label,fn){const a=$("action");a.className=cls;a.textContent=label;a.onclick=fn;$("actionbar").style.display="flex";}
+
+/* ============ SOUND (own synth; standard Bilingo block also included below) ============ */
+let AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==="suspended")AC.resume();return AC;}
+function tone(f,d,type,v,delay,slide){
+  if(!soundOn)return;const c=ac();if(!c)return;const t=c.currentTime+(delay||0);
+  const o=c.createOscillator(),g=c.createGain();
+  o.type=type;o.frequency.setValueAtTime(f,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);
+  g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.05);
+}
+function sTap(){tone(950,.05,"sine",.05);}
+function sPop(){tone(400,.12,"triangle",.16);tone(700,.14,"triangle",.16,.08);}
+function sFanfare(){[523.25,659.25,783.99,1046.5,783.99,1046.5,1318.5].forEach((f,i)=>tone(f,.22,"triangle",.2,i*.11));tone(1568,.5,"triangle",.18,.8);}
+
+$("soundbtn").addEventListener("click",()=>{soundOn=!soundOn;$("soundbtn").textContent=soundOn?"🔊":"🔇";});
+
+/* ============ CONFETTI ============ */
+const cvs=$("confetti"),cx=cvs.getContext("2d");let parts=[],confRun=false;
+function sizeCvs(){cvs.width=innerWidth;cvs.height=innerHeight;}
+addEventListener("resize",sizeCvs);sizeCvs();
+const CCOL=["#ff5d8f","#ffd23f","#3fa7ff","#2e9e5b","#ff8f3f","#8b5cf6"];
+function burst(n,x,y,pw){for(let i=0;i<n;i++){parts.push({x:x!==undefined?x:Math.random()*cvs.width,y:y!==undefined?y:-10,vx:(Math.random()-.5)*(pw?7:3),vy:pw?(Math.random()*-8-2):(Math.random()*3+2),s:Math.random()*8+5,c:CCOL[i%CCOL.length],r:Math.random()*Math.PI,vr:(Math.random()-.5)*.3});}if(!confRun){confRun=true;requestAnimationFrame(confLoop);}}
+function confLoop(){
+  cx.clearRect(0,0,cvs.width,cvs.height);
+  parts=parts.filter(p=>p.y<cvs.height+30);
+  if(!parts.length){confRun=false;return;}
+  parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=pw?0.25:0.12;p.r+=p.vr;
+    cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);cx.restore();});
+  requestAnimationFrame(confLoop);
+}
+
+/* ============ FLOW ============ */
+function cur(){return deck[roundIdx];}
+
+function rumorCardHTML(r){
+  return `<div class="rumor-card">
+    <div class="rumor-stamp">RUMOR!</div>
+    <div class="big center">Yesterday, ${r.pron} <span style="color:var(--vb)">${r.vs}</span> ${r.rest}.</div>
+    <div class="rumor-emoji">${r.e}</div>
+  </div>`;
+}
+
+function startRound(){
+  const r=cur();
+  r.pron=Math.random()<0.5?"he or she":"she or he";
+  $("rumor-text").innerHTML=`Yesterday, ${r.pron} <span style="color:var(--vb)">${r.vs}</span> ${r.rest}.`;
+  $("rumor-emoji").textContent=r.e;
+  $("ask-rumor").innerHTML=rumorCardHTML(r);
+  $("vote-q").innerHTML=`<div class="speech"><div class="qtext"><span class="did">Did</span> you <span class="vb">${r.vp}</span> ${r.rest}?</div></div>`;
+  $("prompt-line").style.display="block";
+  $("q-area").style.display="none";
+  $("sentence").style.display="none";
+  $("charwrap").style.display="none";
+  document.querySelectorAll(".votebtn").forEach(b=>b.classList.remove("picked"));
+  $("roundnum").textContent=roundIdx+1;
+  updateDots();
+  show("ph-rumor");
+  setAction("","Make the question ➜",()=>{sTap();show("ph-ask");
+    setAction("alt","Reveal the question 🔍",revealQ);});
+}
+
+function revealQ(){
+  sTap();
+  const r=cur();
+  $("prompt-line").style.display="none";
+  $("q-text").innerHTML=`<span class="did">Did</span> you <span class="vb">${r.vp}</span> ${r.rest}?`;
+  $("q-tip").innerHTML=`🔍 Detective tip: “${r.vs}” ➜ “<span class="vb">${r.vp}</span>” — after <span class="did">did</span>, the verb goes back to base form!`;
+  $("q-area").style.display="block";
+  setAction("","Answer it! ➜",()=>{sTap();show("ph-vote");$("actionbar").style.display="none";});
+}
+
+function pick(yes){
+  sTap();
+  const r=cur();
+  document.querySelectorAll(".votebtn").forEach(b=>b.classList.remove("picked"));
+  $(yes?"yesbtn":"nobtn").classList.add("picked");
+  /* full sentence appears */
+  $("s-line").innerHTML=yes
+    ?`Yes, I <span class="did">did</span>! 😄`
+    :`No, I <span class="did">didn't</span>! 🙅`;
+  $("sentence").style.display="block";
+  $("yesbtn").disabled=true;$("nobtn").disabled=true;
+  /* a friend pops in, right on cue */
+  setTimeout(()=>popChar(yes,r),400);
+  /* next-rumor button */
+  setAction("",(roundIdx===deck.length-1)?"Close the case! 🏁":"Next rumor ➜",()=>{sTap();
+    $("yesbtn").disabled=false;$("nobtn").disabled=false;
+    if(roundIdx===deck.length-1){finale();}
+    else{roundIdx++;startRound();}});
+}
+$("yesbtn").addEventListener("click",()=>pick(true));
+$("nobtn").addEventListener("click",()=>pick(false));
+
+function popChar(studentYes,r){
+  let i;do{i=Math.floor(Math.random()*CHARS.length);}while(CHARS.length>1&&i===lastChar);lastChar=i;
+  const c=CHARS[i], charDid=r.ans;
+  let line;
+  if(studentYes&&charDid)     line=`Me too! I also ${r.vs} ${r.rest} yesterday! 😄`;
+  else if(!studentYes&&!charDid) line=`Me too! I didn't ${r.vp} ${r.rest} either! 😄`;
+  else if(studentYes&&!charDid)  line=`And I didn't! I didn't ${r.vp} ${r.rest} yesterday! 🙅`;
+  else                      line=`Really? I did! I ${r.vs} ${r.rest} yesterday! 😲`;
+  $("charimg").src=c.img;
+  $("charimg").alt=c.name;
+  $("char-line").innerHTML=line;
+  const w=$("charwrap");
+  w.style.display="block";w.classList.remove("pop");void w.offsetWidth;w.classList.add("pop");
+  sPop();burst(45);
+  updateDots();
+}
+
+function finale(){
+  show("__none__");$("actionbar").style.display="none";$("dots").style.display="none";$("roundbox").style.visibility="hidden";
+  $("finale").style.display="block";
+  sFanfare();burst(160,undefined,undefined,false);
+  let f=0;const fw=setInterval(()=>{burst(70,Math.random()*cvs.width,cvs.height*.4,true);if(++f>7)clearInterval(fw);},420);
+}
+
+$("again").addEventListener("click",()=>{
+  sTap();$("finale").style.display="none";$("actionbar").style.display="flex";$("dots").style.display="flex";$("roundbox").style.visibility="visible";
+  newDeck();roundIdx=0;startRound();
+});
+
+/* ============ DOTS ============ */
+function buildDots(){
+  const d=$("dots");d.innerHTML="";
+  ROUNDS.forEach((_,i)=>{const s=document.createElement("div");s.className="dot";s.id="dot"+i;d.appendChild(s);});
+}
+function updateDots(){
+  for(let i=0;i<deck.length;i++){const d=$("dot"+i);if(!d)continue;
+    if(i<roundIdx)d.className="dot "+(deck[i].ans?"done-yes":"done-no");
+    else if(i===roundIdx)d.className="dot now";
+    else d.className="dot";}
+}
+
+/* ============ START ============ */
+buildDots();
+$("overlay").addEventListener("click",()=>{
+  $("overlay").style.display="none";
+  ac();sTap();
+  newDeck();roundIdx=0;
+  startRound();
+});
+</script>
+
+<!-- Bilingo sound FX: synthesized WebAudio, no asset files needed -->
+<style>
+.bilingo-redflash{position:fixed;inset:0;z-index:2147483647;pointer-events:none;background:rgba(229,57,53,.22);animation:bilingoFlash .45s ease-out forwards}
+@keyframes bilingoFlash{from{opacity:1}to{opacity:0}}
+.bilingo-shake{animation:bilingoShake .4s ease!important}
+@keyframes bilingoShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+</style>
+<script>
+(function(){
+if(window.__bilingoSfx)return;window.__bilingoSfx=true;
+var GOOD=[".correct",".matched",".right",".win",".success",".solved",".reveal-btn.next"];
+var BAD=[".wrong",".incorrect",".bad",".miss",".error",".lose"];
+var GOOD_TXT=/✅|✔|🎉|Correct!|Well done|Excellent|Great job/i;
+var BAD_TXT=/❌|✗|Wrong!|Try again/i;
+var TAP="button, .btn, .card, .tile, .emoji-choice, .choice, .option, .seat, .passport, .ticket";
+var ctx=null,lastGood=0,lastBad=0,armed=false;
+function ac(){if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ctx&&ctx.state==='suspended')ctx.resume();return ctx}
+function tone(f,d,type,v,delay,slide){var c=ac();if(!c)return;var t=c.currentTime+(delay||0);var o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.05)}
+function gate(t,ms){var n=Date.now();if(n-t<ms)return 0;return n}
+function tap(){if(!armed)return;tone(950,.05,'sine',.05)}
+function good(){var t=gate(lastGood,120);if(!t)return;lastGood=t;[523.25,659.25,783.99,1046.5].forEach(function(f,i){tone(f,.18,'triangle',.18,i*.07)})}
+function bad(){var t=gate(lastBad,120);if(!t)return;lastBad=t;tone(170,.3,'sawtooth',.15,0,85)}
+function redflash(){var d=document.createElement('div');d.className='bilingo-redflash';(document.body||document.documentElement).appendChild(d);setTimeout(function(){d.remove()},500);var b=document.body;if(!b)return;b.classList.remove('bilingo-shake');void b.offsetWidth;b.classList.add('bilingo-shake');setTimeout(function(){b.classList.remove('bilingo-shake')},450)}
+document.addEventListener('pointerdown',function(e){if(!armed){armed=true;ac()}var t=e.target;if(t&&t.closest&&t.closest(TAP))tap()},true);
+var fired=new Map();
+function scan(){
+GOOD.concat(BAD).forEach(function(sel){
+document.querySelectorAll(sel).forEach(function(el){
+var rec=fired.get(el);if(!rec){rec={};fired.set(el,rec)}
+if(!rec[sel]){rec[sel]=1;
+if(GOOD.indexOf(sel)>=0)good();else{bad();redflash()}}})});
+fired.forEach(function(rec,el){Object.keys(rec).forEach(function(sel){try{if(!el.matches(sel))delete rec[sel]}catch(e){delete rec[sel]}});if(!Object.keys(rec).length)fired.delete(el)})}
+var scanT=null;
+function schedule(){if(!armed)return;clearTimeout(scanT);scanT=setTimeout(scan,80)}
+var mo=new MutationObserver(function(muts){
+var need=false;
+for(var i=0;i<muts.length;i++){var m=muts[i];
+if(m.type==='attributes'){need=true}
+else if(m.type==='childList'){need=true;
+if(m.addedNodes){for(var j=0;j<m.addedNodes.length;j++){var n=muts[i].addedNodes[j];
+if(n&&n.nodeType===1&&n.textContent&&n.textContent.length<150){
+if(GOOD_TXT.test(n.textContent))good();else if(BAD_TXT.test(n.textContent)){bad();redflash()}}}}}}
+if(need)schedule()});
+mo.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+})();
+</script>
+
+<!-- Bilingo game controls: zoom + fullscreen + sound (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+  /* never let the buttons leak into a paper printout */
+  @media print { .bilingo-ui { display: none !important; } }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-mute" title="Sound on/off" aria-label="Sound on or off">🔊</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+
+  /* ----- sound on/off: one switch for EVERY sound system a game might use -----
+     Synthesized WebAudio games create oscillators/buffer sources at play time,
+     so patching the prototype constructors silences them even if their context
+     was created earlier. Games using <audio> elements are covered by patching
+     play(). The flag is read live, so un-muting works instantly too. */
+  var MUTE_KEY = 'bilingo-muted';
+  window.__bilingoMuted = localStorage.getItem(MUTE_KEY) === '1';
+  function dummyParam() {
+    return { value: 0, setValueAtTime: function () {}, linearRampToValueAtTime: function () {},
+             exponentialRampToValueAtTime: function () {}, cancelScheduledValues: function () {} };
+  }
+  function dummyNode() {
+    var n = { connect: function (d) { return d || n; }, disconnect: function () {},
+              start: function () {}, stop: function () {},
+              gain: dummyParam(), frequency: dummyParam(), detune: dummyParam(),
+              playbackRate: dummyParam(), Q: dummyParam(),
+              type: '', buffer: null, loop: false, onended: null };
+    return n;
+  }
+  [window.AudioContext, window.webkitAudioContext].forEach(function (AC) {
+    if (!AC || !AC.prototype) return;
+    ['createOscillator', 'createBufferSource'].forEach(function (m) {
+      var orig = AC.prototype[m];
+      AC.prototype[m] = function () { return window.__bilingoMuted ? dummyNode() : orig.apply(this, arguments); };
+    });
+  });
+  var origPlay = HTMLAudioElement.prototype.play;
+  HTMLAudioElement.prototype.play = function () {
+    if (window.__bilingoMuted) return Promise.resolve();
+    return origPlay.apply(this, arguments);
+  };
+  var muteBtn = bar.querySelector('.b-mute');
+  function showMute() { muteBtn.textContent = window.__bilingoMuted ? '🔇' : '🔊'; }
+  function setMute(m) {
+    window.__bilingoMuted = m;
+    localStorage.setItem(MUTE_KEY, m ? '1' : '0');
+    if (m) { /* stop anything already ringing this second */
+      document.querySelectorAll('audio').forEach(function (a) { a.pause(); });
+    }
+    showMute();
+  }
+  muteBtn.addEventListener('click', function () { setMute(!window.__bilingoMuted); poke(); });
+  showMute();
+
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body>
+</html>

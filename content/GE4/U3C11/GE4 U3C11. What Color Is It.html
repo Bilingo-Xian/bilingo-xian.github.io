@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GE4 U3C11. What Color Is It</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Comic Sans MS','Chalkboard SE','Segoe UI',sans-serif;background:#1e3a5f;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2vmin}
+h1{font-size:4vmin;margin:1vmin 0;color:#ffd94d;text-shadow:2px 2px 0 rgba(0,0,0,.4)}
+.stage{width:96vw;max-width:1200px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2vmin}
+.big{font-size:9vmin;font-weight:bold;text-align:center;line-height:1.15}
+.mid{font-size:5.5vmin;text-align:center;line-height:1.25;color:#cfe8ff}
+.card{background:rgba(255,255,255,.12);border:0.6vmin solid #ffd94d;border-radius:3vmin;padding:4vmin 5vmin;text-align:center;max-width:90vw}
+.emoji{font-size:16vmin;line-height:1.1}
+button{font-family:inherit;font-size:4.5vmin;font-weight:bold;padding:2.2vmin 5vmin;border:none;border-radius:2.5vmin;background:#ffd94d;color:#333;cursor:pointer;box-shadow:0 0.8vmin 0 #b8912a;transition:transform .08s}
+button:active{transform:translateY(0.6vmin);box-shadow:0 0.2vmin 0 #b8912a}
+button.alt{background:#7fd4ff;box-shadow:0 0.8vmin 0 #3d8fb8}
+button.alt:active{box-shadow:0 0.2vmin 0 #3d8fb8}
+.row{display:flex;gap:3vmin;flex-wrap:wrap;justify-content:center;align-items:center}
+.prompt{position:fixed;bottom:2vmin;left:50%;transform:translateX(-50%);font-size:3.2vmin;color:#9fc3e8;background:rgba(0,0,0,.45);padding:1.2vmin 3vmin;border-radius:2vmin;white-space:nowrap}
+.hidden{display:none!important}
+.pop{animation:pop .35s ease}
+@keyframes pop{0%{transform:scale(.6);opacity:0}80%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+</style>
+</head>
+<body>
+
+<h1>🎨 What Color Is It?</h1>
+<div class="stage">
+  <div class="card" style="width:90vw">
+    <div class="emoji" id="pic">🐢</div>
+    <div class="big" id="q" style="font-size:6.5vmin">“What color is the turtle?”</div>
+    <div class="mid hidden" id="a"></div>
+    <div class="row" id="chips" style="margin-top:3vmin"></div>
+  </div>
+  <button class="hidden" id="nextBtn" onclick="next()">Next ➜</button>
+</div>
+<div class="prompt">Say the full sentence first — then tap the color!</div>
+
+<script>
+
+const ROUNDS = [
+  {pic:'🐢', q:'the turtle', a:'brown', opts:['brown','gold','silver','light']},
+  {pic:'🦈', q:'the big shark', a:'light gray', opts:['dark gray','light gray','gold','brown']},
+  {pic:'🦈', q:'the small shark', a:'dark gray', opts:['light gray','silver','dark gray','brown']},
+  {pic:'🐟', q:'the fish', a:'gold and silver', opts:['gold and silver','brown','dark','colorful']},
+  {pic:'🐫', q:'the camel', a:'brown', opts:['gray','brown','gold','silver']},
+  {pic:'🐴', q:'the donkey', a:'gray', opts:['brown','gray','gold','dark']},
+];
+let i = 0;
+function load(){
+  const d = ROUNDS[i % ROUNDS.length];
+  pic.textContent = d.pic;
+  q.innerHTML = '“What color is ' + d.q + '?”';
+  a.classList.add('hidden'); nextBtn.classList.add('hidden');
+  chips.innerHTML = '';
+  d.opts.slice().sort(()=>Math.random()-.5).forEach(o=>{
+    const b = document.createElement('button'); b.textContent = o;
+    b.onclick = ()=>pick(b, o, d);
+    chips.appendChild(b);
+  });
+  q.parentElement.classList.remove('pop'); void q.offsetWidth; q.parentElement.classList.add('pop');
+}
+function pick(btn, o, d){
+  if(o === d.a){
+    btn.style.background = '#7CFC98';
+    a.innerHTML = '🗣️ “' + cap(d.q) + ' is ' + d.a + '!”';
+    a.classList.remove('hidden'); a.classList.add('pop');
+    nextBtn.classList.remove('hidden');
+  } else {
+    btn.style.background = '#ff8a8a';
+  }
+}
+function cap(s){ return 'The ' + s.slice(4); }
+function next(){ i++; load(); }
+load();
+
+</script>
+<!-- Bilingo game controls: zoom + fullscreen + sound (gear toggle, auto-hide 7s) -->
+<style>
+  .bilingo-ui {
+    position: fixed; right: 12px; bottom: 12px; z-index: 2147483646;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-family: system-ui, sans-serif;
+  }
+  .bilingo-ui button {
+    width: 48px; height: 48px; border: 0; border-radius: 14px;
+    background: rgba(18, 18, 32, .55); color: #fff; font-size: 1.2rem; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    display: grid; place-items: center; transition: background .15s, transform .15s;
+  }
+  .bilingo-ui button:hover { background: rgba(70, 60, 150, .75); transform: scale(1.08); }
+  .bilingo-ui .b-pct { font-size: .95rem; font-weight: 800; color: #fff; opacity: .9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  /* the gear always stays; everything else only shows while open */
+  .bilingo-ui:not(.open) > *:not(.b-handle) { display: none; }
+  /* never let the buttons leak into a paper printout */
+  @media print { .bilingo-ui { display: none !important; } }
+</style>
+<div id="bilingo-ui" class="bilingo-ui">
+  <button type="button" class="b-plus" title="Bigger (zoom in)" aria-label="Bigger">+</button>
+  <div class="b-pct">100%</div>
+  <button type="button" class="b-minus" title="Smaller (zoom out)" aria-label="Smaller">−</button>
+  <button type="button" class="b-mute" title="Sound on/off" aria-label="Sound on or off">🔊</button>
+  <button type="button" class="b-fs" title="Fullscreen on/off" aria-label="Fullscreen">⛶</button>
+  <button type="button" class="b-handle" title="Show / hide controls" aria-label="Show or hide controls">⚙️</button>
+</div>
+<script>
+(function () {
+  if (window.__bilingoUI) return;
+  window.__bilingoUI = true;
+  var bar = document.getElementById('bilingo-ui');
+  var pct = bar.querySelector('.b-pct');
+  var MIN = 0.5, MAX = 2.5, STEP = 0.1, KEY = 'bilingo-zoom', IDLE = 7000;
+  var z = parseFloat(localStorage.getItem(KEY) || '1');
+  if (isNaN(z)) z = 1;
+  z = Math.min(MAX, Math.max(MIN, z));
+  function apply() {
+    document.documentElement.style.setProperty('zoom', z);
+    pct.textContent = Math.round(z * 100) + '%';
+  }
+  function shrink() { z = Math.max(MIN, Math.round((z - STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function grow() { z = Math.min(MAX, Math.round((z + STEP) * 100) / 100); localStorage.setItem(KEY, z); apply(); poke(); }
+  function toggleFS() {
+    var el = document.documentElement;
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(function () {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    poke();
+  }
+
+  /* ----- sound on/off: one switch for EVERY sound system a game might use -----
+     Synthesized WebAudio games create oscillators/buffer sources at play time,
+     so patching the prototype constructors silences them even if their context
+     was created earlier. Games using <audio> elements are covered by patching
+     play(). The flag is read live, so un-muting works instantly too. */
+  var MUTE_KEY = 'bilingo-muted';
+  window.__bilingoMuted = localStorage.getItem(MUTE_KEY) === '1';
+  function dummyParam() {
+    return { value: 0, setValueAtTime: function () {}, linearRampToValueAtTime: function () {},
+             exponentialRampToValueAtTime: function () {}, cancelScheduledValues: function () {} };
+  }
+  function dummyNode() {
+    var n = { connect: function (d) { return d || n; }, disconnect: function () {},
+              start: function () {}, stop: function () {},
+              gain: dummyParam(), frequency: dummyParam(), detune: dummyParam(),
+              playbackRate: dummyParam(), Q: dummyParam(),
+              type: '', buffer: null, loop: false, onended: null };
+    return n;
+  }
+  [window.AudioContext, window.webkitAudioContext].forEach(function (AC) {
+    if (!AC || !AC.prototype) return;
+    ['createOscillator', 'createBufferSource'].forEach(function (m) {
+      var orig = AC.prototype[m];
+      AC.prototype[m] = function () { return window.__bilingoMuted ? dummyNode() : orig.apply(this, arguments); };
+    });
+  });
+  var origPlay = HTMLAudioElement.prototype.play;
+  HTMLAudioElement.prototype.play = function () {
+    if (window.__bilingoMuted) return Promise.resolve();
+    return origPlay.apply(this, arguments);
+  };
+  var muteBtn = bar.querySelector('.b-mute');
+  function showMute() { muteBtn.textContent = window.__bilingoMuted ? '🔇' : '🔊'; }
+  function setMute(m) {
+    window.__bilingoMuted = m;
+    localStorage.setItem(MUTE_KEY, m ? '1' : '0');
+    if (m) { /* stop anything already ringing this second */
+      document.querySelectorAll('audio').forEach(function (a) { a.pause(); });
+    }
+    showMute();
+  }
+  muteBtn.addEventListener('click', function () { setMute(!window.__bilingoMuted); poke(); });
+  showMute();
+
+  bar.querySelector('.b-plus').addEventListener('click', grow);
+  bar.querySelector('.b-minus').addEventListener('click', shrink);
+  bar.querySelector('.b-fs').addEventListener('click', toggleFS);
+  bar.querySelector('.b-handle').addEventListener('click', function () {
+    bar.classList.toggle('open');
+    poke();
+  });
+  /* collapse 7 s after the last tap anywhere on the bar */
+  var idleTimer = null;
+  function poke() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () { bar.classList.remove('open'); }, IDLE);
+  }
+  bar.addEventListener('pointerdown', poke);
+  apply();
+})();
+</script>
+</body>
+</html>
