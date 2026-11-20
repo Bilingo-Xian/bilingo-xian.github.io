@@ -516,9 +516,9 @@
 
     function getRandomItem() {
         if (!objectsAdded) {
-            // Family only
+            // Family only — plural people (parents/grandparents) favored
             const roll = Math.random();
-            if (roll < 0.65) {
+            if (roll < 0.45) {
                 const item = singularPeople[Math.floor(Math.random() * singularPeople.length)];
                 return { emoji: item.emoji, question: "Who's this?", answer: item.answer };
             } else {
@@ -526,25 +526,25 @@
                 return { emoji: item.emoji, question: "Who are they?", answer: item.answer };
             }
         } else {
-            // Everything mixed
+            // Everything mixed — parents/grandparents get a boost over singular objects
             const roll = Math.random();
-            if (roll < 0.2) {
+            if (roll < 0.18) {
                 // Who's this?
                 const item = singularPeople[Math.floor(Math.random() * singularPeople.length)];
                 return { emoji: item.emoji, question: "Who's this?", answer: item.answer };
-            } else if (roll < 0.32) {
-                // Who are they?
+            } else if (roll < 0.42) {
+                // Who are they? (parents/grandparents — boosted)
                 const item = pluralPeople[Math.floor(Math.random() * pluralPeople.length)];
                 return { emoji: item.emoji, question: "Who are they?", answer: item.answer };
-            } else if (roll < 0.44) {
+            } else if (roll < 0.54) {
                 // Who is that?
                 const item = singularPeopleThat[Math.floor(Math.random() * singularPeopleThat.length)];
                 return { emoji: item.emoji, question: "Who is that?", answer: item.answer };
-            } else if (roll < 0.6) {
+            } else if (roll < 0.67) {
                 // What's this?
                 const item = singularObjects[Math.floor(Math.random() * singularObjects.length)];
                 return { emoji: item.emoji, question: "What's this?", answer: item.answer };
-            } else if (roll < 0.76) {
+            } else if (roll < 0.80) {
                 // What's that?
                 const item = singularObjectsThat[Math.floor(Math.random() * singularObjectsThat.length)];
                 return { emoji: item.emoji, question: "What's that?", answer: item.answer };
@@ -564,6 +564,13 @@
         spinning = true;
         spinBtn.disabled = true;
         title.classList.add('spinning-title');
+
+        // rising whoosh while the wheel spins
+        if (window.__bilingoSfxApi) {
+            window.__bilingoSfxApi.arm();
+            window.__bilingoSfxApi.tone(280, 4.8, 'sine', .10, 0, 980);
+            window.__bilingoSfxApi.tone(140, 4.8, 'triangle', .06, .1, 490);
+        }
 
         const extraRotation = 1800 + Math.random() * 1440;
         currentRotation += extraRotation;
@@ -585,6 +592,12 @@
         revealBtn.classList.remove('hidden');
         nextBtn.style.display = 'none';
 
+        // card pop-in sound
+        if (window.__bilingoSfxApi) {
+            window.__bilingoSfxApi.tone(660, .12, 'triangle', .14);
+            window.__bilingoSfxApi.tone(990, .14, 'triangle', .12, .08);
+        }
+
         overlay.classList.add('visible');
     }
 
@@ -592,6 +605,7 @@
         resultAnswer.classList.add('visible');
         revealBtn.classList.add('hidden');
         nextBtn.style.display = 'inline-block';
+        if (window.__bilingoSfxApi) window.__bilingoSfxApi.good();
         launchConfetti();
     }
 
@@ -649,5 +663,46 @@
 .bilingo-shake{animation:bilingoShake .4s ease!important}
 @keyframes bilingoShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
 </style>
+<script>
+(function(){
+if(window.__bilingoSfx)return;window.__bilingoSfx=true;
+var GOOD=[".correct",".matched",".right",".win",".success",".solved"];
+var BAD=[".wrong",".incorrect",".bad",".miss",".error",".lose"];
+var GOOD_TXT=/✅|✔|🎉|Correct!|Well done|Excellent|Great job/i;
+var BAD_TXT=/❌|✗|Wrong!|Try again/i;
+var TAP="button, .btn, .card, .tile, .emoji-choice, .choice, .option, .seat, .passport, .ticket";
+var ctx=null,lastGood=0,lastBad=0,armed=false;
+function ac(){if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ctx&&ctx.state==='suspended')ctx.resume();return ctx}
+function tone(f,d,type,v,delay,slide){var c=ac();if(!c)return;var t=c.currentTime+(delay||0);var o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+d+.05)}
+function gate(t,ms){var n=Date.now();if(n-t<ms)return 0;return n}
+function tap(){if(!armed)return;tone(950,.05,'sine',.05)}
+function good(){var t=gate(lastGood,120);if(!t)return;lastGood=t;[523.25,659.25,783.99,1046.5].forEach(function(f,i){tone(f,.18,'triangle',.18,i*.07)})}
+function bad(){var t=gate(lastBad,120);if(!t)return;lastBad=t;tone(170,.3,'sawtooth',.15,0,85)}
+function redflash(){var d=document.createElement('div');d.className='bilingo-redflash';(document.body||document.documentElement).appendChild(d);setTimeout(function(){d.remove()},500);var b=document.body;if(!b)return;b.classList.remove('bilingo-shake');void b.offsetWidth;b.classList.add('bilingo-shake');setTimeout(function(){b.classList.remove('bilingo-shake')},450)}
+/* exported API so games can trigger sounds directly */
+window.__bilingoSfxApi={tone:tone,good:good,bad:bad,tap:tap,arm:function(){if(!armed){armed=true;ac()}},isArmed:function(){return armed}};
+document.addEventListener('pointerdown',function(e){if(!armed){armed=true;ac()}var t=e.target;if(t&&t.closest&&t.closest(TAP))tap()},true);
+var fired=new Map();
+function scan(){
+GOOD.concat(BAD).forEach(function(sel){
+document.querySelectorAll(sel).forEach(function(el){
+var rec=fired.get(el);if(!rec){rec={};fired.set(el,rec)}
+if(!rec[sel]){rec[sel]=1;
+if(GOOD.indexOf(sel)>=0)good();else{bad();redflash()}}})});
+fired.forEach(function(rec,el){Object.keys(rec).forEach(function(sel){try{if(!el.matches(sel))delete rec[sel]}catch(e){delete rec[sel]}});if(!Object.keys(rec).length)fired.delete(el)})}
+var scanT=null;
+function schedule(){if(!armed)return;clearTimeout(scanT);scanT=setTimeout(scan,80)}
+var mo=new MutationObserver(function(muts){
+var need=false;
+for(var i=0;i<muts.length;i++){var m=muts[i];
+if(m.type==='attributes'){need=true}
+else if(m.type==='childList'){need=true;
+if(m.addedNodes){for(var j=0;j<m.addedNodes.length;j++){var n=muts[i].addedNodes[j];
+if(n&&n.nodeType===1&&n.textContent&&n.textContent.length<150){
+if(GOOD_TXT.test(n.textContent))good();else if(BAD_TXT.test(n.textContent)){bad();redflash()}}}}}}
+if(need)schedule()});
+mo.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+})();
+</script>
 
 </body></html>
