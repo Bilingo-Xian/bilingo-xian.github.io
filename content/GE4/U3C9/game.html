@@ -178,35 +178,259 @@ h1{font-size:clamp(1.15em,3.4vw,1.8em);font-weight:900;color:#1f4d2e;text-shadow
 
 <div class="controls" id="controls"></div>
 
-<style>
-  .bilingo-ui{position:fixed;right:12px;bottom:12px;z-index:2147483646;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:system-ui,sans-serif}
-  .bilingo-ui button{width:48px;height:48px;border:0;border-radius:14px;background:rgba(18,18,32,.55);color:#fff;font-size:1.2rem;cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,0,0,.35);display:grid;place-items:center;transition:background .15s,transform .15s}
-  .bilingo-ui button:hover{background:rgba(70,60,150,.75);transform:scale(1.08)}
-  .bilingo-ui .b-pct{font-size:.95rem;font-weight:800;color:#33413a;opacity:.85}
-  .bilingo-ui .b-handle{display:none}
-  .bilingo-ui.mini>*:not(.b-handle){display:none}
-  .bilingo-ui.mini .b-handle{display:grid;width:40px;height:40px;font-size:1.1rem}
-</style>
 <script>
-(function(){
-  if(window.__bilingoUI)return;window.__bilingoUI=true;
-  var bar=document.getElementById('bilingo-ui'),pct=bar.querySelector('.b-pct');
-  var MIN=.5,MAX=2.5,STEP=.1,KEY='bilingo-zoom';
-  var z=parseFloat(localStorage.getItem(KEY)||'1');if(isNaN(z))z=1;
-  z=Math.min(MAX,Math.max(MIN,z));
-  function apply(){document.documentElement.style.setProperty('zoom',z);pct.textContent=Math.round(z*100)+'%'}
-  bar.querySelector('.b-plus').addEventListener('click',function(){z=Math.min(MAX,Math.round((z+STEP)*100)/100);localStorage.setItem(KEY,z);apply()});
-  bar.querySelector('.b-minus').addEventListener('click',function(){z=Math.max(MIN,Math.round((z-STEP)*100)/100);localStorage.setItem(KEY,z);apply()});
-  bar.querySelector('.b-fs').addEventListener('click',function(){
-    var el=document.documentElement;
-    if(document.fullscreenElement||document.webkitFullscreenElement)(document.exitFullscreen||document.webkitExitFullscreen).call(document);
-    else if(el.requestFullscreen)el.requestFullscreen().catch(function(){});
-    else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
-  });
-  var idleTimer=null;
-  function poke(){bar.classList.remove('mini');clearTimeout(idleTimer);idleTimer=setTimeout(function(){bar.classList.add('mini')},5000)}
-  bar.addEventListener('pointerdown',poke);poke();apply();
-})();
+/* ================================================================
+   ANIMALS — 21 of them (GE4 U3C9 list)
+   Visual policy (Game conventions §6): whole-body emoji only;
+   face-only/new emojis get a generated whole-body PNG instead:
+     PNG: donkey 🫏(too new), lion 🦁 panda 🐼 bear 🐻 frog 🐸 (face-only)
+   c1/c2: the enclosure sky colours for that animal (crossfades each round)
+   ================================================================ */
+const ANIMALS=[
+  {id:'donkey',   name:'donkeys',   singular:'donkey',   img:'assets/donkey.png', c1:'#a1c4fd', c2:'#c2e9fb'},
+  {id:'goat',     name:'goats',     singular:'goat',     e:'🐐', c1:'#ffecd2', c2:'#fcb69f'},
+  {id:'rabbit',   name:'rabbits',   singular:'rabbit',   e:'🐇', c1:'#fbc2eb', c2:'#a6c1ee'},
+  {id:'cat',      name:'cats',      singular:'cat',      e:'🐈', c1:'#f6d365', c2:'#fda085'},
+  {id:'dog',      name:'dogs',      singular:'dog',      e:'🐕', c1:'#fddb92', c2:'#d1fdff'},
+  {id:'monkey',   name:'monkeys',   singular:'monkey',   e:'🐒', c1:'#f8b500', c2:'#fceabb'},
+  {id:'elephant', name:'elephants', singular:'elephant', e:'🐘', c1:'#89f7fe', c2:'#66a6ff'},
+  {id:'lion',     name:'lions',     singular:'lion',     img:'assets/lion.png', c1:'#fa709a', c2:'#fee140'},
+  {id:'panda',    name:'pandas',    singular:'panda',    img:'assets/panda.png', c1:'#e0c3fc', c2:'#8ec5fc'},
+  {id:'tiger',    name:'tigers',    singular:'tiger',    e:'🐅', c1:'#f9d423', c2:'#ff4e50'},
+  {id:'bear',     name:'bears',     singular:'bear',     img:'assets/bear.png', c1:'#f7b733', c2:'#fc4a1a'},
+  {id:'frog',     name:'frogs',     singular:'frog',     img:'assets/frog.png', c1:'#56ab2f', c2:'#a8e063'},
+  {id:'penguin',  name:'penguins',  singular:'penguin',  e:'🐧', c1:'#4facfe', c2:'#00f2fe'},
+  {id:'giraffe',  name:'giraffes',  singular:'giraffe',  e:'🦒', c1:'#ff9a9e', c2:'#fecfef'},
+  {id:'zebra',    name:'zebras',    singular:'zebra',    e:'🦓', c1:'#a18cd1', c2:'#fbc2eb'},
+  {id:'bird',     name:'birds',     singular:'bird',     e:'🐦', c1:'#84fab0', c2:'#8fd3f4'},
+  {id:'snake',    name:'snakes',    singular:'snake',    e:'🐍', c1:'#d4fc79', c2:'#96e6a1'},
+  {id:'cow',      name:'cows',      singular:'cow',      e:'🐄', c1:'#cfd9df', c2:'#e2ebf0'},
+  {id:'pig',      name:'pigs',      singular:'pig',      e:'🐖', c1:'#ff9a9e', c2:'#ffd1dc'},
+  {id:'duck',     name:'ducks',     singular:'duck',     e:'🦆', c1:'#fddb92', c2:'#fceabb'},
+  {id:'horse',    name:'horses',    singular:'horse',    e:'🐎', c1:'#e1eec3', c2:'#f05053'}
+];
+const byId=id=>ANIMALS.find(a=>a.id===id);
+
+/* ============ WeightedPool (Game conventions §1B) ============
+   No back-to-back repeats: after an animal is picked it cools down
+   until every other animal has appeared, then its chance grows
+   slowly. Fresh animals get full weight, nothing starves.        */
+class WeightedPool{
+  constructor(keys){this.keys=[...keys];this.n=keys.length;this.last={};this.turn=0}
+  weight(k){
+    if(this.last[k]===undefined)return this.n;
+    const tsu=this.turn-this.last[k];
+    if(tsu<=this.n-1)return 0;
+    return tsu-(this.n-1);
+  }
+  pick(){
+    this.turn++;
+    const ws=this.keys.map(k=>this.weight(k));
+    const total=ws.reduce((a,b)=>a+b,0);
+    let r=Math.random()*total;
+    for(let i=0;i<this.keys.length;i++){
+      r-=ws[i];
+      if(r<=0){this.last[this.keys[i]]=this.turn;return this.keys[i]}
+    }
+    const k=this.keys[ws.findIndex(w=>w>0)]||this.keys[0];
+    this.last[k]=this.turn;return k;
+  }
+}
+const pool=new WeightedPool(ANIMALS.map(a=>a.id));
+
+/* ============ STATE ============ */
+const $=id=>document.getElementById(id);
+const enclosure=$('enclosure'),bgA=$('bgA'),bgB=$('bgB'),wordChip=$('wordChip'),
+      speech=$('speechContent'),controls=$('controls'),rc=$('rc'),flash=$('flash');
+let round=0,soundOn=true,AC=null;
+let currentAnimal=null,currentNumber=0,placedPositions=[],frontBg=0;
+const qp=new URLSearchParams(location.search);
+
+/* ============ SOUND (synth, lives in this file — conventions §5) ============ */
+function initAudio(){if(!soundOn)return;if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}
+function tone(f,type,dur,vol,del){
+  if(!AC||!soundOn)return;const t0=AC.currentTime+(del||0);
+  const o=AC.createOscillator(),g=AC.createGain();
+  o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(.001,t0+dur);
+  o.connect(g);g.connect(AC.destination);o.start(t0);o.stop(t0+dur+.02);
+}
+const playPop=p=>{initAudio();tone(p||(400+Math.random()*300),'sine',.1,.1)};
+function playMultiply(){initAudio();for(let i=0;i<6;i++)tone(300+i*100,'triangle',.15,.07,i*.06)}
+function playFanfare(){initAudio();[523,659,784,1047].forEach((f,i)=>tone(f,'triangle',.25,.08,i*.12))}
+const playDing=()=>{initAudio();tone(880,'sine',.3,.1)};
+document.getElementById('tgS').onclick=function(){soundOn=!soundOn;this.classList.toggle('on',soundOn);this.textContent=soundOn?'🔊':'🔇'};
+
+/* ============ JUICE ============ */
+const cvs=document.createElement('canvas');cvs.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:400';
+document.body.appendChild(cvs);const cx=cvs.getContext('2d');let pts=[],afr=null;
+function rCvs(){cvs.width=innerWidth;cvs.height=innerHeight}
+addEventListener('resize',rCvs);rCvs();
+function boom(x,y,n){
+  for(let i=0;i<(n||100);i++){const a=Math.random()*6.283,s=Math.random()*13+4;
+    pts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-5,
+      col:['#ffe66d','#ff6b6b','#4ecdc4','#45b7d1','#f9ca24','#ff9ff3','#48dbfb','#7bed9f'][~~(Math.random()*8)],
+      sz:Math.random()*7+3,life:1,rot:Math.random()*360,rs:(Math.random()-.5)*14,
+      sh:Math.random()>.4?'r':'c'});}
+  if(!afr)aLoop();
+}
+function aLoop(){
+  cx.clearRect(0,0,cvs.width,cvs.height);
+  for(let i=pts.length-1;i>=0;i--){const p=pts[i];p.x+=p.vx;p.vy+=.22;p.y+=p.vy;p.vx*=.99;p.life-=.011;p.rot+=p.rs;
+    if(p.life<=0||p.y>cvs.height+30){pts.splice(i,1);continue}
+    cx.save();cx.translate(p.x,p.y);cx.rotate(p.rot*Math.PI/180);cx.globalAlpha=Math.min(1,p.life*2.5);cx.fillStyle=p.col;
+    if(p.sh==='r')cx.fillRect(-p.sz/2,-p.sz/2,p.sz,p.sz*.6);
+    else{cx.beginPath();cx.arc(0,0,p.sz/2,0,6.283);cx.fill()}
+    cx.restore();}
+  if(pts.length)afr=requestAnimationFrame(aLoop);else{afr=null;cx.clearRect(0,0,cvs.width,cvs.height)}
+}
+function addSparkles(){
+  const spk=['✨','⭐','💫','🌟','🎉'];
+  for(let i=0;i<12;i++){
+    const sp=document.createElement('span');sp.className='sparkle';
+    sp.textContent=spk[~~(Math.random()*spk.length)];
+    sp.style.left=Math.random()*88+4+'%';sp.style.top=Math.random()*74+8+'%';
+    sp.style.animationDelay=Math.random()*.6+'s';
+    enclosure.appendChild(sp);setTimeout(()=>sp.remove(),1900);
+  }
+}
+function numBurst(n){
+  const b=document.createElement('div');b.className='num-burst';b.textContent=n;
+  document.body.appendChild(b);setTimeout(()=>b.remove(),1100);
+}
+function screenFlash(){flash.classList.remove('go');void flash.offsetWidth;flash.classList.add('go')}
+
+/* ============ ENCLOSURE BACKGROUND (crossfade per animal) ============ */
+function setBg(c1,c2){
+  const front=frontBg?bgB:bgA,back=frontBg?bgA:bgB;
+  back.style.background='linear-gradient(180deg,'+c1+' 0%,'+c2+' 52%,#6fbf73 100%)';
+  front.style.opacity=0;back.style.opacity=1;
+  back.classList.remove('back');front.classList.add('back');
+  frontBg=1-frontBg;
+}
+
+/* ============ PLACEMENT ============ */
+function getNumber(){
+  // 11–15 most of the time; 1–10 roughly once every 10 rounds
+  if(Math.random()<0.1)return Math.floor(Math.random()*10)+1;
+  return Math.floor(Math.random()*5)+11;
+}
+function getRandomPosition(size,cw,ch,padding){
+  const minDist=size*1.1;
+  for(let a=0;a<100;a++){
+    const x=padding+Math.random()*(cw-size-padding*2);
+    const y=padding+Math.random()*(ch-size-padding*2);
+    let bad=false;
+    for(const p of placedPositions){
+      const dx=x-p.x,dy=y-p.y;
+      if(Math.sqrt(dx*dx+dy*dy)<minDist){bad=true;break}
+    }
+    if(!bad){placedPositions.push({x,y});return{x,y}}
+  }
+  const cols=Math.ceil(Math.sqrt(currentNumber)),idx=placedPositions.length;
+  const row=~~(idx/cols),col=idx%cols;
+  const cellW=(cw-padding*2)/cols,cellH=(ch-padding*2)/Math.ceil(currentNumber/cols);
+  const pos={x:padding+col*cellW+Math.random()*(cellW-size),y:padding+row*cellH+Math.random()*(cellH-size)};
+  placedPositions.push(pos);return pos;
+}
+function animalHTML(a){
+  return a.img?'<img src="'+a.img+'" alt="'+a.name+'">':a.e;
+}
+function spawnAnimal(size,solo){
+  const an=document.createElement('span');
+  an.className='animal'+(solo?' solo':'');
+  an.innerHTML=animalHTML(currentAnimal);
+  if(size>0){
+    if(currentAnimal.img)an.style.height=size+'px';
+    else an.style.fontSize=size+'px';
+  }
+  return an;
+}
+
+/* ============ FLOW ============ */
+function newRound(){
+  round++;
+  rc.textContent='Round '+round;
+  placedPositions=[];
+  enclosure.querySelectorAll('.animal,.sparkle').forEach(el=>el.remove());
+  currentAnimal=byId(pool.pick());         // no back-to-back repeats
+  currentNumber=getNumber();
+  setBg(currentAnimal.c1,currentAnimal.c2);
+
+  const solo=spawnAnimal(0,true);
+  enclosure.appendChild(solo);
+
+  wordChip.style.display='block';
+  wordChip.textContent=currentAnimal.e?currentAnimal.e+' ':'';
+  wordChip.innerHTML=(currentAnimal.e?currentAnimal.e+' ':'')+currentAnimal.name;
+  wordChip.style.animation='none';void wordChip.offsetWidth;wordChip.style.animation='';
+
+  speech.innerHTML='🗣️ Look! The word is <b>'+currentAnimal.name+'</b> — ask the question...';
+  speech.className='speech-placeholder';
+  controls.innerHTML='<button class="btn b-q" onclick="revealQuestion()">❓ Reveal Question</button>';
+}
+function revealQuestion(){
+  playDing();
+  speech.className='speech-text';
+  speech.innerHTML='<span class="hl-q">How many '+currentAnimal.name+'</span> can you see?';
+  controls.innerHTML='<button class="btn b-a" id="btnAnswer" disabled onclick="revealAnswer()">🔢 Reveal Answer</button>';
+  wordChip.style.display='none';
+  setTimeout(multiplyAnimals,650);
+}
+function multiplyAnimals(){
+  enclosure.querySelectorAll('.animal').forEach(el=>el.remove());
+  placedPositions=[];
+  playMultiply();addSparkles();
+  const cw=enclosure.clientWidth,ch=enclosure.clientHeight;
+  const size=Math.min(64,Math.min(cw,ch)/(Math.sqrt(currentNumber)*1.35));
+  let placed=0;
+  const iv=setInterval(()=>{
+    if(placed>=currentNumber){
+      clearInterval(iv);
+      setTimeout(()=>{const b=$('btnAnswer');if(b)b.disabled=false;playFanfare();
+        boom(cw/2,ch/2,50)},320);
+      return;
+    }
+    const pos=getRandomPosition(size,cw,ch,14);
+    const an=spawnAnimal(Math.round(size),false);
+    an.style.left=pos.x+'px';an.style.top=pos.y+'px';
+    enclosure.appendChild(an);
+    setTimeout(()=>applyWobble(an),520);
+    playPop(330+placed*26);
+    placed++;
+  },currentNumber>10?75:115);
+}
+function applyWobble(el){
+  const w=['wobble1','wobble2','wobble3'][~~(Math.random()*3)];
+  const dur=(2+Math.random()*2).toFixed(1),del=(Math.random()).toFixed(1);
+  el.style.animation='popAnimal .5s cubic-bezier(.68,-.55,.265,1.55) forwards,'+w+' '+dur+'s '+del+'s ease-in-out infinite';
+}
+function revealAnswer(){
+  playFanfare();screenFlash();
+  numBurst(currentNumber);
+  boom(innerWidth*.3,innerHeight*.35,90);setTimeout(()=>boom(innerWidth*.72,innerHeight*.3,90),170);
+  const word=currentNumber===1?currentAnimal.singular:currentAnimal.name;
+  speech.className='speech-text';
+  speech.innerHTML='I can see <span class="hl-a">'+numberToWord(currentNumber)+' '+word+'</span>.';
+  enclosure.querySelectorAll('.animal').forEach((el,i)=>setTimeout(()=>el.classList.add('cheer'),i*40));
+  controls.innerHTML='<button class="btn b-n" onclick="nextRound()">➡️ Next Animal</button>';
+}
+function nextRound(){playPop(620);newRound()}
+function numberToWord(n){
+  const w=['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen'];
+  return w[n]||n;
+}
+
+/* ============ START ============ */
+function startGame(){
+  const ov=$('startOv');if(ov)ov.remove();
+  initAudio();
+  newRound();
+  if(qp.get('phase')==='question')revealQuestion();
+  else if(qp.get('phase')==='answer'){revealQuestion();currentNumber=13;setTimeout(revealAnswer,1800)}
+}
+$('startOv').addEventListener('click',startGame,{once:true});
+if(qp.get('go'))startGame();
 </script>
 <!-- Bilingo game controls: zoom + fullscreen + sound (gear toggle, auto-hide 7s) -->
 <style>
